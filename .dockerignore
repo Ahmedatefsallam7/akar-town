@@ -1,0 +1,15 @@
+node_modules
+vendor
+.git
+.env
+storage/*.key
+public/storage
+# public/build removed because built locally
+Dockerfile
+docker-compose.yml
+.dockerignore
+npm-debug.log
+.phpunit.result.cache
+.vscode
+bootstrap/cache/*.php
+!bootstrap/cache/.gitignore

@@ -1,0 +1,87 @@
+services:
+
+  # PHP Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: akar-town-app
+    container_name: akar-town-app
+    restart: unless-stopped
+    tty: true
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+      - /var/www/vendor
+      - /var/www/node_modules
+    depends_on:
+      - db
+      - redis
+    networks:
+      - akar-town-network
+
+  # Nginx Web Server
+  web:
+    image: nginx:alpine
+    container_name: akar-town-web
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "8090:80"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - akar-town-network
+
+  # MySQL Database
+  db:
+    image: mysql:8.0
+    container_name: akar-town-db
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_DATABASE: akar_town
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: akar_town_user
+      MYSQL_PASSWORD: akar_town_pass
+    volumes:
+      - akar-town-db-data:/var/lib/mysql
+    networks:
+      - akar-town-network
+
+  # Redis
+  redis:
+    image: redis:alpine
+    container_name: akar-town-redis
+    restart: unless-stopped
+    networks:
+      - akar-town-network
+
+  # phpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: akar-town-phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8091:80"
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: root
+    depends_on:
+      - db
+    networks:
+      - akar-town-network
+
+networks:
+  akar-town-network:
+    driver: bridge
+
+volumes:
+  akar-town-db-data:
+    driver: local
