@@ -199,12 +199,7 @@ class UserResource extends Resource
                 TextColumn::make('role.'.getLocalizedFieldName('name'))
                     ->label(__('admin.users.role'))
                     ->badge()
-                    ->color(fn (User $record): string => match ($record->role?->slug) {
-                        User::ADMIN_ROLE => 'danger',
-                        'user_roles_editor' => 'info',
-                        'user_roles_client' => 'success',
-                        default => 'gray',
-                    })
+                    ->color(fn (User $record): string => $record->roleColor())
                     ->alignment('center'),
                 IconColumn::make('is_suspended')
                     ->boolean()

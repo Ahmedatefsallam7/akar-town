@@ -94,6 +94,19 @@ class User extends Authenticatable implements FilamentUser, HasName
         return $this->name ?: (string) $this->username ?: $this->email;
     }
 
+    /**
+     * Badge color for the user's role, used in the users table and the user menu.
+     */
+    public function roleColor(): string
+    {
+        return match ($this->role?->slug) {
+            self::ADMIN_ROLE => 'danger',
+            'user_roles_editor' => 'info',
+            'user_roles_client' => 'success',
+            default => 'gray',
+        };
+    }
+
     public function isAdmin(): bool
     {
         return $this->role?->slug === self::ADMIN_ROLE;

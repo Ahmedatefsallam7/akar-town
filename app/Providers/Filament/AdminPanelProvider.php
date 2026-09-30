@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Http\Middleware\SetLocale;
+use Filament\Actions\Action;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -19,6 +20,7 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Nwidart\Modules\Facades\Module;
 
@@ -43,6 +45,11 @@ class AdminPanelProvider extends PanelProvider
                 PanelsRenderHook::USER_MENU_BEFORE,
                 fn (): string => view('filament.language-switcher')->render(),
             )
+            ->userMenuItems([
+                'profile' => fn (Action $action) => $action
+                    ->label(fn (): HtmlString => new HtmlString(view('filament.user-menu-profile')->render()))
+                    ->icon(null),
+            ])
             ->colors([
                 'primary' => Color::Violet,
                 'gray' => Color::Slate,
