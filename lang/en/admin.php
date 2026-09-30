@@ -24,7 +24,7 @@ return [
         'content_management' => 'Content Management',
         'marketing_content' => 'Marketing & Content',
         'inquiries_crm' => 'Inquiries & CRM',
-        'system_configuration' => 'System Configuration',
+        'system_configuration' => 'Akar-town Settings',
         'projects' => 'Projects',
         'unit_types' => 'Properties',
         'locations' => 'Locations',

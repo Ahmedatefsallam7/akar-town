@@ -24,7 +24,7 @@ return [
         'content_management' => 'إدارة المحتوى',
         'marketing_content' => 'التسويق والمحتوى',
         'inquiries_crm' => 'الاستفسارات والعملاء',
-        'system_configuration' => 'إعدادات النظام',
+        'system_configuration' => 'إعدادات عقار تاون',
         'projects' => 'المشاريع',
         'unit_types' => 'العقارات',
         'locations' => 'المواقع',
