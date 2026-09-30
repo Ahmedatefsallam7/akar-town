@@ -113,6 +113,7 @@ class LookupResource extends Resource
                         Select::make('parent_id')
                             ->label(__('admin.lookups.parent'))
                             ->options(fn (?Lookup $record = null) => Lookup::query()
+                                ->withoutRoles()
                                 ->when($record?->id, fn ($q) => $q->where('id', '!=', $record->id))
                                 ->orderBy(getLocalizedFieldName('name'))
                                 ->pluck(getLocalizedFieldName('name'), 'id')
@@ -225,7 +226,7 @@ class LookupResource extends Resource
                     ->schema([
                         Select::make('category_id')
                             ->label(__('admin.lookups.category'))
-                            ->options(fn () => Lookup::whereNull('parent_id')->pluck(getLocalizedFieldName('name'), 'id'))
+                            ->options(fn () => Lookup::whereNull('parent_id')->withoutRoles()->pluck(getLocalizedFieldName('name'), 'id'))
                             ->live()
                             ->searchable()
                             ->preload()
@@ -340,6 +341,8 @@ class LookupResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
+            // Roles are managed only from the Roles resource.
+            ->withoutRoles()
             ->with('parent')
             ->withCount('children')
             ->withoutGlobalScopes([

@@ -38,6 +38,23 @@ trait HasResourceTranslations
         );
     }
 
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->hasModulePermission(static::getPermissionKey()) ?? false;
+    }
+
+    /**
+     * Permission key checked on the user's role, e.g. "lookups". Override with $permissionKey or $transKey.
+     */
+    protected static function getPermissionKey(): string
+    {
+        return static::$permissionKey ?? static::$transKey ?? Str::of(class_basename(static::class))
+            ->replace('Resource', '')
+            ->snake()
+            ->plural()
+            ->toString();
+    }
+
     protected static function getTranslationKey(string $type): string
     {
         $key = static::$transKey ?? Str::of(class_basename(static::class))

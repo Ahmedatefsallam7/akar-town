@@ -4,6 +4,7 @@ namespace Modules\Lookups\Models;
 
 use App\Traits\HasLocalization;
 use Askedio\SoftCascade\Traits\SoftCascadeTrait;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -18,6 +19,11 @@ use Mattiverse\Userstamps\Traits\Userstamps;
 class Lookup extends Model
 {
     use HasLocalization, NodeTrait, SoftCascadeTrait, SoftDeletes, Userstamps;
+
+    /**
+     * Slug of the category that holds the user roles.
+     */
+    public const ROLES_SLUG = 'user_roles';
 
     protected $fillable = [
         'parent_id',
@@ -52,6 +58,25 @@ class Lookup extends Model
     public function children(): HasMany
     {
         return $this->hasMany(Lookup::class, 'parent_id');
+    }
+
+    /**
+     * Roles: the lookups inside the "user_roles" category.
+     */
+    public function scopeRoles(Builder $query): void
+    {
+        $query->whereHas('parent', fn (Builder $parent) => $parent->where('slug', self::ROLES_SLUG));
+    }
+
+    /**
+     * Everything except the "user_roles" category and its roles.
+     */
+    public function scopeWithoutRoles(Builder $query): void
+    {
+        $query->where('slug', '!=', self::ROLES_SLUG)
+            ->where(fn (Builder $query) => $query
+                ->whereNull('parent_id')
+                ->orWhereDoesntHave('parent', fn (Builder $parent) => $parent->where('slug', self::ROLES_SLUG)));
     }
 
     public function getDefaultNameAttribute(): ?string
