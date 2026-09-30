@@ -9,7 +9,5 @@ Route::get('/', function () {
 Route::get('/locale/{locale}', function (string $locale) {
     abort_unless(array_key_exists($locale, config('app.available_locales')), 404);
 
-    session(['locale' => $locale]);
-
-    return redirect()->back();
+    return redirect()->back()->withCookie(cookie()->forever('locale', $locale));
 })->name('locale.switch');
