@@ -263,6 +263,7 @@ class RoleResource extends Resource
                 'roles',
                 'lookups',
                 'settings',
+                'utilities',
             ],
         ];
     }

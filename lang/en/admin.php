@@ -43,6 +43,7 @@ return [
         'settings' => 'General Settings',
         'lookups' => 'Lookups',
         'roles' => 'Roles',
+        'utilities' => 'Utilities',
         'dashboard' => 'Dashboard',
         'import_sheet_history' => 'Import History',
     ],
@@ -575,6 +576,20 @@ return [
             'created' => 'User ":name" has been created successfully.',
             'updated' => 'User ":name" has been updated successfully.',
             'deleted' => 'User ":name" has been deleted successfully.',
+        ],
+    ],
+
+    'utilities' => [
+        'title' => 'Utilities',
+        'refresh_lists' => 'Refresh App Lists',
+        'refresh_lists_desc' => 'Clear all cached lists.',
+        'refresh_lists_confirm' => 'All cached lists and counters will be rebuilt from the database.',
+        'refresh_permissions' => 'Refresh Permissions',
+        'refresh_permissions_desc' => 'Update user permissions.',
+        'refresh_permissions_confirm' => 'Reload your permissions and the sidebar with the latest role settings.',
+        'notifications' => [
+            'lists_refreshed' => 'App lists refreshed.',
+            'permissions_refreshed' => 'Permissions refreshed.',
         ],
     ],
 
