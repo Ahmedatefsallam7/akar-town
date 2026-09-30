@@ -2,6 +2,8 @@
 
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/filament/**/*';
+@source '../../../../Modules/*/app/Filament/**/*';
+@source '../../../../Modules/*/resources/views/**/*';
 
 .fi-sidebar-item-label {
     @apply dark:text-gray-50;

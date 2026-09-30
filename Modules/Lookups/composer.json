@@ -1,0 +1,30 @@
+{
+    "name": "nwidart/lookups",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Lookups\\": "app/",
+            "Modules\\Lookups\\Database\\Factories\\": "database/factories/",
+            "Modules\\Lookups\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\Lookups\\Tests\\": "tests/"
+        }
+    }
+}

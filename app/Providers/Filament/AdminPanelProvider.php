@@ -20,12 +20,13 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Nwidart\Modules\Facades\Module;
 
 class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-        return $panel
+        $panel
             ->default()
             ->id('admin')
             ->path('admin')
@@ -73,5 +74,23 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ]);
 
+        $this->discoverModules($panel);
+
+        return $panel;
+    }
+
+    /**
+     * Register the Filament resources, pages and widgets of every enabled module.
+     */
+    protected function discoverModules(Panel $panel): void
+    {
+        foreach (Module::allEnabled() as $module) {
+            $namespace = 'Modules\\'.$module->getStudlyName().'\\Filament';
+
+            $panel
+                ->discoverResources(in: $module->getExtraPath('app/Filament/Resources'), for: $namespace.'\\Resources')
+                ->discoverPages(in: $module->getExtraPath('app/Filament/Pages'), for: $namespace.'\\Pages')
+                ->discoverWidgets(in: $module->getExtraPath('app/Filament/Widgets'), for: $namespace.'\\Widgets');
+        }
     }
 }
