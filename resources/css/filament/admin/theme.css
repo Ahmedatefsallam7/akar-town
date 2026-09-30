@@ -3,3 +3,25 @@
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/filament/**/*';
 
+.fi-sidebar-item-label {
+    @apply dark:text-gray-50;
+}
+
+.fi-sidebar-item-btn > .fi-icon,
+.fi-sidebar-group-label {
+    @apply dark:text-gray-300;
+}
+
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn {
+    & > .fi-sidebar-item-label {
+        @apply font-semibold dark:text-primary-300;
+    }
+
+    & > .fi-icon {
+        @apply dark:text-primary-300;
+    }
+}
+
+.fi-sidebar {
+    @apply lg:border-e lg:border-gray-200 lg:bg-white lg:dark:border-white/10 lg:dark:bg-gray-900;
+}
