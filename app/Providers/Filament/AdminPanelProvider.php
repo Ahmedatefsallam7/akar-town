@@ -36,6 +36,10 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->registration()
             ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn (): string => view('filament.tab-title')->render(),
+            )
+            ->renderHook(
                 PanelsRenderHook::USER_MENU_BEFORE,
                 fn (): string => view('filament.language-switcher')->render(),
             )
