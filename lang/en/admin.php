@@ -589,6 +589,7 @@ return [
         'permissions' => 'Permissions',
         'permissions_description' => 'Select which modules this role can access.',
         'select_all' => 'Select all',
+        'locked_for_admin' => 'Always on for the Admin role',
         'notifications' => [
             'created' => 'Role ":name" has been created successfully.',
             'updated' => 'Role ":name" has been updated successfully.',

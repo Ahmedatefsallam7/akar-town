@@ -281,7 +281,7 @@ class RoleResource extends Resource
 
         foreach (static::getAvailableModules() as $group => $modules) {
             foreach ($modules as $module) {
-                $data["perm_{$module}"] = (bool) ($permissions[$module] ?? false);
+                $data["perm_{$module}"] = static::isLockedPermission($role, $module) || (bool) ($permissions[$module] ?? false);
             }
 
             $data["perm_{$group}_all"] = collect($modules)->every(fn (string $module) => $data["perm_{$module}"]);
@@ -293,7 +293,7 @@ class RoleResource extends Resource
     /**
      * Move the permission checkboxes out of the form data into attributes.permissions, keeping other attribute keys.
      */
-    public static function formDataToPermissions(array $data, array $existingAttributes = []): array
+    public static function formDataToPermissions(array $data, array $existingAttributes = [], ?Lookup $role = null): array
     {
         $permissions = [];
 
@@ -301,7 +301,8 @@ class RoleResource extends Resource
             unset($data["perm_{$group}_all"]);
 
             foreach ($modules as $module) {
-                $permissions[$module] = (bool) ($data["perm_{$module}"] ?? false);
+                // Locked checkboxes are disabled, so they are not sent with the form.
+                $permissions[$module] = static::isLockedPermission($role, $module) || (bool) ($data["perm_{$module}"] ?? false);
                 unset($data["perm_{$module}"]);
             }
         }
@@ -309,6 +310,14 @@ class RoleResource extends Resource
         $data['attributes'] = array_merge($existingAttributes, ['permissions' => $permissions]);
 
         return $data;
+    }
+
+    /**
+     * The Admin role always keeps the locked modules (users, roles).
+     */
+    public static function isLockedPermission(?Lookup $role, string $module): bool
+    {
+        return $role?->slug === User::ADMIN_ROLE && in_array($module, User::ADMIN_LOCKED_MODULES, true);
     }
 
     protected static function getPermissionFields(): array
@@ -321,13 +330,17 @@ class RoleResource extends Resource
                     Checkbox::make("perm_{$group}_all")
                         ->label(__('admin.roles.select_all'))
                         ->live()
-                        ->afterStateUpdated(function (Set $set, $state) use ($modules) {
+                        ->afterStateUpdated(function (Set $set, $state, ?Lookup $record) use ($modules) {
                             foreach ($modules as $module) {
-                                $set("perm_{$module}", $state);
+                                $set("perm_{$module}", $state || static::isLockedPermission($record, $module));
                             }
                         }),
                     ...array_map(fn (string $module) => Checkbox::make("perm_{$module}")
-                        ->label(__("admin.navigation.{$module}")), $modules),
+                        ->label(__("admin.navigation.{$module}"))
+                        ->disabled(fn (?Lookup $record) => static::isLockedPermission($record, $module))
+                        ->helperText(fn (?Lookup $record) => static::isLockedPermission($record, $module)
+                            ? __('admin.roles.locked_for_admin')
+                            : null), $modules),
                 ])
                 ->columns(2);
         }

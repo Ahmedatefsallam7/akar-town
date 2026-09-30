@@ -588,6 +588,7 @@ return [
         'permissions' => 'الصلاحيات',
         'permissions_description' => 'اختر الوحدات التي يمكن لهذا الدور الوصول إليها.',
         'select_all' => 'تحديد الكل',
+        'locked_for_admin' => 'مفعّلة دائمًا لدور المدير',
         'notifications' => [
             'created' => 'تم إنشاء الدور ":name" بنجاح.',
             'updated' => 'تم تحديث الدور ":name" بنجاح.',

@@ -33,6 +33,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
 use Modules\Lookups\Filament\Resources\LookupResource\Pages;
@@ -63,6 +64,11 @@ class LookupResource extends Resource
     public static function getGloballySearchableAttributes(): array
     {
         return ['name_en', 'name_ar', 'slug'];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return (string) Cache::remember('badge_count_lookups', 120, fn () => Lookup::withoutRoles()->count());
     }
 
     public static function getModelLabel(): string

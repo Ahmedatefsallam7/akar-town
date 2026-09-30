@@ -24,6 +24,11 @@ class User extends Authenticatable implements FilamentUser, HasName
      */
     public const ADMIN_ROLE = 'user_roles_admin';
 
+    /**
+     * Modules the Admin role can never lose, so nobody can lock themselves out of managing access.
+     */
+    public const ADMIN_LOCKED_MODULES = ['users', 'roles'];
+
     protected $fillable = [
         'name',
         'first_name',
@@ -96,6 +101,7 @@ class User extends Authenticatable implements FilamentUser, HasName
 
     /**
      * Deny by default: no role, an inactive role, or no permissions stored on the role means no access.
+     * The Admin role follows its checkboxes too, except for the locked modules.
      */
     public function hasModulePermission(string $module): bool
     {
@@ -106,7 +112,7 @@ class User extends Authenticatable implements FilamentUser, HasName
         }
 
         // Checked before is_active, so admins can never lock themselves out.
-        if ($role->slug === self::ADMIN_ROLE) {
+        if ($role->slug === self::ADMIN_ROLE && in_array($module, self::ADMIN_LOCKED_MODULES, true)) {
             return true;
         }
 

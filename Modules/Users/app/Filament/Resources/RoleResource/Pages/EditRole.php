@@ -27,7 +27,7 @@ class EditRole extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        return RoleResource::formDataToPermissions($data, $this->record->getAttribute('attributes') ?? []);
+        return RoleResource::formDataToPermissions($data, $this->record->getAttribute('attributes') ?? [], $this->record);
     }
 
     protected function getRedirectUrl(): string
