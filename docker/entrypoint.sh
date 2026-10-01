@@ -9,6 +9,19 @@ echo "  Akar Town App Starting..."
 echo "========================================="
 echo ""
 
+echo "[0/5] Syncing dependencies..."
+# vendor/ and node_modules/ live in volumes that outlive image rebuilds,
+# so reinstall whenever the lock files change.
+if ! cmp -s composer.lock vendor/.composer.lock; then
+  composer install --no-interaction --optimize-autoloader \
+    && cp composer.lock vendor/.composer.lock
+fi
+if ! cmp -s package-lock.json node_modules/.package-lock.copy.json; then
+  npm ci \
+    && cp package-lock.json node_modules/.package-lock.copy.json
+fi
+echo ""
+
 echo "[1/5] Building frontend assets..."
 npm run build || echo "      WARNING: Frontend build failed (non-fatal)."
 echo ""

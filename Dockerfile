@@ -62,8 +62,9 @@ RUN npm ci
 # Copy the rest of the application
 COPY --chown=$user:$user . .
 
-# Run composer post-install scripts now that the full app is present
-RUN composer run-script post-autoload-dump --no-interaction
+# Rebuild the autoloader now that Modules/*/composer.json exist (merge-plugin),
+# which also runs the post-autoload-dump scripts
+RUN composer dump-autoload --optimize --no-interaction
 
 # Build frontend assets
 RUN npm run build
