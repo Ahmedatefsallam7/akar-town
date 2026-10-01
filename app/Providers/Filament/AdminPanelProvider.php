@@ -22,6 +22,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Modules\Users\Filament\Auth\EditProfile;
 use Nwidart\Modules\Facades\Module;
 
 class AdminPanelProvider extends PanelProvider
@@ -37,6 +38,7 @@ class AdminPanelProvider extends PanelProvider
             ->sidebarCollapsibleOnDesktop()
             ->login()
             ->registration()
+            ->profile(EditProfile::class, isSimple: false)
             ->renderHook(
                 PanelsRenderHook::BODY_END,
                 fn (): string => view('filament.tab-title')->render(),
