@@ -37,12 +37,14 @@ class UtilitiesPageTest extends TestCase
     public function test_refresh_permissions_clears_the_role_counters(): void
     {
         $this->actingAs($this->createAdmin());
-        Cache::put('badge_count_roles', 99);
+        Cache::put('navigation_badges_all', ['x' => 99]);
+        Cache::put('navigation_badges_non_admin', ['x' => 99]);
         Cache::put('badge_count_lookups', 5);
 
         Livewire::test(Utilities::class)->callAction('refreshPermissions');
 
-        $this->assertFalse(Cache::has('badge_count_roles'));
+        $this->assertFalse(Cache::has('navigation_badges_all'));
+        $this->assertFalse(Cache::has('navigation_badges_non_admin'));
         $this->assertTrue(Cache::has('badge_count_lookups'));
     }
 }

@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Filament\Concerns\InteractsWithPermissionModule;
 use App\Filament\Contracts\HasPermissionModule;
+use App\Filament\Support\NavigationBadges;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -80,9 +81,7 @@ class Utilities extends Page implements HasPermissionModule
             ->modalDescription(__('admin.utilities.refresh_permissions_confirm'))
             ->modalIcon('heroicon-o-shield-check')
             ->action(function () {
-                Cache::forget('badge_count_roles');
-                Cache::forget('badge_count_user_all');
-                Cache::forget('badge_count_user_non_admin');
+                NavigationBadges::forget();
                 auth()->user()->load('role');
 
                 Notification::make()

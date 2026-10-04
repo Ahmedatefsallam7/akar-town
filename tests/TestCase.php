@@ -4,6 +4,7 @@ namespace Tests;
 
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Support\Facades\DB;
 use Modules\Lookups\Models\Lookup;
 use Modules\Users\Database\Seeders\RolesTableSeeder;
 use Modules\Users\Models\User;
@@ -63,5 +64,20 @@ abstract class TestCase extends BaseTestCase
         ]);
 
         return User::factory()->create($attributes + ['role_id' => $role->id]);
+    }
+
+    /**
+     * Number of database queries the callback runs.
+     */
+    protected function countQueries(callable $callback): int
+    {
+        $count = 0;
+        DB::listen(function () use (&$count) {
+            $count++;
+        });
+
+        $callback();
+
+        return $count;
     }
 }

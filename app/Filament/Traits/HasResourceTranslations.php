@@ -3,10 +3,10 @@
 namespace App\Filament\Traits;
 
 use App\Filament\Concerns\InteractsWithPermissionModule;
+use App\Filament\Support\NavigationBadges;
 use BackedEnum;
 use Illuminate\Auth\Access\Response;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Modules\Users\Enums\PermissionAction;
 use UnitEnum;
@@ -37,13 +37,15 @@ trait HasResourceTranslations
 
     public static function getNavigationBadge(): ?string
     {
-        $model = static::getModel();
+        return NavigationBadges::get(static::class);
+    }
 
-        return (string) Cache::remember(
-            'badge_count_'.Str::snake(class_basename($model)),
-            120,
-            fn () => $model::query()->count()
-        );
+    /**
+     * The number shown next to the resource in the sidebar and on the dashboard. Override to count differently.
+     */
+    public static function getNavigationBadgeCount(): int
+    {
+        return static::getModel()::query()->count();
     }
 
     /**
