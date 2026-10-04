@@ -37,7 +37,7 @@ class AdminPanelProvider extends PanelProvider
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->sidebarCollapsibleOnDesktop()
             ->login()
-            ->registration()
+            // ->registration()
             ->profile(EditProfile::class, isSimple: false)
             ->renderHook(
                 PanelsRenderHook::BODY_END,
