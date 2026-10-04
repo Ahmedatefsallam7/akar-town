@@ -46,4 +46,11 @@ class LocaleTest extends TestCase
     {
         $this->withCookie('locale', 'fr')->get('/_test/locale')->assertSee(config('app.locale'));
     }
+
+    public function test_switch_route_never_redirects_to_another_site(): void
+    {
+        $this->withHeader('Referer', 'https://evil.example.com/phish')
+            ->get(route('locale.switch', 'ar'))
+            ->assertRedirect(url('/'));
+    }
 }
