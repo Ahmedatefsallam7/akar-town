@@ -133,4 +133,42 @@ class UserResourceTest extends TestCase
         $this->assertFalse($admin->fresh()->is_suspended);
         $this->assertTrue($other->fresh()->is_suspended);
     }
+
+    public function test_non_admin_cannot_suspend_themselves(): void
+    {
+        $manager = $this->createUserWithPermissions(['users' => true], ['username' => 'manager', 'phone' => '+201011111111']);
+        $this->actingAs($manager);
+
+        Livewire::test(EditUser::class, ['record' => $manager->getRouteKey()])
+            ->assertFormFieldIsDisabled('is_suspended')
+            ->set('data.is_suspended', true)
+            ->call('save');
+
+        Livewire::test(ListUsers::class)->callTableBulkAction('suspend', [$manager]);
+
+        $this->assertFalse($manager->fresh()->is_suspended);
+    }
+
+    public function test_non_admin_cannot_suspend_an_admin(): void
+    {
+        $admin = $this->createAdmin();
+        $this->actingAs($this->createUserWithPermissions(['users' => true]));
+
+        Livewire::test(ListUsers::class)->assertCanNotSeeTableRecords([$admin]);
+        $this->get(UserResource::getUrl('edit', ['record' => $admin]))->assertNotFound();
+        $this->assertFalse($admin->fresh()->is_suspended);
+    }
+
+    public function test_users_badge_counts_only_the_users_you_can_see(): void
+    {
+        $this->createAdmin();
+        $this->createAdmin();
+        $manager = $this->createUserWithPermissions(['users' => true]);
+
+        $this->actingAs($manager);
+        $this->assertSame('1', UserResource::getNavigationBadge());
+
+        $this->actingAs(User::where('id', '!=', $manager->id)->first());
+        $this->assertSame('3', UserResource::getNavigationBadge());
+    }
 }

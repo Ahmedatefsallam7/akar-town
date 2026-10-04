@@ -15,6 +15,11 @@ class CreateUser extends CreateRecord
         return __('admin.actions.create_title', ['name' => $this->getResource()::getModelLabel()]);
     }
 
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        return UserResource::formDataToPermissions($data);
+    }
+
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');

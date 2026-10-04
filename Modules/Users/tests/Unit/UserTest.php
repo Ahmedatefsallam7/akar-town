@@ -55,56 +55,6 @@ class UserTest extends TestCase
         $this->assertFalse($this->userWithRole(null)->isAdmin());
     }
 
-    public function test_user_without_a_role_has_no_permissions(): void
-    {
-        $this->assertFalse($this->userWithRole(null)->hasModulePermission('lookups'));
-    }
-
-    public function test_permissions_follow_the_role_checkboxes(): void
-    {
-        $user = $this->userWithRole([
-            'slug' => 'user_roles_editor',
-            'is_active' => true,
-            'attributes' => ['permissions' => ['lookups' => true, 'users' => false]],
-        ]);
-
-        $this->assertTrue($user->hasModulePermission('lookups'));
-        $this->assertFalse($user->hasModulePermission('users'));
-        $this->assertFalse($user->hasModulePermission('blogs'));
-    }
-
-    public function test_inactive_role_has_no_permissions(): void
-    {
-        $user = $this->userWithRole([
-            'slug' => 'user_roles_editor',
-            'is_active' => false,
-            'attributes' => ['permissions' => ['lookups' => true]],
-        ]);
-
-        $this->assertFalse($user->hasModulePermission('lookups'));
-    }
-
-    public function test_role_without_stored_permissions_has_no_access(): void
-    {
-        $this->assertFalse($this->userWithRole(['slug' => 'user_roles_editor', 'is_active' => true])->hasModulePermission('lookups'));
-    }
-
-    public function test_admin_follows_its_checkboxes_but_always_keeps_the_locked_modules(): void
-    {
-        $admin = $this->userWithRole([
-            'slug' => User::ADMIN_ROLE,
-            'is_active' => false,
-            'attributes' => ['permissions' => ['lookups' => true]],
-        ]);
-
-        foreach (User::ADMIN_LOCKED_MODULES as $module) {
-            $this->assertTrue($admin->hasModulePermission($module));
-        }
-
-        // Inactive admin role: unlocked modules follow the normal rules.
-        $this->assertFalse($admin->hasModulePermission('lookups'));
-    }
-
     public function test_suspended_user_cannot_access_the_panel(): void
     {
         $panel = Filament::getPanel('admin');

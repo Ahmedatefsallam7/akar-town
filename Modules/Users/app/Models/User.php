@@ -13,6 +13,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Mattiverse\Userstamps\Traits\Userstamps;
 use Modules\Lookups\Models\Lookup;
+use Modules\Users\Enums\PermissionAction;
+use Modules\Users\Support\PermissionModules;
 
 class User extends Authenticatable implements FilamentUser, HasName
 {
@@ -22,7 +24,7 @@ class User extends Authenticatable implements FilamentUser, HasName
     /**
      * Slug of the seeded role that always has full access.
      */
-    public const ADMIN_ROLE = 'user_roles_admin';
+    public const ADMIN_ROLE = Lookup::ADMIN_ROLE_SLUG;
 
     /**
      * Modules the Admin role can never lose, so nobody can lock themselves out of managing access.
@@ -39,6 +41,7 @@ class User extends Authenticatable implements FilamentUser, HasName
         'password',
         'is_suspended',
         'role_id',
+        'custom_permissions',
     ];
 
     protected $hidden = [
@@ -53,6 +56,7 @@ class User extends Authenticatable implements FilamentUser, HasName
             'phone_verified_at' => 'datetime',
             'is_suspended' => 'boolean',
             'password' => 'hashed',
+            'custom_permissions' => 'array',
         ];
     }
 
@@ -113,28 +117,73 @@ class User extends Authenticatable implements FilamentUser, HasName
     }
 
     /**
-     * Deny by default: no role, an inactive role, or no permissions stored on the role means no access.
-     * The Admin role follows its checkboxes too, except for the locked modules.
+     * Deny by default: an action the user doesn't effectively have is denied. Every action also needs "view".
+     * The Admin role always has every action on the locked modules, so admins can never lock themselves out.
      */
-    public function hasModulePermission(string $module): bool
+    public function hasPermission(string $module, PermissionAction $action = PermissionAction::View): bool
     {
-        $role = $this->role;
-
-        if (! $role) {
-            return false;
-        }
-
-        // Checked before is_active, so admins can never lock themselves out.
-        if ($role->slug === self::ADMIN_ROLE && in_array($module, self::ADMIN_LOCKED_MODULES, true)) {
+        if ($this->role?->slug === self::ADMIN_ROLE && in_array($module, self::ADMIN_LOCKED_MODULES, true)) {
             return true;
         }
 
-        if (! $role->is_active) {
-            return false;
+        $actions = $this->effectiveActions($module);
+
+        return in_array(PermissionAction::View->value, $actions, true)
+            && in_array($action->value, $actions, true);
+    }
+
+    /**
+     * What the user really has on a module: their custom permissions if set, otherwise their role's (if active).
+     * Only actions the module offers count.
+     *
+     * @return array<string> e.g. ["view", "edit"]
+     */
+    public function effectiveActions(string $module): array
+    {
+        if ($this->role?->slug === self::ADMIN_ROLE && in_array($module, self::ADMIN_LOCKED_MODULES, true)) {
+            return PermissionModules::actionsFor($module);
         }
 
-        $permissions = $role->getAttribute('attributes')['permissions'] ?? null;
+        $actions = $this->usesCustomPermissions()
+            ? (array) ($this->custom_permissions[$module] ?? [])
+            : ($this->role?->is_active ? (array) ($this->role->getAttribute('attributes')['permissions'][$module] ?? []) : []);
 
-        return (bool) ($permissions[$module] ?? false);
+        return array_values(array_intersect(PermissionModules::actionsFor($module), $actions));
+    }
+
+    /**
+     * Every module with what the user really has on it.
+     *
+     * @return array<string, array<string>>
+     */
+    public function effectivePermissions(): array
+    {
+        return collect(PermissionModules::all())->mapWithKeys(fn (array $module, string $key) => [$key => $this->effectiveActions($key)])->all();
+    }
+
+    /**
+     * True when this user has every action in $permissions ({module: [actions]}). Admins cover everything.
+     * Used so nobody can assign, edit or take over a role or user with more access than themselves.
+     */
+    public function covers(array $permissions): bool
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        foreach (PermissionModules::all() as $key => $module) {
+            $needed = array_intersect($module['actions'], (array) ($permissions[$key] ?? []));
+
+            if (array_diff($needed, $this->effectiveActions($key)) !== []) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public function usesCustomPermissions(): bool
+    {
+        return $this->custom_permissions !== null;
     }
 }

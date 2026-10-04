@@ -7,6 +7,7 @@ use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Modules\Lookups\Models\Lookup;
 use Modules\Users\Database\Seeders\RolesTableSeeder;
 use Modules\Users\Models\User;
+use Modules\Users\Support\PermissionModules;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -41,11 +42,16 @@ abstract class TestCase extends BaseTestCase
     }
 
     /**
-     * A user on a new role that only allows the given modules, e.g. ['lookups' => true].
+     * A user on a new role with the given permissions: a list of actions per module, or true for every action.
+     * e.g. ['lookups' => true, 'users' => ['view', 'edit']].
      */
     protected function createUserWithPermissions(array $permissions, array $attributes = []): User
     {
         $this->seedRoles();
+
+        $permissions = collect($permissions)
+            ->map(fn (array|bool $actions, string $module) => $actions === true ? PermissionModules::actionsFor($module) : ($actions ?: []))
+            ->all();
 
         $role = Lookup::create([
             'parent_id' => $this->role(Lookup::ROLES_SLUG)->id,

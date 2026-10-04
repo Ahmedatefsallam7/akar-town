@@ -20,6 +20,21 @@ class EditUser extends EditRecord
         return __('admin.actions.edit_title', ['name' => $this->getResource()::getModelLabel()]);
     }
 
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        return UserResource::permissionsToFormData($this->record, $data);
+    }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        // Your own permissions are hidden and never saved from here.
+        if ($this->record->is(auth()->user())) {
+            return collect($data)->reject(fn ($value, string $key) => $key === 'use_custom_permissions' || str_starts_with($key, 'perm_'))->all();
+        }
+
+        return UserResource::formDataToPermissions($data, $this->record);
+    }
+
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('view', ['record' => $this->record]);

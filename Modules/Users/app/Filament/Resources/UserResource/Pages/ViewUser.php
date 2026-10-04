@@ -19,6 +19,11 @@ class ViewUser extends ViewRecord
         ];
     }
 
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        return UserResource::permissionsToFormData($this->record, $data);
+    }
+
     public function getTitle(): string
     {
         return __('admin.actions.view_title', ['name' => $this->getResource()::getModelLabel()]);

@@ -2,13 +2,25 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Concerns\InteractsWithPermissionModule;
+use App\Filament\Contracts\HasPermissionModule;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Cache;
+use Modules\Users\Enums\PermissionAction;
 
-class Utilities extends Page
+class Utilities extends Page implements HasPermissionModule
 {
+    use InteractsWithPermissionModule;
+
+    protected static ?string $permissionKey = 'utilities';
+
+    protected static ?string $permissionGroup = 'system_configuration';
+
+    /** The page only runs maintenance actions, so it offers view only. */
+    protected static array $permissionActions = [PermissionAction::View];
+
     protected string $view = 'filament.pages.utilities';
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-wrench-screwdriver';
@@ -32,7 +44,7 @@ class Utilities extends Page
 
     public static function canAccess(): bool
     {
-        return auth()->user()?->hasModulePermission('utilities') ?? false;
+        return auth()->user()?->hasPermission(static::getPermissionKey()) ?? false;
     }
 
     /**
@@ -69,7 +81,8 @@ class Utilities extends Page
             ->modalIcon('heroicon-o-shield-check')
             ->action(function () {
                 Cache::forget('badge_count_roles');
-                Cache::forget('badge_count_user');
+                Cache::forget('badge_count_user_all');
+                Cache::forget('badge_count_user_non_admin');
                 auth()->user()->load('role');
 
                 Notification::make()

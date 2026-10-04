@@ -2,6 +2,7 @@
 
 namespace Modules\Users\Tests\Feature;
 
+use Filament\Actions\Testing\TestAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Modules\Lookups\Models\Lookup;
@@ -10,6 +11,7 @@ use Modules\Users\Filament\Resources\RoleResource\Pages\CreateRole;
 use Modules\Users\Filament\Resources\RoleResource\Pages\EditRole;
 use Modules\Users\Filament\Resources\RoleResource\Pages\ListRoles;
 use Modules\Users\Models\User;
+use Modules\Users\Support\PermissionModules;
 use Tests\TestCase;
 
 class RoleResourceTest extends TestCase
@@ -53,17 +55,17 @@ class RoleResourceTest extends TestCase
                 'name_en' => 'Sales Team',
                 'name_ar' => 'فريق المبيعات',
                 'is_active' => true,
-                'perm_lookups' => true,
-                'perm_blogs' => true,
+                'perm_lookups' => ['view', 'create', 'edit'],
+                'perm_utilities' => ['view'],
             ])
             ->call('create')
             ->assertHasNoFormErrors();
 
         $role = Lookup::where('slug', 'user_roles_sales_team')->sole();
         $this->assertSame($this->role(Lookup::ROLES_SLUG)->id, $role->parent_id);
-        $this->assertTrue($role->getAttribute('attributes')['permissions']['lookups']);
-        $this->assertTrue($role->getAttribute('attributes')['permissions']['blogs']);
-        $this->assertFalse($role->getAttribute('attributes')['permissions']['users']);
+        $this->assertSame(['view', 'create', 'edit'], $role->getAttribute('attributes')['permissions']['lookups']);
+        $this->assertSame(['view'], $role->getAttribute('attributes')['permissions']['utilities']);
+        $this->assertSame([], $role->getAttribute('attributes')['permissions']['users']);
     }
 
     public function test_slug_fills_in_while_typing_the_english_name(): void
@@ -165,18 +167,18 @@ class RoleResourceTest extends TestCase
     {
         $this->actingAs($this->createAdmin());
         $editor = $this->role('user_roles_editor');
-        $editor->update(['attributes' => ['color' => 'blue', 'permissions' => ['lookups' => true]]]);
+        $editor->update(['attributes' => ['color' => 'blue', 'permissions' => ['lookups' => ['view', 'edit']]]]);
 
         Livewire::test(EditRole::class, ['record' => $editor->getRouteKey()])
-            ->assertFormSet(['perm_lookups' => true, 'perm_blogs' => false])
-            ->fillForm(['perm_lookups' => false, 'perm_blogs' => true])
+            ->assertSchemaStateSet(['perm_lookups' => ['view', 'edit'], 'perm_users' => []])
+            ->fillForm(['perm_lookups' => [], 'perm_users' => ['view', 'delete']])
             ->call('save')
             ->assertHasNoFormErrors();
 
         $attributes = $editor->fresh()->getAttribute('attributes');
         $this->assertSame('blue', $attributes['color']);
-        $this->assertFalse($attributes['permissions']['lookups']);
-        $this->assertTrue($attributes['permissions']['blogs']);
+        $this->assertSame([], $attributes['permissions']['lookups']);
+        $this->assertSame(['view', 'delete'], $attributes['permissions']['users']);
     }
 
     public function test_admin_role_keeps_users_and_roles_after_saving(): void
@@ -185,14 +187,14 @@ class RoleResourceTest extends TestCase
         $admin = $this->role(User::ADMIN_ROLE);
 
         Livewire::test(EditRole::class, ['record' => $admin->getRouteKey()])
-            ->fillForm(['perm_users' => false, 'perm_roles' => false, 'perm_blogs' => false])
+            ->fillForm(['perm_users' => [], 'perm_roles' => [], 'perm_lookups' => []])
             ->call('save')
             ->assertHasNoFormErrors();
 
         $permissions = $admin->fresh()->getAttribute('attributes')['permissions'];
-        $this->assertTrue($permissions['users']);
-        $this->assertTrue($permissions['roles']);
-        $this->assertFalse($permissions['blogs']);
+        $this->assertSame(PermissionModules::actionsFor('users'), $permissions['users']);
+        $this->assertSame(PermissionModules::actionsFor('roles'), $permissions['roles']);
+        $this->assertSame([], $permissions['lookups']);
     }
 
     public function test_only_an_admin_can_edit_the_admin_role(): void
@@ -203,6 +205,20 @@ class RoleResourceTest extends TestCase
         $this->assertFalse(RoleResource::canEdit($admin));
         $this->assertTrue(RoleResource::canEdit($this->role('user_roles_editor')));
         $this->get(RoleResource::getUrl('edit', ['record' => $admin]))->assertForbidden();
+    }
+
+    public function test_select_all_and_clear_all_buttons(): void
+    {
+        $this->actingAs($this->createAdmin());
+
+        Livewire::test(CreateRole::class)
+            ->callAction(TestAction::make('selectAllPermissions')->schemaComponent('permissionButtons'))
+            ->assertSchemaStateSet([
+                'perm_lookups' => PermissionModules::actionsFor('lookups'),
+                'perm_utilities' => PermissionModules::actionsFor('utilities'),
+            ])
+            ->callAction(TestAction::make('clearAllPermissions')->schemaComponent('permissionButtons'))
+            ->assertSchemaStateSet(['perm_lookups' => [], 'perm_utilities' => []]);
     }
 
     public function test_seeded_roles_cannot_be_deleted(): void

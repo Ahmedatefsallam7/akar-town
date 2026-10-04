@@ -3,6 +3,7 @@
 namespace App\Filament\Helpers;
 
 use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -12,7 +13,14 @@ use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\DatePicker;
+use Filament\Resources\Resource;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\Indicator;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 class TableHelper
 {
@@ -55,10 +63,60 @@ class TableHelper
         return [
             BulkActionGroup::make([
                 ...$additionalActions,
-                DeleteBulkAction::make()->label(__('admin.actions.delete')),
-                RestoreBulkAction::make()->label(__('admin.actions.restore')),
-                ForceDeleteBulkAction::make()->label(__('admin.actions.force_delete')),
+                // Check each selected record too, so per-record rules (e.g. protected rows) also apply in bulk.
+                DeleteBulkAction::make()->label(__('admin.actions.delete'))->authorizeIndividualRecords(),
+                RestoreBulkAction::make()->label(__('admin.actions.restore'))->authorizeIndividualRecords(),
+                ForceDeleteBulkAction::make()->label(__('admin.actions.force_delete'))->authorizeIndividualRecords(),
             ]),
         ];
+    }
+
+    /**
+     * Filter on a date column between two optional dates, with removable indicators.
+     */
+    public static function dateRangeFilter(string $column, string $from, string $until): Filter
+    {
+        return Filter::make($column)
+            ->schema([
+                DatePicker::make($from)
+                    ->label(__("admin.filter.{$from}"))
+                    ->prefixIcon('heroicon-m-calendar-days'),
+                DatePicker::make($until)
+                    ->label(__("admin.filter.{$until}"))
+                    ->prefixIcon('heroicon-m-calendar-days'),
+            ])
+            ->query(fn (Builder $query, array $data): Builder => $query
+                ->when($data[$from] ?? null, fn (Builder $query, $date): Builder => $query->whereDate($column, '>=', $date))
+                ->when($data[$until] ?? null, fn (Builder $query, $date): Builder => $query->whereDate($column, '<=', $date)))
+            ->indicateUsing(function (array $data) use ($from, $until): array {
+                $indicators = [];
+
+                foreach ([$from, $until] as $field) {
+                    if ($data[$field] ?? null) {
+                        $indicators[] = Indicator::make(__("admin.filter.{$field}").': '.$data[$field])->removeField($field);
+                    }
+                }
+
+                return $indicators;
+            });
+    }
+
+    /**
+     * Bulk action that sets is_active on the selected records. Needs edit + bulk; records you can't edit are skipped.
+     *
+     * @param  class-string<resource>  $resource
+     */
+    public static function statusBulkAction(string $resource, string $name, string $icon, bool $isActive): BulkAction
+    {
+        return BulkAction::make($name)
+            ->label(__("admin.actions.{$name}"))
+            ->icon($icon)
+            ->requiresConfirmation()
+            ->authorize(fn (): bool => $resource::can('updateAny'))
+            ->action(fn (Collection $records) => $records
+                ->filter(fn (Model $record) => $resource::canEdit($record))
+                ->each->update(['is_active' => $isActive]))
+            ->successNotificationTitle(__('admin.notifications.updated'))
+            ->deselectRecordsAfterCompletion();
     }
 }

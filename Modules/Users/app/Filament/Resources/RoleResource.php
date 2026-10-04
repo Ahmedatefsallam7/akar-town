@@ -2,49 +2,46 @@
 
 namespace Modules\Users\Filament\Resources;
 
+use App\Filament\Contracts\HasPermissionModule;
 use App\Filament\Helpers\TableHelper;
 use App\Filament\Traits\HasResourceTranslations;
 use Closure;
 use Filament\Actions\ActionGroup;
-use Filament\Actions\BulkAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\ViewAction;
-use Filament\Forms\Components\Checkbox;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
-use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
-use Filament\Tables\Filters\Filter;
-use Filament\Tables\Filters\Indicator;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
 use Modules\Lookups\Models\Lookup;
+use Modules\Users\Filament\Forms\PermissionsGrid;
 use Modules\Users\Filament\Resources\RoleResource\Pages;
 use Modules\Users\Models\User;
 
-class RoleResource extends Resource
+class RoleResource extends Resource implements HasPermissionModule
 {
     use HasResourceTranslations;
+
+    protected static ?string $permissionGroup = 'system_configuration';
 
     protected static ?string $model = Lookup::class;
 
@@ -85,22 +82,17 @@ class RoleResource extends Resource
     }
 
     /**
-     * Only an admin may change the Admin role.
+     * Only an admin may change the Admin role, seeded roles can't be deleted, and nobody manages a role with more
+     * access than they have (also applies to bulk actions).
      */
-    public static function canEdit(Model $record): bool
+    protected static function canPerformOnRecord(string $ability, Model $record): bool
     {
-        return static::canAccess()
-            && ($record->slug !== User::ADMIN_ROLE || auth()->user()?->isAdmin());
-    }
-
-    public static function canDelete(Model $record): bool
-    {
-        return static::canAccess() && $record->is_deletable;
-    }
-
-    public static function canForceDelete(Model $record): bool
-    {
-        return static::canDelete($record);
+        return match ($ability) {
+            'update' => ($record->slug !== User::ADMIN_ROLE || (bool) auth()->user()?->isAdmin()) && static::canManageRole($record),
+            'delete', 'forceDelete' => (bool) $record->is_deletable && static::canManageRole($record),
+            'restore' => static::canManageRole($record),
+            default => true,
+        };
     }
 
     public static function form(Schema $schema): Schema
@@ -145,6 +137,8 @@ class RoleResource extends Resource
                             ->prefixIcon('heroicon-m-link'),
                         Toggle::make('is_active')
                             ->label(__('admin.lookups.active'))
+                            // The Admin role is always active.
+                            ->disabled(fn (?Lookup $record) => $record?->slug === User::ADMIN_ROLE)
                             ->default(true)
                             ->inline(false),
                         Textarea::make('description_en')
@@ -160,7 +154,7 @@ class RoleResource extends Resource
                     ->icon('heroicon-o-shield-check')
                     ->description(__('admin.roles.permissions_description'))
                     ->columnSpanFull()
-                    ->schema(static::getPermissionFields()),
+                    ->schema(PermissionsGrid::make(fn ($record, string $module) => static::isLockedPermission($record, $module))),
             ]);
     }
 
@@ -200,8 +194,8 @@ class RoleResource extends Resource
                     ->trueLabel(__('admin.lookups.active'))
                     ->falseLabel(__('admin.lookups.deactive'))
                     ->indicator(__('admin.table.status')),
-                static::dateRangeFilter('created_at', 'created_from', 'created_until'),
-                static::dateRangeFilter('updated_at', 'updated_from', 'updated_until'),
+                TableHelper::dateRangeFilter('created_at', 'created_from', 'created_until'),
+                TableHelper::dateRangeFilter('updated_at', 'updated_from', 'updated_until'),
                 TrashedFilter::make(),
             ])
             ->filtersLayout(FiltersLayout::Modal)
@@ -221,8 +215,8 @@ class RoleResource extends Resource
             ->recordActionsColumnLabel(__('admin.table.actions'))
             ->recordActionsAlignment('center')
             ->toolbarActions(TableHelper::standardBulkActions([
-                static::statusBulkAction('activate', 'heroicon-o-check-circle', true),
-                static::statusBulkAction('deactivate', 'heroicon-o-x-circle', false),
+                TableHelper::statusBulkAction(static::class, 'activate', 'heroicon-o-check-circle', true),
+                TableHelper::statusBulkAction(static::class, 'deactivate', 'heroicon-o-x-circle', false),
             ]));
     }
 
@@ -242,44 +236,6 @@ class RoleResource extends Resource
             'create' => Pages\CreateRole::route('/create'),
             'view' => Pages\ViewRole::route('/{record}'),
             'edit' => Pages\EditRole::route('/{record}/edit'),
-        ];
-    }
-
-    /**
-     * Permission keys grouped by sidebar section. Each key matches a resource's permission key.
-     *
-     * @return array<string, array<string>>
-     */
-    public static function getAvailableModules(): array
-    {
-        return [
-            'property_management' => [
-                'projects',
-                'unit_types',
-                'locations',
-                'developers',
-                'galleries',
-                'import_sheet_history',
-            ],
-            'marketing_content' => [
-                'blogs',
-                'events',
-                'sliders',
-                'careers',
-                'applicants',
-            ],
-            'inquiries_crm' => [
-                'contact_us',
-                'meetings',
-                'unit_requests',
-            ],
-            'system_configuration' => [
-                'users',
-                'roles',
-                'lookups',
-                'settings',
-                'utilities',
-            ],
         ];
     }
 
@@ -313,39 +269,31 @@ class RoleResource extends Resource
     }
 
     /**
-     * Turn stored permissions into form checkbox state ("perm_<module>" and "perm_<group>_all").
+     * Nobody edits, deletes or restores a role with more access than they have themselves.
      */
-    public static function permissionsToFormData(Lookup $role, array $data): array
+    protected static function canManageRole(Model $role): bool
     {
-        $permissions = $role->getAttribute('attributes')['permissions'] ?? [];
-
-        foreach (static::getAvailableModules() as $group => $modules) {
-            foreach ($modules as $module) {
-                $data["perm_{$module}"] = static::isLockedPermission($role, $module) || (bool) ($permissions[$module] ?? false);
-            }
-
-            $data["perm_{$group}_all"] = collect($modules)->every(fn (string $module) => $data["perm_{$module}"]);
-        }
-
-        return $data;
+        return (bool) auth()->user()?->covers($role->getAttribute('attributes')['permissions'] ?? []);
     }
 
     /**
-     * Move the permission checkboxes out of the form data into attributes.permissions, keeping other attribute keys.
+     * Stored role permissions => form state ("perm_<module>").
+     */
+    public static function permissionsToFormData(Lookup $role, array $data): array
+    {
+        return PermissionsGrid::toFormData($role->getAttribute('attributes')['permissions'] ?? [], $data);
+    }
+
+    /**
+     * Form state => attributes.permissions, keeping the role's other attribute keys (e.g. color).
      */
     public static function formDataToPermissions(array $data, array $existingAttributes = [], ?Lookup $role = null): array
     {
-        $permissions = [];
-
-        foreach (static::getAvailableModules() as $group => $modules) {
-            unset($data["perm_{$group}_all"]);
-
-            foreach ($modules as $module) {
-                // Locked checkboxes are disabled, so they are not sent with the form.
-                $permissions[$module] = static::isLockedPermission($role, $module) || (bool) ($data["perm_{$module}"] ?? false);
-                unset($data["perm_{$module}"]);
-            }
-        }
+        $permissions = PermissionsGrid::fromFormData(
+            $data,
+            $existingAttributes['permissions'] ?? [],
+            fn (string $module) => static::isLockedPermission($role, $module),
+        );
 
         $data['attributes'] = array_merge($existingAttributes, ['permissions' => $permissions]);
 
@@ -353,79 +301,10 @@ class RoleResource extends Resource
     }
 
     /**
-     * The Admin role always keeps the locked modules (users, roles).
+     * The Admin role always keeps every action on the locked modules (users, roles).
      */
     public static function isLockedPermission(?Lookup $role, string $module): bool
     {
         return $role?->slug === User::ADMIN_ROLE && in_array($module, User::ADMIN_LOCKED_MODULES, true);
-    }
-
-    protected static function getPermissionFields(): array
-    {
-        $fields = [];
-
-        foreach (static::getAvailableModules() as $group => $modules) {
-            $fields[] = Fieldset::make(__("admin.navigation.{$group}"))
-                ->schema([
-                    Checkbox::make("perm_{$group}_all")
-                        ->label(__('admin.roles.select_all'))
-                        ->live()
-                        ->afterStateUpdated(function (Set $set, $state, ?Lookup $record) use ($modules) {
-                            foreach ($modules as $module) {
-                                $set("perm_{$module}", $state || static::isLockedPermission($record, $module));
-                            }
-                        }),
-                    ...array_map(fn (string $module) => Checkbox::make("perm_{$module}")
-                        ->label(__("admin.navigation.{$module}"))
-                        ->disabled(fn (?Lookup $record) => static::isLockedPermission($record, $module))
-                        ->helperText(fn (?Lookup $record) => static::isLockedPermission($record, $module)
-                            ? __('admin.roles.locked_for_admin')
-                            : null), $modules),
-                ])
-                ->columns(2);
-        }
-
-        return $fields;
-    }
-
-    protected static function dateRangeFilter(string $column, string $from, string $until): Filter
-    {
-        return Filter::make($column)
-            ->schema([
-                DatePicker::make($from)
-                    ->label(__("admin.filter.{$from}"))
-                    ->prefixIcon('heroicon-m-calendar'),
-                DatePicker::make($until)
-                    ->label(__("admin.filter.{$until}"))
-                    ->prefixIcon('heroicon-m-calendar'),
-            ])
-            ->query(fn (Builder $query, array $data): Builder => $query
-                ->when($data[$from] ?? null, fn (Builder $query, $date): Builder => $query->whereDate($column, '>=', $date))
-                ->when($data[$until] ?? null, fn (Builder $query, $date): Builder => $query->whereDate($column, '<=', $date)))
-            ->indicateUsing(function (array $data) use ($from, $until): array {
-                $indicators = [];
-
-                foreach ([$from, $until] as $field) {
-                    if ($data[$field] ?? null) {
-                        $indicators[] = Indicator::make(__("admin.filter.{$field}").': '.$data[$field])->removeField($field);
-                    }
-                }
-
-                return $indicators;
-            });
-    }
-
-    protected static function statusBulkAction(string $name, string $icon, bool $isActive): BulkAction
-    {
-        return BulkAction::make($name)
-            ->label(__("admin.actions.{$name}"))
-            ->icon($icon)
-            ->requiresConfirmation()
-            // The Admin role is left out unless an admin runs the action.
-            ->action(fn (Collection $records) => $records
-                ->filter(fn (Lookup $role) => static::canEdit($role))
-                ->each->update(['is_active' => $isActive]))
-            ->successNotificationTitle(__('admin.notifications.updated'))
-            ->deselectRecordsAfterCompletion();
     }
 }

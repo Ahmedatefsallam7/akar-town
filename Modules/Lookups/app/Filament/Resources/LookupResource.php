@@ -2,16 +2,15 @@
 
 namespace Modules\Lookups\Filament\Resources;
 
+use App\Filament\Contracts\HasPermissionModule;
 use App\Filament\Helpers\TableHelper;
 use App\Filament\Traits\HasResourceTranslations;
 use Filament\Actions\ActionGroup;
-use Filament\Actions\BulkAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\ViewAction;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -26,22 +25,23 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
-use Filament\Tables\Filters\Indicator;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
 use Modules\Lookups\Filament\Resources\LookupResource\Pages;
 use Modules\Lookups\Models\Lookup;
 
-class LookupResource extends Resource
+class LookupResource extends Resource implements HasPermissionModule
 {
     use HasResourceTranslations;
+
+    protected static ?string $permissionGroup = 'system_configuration';
 
     protected static ?string $model = Lookup::class;
 
@@ -275,8 +275,8 @@ class LookupResource extends Resource
                     ->toggle()
                     ->query(fn (Builder $query): Builder => $query->whereNull('parent_id'))
                     ->indicator(__('admin.lookups.root_only')),
-                static::dateRangeFilter('created_at', 'created_from', 'created_until'),
-                static::dateRangeFilter('updated_at', 'updated_from', 'updated_until'),
+                TableHelper::dateRangeFilter('created_at', 'created_from', 'created_until'),
+                TableHelper::dateRangeFilter('updated_at', 'updated_from', 'updated_until'),
                 TrashedFilter::make(),
             ])
             ->filtersFormColumns(2)
@@ -287,61 +287,32 @@ class LookupResource extends Resource
                     EditAction::make()->label(__('admin.actions.edit')),
                     DeleteAction::make()
                         ->label(__('admin.actions.delete'))
-                        ->hidden(fn (Lookup $record) => ! $record->is_deletable)
                         ->successNotification(fn (Lookup $record) => Notification::make()
                             ->success()
                             ->title(__('admin.lookups.notifications.deleted', ['name' => $record->getLocalized('name')]))),
                     RestoreAction::make()->label(__('admin.actions.restore')),
                     ForceDeleteAction::make()
-                        ->label(__('admin.actions.force_delete'))
-                        ->hidden(fn (Lookup $record) => ! $record->is_deletable),
+                        ->label(__('admin.actions.force_delete')),
                 ]),
             ])
             ->recordActionsColumnLabel(__('admin.table.actions'))
             ->recordActionsAlignment('center')
             ->toolbarActions(TableHelper::standardBulkActions([
-                static::statusBulkAction('activate', 'heroicon-o-check-circle', true),
-                static::statusBulkAction('deactivate', 'heroicon-o-x-circle', false),
+                TableHelper::statusBulkAction(static::class, 'activate', 'heroicon-o-check-circle', true),
+                TableHelper::statusBulkAction(static::class, 'deactivate', 'heroicon-o-x-circle', false),
             ]))
             ->paginated([10, 25, 50, 100]);
     }
 
-    protected static function dateRangeFilter(string $column, string $from, string $until): Filter
+    /**
+     * Protected lookups can't be deleted, from the row menu or with bulk delete.
+     */
+    protected static function canPerformOnRecord(string $ability, Model $record): bool
     {
-        return Filter::make($column)
-            ->schema([
-                DatePicker::make($from)
-                    ->label(__("admin.filter.{$from}"))
-                    ->prefixIcon('heroicon-m-calendar-days'),
-                DatePicker::make($until)
-                    ->label(__("admin.filter.{$until}"))
-                    ->prefixIcon('heroicon-m-calendar-days'),
-            ])
-            ->query(fn (Builder $query, array $data): Builder => $query
-                ->when($data[$from] ?? null, fn (Builder $query, $date): Builder => $query->whereDate($column, '>=', $date))
-                ->when($data[$until] ?? null, fn (Builder $query, $date): Builder => $query->whereDate($column, '<=', $date)))
-            ->indicateUsing(function (array $data) use ($from, $until): array {
-                $indicators = [];
-
-                foreach ([$from, $until] as $field) {
-                    if ($data[$field] ?? null) {
-                        $indicators[] = Indicator::make(__("admin.filter.{$field}").': '.$data[$field])->removeField($field);
-                    }
-                }
-
-                return $indicators;
-            });
-    }
-
-    protected static function statusBulkAction(string $name, string $icon, bool $isActive): BulkAction
-    {
-        return BulkAction::make($name)
-            ->label(__("admin.actions.{$name}"))
-            ->icon($icon)
-            ->requiresConfirmation()
-            ->action(fn (Collection $records) => $records->each->update(['is_active' => $isActive]))
-            ->successNotificationTitle(__('admin.notifications.updated'))
-            ->deselectRecordsAfterCompletion();
+        return match ($ability) {
+            'delete', 'forceDelete' => (bool) $record->is_deletable,
+            default => true,
+        };
     }
 
     public static function getEloquentQuery(): Builder

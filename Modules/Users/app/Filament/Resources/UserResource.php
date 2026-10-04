@@ -2,6 +2,7 @@
 
 namespace Modules\Users\Filament\Resources;
 
+use App\Filament\Contracts\HasPermissionModule;
 use App\Filament\Helpers\TableHelper;
 use App\Filament\Traits\HasResourceTranslations;
 use Filament\Actions\ActionGroup;
@@ -14,9 +15,13 @@ use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -32,13 +37,20 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
+use Modules\Lookups\Models\Lookup;
+use Modules\Users\Enums\PermissionAction;
+use Modules\Users\Filament\Forms\PermissionsGrid;
 use Modules\Users\Filament\Resources\UserResource\Pages;
 use Modules\Users\Models\User;
+use Modules\Users\Support\PermissionModules;
 
-class UserResource extends Resource
+class UserResource extends Resource implements HasPermissionModule
 {
     use HasResourceTranslations;
+
+    protected static ?string $permissionGroup = 'system_configuration';
 
     protected static ?string $model = User::class;
 
@@ -58,6 +70,16 @@ class UserResource extends Resource
         return ['first_name', 'last_name', 'username', 'email', 'phone'];
     }
 
+    /**
+     * Counts only the users you can see (non-admins don't see admin accounts), cached per group.
+     */
+    public static function getNavigationBadge(): ?string
+    {
+        $scope = auth()->user()?->isAdmin() ? 'all' : 'non_admin';
+
+        return (string) Cache::remember("badge_count_user_{$scope}", 120, fn () => static::getEloquentQuery()->withoutTrashed()->count());
+    }
+
     public static function getModelLabel(): string
     {
         return __('admin.users.singular');
@@ -69,16 +91,19 @@ class UserResource extends Resource
     }
 
     /**
-     * Nobody deletes their own account from here, so an admin cannot lock themselves out.
+     * Nobody deletes their own account from here (also blocks bulk delete), so an admin cannot lock themselves out.
      */
-    public static function canDelete(Model $record): bool
+    protected static function canPerformOnRecord(string $ability, Model $record): bool
     {
-        return static::canAccess() && $record->isNot(auth()->user());
-    }
+        $me = auth()->user();
 
-    public static function canForceDelete(Model $record): bool
-    {
-        return static::canDelete($record);
+        return match ($ability) {
+            // Yourself: edit only (never delete).
+            'update' => $record->is($me) || (bool) $me?->covers($record->effectivePermissions()),
+            // Nobody manages (password, permissions, delete...) a user with more access than themselves.
+            'delete', 'forceDelete', 'restore' => $record->isNot($me) && (bool) $me?->covers($record->effectivePermissions()),
+            default => true,
+        };
     }
 
     public static function form(Schema $schema): Schema
@@ -120,15 +145,10 @@ class UserResource extends Resource
                             ->relationship(
                                 'role',
                                 getLocalizedFieldName('name'),
-                                function (Builder $query) {
-                                    $query->roles();
-
-                                    // Only an admin may assign the Admin role (prevents privilege escalation).
-                                    if (! auth()->user()?->isAdmin()) {
-                                        $query->where('slug', '!=', User::ADMIN_ROLE);
-                                    }
-                                }
+                                fn (Builder $query) => $query->whereIn('id', static::assignableRoleIds())
                             )
+                            // Nobody changes their own role.
+                            ->disabled(fn (?User $record) => $record?->is(auth()->user()))
                             ->required()
                             ->searchable()
                             ->preload(),
@@ -141,20 +161,91 @@ class UserResource extends Resource
                             ->dehydrateStateUsing(fn ($state) => Hash::make($state))
                             ->dehydrated(fn ($state) => filled($state))
                             ->required(fn (string $operation): bool => $operation === 'create')
-                            ->helperText(fn (string $operation): string => $operation === 'edit' ? __('admin.users.password_leave_blank') : ''),
+                            ->helperText(fn (string $operation): string => $operation === 'edit' ? __('admin.users.password_leave_blank') : '')
+                            ->visible(fn (string $operation, ?User $record): bool => static::canSetPassword($operation, $record)),
                         TextInput::make('password_confirmation')
                             ->label(__('admin.users.password_confirmation'))
                             ->password()
                             ->revealable()
                             ->dehydrated(false)
-                            ->required(fn (string $operation): bool => $operation === 'create'),
+                            ->required(fn (string $operation): bool => $operation === 'create')
+                            ->visible(fn (string $operation, ?User $record): bool => static::canSetPassword($operation, $record)),
                         Toggle::make('is_suspended')
                             ->label(__('admin.users.suspended'))
                             // You cannot suspend yourself.
                             ->disabled(fn (?User $record) => $record?->is(auth()->user())),
                     ])
                     ->columns(2),
+
+                Section::make(__('admin.users.permissions'))
+                    ->icon('heroicon-o-shield-check')
+                    ->columnSpanFull()
+                    // Nobody changes their own permissions.
+                    ->hidden(fn (?User $record) => $record?->is(auth()->user()))
+                    ->schema([
+                        Toggle::make('use_custom_permissions')
+                            ->label(__('admin.users.custom_permissions'))
+                            ->helperText(__('admin.users.custom_permissions_help'))
+                            ->live()
+                            // Start from the role's permissions, so you only change what differs.
+                            ->afterStateUpdated(function (bool $state, Set $set, Get $get) {
+                                if ($state) {
+                                    $role = Lookup::find($get('role_id'));
+                                    foreach (PermissionsGrid::toFormData($role?->getAttribute('attributes')['permissions'] ?? []) as $field => $actions) {
+                                        $set($field, $actions);
+                                    }
+                                }
+                            }),
+                        Group::make(PermissionsGrid::make())
+                            ->visible(fn (Get $get) => (bool) $get('use_custom_permissions'))
+                            ->hiddenOn('view'),
+                    ]),
+
+                Section::make(__('admin.users.effective_permissions'))
+                    ->icon('heroicon-o-eye')
+                    ->columnSpanFull()
+                    ->visibleOn('view')
+                    ->schema(static::getEffectivePermissionEntries())
+                    ->columns(2),
             ]);
+    }
+
+    /**
+     * Stored custom permissions => form state.
+     */
+    public static function permissionsToFormData(?User $user, array $data): array
+    {
+        $data['use_custom_permissions'] = (bool) $user?->usesCustomPermissions();
+
+        return PermissionsGrid::toFormData($user?->custom_permissions ?? [], $data);
+    }
+
+    /**
+     * Form state => custom_permissions (null = follow the role).
+     */
+    public static function formDataToPermissions(array $data, ?User $user = null): array
+    {
+        $useCustom = (bool) ($data['use_custom_permissions'] ?? false);
+        unset($data['use_custom_permissions']);
+
+        $permissions = PermissionsGrid::fromFormData($data, $user?->custom_permissions ?? []);
+        $data['custom_permissions'] = $useCustom ? $permissions : null;
+
+        return $data;
+    }
+
+    protected static function getEffectivePermissionEntries(): array
+    {
+        return collect(PermissionModules::all())
+            ->map(fn (array $module, string $key) => TextEntry::make("effective_{$key}")
+                ->label($module['label'])
+                ->state(fn (?User $record) => collect($record?->effectiveActions($key) ?? [])
+                    ->map(fn (string $action) => PermissionAction::from($action)->label())
+                    ->all())
+                ->badge()
+                ->placeholder(__('admin.users.no_access')))
+            ->values()
+            ->all();
     }
 
     public static function table(Table $table): Table
@@ -288,14 +379,45 @@ class UserResource extends Resource
         ];
     }
 
+    /**
+     * Passwords: set when creating a user; afterwards only an admin may change someone else's (e.g. a forgotten
+     * password, since there's no public registration or reset). Everyone changes their own on the profile page,
+     * which asks for the current password.
+     */
+    public static function canSetPassword(string $operation, ?User $record): bool
+    {
+        return $operation === 'create'
+            || ($operation === 'edit' && (bool) auth()->user()?->isAdmin() && $record?->isNot(auth()->user()));
+    }
+
+    /**
+     * Roles the logged-in user may give: admins any role; others only non-Admin roles with no more access than
+     * they have themselves (prevents privilege escalation).
+     *
+     * @return array<int>
+     */
+    public static function assignableRoleIds(): array
+    {
+        $me = auth()->user();
+
+        return Lookup::roles()
+            ->get(['id', 'slug', 'attributes'])
+            ->filter(fn (Lookup $role) => $me?->isAdmin()
+                || ($role->slug !== User::ADMIN_ROLE && (bool) $me?->covers($role->getAttribute('attributes')['permissions'] ?? [])))
+            ->pluck('id')
+            ->all();
+    }
+
     protected static function suspendBulkAction(string $name, string $icon, bool $isSuspended): BulkAction
     {
         return BulkAction::make($name)
             ->label(__("admin.actions.{$name}"))
             ->icon($icon)
             ->requiresConfirmation()
+            ->authorize(fn (): bool => static::can('updateAny'))
             ->action(fn (Collection $records) => $records
                 ->reject(fn (User $user) => $user->is(auth()->user()))
+                ->filter(fn (User $user) => static::canEdit($user))
                 ->each->update(['is_suspended' => $isSuspended]))
             ->successNotificationTitle(__('admin.notifications.updated'))
             ->deselectRecordsAfterCompletion();

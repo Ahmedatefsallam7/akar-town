@@ -6,8 +6,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Modules\Lookups\Models\Lookup;
 use Modules\Users\Database\Seeders\AdminSeeder;
-use Modules\Users\Filament\Resources\RoleResource;
 use Modules\Users\Models\User;
+use Modules\Users\Support\PermissionModules;
 use Tests\TestCase;
 
 class UsersSeedersTest extends TestCase
@@ -29,19 +29,19 @@ class UsersSeedersTest extends TestCase
         $this->seedRoles();
         $permissions = $this->role(User::ADMIN_ROLE)->getAttribute('attributes')['permissions'];
 
-        foreach (array_merge(...array_values(RoleResource::getAvailableModules())) as $module) {
-            $this->assertTrue($permissions[$module], "Admin is missing {$module}");
+        foreach (array_keys(PermissionModules::all()) as $module) {
+            $this->assertSame(PermissionModules::actionsFor($module), $permissions[$module], "Admin is missing actions on {$module}");
         }
     }
 
     public function test_roles_seeder_never_overwrites_saved_admin_permissions(): void
     {
         $this->seedRoles();
-        $this->role(User::ADMIN_ROLE)->update(['attributes' => ['permissions' => ['users' => true, 'roles' => true, 'blogs' => false]]]);
+        $this->role(User::ADMIN_ROLE)->update(['attributes' => ['permissions' => ['users' => ['view'], 'roles' => ['view'], 'lookups' => []]]]);
 
         $this->seedRoles();
 
-        $this->assertFalse($this->role(User::ADMIN_ROLE)->getAttribute('attributes')['permissions']['blogs']);
+        $this->assertSame([], $this->role(User::ADMIN_ROLE)->getAttribute('attributes')['permissions']['lookups']);
     }
 
     public function test_editor_and_client_get_their_badge_colors(): void

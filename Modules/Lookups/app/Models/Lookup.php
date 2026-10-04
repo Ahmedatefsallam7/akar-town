@@ -25,6 +25,11 @@ class Lookup extends Model
      */
     public const ROLES_SLUG = 'user_roles';
 
+    /**
+     * Slug of the Admin role (same as User::ADMIN_ROLE).
+     */
+    public const ADMIN_ROLE_SLUG = 'user_roles_admin';
+
     protected $fillable = [
         'parent_id',
         'name_en',
@@ -92,6 +97,11 @@ class Lookup extends Model
     protected static function booted(): void
     {
         static::saving(function (Lookup $lookup) {
+            // The Admin role (Users module) is always active, so admins can never lose access by accident.
+            if ($lookup->slug === self::ADMIN_ROLE_SLUG) {
+                $lookup->is_active = true;
+            }
+
             if (empty($lookup->slug) && ! empty($lookup->name_en)) {
                 $lookup->slug = Str::slug($lookup->name_en);
             }
