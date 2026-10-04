@@ -2,10 +2,10 @@
 
 namespace Modules\Users\Tests\Feature;
 
-use Filament\Actions\Testing\TestAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Modules\Lookups\Models\Lookup;
+use Modules\Users\Enums\PermissionAction;
 use Modules\Users\Filament\Resources\RoleResource;
 use Modules\Users\Filament\Resources\RoleResource\Pages\CreateRole;
 use Modules\Users\Filament\Resources\RoleResource\Pages\EditRole;
@@ -55,8 +55,8 @@ class RoleResourceTest extends TestCase
                 'name_en' => 'Sales Team',
                 'name_ar' => 'فريق المبيعات',
                 'is_active' => true,
-                'perm_lookups' => ['view', 'create', 'edit'],
-                'perm_utilities' => ['view'],
+                'permission_matrix.lookups' => ['view', 'create', 'edit'],
+                'permission_matrix.utilities' => ['view'],
             ])
             ->call('create')
             ->assertHasNoFormErrors();
@@ -170,8 +170,8 @@ class RoleResourceTest extends TestCase
         $editor->update(['attributes' => ['color' => 'blue', 'permissions' => ['lookups' => ['view', 'edit']]]]);
 
         Livewire::test(EditRole::class, ['record' => $editor->getRouteKey()])
-            ->assertSchemaStateSet(['perm_lookups' => ['view', 'edit'], 'perm_users' => []])
-            ->fillForm(['perm_lookups' => [], 'perm_users' => ['view', 'delete']])
+            ->assertSchemaStateSet(['permission_matrix.lookups' => ['view', 'edit'], 'permission_matrix.users' => []])
+            ->fillForm(['permission_matrix.lookups' => [], 'permission_matrix.users' => ['view', 'delete']])
             ->call('save')
             ->assertHasNoFormErrors();
 
@@ -187,7 +187,7 @@ class RoleResourceTest extends TestCase
         $admin = $this->role(User::ADMIN_ROLE);
 
         Livewire::test(EditRole::class, ['record' => $admin->getRouteKey()])
-            ->fillForm(['perm_users' => [], 'perm_roles' => [], 'perm_lookups' => []])
+            ->fillForm(['permission_matrix.users' => [], 'permission_matrix.roles' => [], 'permission_matrix.lookups' => []])
             ->call('save')
             ->assertHasNoFormErrors();
 
@@ -207,18 +207,24 @@ class RoleResourceTest extends TestCase
         $this->get(RoleResource::getUrl('edit', ['record' => $admin]))->assertForbidden();
     }
 
-    public function test_select_all_and_clear_all_buttons(): void
+    public function test_permissions_table_lists_every_module_and_action(): void
     {
         $this->actingAs($this->createAdmin());
 
-        Livewire::test(CreateRole::class)
-            ->callAction(TestAction::make('selectAllPermissions')->schemaComponent('permissionButtons'))
-            ->assertSchemaStateSet([
-                'perm_lookups' => PermissionModules::actionsFor('lookups'),
-                'perm_utilities' => PermissionModules::actionsFor('utilities'),
-            ])
-            ->callAction(TestAction::make('clearAllPermissions')->schemaComponent('permissionButtons'))
-            ->assertSchemaStateSet(['perm_lookups' => [], 'perm_utilities' => []]);
+        $page = $this->get(RoleResource::getUrl('create'))->assertOk();
+
+        foreach (PermissionModules::all() as $module) {
+            $page->assertSee($module['label']);
+        }
+
+        foreach (PermissionAction::cases() as $action) {
+            $page->assertSee($action->label());
+        }
+
+        $page->assertSee(__('admin.roles.select_all'))->assertSee(__('admin.roles.clear_all'));
+
+        // Alpine expressions must reach the browser as JS (Blade component attributes don't run @js()).
+        $page->assertDontSee('@js(', false)->assertSee("has('lookups', 'view')", false);
     }
 
     public function test_seeded_roles_cannot_be_deleted(): void

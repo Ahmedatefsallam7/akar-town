@@ -42,7 +42,7 @@ class RolePermissionsTest extends TestCase
     public function test_form_data_becomes_role_permissions_and_keeps_other_attributes(): void
     {
         $data = RoleResource::formDataToPermissions(
-            ['name_en' => 'Editor', 'perm_lookups' => ['view', 'edit'], 'perm_users' => []],
+            ['name_en' => 'Editor', 'permission_matrix' => ['lookups' => ['view', 'edit'], 'users' => []]],
             ['color' => 'blue'],
         );
 
@@ -50,12 +50,12 @@ class RolePermissionsTest extends TestCase
         $this->assertSame('blue', $data['attributes']['color']);
         $this->assertSame(['view', 'edit'], $data['attributes']['permissions']['lookups']);
         $this->assertSame([], $data['attributes']['permissions']['users']);
-        $this->assertArrayNotHasKey('perm_lookups', $data);
+        $this->assertArrayNotHasKey('permission_matrix', $data);
     }
 
     public function test_unknown_actions_and_actions_a_module_does_not_offer_are_dropped(): void
     {
-        $data = RoleResource::formDataToPermissions(['perm_lookups' => ['view', 'hack'], 'perm_utilities' => ['view', 'delete']]);
+        $data = RoleResource::formDataToPermissions(['permission_matrix' => ['lookups' => ['view', 'hack'], 'utilities' => ['view', 'delete']]]);
 
         $this->assertSame(['view'], $data['attributes']['permissions']['lookups']);
         $this->assertSame(['view'], $data['attributes']['permissions']['utilities']);
@@ -63,7 +63,7 @@ class RolePermissionsTest extends TestCase
 
     public function test_modules_not_in_the_form_keep_their_saved_actions(): void
     {
-        $data = RoleResource::formDataToPermissions(['perm_users' => ['view']], ['permissions' => ['projects' => ['view'], 'lookups' => ['view', 'edit']]]);
+        $data = RoleResource::formDataToPermissions(['permission_matrix' => ['users' => ['view']]], ['permissions' => ['projects' => ['view'], 'lookups' => ['view', 'edit']]]);
 
         $this->assertSame(['view'], $data['attributes']['permissions']['projects']);
         $this->assertSame(['view', 'edit'], $data['attributes']['permissions']['lookups']);
@@ -73,7 +73,7 @@ class RolePermissionsTest extends TestCase
     public function test_admin_role_keeps_every_action_on_the_locked_modules(): void
     {
         $admin = new Lookup(['slug' => User::ADMIN_ROLE]);
-        $data = RoleResource::formDataToPermissions(['perm_users' => [], 'perm_roles' => ['view'], 'perm_lookups' => []], [], $admin);
+        $data = RoleResource::formDataToPermissions(['permission_matrix' => ['users' => [], 'roles' => ['view'], 'lookups' => []]], [], $admin);
 
         $this->assertSame(self::ALL, $data['attributes']['permissions']['users']);
         $this->assertSame(self::ALL, $data['attributes']['permissions']['roles']);
@@ -85,7 +85,7 @@ class RolePermissionsTest extends TestCase
         $editor = new Lookup(['slug' => 'user_roles_editor']);
 
         $this->assertFalse(RoleResource::isLockedPermission($editor, 'users'));
-        $this->assertSame([], RoleResource::formDataToPermissions(['perm_users' => []], [], $editor)['attributes']['permissions']['users']);
+        $this->assertSame([], RoleResource::formDataToPermissions(['permission_matrix' => ['users' => []]], [], $editor)['attributes']['permissions']['users']);
     }
 
     public function test_you_can_only_change_actions_you_have_yourself(): void
@@ -95,7 +95,7 @@ class RolePermissionsTest extends TestCase
         $this->assertSame(['view', 'edit'], PermissionsGrid::grantable('lookups'));
 
         // Can't add delete; can't remove the bulk action the role already had.
-        $data = RoleResource::formDataToPermissions(['perm_lookups' => ['view', 'delete']], ['permissions' => ['lookups' => ['edit', 'bulk']]]);
+        $data = RoleResource::formDataToPermissions(['permission_matrix' => ['lookups' => ['view', 'delete']]], ['permissions' => ['lookups' => ['edit', 'bulk']]]);
 
         $this->assertSame(['view', 'bulk'], $data['attributes']['permissions']['lookups']);
     }
@@ -106,16 +106,16 @@ class RolePermissionsTest extends TestCase
 
         $data = RoleResource::permissionsToFormData($role, []);
 
-        $this->assertSame(['view', 'edit'], $data['perm_lookups']);
-        $this->assertSame(['view'], $data['perm_utilities']);
-        $this->assertSame([], $data['perm_users']);
+        $this->assertSame(['view', 'edit'], $data['permission_matrix']['lookups']);
+        $this->assertSame(['view'], $data['permission_matrix']['utilities']);
+        $this->assertSame([], $data['permission_matrix']['users']);
     }
 
     public function test_old_on_off_values_become_empty_form_state(): void
     {
         $role = new Lookup(['slug' => 'user_roles_editor', 'attributes' => ['permissions' => ['lookups' => true]]]);
 
-        $this->assertSame([], RoleResource::permissionsToFormData($role, [])['perm_lookups']);
+        $this->assertSame([], RoleResource::permissionsToFormData($role, [])['permission_matrix']['lookups']);
     }
 
     public function test_filament_abilities_map_to_actions(): void

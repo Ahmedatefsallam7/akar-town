@@ -5,17 +5,10 @@ namespace Modules\Lookups\Filament\Resources;
 use App\Filament\Contracts\HasPermissionModule;
 use App\Filament\Helpers\TableHelper;
 use App\Filament\Traits\HasResourceTranslations;
-use Filament\Actions\ActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\ForceDeleteAction;
-use Filament\Actions\RestoreAction;
-use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
@@ -31,7 +24,6 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
 use Modules\Lookups\Filament\Resources\LookupResource\Pages;
@@ -66,9 +58,9 @@ class LookupResource extends Resource implements HasPermissionModule
         return ['name_en', 'name_ar', 'slug'];
     }
 
-    public static function getNavigationBadge(): ?string
+    public static function getNavigationBadgeCount(): int
     {
-        return (string) Cache::remember('badge_count_lookups', 120, fn () => Lookup::withoutRoles()->count());
+        return Lookup::withoutRoles()->count();
     }
 
     public static function getModelLabel(): string
@@ -120,8 +112,8 @@ class LookupResource extends Resource implements HasPermissionModule
                             ->label(__('admin.lookups.parent'))
                             ->options(fn (?Lookup $record = null) => Lookup::query()
                                 ->withoutRoles()
-                                // Not itself or one of its own items (that would loop the tree).
-                                ->when($record?->id, fn ($q) => $q->whereNotIn('id', static::selfAndDescendantIds($record)))
+                                // Not itself or one of its own items (that would loop the tree): outside its nested-set range.
+                                ->when($record?->id, fn ($q) => $q->whereNotBetween('_lft', [$record->_lft, $record->_rgt]))
                                 ->orderBy(getLocalizedFieldName('name'))
                                 ->pluck(getLocalizedFieldName('name'), 'id')
                             )
@@ -164,7 +156,7 @@ class LookupResource extends Resource implements HasPermissionModule
 
     public static function table(Table $table): Table
     {
-        return $table
+        return TableHelper::emptyState($table, static::class, 'heroicon-o-list-bullet')
             ->reorderable('order')
             ->columns([
                 TableHelper::indexColumn(),
@@ -201,6 +193,7 @@ class LookupResource extends Resource implements HasPermissionModule
                     ->label(__('admin.lookups.default'))
                     ->boolean()
                     ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->alignment('center'),
                 TextColumn::make('order')
                     ->label(__('admin.table.order'))
@@ -282,20 +275,9 @@ class LookupResource extends Resource implements HasPermissionModule
             ])
             ->filtersFormColumns(2)
             ->filtersFormWidth('2xl')
-            ->recordActions([
-                ActionGroup::make([
-                    ViewAction::make()->label(__('admin.actions.view')),
-                    EditAction::make()->label(__('admin.actions.edit')),
-                    DeleteAction::make()
-                        ->label(__('admin.actions.delete'))
-                        ->successNotification(fn (Lookup $record) => Notification::make()
-                            ->success()
-                            ->title(__('admin.lookups.notifications.deleted', ['name' => $record->getLocalized('name')]))),
-                    RestoreAction::make()->label(__('admin.actions.restore')),
-                    ForceDeleteAction::make()
-                        ->label(__('admin.actions.force_delete')),
-                ]),
-            ])
+            ->recordActions(TableHelper::recordActions(
+                fn (Lookup $record) => __('admin.lookups.notifications.deleted', ['name' => $record->getLocalized('name')]),
+            ))
             ->recordActionsColumnLabel(__('admin.table.actions'))
             ->recordActionsAlignment('center')
             ->toolbarActions(TableHelper::standardBulkActions([
@@ -312,18 +294,9 @@ class LookupResource extends Resource implements HasPermissionModule
     {
         return match ($ability) {
             // Deleting a category also deletes its items, so it must not contain protected ones.
-            'delete', 'forceDelete' => $record->is_deletable
-                && ! $record->descendants()->withTrashed()->where('is_deletable', false)->exists(),
+            'delete', 'forceDelete' => $record->is_deletable && ! $record->hasProtectedDescendants(),
             default => true,
         };
-    }
-
-    /**
-     * @return array<int>
-     */
-    public static function selfAndDescendantIds(Lookup $lookup): array
-    {
-        return [$lookup->id, ...$lookup->descendants()->withTrashed()->pluck('id')->all()];
     }
 
     public static function getEloquentQuery(): Builder
@@ -333,6 +306,7 @@ class LookupResource extends Resource implements HasPermissionModule
             ->withoutRoles()
             ->with('parent')
             ->withCount('children')
+            ->withProtectedDescendantsFlag()
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);

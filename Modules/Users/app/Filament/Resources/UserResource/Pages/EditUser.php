@@ -29,7 +29,7 @@ class EditUser extends EditRecord
     {
         // Your own permissions are hidden and never saved from here.
         if ($this->record->is(auth()->user())) {
-            return collect($data)->reject(fn ($value, string $key) => $key === 'use_custom_permissions' || str_starts_with($key, 'perm_'))->all();
+            return collect($data)->reject(fn ($value, string $key) => in_array($key, ['use_custom_permissions', 'permission_matrix'], true))->all();
         }
 
         return UserResource::formDataToPermissions($data, $this->record);

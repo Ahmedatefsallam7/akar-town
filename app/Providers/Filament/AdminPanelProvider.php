@@ -8,13 +8,13 @@ use Filament\Actions\Action;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationGroup;
+use Filament\Pages\BasePage;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\View\PanelsRenderHook;
-use Filament\Widgets\AccountWidget;
-use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -37,6 +37,17 @@ class AdminPanelProvider extends PanelProvider
             ->brandName(fn (): string => __(config('app.name')))
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->sidebarCollapsibleOnDesktop()
+            // Warn before leaving a form with unsaved changes.
+            ->unsavedChangesAlerts()
+            // Move between pages without full reloads (a link starts loading on hover, so pages open almost instantly),
+            // and open search with Ctrl/Cmd + K. Only Filament's own links are prefetched, never plain links like the
+            // language switch, and all actions (delete, logout...) are buttons, not links.
+            ->spa(hasPrefetching: true)
+            // Sidebar sections in a fixed order (each appears once it has pages). Labels are translated per request.
+            ->navigationGroups(collect(['property_management', 'marketing_content', 'inquiries_crm', 'system_configuration'])
+                ->map(fn (string $group) => NavigationGroup::make(fn () => __("admin.navigation.{$group}")))
+                ->all())
+            ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
             ->login(Login::class)
             // ->registration()
             ->profile(EditProfile::class, isSimple: false)
@@ -68,10 +79,6 @@ class AdminPanelProvider extends PanelProvider
                 Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
-            ->widgets([
-                AccountWidget::class,
-                FilamentInfoWidget::class,
-            ])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -91,6 +98,12 @@ class AdminPanelProvider extends PanelProvider
         $this->discoverModules($panel);
 
         return $panel;
+    }
+
+    public function boot(): void
+    {
+        // Save / Cancel stay visible at the bottom of long forms.
+        BasePage::stickyFormActions();
     }
 
     /**

@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Modules\Lookups\Filament\Resources\LookupResource;
 use Modules\Lookups\Models\Lookup;
+use Modules\Users\Enums\PermissionAction;
 use Modules\Users\Filament\Auth\EditProfile;
 use Modules\Users\Filament\Resources\UserResource;
 use Modules\Users\Filament\Resources\UserResource\Pages\CreateUser;
@@ -41,7 +42,7 @@ class UserCustomPermissionsTest extends TestCase
         Livewire::test(EditUser::class, ['record' => $user->getRouteKey()])
             ->assertSchemaStateSet(['use_custom_permissions' => false])
             ->fillForm(['use_custom_permissions' => true])
-            ->assertSchemaStateSet(['perm_lookups' => ['view', 'edit'], 'perm_users' => []]);
+            ->assertSchemaStateSet(['permission_matrix.lookups' => ['view', 'edit'], 'permission_matrix.users' => []]);
     }
 
     public function test_admin_gives_one_user_their_own_permissions_whatever_their_role(): void
@@ -51,7 +52,7 @@ class UserCustomPermissionsTest extends TestCase
         $other = $this->client();
 
         Livewire::test(EditUser::class, ['record' => $user->getRouteKey()])
-            ->fillForm(['use_custom_permissions' => true, 'perm_lookups' => ['view', 'edit']])
+            ->fillForm(['use_custom_permissions' => true, 'permission_matrix.lookups' => ['view', 'edit']])
             ->call('save')
             ->assertHasNoFormErrors();
 
@@ -68,7 +69,7 @@ class UserCustomPermissionsTest extends TestCase
         $user = $this->client(['lookups' => ['view']]);
 
         Livewire::test(EditUser::class, ['record' => $user->getRouteKey()])
-            ->assertSchemaStateSet(['use_custom_permissions' => true, 'perm_lookups' => ['view']])
+            ->assertSchemaStateSet(['use_custom_permissions' => true, 'permission_matrix.lookups' => ['view']])
             ->fillForm(['use_custom_permissions' => false])
             ->call('save')
             ->assertHasNoFormErrors();
@@ -85,7 +86,7 @@ class UserCustomPermissionsTest extends TestCase
                 'first_name' => 'Sara', 'last_name' => 'Ali', 'username' => 'sara', 'email' => 'sara@example.com',
                 'phone' => '+201012345678', 'role_id' => $this->role('user_roles_client')->id,
                 'password' => 'secret-pass-1', 'password_confirmation' => 'secret-pass-1',
-                'use_custom_permissions' => true, 'perm_lookups' => ['view'],
+                'use_custom_permissions' => true, 'permission_matrix.lookups' => ['view'],
             ])
             ->call('create')
             ->assertHasNoFormErrors();
@@ -100,15 +101,13 @@ class UserCustomPermissionsTest extends TestCase
 
         Livewire::test(EditUser::class, ['record' => $user->getRouteKey()])
             ->fillForm(['use_custom_permissions' => true])
-            ->set('data.perm_lookups', ['view', 'edit', 'delete'])
+            ->set('data.permission_matrix.lookups', ['view', 'edit', 'delete'])
             ->call('save')
-            ->assertHasFormErrors(['perm_lookups.1', 'perm_lookups.2']);
+            ->assertHasNoFormErrors();
 
-        $this->assertNull($user->fresh()->custom_permissions);
-
-        // The save step drops them too, even if the form check were bypassed.
-        $data = UserResource::formDataToPermissions(['use_custom_permissions' => true, 'perm_lookups' => ['view', 'edit', 'delete']], $user);
-        $this->assertSame(['view'], $data['custom_permissions']['lookups']);
+        // Actions you don't have are dropped when saving, even if sent by hand.
+        $this->assertSame(['view'], $user->fresh()->custom_permissions['lookups']);
+        $this->assertFalse($user->fresh()->hasPermission('lookups', PermissionAction::Edit));
     }
 
     public function test_your_own_permissions_are_hidden_and_never_saved(): void

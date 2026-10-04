@@ -4,22 +4,17 @@ namespace Modules\Users\Filament\Resources;
 
 use App\Filament\Contracts\HasPermissionModule;
 use App\Filament\Helpers\TableHelper;
+use App\Filament\Support\PrefixSearch;
 use App\Filament\Traits\HasResourceTranslations;
-use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\ForceDeleteAction;
-use Filament\Actions\RestoreAction;
-use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\TextEntry;
-use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Group;
-use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
@@ -37,7 +32,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Modules\Lookups\Models\Lookup;
 use Modules\Users\Enums\PermissionAction;
@@ -65,19 +59,30 @@ class UserResource extends Resource implements HasPermissionModule
         return __('admin.navigation.system_configuration');
     }
 
+    /**
+     * Searched by the table search and the global search; each has an index.
+     */
+    public const SEARCH_COLUMNS = ['first_name', 'last_name', 'username', 'email', 'phone'];
+
     public static function getGloballySearchableAttributes(): array
     {
-        return ['first_name', 'last_name', 'username', 'email', 'phone'];
+        return static::SEARCH_COLUMNS;
     }
 
     /**
-     * Counts only the users you can see (non-admins don't see admin accounts), cached per group.
+     * Global search uses the same fast prefix search as the table.
      */
-    public static function getNavigationBadge(): ?string
+    protected static function applyGlobalSearchAttributeConstraints(Builder $query, string $search): void
     {
-        $scope = auth()->user()?->isAdmin() ? 'all' : 'non_admin';
+        PrefixSearch::apply($query, $search, static::SEARCH_COLUMNS, ['first_name', 'last_name']);
+    }
 
-        return (string) Cache::remember("badge_count_user_{$scope}", 120, fn () => static::getEloquentQuery()->withoutTrashed()->count());
+    /**
+     * Counts only the users you can see (non-admins don't see admin accounts).
+     */
+    public static function getNavigationBadgeCount(): int
+    {
+        return static::getEloquentQuery()->withoutTrashed()->count();
     }
 
     public static function getModelLabel(): string
@@ -110,103 +115,110 @@ class UserResource extends Resource implements HasPermissionModule
     {
         return $schema
             ->components([
-                Section::make(__('admin.tabs.details'))
+                Tabs::make('user')
                     ->columnSpanFull()
-                    ->schema([
-                        TextInput::make('first_name')
-                            ->label(__('admin.users.first_name'))
-                            ->required()
-                            ->maxLength(191),
-                        TextInput::make('last_name')
-                            ->label(__('admin.users.last_name'))
-                            ->required()
-                            ->maxLength(191),
-                        TextInput::make('username')
-                            ->label(__('admin.users.username'))
-                            ->unique(ignoreRecord: true)
-                            ->required()
-                            ->maxLength(191),
-                        TextInput::make('email')
-                            ->label(__('admin.users.email'))
-                            ->email()
-                            ->unique(ignoreRecord: true)
-                            ->required()
-                            ->maxLength(191),
-                        TextInput::make('phone')
-                            ->label(__('admin.users.phone'))
-                            ->tel()
-                            ->unique(ignoreRecord: true)
-                            ->required()
-                            ->maxLength(191)
-                            ->regex('/^\+?[0-9]{7,15}$/')
-                            ->helperText(__('admin.users.phone_format')),
-                        Select::make('role_id')
-                            ->label(__('admin.users.role'))
-                            ->relationship(
-                                'role',
-                                getLocalizedFieldName('name'),
-                                fn (Builder $query) => $query->whereIn('id', static::assignableRoleIds())
-                            )
-                            // Nobody changes their own role.
-                            ->disabled(fn (?User $record) => $record?->is(auth()->user()))
-                            ->required()
-                            ->searchable()
-                            ->preload(),
-                        TextInput::make('password')
-                            ->label(__('admin.users.password'))
-                            ->password()
-                            ->revealable()
-                            ->minLength(8)
-                            ->same('password_confirmation')
-                            ->dehydrateStateUsing(fn ($state) => Hash::make($state))
-                            ->dehydrated(fn ($state) => filled($state))
-                            ->required(fn (string $operation): bool => $operation === 'create')
-                            ->helperText(fn (string $operation): string => $operation === 'edit' ? __('admin.users.password_leave_blank') : '')
-                            ->visible(fn (string $operation, ?User $record): bool => static::canSetPassword($operation, $record)),
-                        TextInput::make('password_confirmation')
-                            ->label(__('admin.users.password_confirmation'))
-                            ->password()
-                            ->revealable()
-                            ->dehydrated(false)
-                            ->required(fn (string $operation): bool => $operation === 'create')
-                            ->visible(fn (string $operation, ?User $record): bool => static::canSetPassword($operation, $record)),
-                        Toggle::make('is_suspended')
-                            ->label(__('admin.users.suspended'))
-                            // You cannot suspend yourself.
-                            ->disabled(fn (?User $record) => $record?->is(auth()->user())),
-                    ])
-                    ->columns(2),
+                    ->persistTabInQueryString()
+                    ->tabs([
+                        Tab::make(__('admin.tabs.details'))
+                            ->icon('heroicon-o-user')
+                            ->schema([
+                                TextInput::make('first_name')
+                                    ->label(__('admin.users.first_name'))
+                                    ->required()
+                                    ->maxLength(191),
+                                TextInput::make('last_name')
+                                    ->label(__('admin.users.last_name'))
+                                    ->required()
+                                    ->maxLength(191),
+                                TextInput::make('username')
+                                    ->label(__('admin.users.username'))
+                                    ->unique(ignoreRecord: true)
+                                    ->required()
+                                    ->maxLength(191),
+                                TextInput::make('email')
+                                    ->label(__('admin.users.email'))
+                                    ->email()
+                                    ->unique(ignoreRecord: true)
+                                    ->required()
+                                    ->maxLength(191),
+                                TextInput::make('phone')
+                                    ->label(__('admin.users.phone'))
+                                    ->tel()
+                                    ->unique(ignoreRecord: true)
+                                    ->required()
+                                    ->maxLength(191)
+                                    ->regex('/^\+?[0-9]{7,15}$/')
+                                    ->helperText(__('admin.users.phone_format')),
+                                Select::make('role_id')
+                                    ->label(__('admin.users.role'))
+                                    // Only roles you may give (plus the user's current one); Filament validates against these.
+                                    ->options(fn (?User $record) => static::roleOptions($record))
+                                    // Nobody changes their own role.
+                                    ->disabled(fn (?User $record) => $record?->is(auth()->user()))
+                                    ->required()
+                                    ->searchable()
+                                    ->preload(),
+                                Toggle::make('is_suspended')
+                                    ->label(__('admin.users.suspended'))
+                                    // You cannot suspend yourself.
+                                    ->disabled(fn (?User $record) => $record?->is(auth()->user())),
+                            ])
+                            ->columns(2),
 
-                Section::make(__('admin.users.permissions'))
-                    ->icon('heroicon-o-shield-check')
-                    ->columnSpanFull()
-                    // Nobody changes their own permissions.
-                    ->hidden(fn (?User $record) => $record?->is(auth()->user()))
-                    ->schema([
-                        Toggle::make('use_custom_permissions')
-                            ->label(__('admin.users.custom_permissions'))
-                            ->helperText(__('admin.users.custom_permissions_help'))
-                            ->live()
-                            // Start from the role's permissions, so you only change what differs.
-                            ->afterStateUpdated(function (bool $state, Set $set, Get $get) {
-                                if ($state) {
-                                    $role = Lookup::find($get('role_id'));
-                                    foreach (PermissionsGrid::toFormData($role?->getAttribute('attributes')['permissions'] ?? []) as $field => $actions) {
-                                        $set($field, $actions);
-                                    }
-                                }
-                            }),
-                        Group::make(PermissionsGrid::make())
-                            ->visible(fn (Get $get) => (bool) $get('use_custom_permissions'))
-                            ->hiddenOn('view'),
+                        Tab::make(__('admin.users.password'))
+                            ->icon('heroicon-o-key')
+                            ->visible(fn (string $operation, ?User $record): bool => static::canSetPassword($operation, $record))
+                            ->schema([
+                                TextInput::make('password')
+                                    ->label(__('admin.users.password'))
+                                    ->password()
+                                    ->revealable()
+                                    ->minLength(8)
+                                    ->same('password_confirmation')
+                                    ->dehydrateStateUsing(fn ($state) => Hash::make($state))
+                                    ->dehydrated(fn ($state) => filled($state))
+                                    ->required(fn (string $operation): bool => $operation === 'create')
+                                    ->helperText(fn (string $operation): string => $operation === 'edit' ? __('admin.users.password_leave_blank') : '')
+                                    ->visible(fn (string $operation, ?User $record): bool => static::canSetPassword($operation, $record)),
+                                TextInput::make('password_confirmation')
+                                    ->label(__('admin.users.password_confirmation'))
+                                    ->password()
+                                    ->revealable()
+                                    ->dehydrated(false)
+                                    ->required(fn (string $operation): bool => $operation === 'create')
+                                    ->visible(fn (string $operation, ?User $record): bool => static::canSetPassword($operation, $record)),
+                            ])
+                            ->columns(2),
+
+                        Tab::make(__('admin.users.permissions'))
+                            ->icon('heroicon-o-shield-check')
+                            // Nobody changes their own permissions; the view page shows the effective ones instead.
+                            ->hidden(fn (string $operation, ?User $record) => $operation === 'view' || $record?->is(auth()->user()))
+                            ->schema([
+                                Toggle::make('use_custom_permissions')
+                                    ->label(__('admin.users.custom_permissions'))
+                                    ->helperText(__('admin.users.custom_permissions_help'))
+                                    ->live()
+                                    // Start from the role's permissions, so you only change what differs.
+                                    ->afterStateUpdated(function (bool $state, Set $set, Get $get) {
+                                        if ($state) {
+                                            $role = Lookup::find($get('role_id'));
+                                            foreach (PermissionsGrid::toFormData($role?->getAttribute('attributes')['permissions'] ?? []) as $field => $actions) {
+                                                $set($field, $actions);
+                                            }
+                                        }
+                                    }),
+                                Group::make(PermissionsGrid::make())
+                                    ->visible(fn (Get $get) => (bool) $get('use_custom_permissions'))
+                                    ->hiddenOn('view'),
+                            ]),
+
+                        Tab::make(__('admin.users.effective_permissions'))
+                            ->icon('heroicon-o-eye')
+                            ->visibleOn('view')
+                            ->schema(static::getEffectivePermissionEntries())
+                            ->columns(2),
                     ]),
-
-                Section::make(__('admin.users.effective_permissions'))
-                    ->icon('heroicon-o-eye')
-                    ->columnSpanFull()
-                    ->visibleOn('view')
-                    ->schema(static::getEffectivePermissionEntries())
-                    ->columns(2),
             ]);
     }
 
@@ -250,26 +262,25 @@ class UserResource extends Resource implements HasPermissionModule
 
     public static function table(Table $table): Table
     {
-        return $table
+        return TableHelper::emptyState($table, static::class, 'heroicon-o-users')
             ->striped()
             ->defaultSort('created_at', 'desc')
             ->columns([
                 TableHelper::indexColumn(),
                 TextColumn::make('name')
                     ->label(__('admin.users.full_name'))
-                    ->searchable(['first_name', 'last_name'])
+                    // One fast prefix search over name, username, email and phone (see PrefixSearch).
+                    ->searchable(query: PrefixSearch::using(static::SEARCH_COLUMNS, ['first_name', 'last_name']))
                     ->alignment('center')
                     ->url(fn (User $record) => static::getUrl('view', ['record' => $record]))
                     ->color('primary'),
                 TextColumn::make('username')
                     ->label(__('admin.users.username'))
-                    ->searchable()
                     ->sortable()
-                    ->toggleable()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->alignment('center'),
                 TextColumn::make('email')
                     ->label(__('admin.users.email'))
-                    ->searchable()
                     ->alignment('center'),
                 IconColumn::make('email_verified_at')
                     ->label(__('admin.users.email_verified'))
@@ -279,26 +290,27 @@ class UserResource extends Resource implements HasPermissionModule
                     ->trueColor('success')
                     ->falseColor('warning')
                     ->sortable()
-                    ->toggleable()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->alignment('center')
                     ->getStateUsing(fn (User $record) => ! is_null($record->email_verified_at)),
                 TextColumn::make('phone')
                     ->label(__('admin.users.phone'))
-                    ->searchable()
-                    ->toggleable()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->alignment('center'),
-                TextColumn::make('role.'.getLocalizedFieldName('name'))
+                // role_id (not "role.name") so Filament doesn't eager-load roles again; they're attached by getEloquentQuery().
+                TextColumn::make('role_id')
                     ->label(__('admin.users.role'))
+                    ->formatStateUsing(fn (User $record): ?string => $record->role?->getLocalized('name'))
                     ->badge()
                     ->color(fn (User $record): string => $record->roleColor())
                     ->alignment('center'),
-                IconColumn::make('is_suspended')
-                    ->boolean()
-                    ->label(__('admin.users.suspended'))
-                    ->trueIcon('heroicon-m-check-circle')
-                    ->falseIcon('heroicon-m-x-circle')
-                    ->trueColor('danger')
-                    ->falseColor('success')
+                // A clear status badge: "Active" (green) or "Suspended" (red).
+                TextColumn::make('is_suspended')
+                    ->label(__('admin.table.status'))
+                    ->badge()
+                    ->formatStateUsing(fn (bool $state): string => $state ? __('admin.users.suspended') : __('admin.lookups.active'))
+                    ->color(fn (bool $state): string => $state ? 'danger' : 'success')
+                    ->icon(fn (bool $state): string => $state ? 'heroicon-m-pause-circle' : 'heroicon-m-check-circle')
                     ->sortable()
                     ->alignment('center'),
                 TableHelper::createdAtColumn(),
@@ -316,9 +328,8 @@ class UserResource extends Resource implements HasPermissionModule
                     ]),
                 SelectFilter::make('role_id')
                     ->label(__('admin.users.role'))
-                    ->relationship('role', getLocalizedFieldName('name'), fn (Builder $query) => $query->roles())
+                    ->options(fn () => static::roles()->pluck(getLocalizedFieldName('name'), 'id')->all())
                     ->searchable()
-                    ->preload()
                     ->indicator(__('admin.users.role')),
                 TernaryFilter::make('is_suspended')
                     ->label(__('admin.users.suspended'))
@@ -333,37 +344,27 @@ class UserResource extends Resource implements HasPermissionModule
             ])
             ->filtersLayout(FiltersLayout::Modal)
             ->filtersFormColumns(2)
-            ->recordActions([
-                ActionGroup::make([
-                    ViewAction::make()->label(__('admin.actions.view')),
-                    EditAction::make()->label(__('admin.actions.edit')),
-                    DeleteAction::make()
-                        ->label(__('admin.actions.delete'))
-                        ->successNotification(fn (User $record) => Notification::make()
-                            ->success()
-                            ->title(__('admin.users.notifications.deleted', ['name' => $record->name ?: $record->username]))),
-                    RestoreAction::make()->label(__('admin.actions.restore')),
-                    ForceDeleteAction::make()->label(__('admin.actions.force_delete')),
-                ]),
-            ])
+            ->recordActions(TableHelper::recordActions(
+                fn (User $record) => __('admin.users.notifications.deleted', ['name' => $record->name ?: $record->username]),
+            ))
             ->recordActionsColumnLabel(__('admin.table.actions'))
             ->recordActionsAlignment('center')
             ->toolbarActions(TableHelper::standardBulkActions([
                 static::suspendBulkAction('suspend', 'heroicon-o-pause-circle', true),
                 static::suspendBulkAction('unsuspend', 'heroicon-o-play-circle', false),
             ]))
-            ->checkIfRecordIsSelectableUsing(fn (User $record): bool => $record->isNot(auth()->user()))
             ->paginated([10, 25, 50, 100]);
     }
 
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with('role')
-            // Only admins can see (and so edit) admin accounts.
+            // Roles come from the per-request roles list instead of one more query.
+            ->afterQuery(fn ($users) => static::attachRoles($users))
+            // Only admins can see (and so edit) admin accounts. The admin role id is an uncorrelated subquery.
             ->when(! auth()->user()?->isAdmin(), fn (Builder $query) => $query->where(fn (Builder $query) => $query
                 ->whereNull('role_id')
-                ->orWhereDoesntHave('role', fn (Builder $role) => $role->where('slug', User::ADMIN_ROLE))))
+                ->orWhereNotIn('role_id', fn ($roles) => $roles->select('id')->from('lookups')->where('slug', User::ADMIN_ROLE))))
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
@@ -400,12 +401,49 @@ class UserResource extends Resource implements HasPermissionModule
     {
         $me = auth()->user();
 
-        return Lookup::roles()
-            ->get(['id', 'slug', 'attributes'])
+        return static::roles()
             ->filter(fn (Lookup $role) => $me?->isAdmin()
                 || ($role->slug !== User::ADMIN_ROLE && (bool) $me?->covers($role->getAttribute('attributes')['permissions'] ?? [])))
             ->pluck('id')
             ->all();
+    }
+
+    /**
+     * Role options for the form: the roles you may give, plus the user's current role so its name still shows.
+     *
+     * @return array<int, string>
+     */
+    public static function roleOptions(?User $record): array
+    {
+        $ids = [...static::assignableRoleIds(), $record?->role_id];
+
+        return static::roles()->whereIn('id', $ids)->pluck(getLocalizedFieldName('name'), 'id')->all();
+    }
+
+    /**
+     * Sets each user's role from roles() (already loaded for the form and the filter) instead of querying again.
+     *
+     * @param  iterable<User>  $users
+     */
+    public static function attachRoles(iterable $users): void
+    {
+        $roles = static::roles()->keyBy('id');
+
+        foreach ($users as $user) {
+            if ($user instanceof User) {
+                $user->setRelation('role', $roles->get($user->role_id));
+            }
+        }
+    }
+
+    /**
+     * Every role, fetched once per request and shared by the form, its validation and the table filter.
+     *
+     * @return Collection<int, Lookup>
+     */
+    public static function roles(): Collection
+    {
+        return once(fn () => Lookup::roles()->orderBy('order')->get());
     }
 
     protected static function suspendBulkAction(string $name, string $icon, bool $isSuspended): BulkAction

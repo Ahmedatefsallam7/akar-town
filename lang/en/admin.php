@@ -50,6 +50,10 @@ return [
     ],
 
     'dashboard' => [
+        'welcome' => 'Welcome back, :name',
+        'no_role' => 'No role yet',
+        'no_access' => 'You don\'t have access to any section yet. Please contact the administrators.',
+        'open_list' => 'Open list',
         'stats' => [
             'total_projects' => 'Total Projects',
             'projects_desc' => 'Premium inventory',
@@ -141,6 +145,8 @@ return [
 
     'table' => [
         'hash' => '#',
+        'empty_heading' => 'No :name yet',
+        'empty_description' => 'Add the first one and it will show up here.',
         'title' => 'Title',
         'name' => 'Name',
         'status' => 'Status',
@@ -197,6 +203,7 @@ return [
         'unsuspend' => 'Unsuspend',
         'refresh' => 'Refresh',
         'copied' => 'Copied!',
+        'more' => 'More',
         'previous' => 'Previous',
         'next' => 'Next',
         'save' => 'Save',
@@ -617,6 +624,8 @@ return [
         'permissions_description' => 'Choose what this role can do in each module. Every action also needs View.',
         'select_all' => 'Select all',
         'clear_all' => 'Clear all',
+        'module' => 'Section',
+        'all' => 'All',
         'locked_for_admin' => 'Always on for the Admin role',
         'slug_taken' => 'Another role already uses this slug. Choose a different name.',
         'slug_locked' => 'Built-in role: its slug never changes.',

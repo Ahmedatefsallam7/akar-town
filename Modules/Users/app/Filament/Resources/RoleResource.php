@@ -6,16 +6,9 @@ use App\Filament\Contracts\HasPermissionModule;
 use App\Filament\Helpers\TableHelper;
 use App\Filament\Traits\HasResourceTranslations;
 use Closure;
-use Filament\Actions\ActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\ForceDeleteAction;
-use Filament\Actions\RestoreAction;
-use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Set;
@@ -29,7 +22,6 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
 use Modules\Lookups\Models\Lookup;
@@ -66,9 +58,9 @@ class RoleResource extends Resource implements HasPermissionModule
         return ['name_en', 'name_ar', 'slug'];
     }
 
-    public static function getNavigationBadge(): ?string
+    public static function getNavigationBadgeCount(): int
     {
-        return (string) Cache::remember('badge_count_roles', 120, fn () => Lookup::roles()->count());
+        return Lookup::roles()->count();
     }
 
     public static function getModelLabel(): string
@@ -160,7 +152,7 @@ class RoleResource extends Resource implements HasPermissionModule
 
     public static function table(Table $table): Table
     {
-        return $table
+        return TableHelper::emptyState($table, static::class, 'heroicon-o-lock-closed')
             ->striped()
             ->columns([
                 TableHelper::indexColumn(),
@@ -199,19 +191,9 @@ class RoleResource extends Resource implements HasPermissionModule
                 TrashedFilter::make(),
             ])
             ->filtersLayout(FiltersLayout::Modal)
-            ->recordActions([
-                ActionGroup::make([
-                    ViewAction::make()->label(__('admin.actions.view')),
-                    EditAction::make()->label(__('admin.actions.edit')),
-                    DeleteAction::make()
-                        ->label(__('admin.actions.delete'))
-                        ->successNotification(fn (Lookup $record) => Notification::make()
-                            ->success()
-                            ->title(__('admin.roles.notifications.deleted', ['name' => $record->getLocalized('name')]))),
-                    RestoreAction::make()->label(__('admin.actions.restore')),
-                    ForceDeleteAction::make()->label(__('admin.actions.force_delete')),
-                ]),
-            ])
+            ->recordActions(TableHelper::recordActions(
+                fn (Lookup $record) => __('admin.roles.notifications.deleted', ['name' => $record->getLocalized('name')]),
+            ))
             ->recordActionsColumnLabel(__('admin.table.actions'))
             ->recordActionsAlignment('center')
             ->toolbarActions(TableHelper::standardBulkActions([
