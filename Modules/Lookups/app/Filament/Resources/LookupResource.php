@@ -120,7 +120,8 @@ class LookupResource extends Resource implements HasPermissionModule
                             ->label(__('admin.lookups.parent'))
                             ->options(fn (?Lookup $record = null) => Lookup::query()
                                 ->withoutRoles()
-                                ->when($record?->id, fn ($q) => $q->where('id', '!=', $record->id))
+                                // Not itself or one of its own items (that would loop the tree).
+                                ->when($record?->id, fn ($q) => $q->whereNotIn('id', static::selfAndDescendantIds($record)))
                                 ->orderBy(getLocalizedFieldName('name'))
                                 ->pluck(getLocalizedFieldName('name'), 'id')
                             )
@@ -310,9 +311,19 @@ class LookupResource extends Resource implements HasPermissionModule
     protected static function canPerformOnRecord(string $ability, Model $record): bool
     {
         return match ($ability) {
-            'delete', 'forceDelete' => (bool) $record->is_deletable,
+            // Deleting a category also deletes its items, so it must not contain protected ones.
+            'delete', 'forceDelete' => $record->is_deletable
+                && ! $record->descendants()->withTrashed()->where('is_deletable', false)->exists(),
             default => true,
         };
+    }
+
+    /**
+     * @return array<int>
+     */
+    public static function selfAndDescendantIds(Lookup $lookup): array
+    {
+        return [$lookup->id, ...$lookup->descendants()->withTrashed()->pluck('id')->all()];
     }
 
     public static function getEloquentQuery(): Builder

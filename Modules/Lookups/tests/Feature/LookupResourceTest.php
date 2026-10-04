@@ -111,5 +111,40 @@ class LookupResourceTest extends TestCase
         Livewire::test(ListLookups::class)
             ->assertTableActionHidden('delete', $protected)
             ->assertTableActionVisible('delete', $deletable);
+
+        // The rule itself (the table helper can resolve the wrong row inside action groups).
+        $this->assertFalse(LookupResource::canDelete($protected));
+        $this->assertTrue(LookupResource::canDelete($deletable));
+    }
+
+    public function test_a_lookup_cannot_be_moved_inside_its_own_items(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $category = Lookup::create(['name_en' => 'A', 'name_ar' => 'ا', 'slug' => 'a']);
+        $child = $category->children()->create(['name_en' => 'B', 'name_ar' => 'ب', 'slug' => 'b']);
+        $grandchild = $child->children()->create(['name_en' => 'C', 'name_ar' => 'ج', 'slug' => 'c']);
+
+        Livewire::test(EditLookup::class, ['record' => $category->getRouteKey()])
+            ->fillForm(['parent_id' => $grandchild->id])
+            ->call('save')
+            ->assertHasFormErrors(['parent_id']);
+
+        $this->assertNull($category->fresh()->parent_id);
+    }
+
+    public function test_a_category_with_protected_items_cannot_be_deleted(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $category = Lookup::create(['name_en' => 'A', 'slug' => 'a']);
+        $category->children()->create(['name_en' => 'B', 'slug' => 'b', 'is_deletable' => false]);
+        $free = Lookup::create(['name_en' => 'C', 'slug' => 'c']);
+        $free->children()->create(['name_en' => 'D', 'slug' => 'd']);
+
+        $this->assertFalse(LookupResource::canDelete($category->fresh()));
+        $this->assertFalse(LookupResource::canForceDelete($category->fresh()));
+        $this->assertTrue(LookupResource::canDelete($free->fresh()));
+
+        Livewire::test(ListLookups::class)->callTableBulkAction('delete', [$category]);
+        $this->assertNotSoftDeleted($category);
     }
 }
