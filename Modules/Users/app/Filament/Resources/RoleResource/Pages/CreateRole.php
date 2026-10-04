@@ -4,7 +4,6 @@ namespace Modules\Users\Filament\Resources\RoleResource\Pages;
 
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
-use Illuminate\Support\Str;
 use Modules\Users\Filament\Resources\RoleResource;
 
 class CreateRole extends CreateRecord
@@ -20,7 +19,7 @@ class CreateRole extends CreateRecord
     {
         $data = RoleResource::formDataToPermissions($data);
         $data['parent_id'] = RoleResource::rolesParentId();
-        $data['slug'] = 'user_roles_'.Str::slug($data['name_en'], '_');
+        $data['slug'] = RoleResource::makeSlug($data['name_en']);
 
         return $data;
     }

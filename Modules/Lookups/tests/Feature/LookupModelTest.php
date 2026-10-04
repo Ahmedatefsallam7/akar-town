@@ -2,6 +2,7 @@
 
 namespace Modules\Lookups\Tests\Feature;
 
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\Lookups\Database\Seeders\LookupsDatabaseSeeder;
 use Modules\Lookups\Models\Lookup;
@@ -55,6 +56,46 @@ class LookupModelTest extends TestCase
 
         $this->assertSoftDeleted($category);
         $this->assertSoftDeleted($child);
+    }
+
+    public function test_database_rejects_the_same_slug_twice_in_one_category(): void
+    {
+        $views = Lookup::create(['name_en' => 'Views', 'slug' => 'views']);
+        $views->children()->create(['name_en' => 'Sea View', 'slug' => 'sea_view']);
+
+        $this->expectException(UniqueConstraintViolationException::class);
+
+        $views->children()->create(['name_en' => 'Sea View 2', 'slug' => 'sea_view']);
+    }
+
+    public function test_database_rejects_the_same_slug_twice_at_the_top_level(): void
+    {
+        Lookup::create(['name_en' => 'Views', 'slug' => 'views']);
+
+        $this->expectException(UniqueConstraintViolationException::class);
+
+        Lookup::create(['name_en' => 'Views again', 'slug' => 'views']);
+    }
+
+    public function test_same_slug_is_allowed_in_different_categories(): void
+    {
+        $views = Lookup::create(['name_en' => 'Views', 'slug' => 'views']);
+        $types = Lookup::create(['name_en' => 'Types', 'slug' => 'types']);
+
+        $views->children()->create(['name_en' => 'Studio', 'slug' => 'studio']);
+        $types->children()->create(['name_en' => 'Studio', 'slug' => 'studio']);
+
+        $this->assertSame(2, Lookup::where('slug', 'studio')->count());
+    }
+
+    public function test_deleted_lookup_still_holds_its_slug_so_it_can_be_restored(): void
+    {
+        $views = Lookup::create(['name_en' => 'Views', 'slug' => 'views']);
+        $views->delete();
+
+        $this->expectException(UniqueConstraintViolationException::class);
+
+        Lookup::create(['name_en' => 'Views', 'slug' => 'views']);
     }
 
     public function test_seeder_creates_categories_with_items_and_can_run_again(): void

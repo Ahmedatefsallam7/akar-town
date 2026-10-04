@@ -41,6 +41,7 @@ class RolesTableSeeder extends Seeder
                 'name_ar' => 'المحرر',
                 'description_en' => 'Editor role with limited permissions',
                 'description_ar' => 'صلاحية المحرر مع أذونات محدودة',
+                'attributes' => ['color' => 'info'],
             ],
             [
                 'slug' => 'user_roles_client',
@@ -48,11 +49,19 @@ class RolesTableSeeder extends Seeder
                 'name_ar' => 'العميل',
                 'description_en' => 'Client role with basic permissions',
                 'description_ar' => 'صلاحية العميل مع أذونات أساسية',
+                'attributes' => ['color' => 'success'],
             ],
         ];
 
         foreach ($roles as $index => $role) {
-            $record = Lookup::updateOrCreate(
+            // Admin is always ensured. Editor and Client can be renamed (and their slug with them), so they are
+            // only added to a new roles category; otherwise a second run would create duplicates.
+            if ($role['slug'] !== User::ADMIN_ROLE && ! $parent->wasRecentlyCreated) {
+                continue;
+            }
+
+            // firstOrCreate: names and settings edited from the admin are never overwritten.
+            $record = Lookup::firstOrCreate(
                 ['slug' => $role['slug'], 'parent_id' => $parent->id],
                 $role + ['order' => $index + 1, 'is_active' => true, 'is_deletable' => false]
             );

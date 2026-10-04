@@ -44,8 +44,10 @@ class UserTest extends TestCase
     public function test_role_color_and_admin_check(): void
     {
         $this->assertSame('danger', $this->userWithRole(['slug' => User::ADMIN_ROLE])->roleColor());
-        $this->assertSame('info', $this->userWithRole(['slug' => 'user_roles_editor'])->roleColor());
-        $this->assertSame('success', $this->userWithRole(['slug' => 'user_roles_client'])->roleColor());
+        $this->assertSame('info', $this->userWithRole(['slug' => 'user_roles_editor', 'attributes' => ['color' => 'info']])->roleColor());
+        // The color is stored on the role, so it survives a rename (new slug).
+        $this->assertSame('success', $this->userWithRole(['slug' => 'user_roles_customers', 'attributes' => ['color' => 'success']])->roleColor());
+        $this->assertSame('gray', $this->userWithRole(['slug' => 'user_roles_sales'])->roleColor());
         $this->assertSame('gray', $this->userWithRole(null)->roleColor());
 
         $this->assertTrue($this->userWithRole(['slug' => User::ADMIN_ROLE])->isAdmin());

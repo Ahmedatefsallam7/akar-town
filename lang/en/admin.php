@@ -605,6 +605,8 @@ return [
         'permissions_description' => 'Select which modules this role can access.',
         'select_all' => 'Select all',
         'locked_for_admin' => 'Always on for the Admin role',
+        'slug_taken' => 'Another role already uses this slug. Choose a different name.',
+        'slug_locked' => 'Built-in role: its slug never changes.',
         'notifications' => [
             'created' => 'Role ":name" has been created successfully.',
             'updated' => 'Role ":name" has been updated successfully.',

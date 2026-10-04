@@ -44,6 +44,37 @@ class UsersSeedersTest extends TestCase
         $this->assertFalse($this->role(User::ADMIN_ROLE)->getAttribute('attributes')['permissions']['blogs']);
     }
 
+    public function test_editor_and_client_get_their_badge_colors(): void
+    {
+        $this->seedRoles();
+
+        $this->assertSame('info', $this->role('user_roles_editor')->getAttribute('attributes')['color']);
+        $this->assertSame('success', $this->role('user_roles_client')->getAttribute('attributes')['color']);
+    }
+
+    public function test_running_again_after_renaming_roles_creates_no_duplicates_and_keeps_the_edits(): void
+    {
+        $this->seedRoles();
+        $this->role('user_roles_editor')->update(['name_en' => 'Content Editor', 'slug' => 'user_roles_content_editor']);
+        $this->role(User::ADMIN_ROLE)->update(['name_en' => 'Super Admin']);
+
+        $this->seedRoles();
+
+        $this->assertSame(3, Lookup::roles()->count());
+        $this->assertFalse(Lookup::where('slug', 'user_roles_editor')->exists());
+        $this->assertSame('Super Admin', $this->role(User::ADMIN_ROLE)->name_en);
+    }
+
+    public function test_deleted_editor_is_not_brought_back(): void
+    {
+        $this->seedRoles();
+        $this->role('user_roles_editor')->delete();
+
+        $this->seedRoles();
+
+        $this->assertSame(2, Lookup::roles()->count());
+    }
+
     public function test_admin_seeder_creates_the_local_admin_login(): void
     {
         $this->app['env'] = 'local';

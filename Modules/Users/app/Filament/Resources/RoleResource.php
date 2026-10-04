@@ -4,6 +4,7 @@ namespace Modules\Users\Filament\Resources;
 
 use App\Filament\Helpers\TableHelper;
 use App\Filament\Traits\HasResourceTranslations;
+use Closure;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkAction;
 use Filament\Actions\DeleteAction;
@@ -35,6 +36,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
 use Modules\Lookups\Models\Lookup;
 use Modules\Users\Filament\Resources\RoleResource\Pages;
@@ -117,6 +119,18 @@ class RoleResource extends Resource
                             ->unique(ignoreRecord: true, modifyRuleUsing: fn (Unique $rule) => $rule
                                 ->where('parent_id', static::rolesParentId())
                                 ->whereNull('deleted_at'))
+                            // Different names can give the same slug (e.g. "Sales Team" and "Sales-Team").
+                            ->rule(fn (?Lookup $record) => function (string $attribute, $value, Closure $fail) use ($record) {
+                                if (! static::isSlugLocked($record) && static::slugIsTaken(static::makeSlug($value), $record)) {
+                                    $fail(__('admin.roles.slug_taken'));
+                                }
+                            })
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(function (Set $set, ?string $state, ?Lookup $record) {
+                                if (! static::isSlugLocked($record)) {
+                                    $set('slug', static::makeSlug($state));
+                                }
+                            })
                             ->prefixIcon('heroicon-m-language'),
                         TextInput::make('name_ar')
                             ->label(__('admin.roles.name_ar'))
@@ -127,6 +141,7 @@ class RoleResource extends Resource
                             ->label(__('admin.table.slug'))
                             ->disabled()
                             ->dehydrated(false)
+                            ->helperText(fn (?Lookup $record) => static::isSlugLocked($record) ? __('admin.roles.slug_locked') : null)
                             ->prefixIcon('heroicon-m-link'),
                         Toggle::make('is_active')
                             ->label(__('admin.lookups.active'))
@@ -271,6 +286,30 @@ class RoleResource extends Resource
     public static function rolesParentId(): ?int
     {
         return Lookup::where('slug', Lookup::ROLES_SLUG)->whereNull('parent_id')->value('id');
+    }
+
+    /**
+     * Role slug built from the English name, e.g. "Sales Team" => "user_roles_sales_team".
+     */
+    public static function makeSlug(?string $name): string
+    {
+        return 'user_roles_'.Str::slug((string) $name, '_');
+    }
+
+    /**
+     * Only the Admin role keeps its slug, because the code checks it by slug. Other roles follow their name.
+     */
+    public static function isSlugLocked(?Lookup $role): bool
+    {
+        return $role !== null && ! $role->is_deletable && in_array($role->slug, [User::ADMIN_ROLE], true);
+    }
+
+    public static function slugIsTaken(string $slug, ?Lookup $ignore = null): bool
+    {
+        return Lookup::withTrashed()
+            ->where('slug', $slug)
+            ->when($ignore, fn (Builder $query) => $query->whereKeyNot($ignore->getKey()))
+            ->exists();
     }
 
     /**

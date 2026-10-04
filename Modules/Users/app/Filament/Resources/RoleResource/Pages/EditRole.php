@@ -27,6 +27,11 @@ class EditRole extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
+        // Renaming a role renames its slug too. Only the Admin role keeps its slug.
+        if (! RoleResource::isSlugLocked($this->record)) {
+            $data['slug'] = RoleResource::makeSlug($data['name_en']);
+        }
+
         return RoleResource::formDataToPermissions($data, $this->record->getAttribute('attributes') ?? [], $this->record);
     }
 

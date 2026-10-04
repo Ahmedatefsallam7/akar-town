@@ -65,4 +65,18 @@ class RolePermissionsTest extends TestCase
         $this->assertTrue($data['perm_system_configuration_all']);
         $this->assertFalse($data['perm_marketing_content_all']);
     }
+
+    public function test_role_slug_is_built_from_the_english_name(): void
+    {
+        $this->assertSame('user_roles_sales_team', RoleResource::makeSlug('Sales Team'));
+        $this->assertSame('user_roles_sales_team', RoleResource::makeSlug('  Sales-Team! '));
+    }
+
+    public function test_only_the_admin_role_has_a_locked_slug(): void
+    {
+        $this->assertFalse(RoleResource::isSlugLocked(null));
+        $this->assertTrue(RoleResource::isSlugLocked(new Lookup(['slug' => User::ADMIN_ROLE, 'is_deletable' => false])));
+        $this->assertFalse(RoleResource::isSlugLocked(new Lookup(['slug' => 'user_roles_editor', 'is_deletable' => false])));
+        $this->assertFalse(RoleResource::isSlugLocked(new Lookup(['slug' => 'user_roles_sales', 'is_deletable' => true])));
+    }
 }

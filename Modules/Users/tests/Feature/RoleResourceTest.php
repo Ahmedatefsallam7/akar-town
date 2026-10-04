@@ -66,6 +66,91 @@ class RoleResourceTest extends TestCase
         $this->assertFalse($role->getAttribute('attributes')['permissions']['users']);
     }
 
+    public function test_slug_fills_in_while_typing_the_english_name(): void
+    {
+        $this->actingAs($this->createAdmin());
+
+        Livewire::test(CreateRole::class)
+            ->fillForm(['name_en' => 'Sales Team'])
+            ->assertSchemaStateSet(['slug' => 'user_roles_sales_team']);
+    }
+
+    public function test_renaming_a_custom_role_updates_its_slug(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $role = $this->createCustomRole('Sales Team');
+
+        Livewire::test(EditRole::class, ['record' => $role->getRouteKey()])
+            ->fillForm(['name_en' => 'Sales Managers'])
+            ->assertSchemaStateSet(['slug' => 'user_roles_sales_managers'])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame('user_roles_sales_managers', $role->fresh()->slug);
+    }
+
+    public function test_renaming_a_seeded_non_admin_role_updates_its_slug(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $editor = $this->role('user_roles_editor');
+
+        Livewire::test(EditRole::class, ['record' => $editor->getRouteKey()])
+            ->fillForm(['name_en' => 'Content Editor'])
+            ->assertSchemaStateSet(['slug' => 'user_roles_content_editor'])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame('user_roles_content_editor', $editor->fresh()->slug);
+        $this->assertSame('info', $editor->fresh()->getAttribute('attributes')['color']);
+    }
+
+    public function test_renaming_the_admin_role_keeps_its_slug(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $admin = $this->role(User::ADMIN_ROLE);
+
+        Livewire::test(EditRole::class, ['record' => $admin->getRouteKey()])
+            ->fillForm(['name_en' => 'Super Admin'])
+            ->assertSchemaStateSet(['slug' => User::ADMIN_ROLE])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame(User::ADMIN_ROLE, $admin->fresh()->slug);
+        $this->assertSame('Super Admin', $admin->fresh()->name_en);
+    }
+
+    public function test_a_name_that_gives_a_used_slug_is_rejected(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $this->createCustomRole('Sales Team');
+        $this->createCustomRole('Old Team')->delete();
+
+        Livewire::test(CreateRole::class)
+            ->fillForm(['name_en' => 'Sales-Team', 'name_ar' => 'المبيعات'])
+            ->call('create')
+            ->assertHasFormErrors(['name_en']);
+
+        // A deleted role still holds its slug, so it can be restored.
+        Livewire::test(CreateRole::class)
+            ->fillForm(['name_en' => 'Old Team', 'name_ar' => 'قديم'])
+            ->call('create')
+            ->assertHasFormErrors(['name_en']);
+    }
+
+    public function test_renaming_a_role_to_a_used_slug_is_rejected(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $this->createCustomRole('Sales Team');
+        $role = $this->createCustomRole('Support');
+
+        Livewire::test(EditRole::class, ['record' => $role->getRouteKey()])
+            ->fillForm(['name_en' => 'Sales-Team'])
+            ->call('save')
+            ->assertHasFormErrors(['name_en']);
+
+        $this->assertSame('user_roles_support', $role->fresh()->slug);
+    }
+
     public function test_role_name_must_be_unique_among_roles(): void
     {
         $this->actingAs($this->createAdmin());
@@ -132,5 +217,16 @@ class RoleResourceTest extends TestCase
 
         $this->assertFalse(RoleResource::canDelete($this->role('user_roles_editor')));
         $this->assertTrue(RoleResource::canDelete($custom));
+    }
+
+    private function createCustomRole(string $name): Lookup
+    {
+        return Lookup::create([
+            'parent_id' => $this->role(Lookup::ROLES_SLUG)->id,
+            'name_en' => $name,
+            'name_ar' => $name,
+            'slug' => RoleResource::makeSlug($name),
+            'is_deletable' => true,
+        ]);
     }
 }
