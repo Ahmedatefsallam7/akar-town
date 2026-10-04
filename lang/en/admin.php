@@ -600,6 +600,11 @@ return [
         ],
     ],
 
+    'auth' => [
+        'suspended_title' => 'Account suspended',
+        'suspended' => 'Your account has been suspended. Please contact the administrators to restore access.',
+    ],
+
     'roles' => [
         'singular' => 'Role',
         'plural' => 'Roles',

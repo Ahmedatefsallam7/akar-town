@@ -2,9 +2,9 @@
 
 namespace App\Providers\Filament;
 
+use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\SetLocale;
 use Filament\Actions\Action;
-use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -23,6 +23,7 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Modules\Users\Filament\Auth\EditProfile;
+use Modules\Users\Filament\Auth\Login;
 use Nwidart\Modules\Facades\Module;
 
 class AdminPanelProvider extends PanelProvider
@@ -36,7 +37,7 @@ class AdminPanelProvider extends PanelProvider
             ->brandName(fn (): string => __(config('app.name')))
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->sidebarCollapsibleOnDesktop()
-            ->login()
+            ->login(Login::class)
             // ->registration()
             ->profile(EditProfile::class, isSimple: false)
             ->renderHook(
@@ -85,7 +86,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ], isPersistent: true);
 
         $this->discoverModules($panel);
 

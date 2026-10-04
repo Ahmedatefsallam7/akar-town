@@ -45,7 +45,8 @@ class AdminPanelTest extends TestCase
 
     public function test_suspended_user_cannot_open_the_panel(): void
     {
-        $this->actingAs($this->createAdmin(['is_suspended' => true]))->get('/admin')->assertForbidden();
+        $this->actingAs($this->createAdmin(['is_suspended' => true]))->get('/admin')->assertRedirect('/admin/login');
+        $this->assertGuest();
     }
 
     public function test_user_without_a_role_can_log_in_but_sees_no_modules(): void
