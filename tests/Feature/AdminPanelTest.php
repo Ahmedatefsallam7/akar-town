@@ -35,6 +35,14 @@ class AdminPanelTest extends TestCase
         $this->actingAs($this->createAdmin())->get('/admin')->assertOk();
     }
 
+    public function test_page_header_stays_visible_while_scrolling(): void
+    {
+        $this->actingAs($this->createAdmin())
+            ->get('/admin/roles')
+            ->assertOk()
+            ->assertSee('fi-header sticky top-(--topbar-height)', false);
+    }
+
     public function test_suspended_user_cannot_open_the_panel(): void
     {
         $this->actingAs($this->createAdmin(['is_suspended' => true]))->get('/admin')->assertForbidden();
