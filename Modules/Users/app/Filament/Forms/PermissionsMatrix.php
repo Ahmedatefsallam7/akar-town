@@ -24,6 +24,7 @@ class PermissionsMatrix extends Field
     {
         parent::setUp();
 
+        $this->label(__('admin.roles.permissions'));
         $this->hiddenLabel();
         $this->default(fn () => PermissionsGrid::toFormData([])['permission_matrix']);
     }

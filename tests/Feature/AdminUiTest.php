@@ -5,8 +5,11 @@ namespace Tests\Feature;
 use Filament\Facades\Filament;
 use Filament\Pages\BasePage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Lang;
 use Modules\Lookups\Filament\Resources\LookupResource;
 use Modules\Lookups\Models\Lookup;
+use Modules\Users\Filament\Resources\RoleResource;
 use Modules\Users\Filament\Resources\UserResource;
 use Modules\Users\Models\User;
 use Tests\TestCase;
@@ -80,6 +83,28 @@ class AdminUiTest extends TestCase
             __('admin.navigation.inquiries_crm'),
             __('admin.navigation.system_configuration'),
         ], $labels);
+    }
+
+    public function test_every_filament_text_has_an_arabic_translation(): void
+    {
+        $namespaces = ['filament' => 'filament-panels', 'support' => 'filament', 'query-builder' => 'filament-query-builder'];
+
+        foreach (glob(base_path('vendor/filament/*/resources/lang/en/*.php')) as $file) {
+            $package = basename(dirname($file, 4));
+            $namespace = $namespaces[$package] ?? "filament-{$package}";
+
+            foreach (array_keys(Arr::dot(require $file)) as $key) {
+                $this->assertTrue(Lang::hasForLocale("{$namespace}::".basename($file, '.php').".{$key}", 'ar'), "Missing Arabic: {$namespace}::".basename($file, '.php').".{$key}");
+            }
+        }
+    }
+
+    public function test_the_permissions_table_has_a_translated_label_for_screen_readers(): void
+    {
+        $this->actingAs($this->createAdmin());
+        app()->setLocale('ar');
+
+        $this->get(RoleResource::getUrl('create'))->assertOk()->assertDontSee('Permission matrix');
     }
 
     public function test_save_buttons_stay_visible_on_long_forms(): void
