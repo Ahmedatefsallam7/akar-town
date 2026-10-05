@@ -7,18 +7,20 @@ use App\Filament\Helpers\TableHelper;
 use App\Filament\Support\PrefixSearch;
 use App\Filament\Traits\HasResourceTranslations;
 use Filament\Actions\BulkAction;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\QueryBuilder;
@@ -122,6 +124,7 @@ class UserResource extends Resource implements HasPermissionModule
                         Tab::make(__('admin.tabs.details'))
                             ->icon('heroicon-o-user')
                             ->schema([
+                                ...static::avatarFields(),
                                 TextInput::make('first_name')
                                     ->label(__('admin.users.first_name'))
                                     ->required()
@@ -277,25 +280,14 @@ class UserResource extends Resource implements HasPermissionModule
                 TextColumn::make('username')
                     ->label(__('admin.users.username'))
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->toggleable()
                     ->alignment('center'),
                 TextColumn::make('email')
                     ->label(__('admin.users.email'))
                     ->alignment('center'),
-                IconColumn::make('email_verified_at')
-                    ->label(__('admin.users.email_verified'))
-                    ->boolean()
-                    ->trueIcon('heroicon-m-check-badge')
-                    ->falseIcon('heroicon-m-x-circle')
-                    ->trueColor('success')
-                    ->falseColor('warning')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->alignment('center')
-                    ->getStateUsing(fn (User $record) => ! is_null($record->email_verified_at)),
                 TextColumn::make('phone')
                     ->label(__('admin.users.phone'))
-                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->toggleable()
                     ->alignment('center'),
                 // role_id (not "role.name") so Filament doesn't eager-load roles again; they're attached by getEloquentQuery().
                 TextColumn::make('role_id')
@@ -334,12 +326,6 @@ class UserResource extends Resource implements HasPermissionModule
                 TernaryFilter::make('is_suspended')
                     ->label(__('admin.users.suspended'))
                     ->indicator(__('admin.users.suspended')),
-                TernaryFilter::make('email_verified_at')
-                    ->label(__('admin.users.email_verified'))
-                    ->nullable()
-                    ->placeholder(__('admin.users.all_users'))
-                    ->trueLabel(__('admin.users.verified'))
-                    ->falseLabel(__('admin.users.unverified')),
                 TrashedFilter::make(),
             ])
             ->filtersLayout(FiltersLayout::Modal)
@@ -378,6 +364,49 @@ class UserResource extends Resource implements HasPermissionModule
             'view' => Pages\ViewUser::route('/{record}'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
+    }
+
+    /**
+     * Avatar upload + the large view shown when the photo is clicked. Used on the Users form and the profile page.
+     *
+     * @return array<Component>
+     */
+    public static function avatarFields(): array
+    {
+        return [
+            static::avatarField(),
+            View::make('users::filament.forms.avatar-lightbox')
+                ->visible(fn (?User $record): bool => filled($record?->avatar))
+                ->columnSpanFull(),
+        ];
+    }
+
+    /**
+     * Cropped square and resized to 512×512 in the browser before upload (≈15 KB instead of a multi-MB photo).
+     * JPG, PNG or WebP only: SVG can carry scripts. Clicking the saved photo opens it large (avatar-lightbox).
+     */
+    public static function avatarField(): FileUpload
+    {
+        return FileUpload::make('avatar')
+            ->label(__('admin.users.avatar'))
+            ->avatar()
+            ->image()
+            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+            ->maxSize(2048)
+            ->helperText(__('admin.users.avatar_help'))
+            ->imageCropAspectRatio('1:1')
+            ->imageResizeMode('cover')
+            ->imageResizeTargetWidth('512')
+            ->imageResizeTargetHeight('512')
+            ->disk(User::AVATAR_DISK)
+            ->directory(User::AVATAR_DIRECTORY)
+            ->visibility('public')
+            ->extraAttributes([
+                'class' => '[&_.filepond--item]:cursor-zoom-in',
+                // Clicking the photo (not its remove/upload buttons) opens it large.
+                'x-on:click' => "if (\$event.target.closest('.filepond--item, .filepond--list-scroller') && ! \$event.target.closest('button')) \$dispatch('open-avatar')",
+            ])
+            ->columnSpanFull();
     }
 
     /**

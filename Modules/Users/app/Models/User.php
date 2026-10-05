@@ -4,6 +4,7 @@ namespace Modules\Users\Models;
 
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasAvatar;
 use Filament\Models\Contracts\HasName;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,12 +12,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Mattiverse\Userstamps\Traits\Userstamps;
 use Modules\Lookups\Models\Lookup;
 use Modules\Users\Enums\PermissionAction;
 use Modules\Users\Support\PermissionModules;
 
-class User extends Authenticatable implements FilamentUser, HasName
+class User extends Authenticatable implements FilamentUser, HasAvatar, HasName
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, SoftDeletes, Userstamps;
@@ -35,6 +38,7 @@ class User extends Authenticatable implements FilamentUser, HasName
         'name',
         'first_name',
         'last_name',
+        'avatar',
         'username',
         'phone',
         'email',
@@ -58,6 +62,38 @@ class User extends Authenticatable implements FilamentUser, HasName
             'password' => 'hashed',
             'custom_permissions' => 'array',
         ];
+    }
+
+    /**
+     * Remove avatar files that are no longer used, so replaced photos don't pile up on the disk.
+     * A soft-deleted user keeps the photo (they can be restored); a permanent delete removes it.
+     */
+    protected static function booted(): void
+    {
+        static::updated(function (User $user) {
+            if ($user->wasChanged('avatar')) {
+                static::deleteAvatarFile($user->getOriginal('avatar'));
+            }
+        });
+
+        static::forceDeleted(fn (User $user) => static::deleteAvatarFile($user->avatar));
+    }
+
+    /**
+     * Deletes an avatar file once the database change is committed (a rolled-back save keeps the photo), and only
+     * if no other user still points to the same file.
+     */
+    protected static function deleteAvatarFile(?string $path): void
+    {
+        if (blank($path)) {
+            return;
+        }
+
+        DB::afterCommit(function () use ($path) {
+            if (! static::withTrashed()->where('avatar', $path)->exists()) {
+                Storage::disk(self::AVATAR_DISK)->delete($path);
+            }
+        });
     }
 
     protected static function newFactory(): UserFactory
@@ -91,6 +127,18 @@ class User extends Authenticatable implements FilamentUser, HasName
     public function canAccessPanel(Panel $panel): bool
     {
         return ! $this->is_suspended;
+    }
+
+    /**
+     * Disk and folder for avatars (public, so the browser can load them directly).
+     */
+    public const AVATAR_DISK = 'public';
+
+    public const AVATAR_DIRECTORY = 'avatars';
+
+    public function getFilamentAvatarUrl(): ?string
+    {
+        return $this->avatar ? Storage::disk(self::AVATAR_DISK)->url($this->avatar) : null;
     }
 
     public function getFilamentName(): string

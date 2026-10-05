@@ -583,6 +583,8 @@ return [
         'role' => 'Role',
         'suspended' => 'Suspended',
         'email_verified' => 'Email Verified',
+        'avatar' => 'Photo',
+        'avatar_help' => 'JPG, PNG or WebP, up to 2 MB. Cropped to a square.',
         'verified' => 'Verified',
         'unverified' => 'Unverified',
         'all_users' => 'All Users',

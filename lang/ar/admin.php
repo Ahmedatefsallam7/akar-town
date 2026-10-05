@@ -582,6 +582,8 @@ return [
         'role' => 'الدور',
         'suspended' => 'موقف',
         'email_verified' => 'البريد الإلكتروني مؤكد',
+        'avatar' => 'الصورة الشخصية',
+        'avatar_help' => 'JPG أو PNG أو WebP، بحد أقصى 2 ميجابايت. يتم قصها بشكل مربع.',
         'verified' => 'مؤكد',
         'unverified' => 'غير مؤكد',
         'all_users' => 'جميع المستخدمين',

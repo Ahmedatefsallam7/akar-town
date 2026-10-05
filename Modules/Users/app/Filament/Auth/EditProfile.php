@@ -5,6 +5,7 @@ namespace Modules\Users\Filament\Auth;
 use Filament\Auth\Pages\EditProfile as BaseEditProfile;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use Modules\Users\Filament\Resources\UserResource;
 
 /**
  * Profile page for the logged-in user. Lives outside Filament/Pages so module discovery does not add it to the sidebar.
@@ -15,6 +16,7 @@ class EditProfile extends BaseEditProfile
     {
         return $schema
             ->components([
+                ...UserResource::avatarFields(),
                 TextInput::make('first_name')
                     ->label(__('admin.users.first_name'))
                     ->required()
