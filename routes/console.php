@@ -25,7 +25,6 @@ Artisan::command('cache:prune-expired', function () {
 
 Schedule::command('cache:prune-expired')->daily();
 
-
 // An avatar is written to disk when the form is submitted, before the record is saved; if the save then fails
 // (another field invalid, page left), the file has no owner. Delete avatar files no user points to, once they're
 // older than the given hours (so an upload in progress is never touched).
