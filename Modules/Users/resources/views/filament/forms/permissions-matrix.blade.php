@@ -30,6 +30,13 @@
             setRow(module, on) {
                 this.editable[module]?.forEach((action) => this.set(module, action, on))
             },
+            groupIsFull(modules) {
+                const rows = modules.filter((module) => (this.editable[module] ?? []).length > 0)
+                return rows.length > 0 && rows.every((module) => this.rowIsFull(module))
+            },
+            setGroup(modules, on) {
+                modules.forEach((module) => this.setRow(module, on))
+            },
             setAll(on) {
                 Object.keys(this.editable).forEach((module) => this.setRow(module, on))
             },
@@ -61,9 +68,19 @@
 
                 <tbody class="divide-y divide-gray-200 dark:divide-white/10">
                     @foreach ($groups as $group)
+                        @php($groupModules = Js::from(array_column($group['modules'], 'key')))
                         <tr class="bg-gray-50/60 dark:bg-white/[0.02]">
-                            <td colspan="{{ count($actions) + 2 }}" class="px-4 py-2 text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400">
+                            <td colspan="{{ count($actions) + 1 }}" class="px-4 py-2 text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400">
                                 {{ $group['label'] }}
+                            </td>
+                            <td class="px-3 py-2 text-center">
+                                {{-- Select all in this group --}}
+                                <x-filament::input.checkbox
+                                    :aria-label="$group['label'].' - '.__('admin.roles.all')"
+                                    x-bind:checked="groupIsFull({{ $groupModules }})"
+                                    x-bind:disabled="! {{ $groupModules }}.some((module) => (editable[module] ?? []).length > 0)"
+                                    x-on:change="setGroup({{ $groupModules }}, $event.target.checked)"
+                                />
                             </td>
                         </tr>
 

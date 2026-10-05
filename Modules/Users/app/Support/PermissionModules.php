@@ -3,6 +3,7 @@
 namespace Modules\Users\Support;
 
 use App\Filament\Contracts\HasPermissionModule;
+use App\Providers\Filament\AdminPanelProvider;
 use Filament\Facades\Filament;
 use Modules\Users\Enums\PermissionAction;
 
@@ -37,11 +38,19 @@ class PermissionModules
     }
 
     /**
+     * Modules by group, groups in the sidebar's order.
+     *
      * @return array<string, array<string, array{key: string, group: string, label: string, actions: array<string>}>>
      */
     public static function grouped(): array
     {
-        return collect(static::all())->groupBy('group', preserveKeys: true)->map->all()->all();
+        $order = array_flip(AdminPanelProvider::NAVIGATION_GROUPS);
+
+        return collect(static::all())
+            ->groupBy('group', preserveKeys: true)
+            ->sortBy(fn ($modules, string $group) => $order[$group] ?? PHP_INT_MAX)
+            ->map->all()
+            ->all();
     }
 
     /**

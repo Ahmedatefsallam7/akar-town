@@ -106,6 +106,39 @@ class UserResourceTest extends TestCase
         $this->get(UserResource::getUrl('edit', ['record' => $admin]))->assertNotFound();
     }
 
+    public function test_an_inactive_role_cannot_be_given(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $editor = $this->role('user_roles_editor');
+        $editor->update(['is_active' => false]);
+
+        $this->assertNotContains($editor->id, UserResource::assignableRoleIds());
+
+        Livewire::test(CreateUser::class)
+            ->fillForm($this->validData(['role_id' => $editor->id]))
+            ->call('create')
+            ->assertHasFormErrors(['role_id']);
+
+        $this->assertDatabaseMissing('users', ['email' => 'sara@example.com']);
+    }
+
+    public function test_a_user_on_a_role_that_became_inactive_still_shows_it_and_can_be_saved(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $editor = $this->role('user_roles_editor');
+        $user = User::factory()->create(['username' => 'sara', 'phone' => '+201012345678', 'role_id' => $editor->id]);
+        $editor->update(['is_active' => false]);
+
+        $this->assertArrayHasKey($editor->id, UserResource::roleOptions($user));
+
+        Livewire::test(EditUser::class, ['record' => $user->getRouteKey()])
+            ->fillForm(['first_name' => 'Changed'])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame('Changed', $user->fresh()->first_name);
+    }
+
     public function test_non_admin_cannot_give_the_admin_role(): void
     {
         $this->actingAs($this->createUserWithPermissions(['users' => true]));

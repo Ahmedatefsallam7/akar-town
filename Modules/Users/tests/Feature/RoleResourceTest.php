@@ -2,6 +2,7 @@
 
 namespace Modules\Users\Tests\Feature;
 
+use App\Providers\Filament\AdminPanelProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Modules\Lookups\Models\Lookup;
@@ -225,6 +226,23 @@ class RoleResourceTest extends TestCase
 
         // Alpine expressions must reach the browser as JS (Blade component attributes don't run @js()).
         $page->assertDontSee('@js(', false)->assertSee("has('lookups', 'view')", false);
+    }
+
+    public function test_each_permission_group_has_a_select_all(): void
+    {
+        $this->actingAs($this->createAdmin());
+
+        $this->get(RoleResource::getUrl('create'))
+            ->assertOk()
+            ->assertSee(__('admin.navigation.system_configuration').' - '.__('admin.roles.all'))
+            ->assertSee('setGroup(', false);
+    }
+
+    public function test_permission_groups_follow_the_sidebar_order(): void
+    {
+        $order = array_keys(PermissionModules::grouped());
+
+        $this->assertSame(array_values(array_intersect(AdminPanelProvider::NAVIGATION_GROUPS, $order)), $order);
     }
 
     public function test_seeded_roles_cannot_be_deleted(): void

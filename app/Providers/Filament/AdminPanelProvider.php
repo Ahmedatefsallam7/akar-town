@@ -28,6 +28,11 @@ use Nwidart\Modules\Facades\Module;
 
 class AdminPanelProvider extends PanelProvider
 {
+    /**
+     * Sidebar sections, in order. Permission groups in the role and user forms follow the same order.
+     */
+    public const NAVIGATION_GROUPS = ['property_management', 'marketing_content', 'inquiries_crm', 'system_configuration'];
+
     public function panel(Panel $panel): Panel
     {
         $panel
@@ -44,7 +49,7 @@ class AdminPanelProvider extends PanelProvider
             // language switch, and all actions (delete, logout...) are buttons, not links.
             ->spa(hasPrefetching: true)
             // Sidebar sections in a fixed order (each appears once it has pages). Labels are translated per request.
-            ->navigationGroups(collect(['property_management', 'marketing_content', 'inquiries_crm', 'system_configuration'])
+            ->navigationGroups(collect(self::NAVIGATION_GROUPS)
                 ->map(fn (string $group) => NavigationGroup::make(fn () => __("admin.navigation.{$group}")))
                 ->all())
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])

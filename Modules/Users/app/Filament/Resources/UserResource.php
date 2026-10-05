@@ -421,8 +421,8 @@ class UserResource extends Resource implements HasPermissionModule
     }
 
     /**
-     * Roles the logged-in user may give: admins any role; others only non-Admin roles with no more access than
-     * they have themselves (prevents privilege escalation).
+     * Roles the logged-in user may give: active roles only; admins any of them, others only non-Admin roles with no
+     * more access than they have themselves (prevents privilege escalation).
      *
      * @return array<int>
      */
@@ -431,8 +431,8 @@ class UserResource extends Resource implements HasPermissionModule
         $me = auth()->user();
 
         return static::roles()
-            ->filter(fn (Lookup $role) => $me?->isAdmin()
-                || ($role->slug !== User::ADMIN_ROLE && (bool) $me?->covers($role->getAttribute('attributes')['permissions'] ?? [])))
+            ->filter(fn (Lookup $role) => $role->is_active && ($me?->isAdmin()
+                || ($role->slug !== User::ADMIN_ROLE && (bool) $me?->covers($role->getAttribute('attributes')['permissions'] ?? []))))
             ->pluck('id')
             ->all();
     }
