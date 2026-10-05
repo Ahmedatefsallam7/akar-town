@@ -62,12 +62,18 @@ trait HasResourceTranslations
         $actions = PermissionAction::forAbility($ability);
         $user = auth()->user();
 
-        $allowed = $actions !== null
+        $permitted = $actions !== null
             && $user !== null
-            && collect($actions)->every(fn (PermissionAction $needed) => $user->hasPermission(static::getPermissionKey(), $needed))
-            && ($record === null || static::canPerformOnRecord($ability, $record));
+            && collect($actions)->every(fn (PermissionAction $needed) => $user->hasPermission(static::getPermissionKey(), $needed));
 
-        return $allowed ? Response::allow() : Response::deny();
+        if (! $permitted) {
+            return Response::deny();
+        }
+
+        // A record rule may say why (e.g. "in use"); actions with authorizationTooltip() then show disabled with it.
+        return $record === null || static::canPerformOnRecord($ability, $record)
+            ? Response::allow()
+            : Response::deny(static::recordDenialMessage($ability, $record));
     }
 
     /**
@@ -76,6 +82,14 @@ trait HasResourceTranslations
     protected static function canPerformOnRecord(string $ability, Model $record): bool
     {
         return true;
+    }
+
+    /**
+     * Why canPerformOnRecord() said no, shown to the user. Null = no reason given (the action stays hidden).
+     */
+    protected static function recordDenialMessage(string $ability, Model $record): ?string
+    {
+        return null;
     }
 
     protected static function getTranslationKey(string $type): string

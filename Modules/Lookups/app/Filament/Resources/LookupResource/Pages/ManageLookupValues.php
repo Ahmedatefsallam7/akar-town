@@ -66,6 +66,7 @@ class ManageLookupValues extends ManageRelatedRecords
             ->modifyQueryUsing(fn (Builder $query) => $query
                 ->withoutGlobalScopes([SoftDeletingScope::class])
                 ->withProtectedDescendantsFlag()
+                ->withUsageFlag()
                 ->when($opensLevel, fn (Builder $query) => $query->withCount('children')))
             ->reorderable('order')
             ->defaultSort('order')
@@ -111,7 +112,9 @@ class ManageLookupValues extends ManageRelatedRecords
                     ->iconButton()
                     ->tooltip(__('admin.actions.delete'))
                     // A value with items inside (e.g. a city) takes them with it: say how many.
-                    ->modalDescription(fn (Lookup $record) => $this->deleteWarning($record)),
+                    ->modalDescription(fn (Lookup $record) => $this->deleteWarning($record))
+                    // Protected or in use: shown disabled with the reason instead of hidden.
+                    ->authorizationTooltip(),
             ])
             ->toolbarActions(TableHelper::standardBulkActions());
     }

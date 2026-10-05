@@ -132,11 +132,12 @@ class TableHelper
     }
 
     /**
-     * Bulk action that sets is_active on the selected records. Needs edit + bulk; records you can't edit are skipped.
+     * Bulk action that sets a yes/no column (is_active by default, or e.g. is_featured) on the selected records.
+     * Needs edit + bulk; records you can't edit are skipped.
      *
      * @param  class-string<resource>  $resource
      */
-    public static function statusBulkAction(string $resource, string $name, string $icon, bool $isActive): BulkAction
+    public static function statusBulkAction(string $resource, string $name, string $icon, bool $value, string $column = 'is_active'): BulkAction
     {
         return BulkAction::make($name)
             ->label(__("admin.actions.{$name}"))
@@ -145,7 +146,7 @@ class TableHelper
             ->authorize(fn (): bool => $resource::can('updateAny'))
             ->action(fn (Collection $records) => $records
                 ->filter(fn (Model $record) => $resource::canEdit($record))
-                ->each->update(['is_active' => $isActive]))
+                ->each->update([$column => $value]))
             ->successNotificationTitle(__('admin.notifications.updated'))
             ->deselectRecordsAfterCompletion();
     }

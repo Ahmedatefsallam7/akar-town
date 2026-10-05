@@ -82,13 +82,24 @@ class LookupResource extends Resource implements HasPermissionModule
     }
 
     /**
-     * Lookup types (seeded, protected) can't be deleted, and nothing that contains a protected item can be.
+     * Lookup types (seeded, protected) can't be deleted, nor anything that contains a protected item, nor a value
+     * that another module uses (e.g. a city a location points at).
      */
     protected static function canPerformOnRecord(string $ability, Model $record): bool
     {
-        return match ($ability) {
-            'delete', 'forceDelete' => $record->is_deletable && ! $record->hasProtectedDescendants(),
-            default => true,
+        return static::recordDenialMessage($ability, $record) === null;
+    }
+
+    protected static function recordDenialMessage(string $ability, Model $record): ?string
+    {
+        if (! in_array($ability, ['delete', 'forceDelete'], true)) {
+            return null;
+        }
+
+        return match (true) {
+            ! $record->is_deletable || $record->hasProtectedDescendants() => __('admin.lookups.cannot_delete_protected'),
+            $record->isUsed() => __('admin.lookups.cannot_delete_used'),
+            default => null,
         };
     }
 

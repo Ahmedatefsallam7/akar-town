@@ -1,4 +1,5 @@
 {
     "Lookups": true,
-    "Users": true
+    "Users": true,
+    "Locations": true
 }

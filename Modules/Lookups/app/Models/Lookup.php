@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Kalnoy\Nestedset\NodeTrait;
 use Mattiverse\Userstamps\Traits\Userstamps;
+use Modules\Lookups\Support\LookupUsage;
 
 /**
  * A lookup is either a root category (e.g. "Property Types") or a value inside one (e.g. "Villa").
@@ -129,6 +130,26 @@ class Lookup extends Model
         }
 
         return $this->descendants()->withTrashed()->where('is_deletable', false)->exists();
+    }
+
+    /**
+     * Adds "is_used": whether another module (e.g. a location) uses this lookup or a value inside it.
+     */
+    public function scopeWithUsageFlag(Builder $query): void
+    {
+        LookupUsage::addFlag($query);
+    }
+
+    /**
+     * Whether another module uses this lookup or a value inside it (see LookupUsage).
+     */
+    public function isUsed(): bool
+    {
+        if (array_key_exists('is_used', $this->attributes)) {
+            return (bool) $this->attributes['is_used'];
+        }
+
+        return LookupUsage::isUsed($this);
     }
 
     public function getDefaultNameAttribute(): ?string

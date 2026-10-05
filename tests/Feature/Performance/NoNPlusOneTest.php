@@ -3,8 +3,12 @@
 namespace Tests\Feature\Performance;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Modules\Locations\Filament\Resources\LocationResource;
+use Modules\Locations\Models\Location;
 use Modules\Lookups\Filament\Resources\LookupResource;
 use Modules\Lookups\Models\Lookup;
 use Modules\Users\Filament\Resources\RoleResource;
@@ -86,6 +90,16 @@ class NoNPlusOneTest extends TestCase
                 $egypt->children()->create(['name_en' => "City {$i}", 'slug' => "city_{$i}"])->children()->create(['name_en' => 'Region', 'slug' => 'region']);
             }
         });
+    }
+
+    public function test_locations_list_with_images(): void
+    {
+        Storage::fake('public');
+        $this->actingAs($this->createAdmin());
+        $withImage = fn (Location $location) => $location->addMedia(UploadedFile::fake()->image('cover.jpg', 40, 40))->toMediaCollection(Location::FEATURED_IMAGE);
+        $withImage(Location::factory()->create(['neighbourhoods' => ['A']]));
+
+        $this->assertNoNPlusOne(LocationResource::getUrl('index'), fn () => Location::factory()->count(9)->create(['neighbourhoods' => ['A', 'B']])->each($withImage));
     }
 
     public function test_roles_list(): void

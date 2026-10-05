@@ -5,6 +5,8 @@ namespace Tests\Feature\Performance;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Once;
+use Modules\Locations\Filament\Resources\LocationResource;
+use Modules\Locations\Models\Location;
 use Modules\Lookups\Filament\Resources\LookupResource;
 use Modules\Lookups\Models\Lookup;
 use Modules\Users\Filament\Resources\RoleResource;
@@ -30,6 +32,9 @@ class QueryBudgetTest extends TestCase
         'lookups.values' => 4, // the type, its ancestors (breadcrumbs, tree depth), the values (+ delete flag), the count
         'roles.index' => 2,    // count, page
         'roles.edit' => 1,     // role
+        'locations.index' => 4,  // count, page, featured images, location chain (one query for the 5 level filters)
+        'locations.create' => 1, // location chain
+        'locations.edit' => 3,   // location, its image, location chain
     ];
 
     public function test_every_admin_page_stays_within_its_query_budget(): void
@@ -38,6 +43,7 @@ class QueryBudgetTest extends TestCase
         $user = User::factory()->create(['role_id' => $this->role('user_roles_client')->id]);
         $lookup = Lookup::create(['name_en' => 'Views', 'slug' => 'views']);
         $lookup->children()->create(['name_en' => 'Sea', 'slug' => 'sea']);
+        $location = Location::factory()->create();
 
         $pages = [
             'dashboard' => '/admin',
@@ -49,6 +55,9 @@ class QueryBudgetTest extends TestCase
             'lookups.values' => LookupResource::getUrl('values', ['record' => $lookup]),
             'roles.index' => RoleResource::getUrl('index'),
             'roles.edit' => RoleResource::getUrl('edit', ['record' => $this->role('user_roles_editor')]),
+            'locations.index' => LocationResource::getUrl('index'),
+            'locations.create' => LocationResource::getUrl('create'),
+            'locations.edit' => LocationResource::getUrl('edit', ['record' => $location]),
         ];
 
         $actual = [];
