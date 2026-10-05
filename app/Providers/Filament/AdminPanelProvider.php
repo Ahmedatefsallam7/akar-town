@@ -57,7 +57,7 @@ class AdminPanelProvider extends PanelProvider
             )
             ->renderHook(
                 PanelsRenderHook::USER_MENU_BEFORE,
-                fn (): string => view('filament.language-switcher')->render(),
+                fn (): string => view('filament.go-to-website')->render().view('filament.language-switcher')->render(),
             )
             ->userMenuItems([
                 'profile' => fn (Action $action) => $action

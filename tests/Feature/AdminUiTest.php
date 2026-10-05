@@ -101,4 +101,19 @@ class AdminUiTest extends TestCase
             $this->assertStringNotContainsString('wire:navigate', $tag);
         }
     }
+
+    public function test_header_has_a_go_to_website_link_that_opens_a_new_tab(): void
+    {
+        $this->actingAs($this->createAdmin());
+
+        $html = $this->get('/admin')->assertOk()->getContent();
+
+        preg_match_all('/<a\b[^>]*?>/s', $html, $links);
+        $website = collect($links[0])->first(fn (string $tag) => str_contains($tag, __('admin.navigation.go_to_website')));
+
+        $this->assertNotNull($website, 'Go to website link not found.');
+        $this->assertStringContainsString('href="'.url('/').'"', $website);
+        $this->assertStringContainsString('target="_blank"', $website);
+        $this->assertStringContainsString('rel="noopener"', $website);
+    }
 }
