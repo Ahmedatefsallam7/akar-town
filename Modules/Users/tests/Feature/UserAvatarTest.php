@@ -8,8 +8,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Modules\Users\Filament\Auth\EditProfile;
+use Modules\Users\Filament\Resources\UserResource;
 use Modules\Users\Filament\Resources\UserResource\Pages\CreateUser;
 use Modules\Users\Filament\Resources\UserResource\Pages\EditUser;
+use Modules\Users\Filament\Resources\UserResource\Pages\ListUsers;
 use Modules\Users\Models\User;
 use Tests\TestCase;
 
@@ -164,17 +166,17 @@ class UserAvatarTest extends TestCase
         $two = $this->client(['avatar' => 'avatars/two.jpg']);
 
         // Delete (to the trash): photos kept, so a restore still has them.
-        Livewire::test(\Modules\Users\Filament\Resources\UserResource\Pages\ListUsers::class)
+        Livewire::test(ListUsers::class)
             ->callTableBulkAction('delete', [$one, $two]);
         $disk->assertExists(['avatars/one.jpg', 'avatars/two.jpg']);
 
         // Permanent delete, one row and in bulk: photos removed.
-        Livewire::test(\Modules\Users\Filament\Resources\UserResource\Pages\ListUsers::class)
+        Livewire::test(ListUsers::class)
             ->filterTable('trashed', false)
             ->callTableAction('forceDelete', $one);
         $disk->assertMissing('avatars/one.jpg');
 
-        Livewire::test(\Modules\Users\Filament\Resources\UserResource\Pages\ListUsers::class)
+        Livewire::test(ListUsers::class)
             ->filterTable('trashed', false)
             ->callTableBulkAction('forceDelete', [$two]);
         $disk->assertMissing('avatars/two.jpg');
@@ -182,7 +184,7 @@ class UserAvatarTest extends TestCase
 
     public function test_the_photo_field_explains_the_allowed_files(): void
     {
-        $this->get(\Modules\Users\Filament\Resources\UserResource::getUrl('create'))
+        $this->get(UserResource::getUrl('create'))
             ->assertOk()
             ->assertSee(__('admin.users.avatar_help'));
     }

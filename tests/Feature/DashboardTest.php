@@ -27,10 +27,11 @@ class DashboardTest extends TestCase
 
     public function test_shortcuts_and_numbers_follow_the_users_permissions(): void
     {
-        $this->actingAs($this->createUserWithPermissions(['lookups' => ['view', 'create'], 'users' => ['view']]));
+        $this->actingAs($this->createUserWithPermissions(['lookups' => ['view', 'create'], 'users' => ['view', 'create']]));
 
+        // Lookups has no "create" page (values are added inside a type), so only Users gets a shortcut.
         $shortcuts = collect(Livewire::test(WelcomeWidget::class)->instance()->getShortcuts())->pluck('url');
-        $this->assertSame([LookupResource::getUrl('create')], $shortcuts->all());
+        $this->assertSame([UserResource::getUrl('create')], $shortcuts->all());
 
         Livewire::test(QuickStatsWidget::class)
             ->assertSee(LookupResource::getPluralModelLabel())

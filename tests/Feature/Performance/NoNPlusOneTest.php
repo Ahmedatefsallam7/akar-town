@@ -61,9 +61,29 @@ class NoNPlusOneTest extends TestCase
         $category = Lookup::create(['name_en' => 'Views', 'slug' => 'views']);
         $category->children()->create(['name_en' => 'View 0', 'slug' => 'view_0']);
 
-        $this->assertNoNPlusOne(LookupResource::getUrl('index'), function () use ($category) {
+        $this->assertNoNPlusOne(LookupResource::getUrl('values', ['record' => $category]), function () use ($category) {
             foreach (range(1, 8) as $i) {
                 $category->children()->create(['name_en' => "View {$i}", 'slug' => "view_{$i}"]);
+            }
+        });
+    }
+
+    public function test_lookup_types_page_and_a_locations_level(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $locations = Lookup::create(['name_en' => 'Locations', 'slug' => 'locations']);
+        $egypt = $locations->children()->create(['name_en' => 'Egypt', 'slug' => 'egypt']);
+        $egypt->children()->create(['name_en' => 'Cairo', 'slug' => 'cairo'])->children()->create(['name_en' => 'Nasr City', 'slug' => 'nasr']);
+
+        $this->assertNoNPlusOne(LookupResource::getUrl('index'), function () {
+            foreach (range(1, 8) as $i) {
+                Lookup::create(['name_en' => "Type {$i}", 'slug' => "type_{$i}"])->children()->create(['name_en' => 'Value', 'slug' => 'value']);
+            }
+        });
+
+        $this->assertNoNPlusOne(LookupResource::getUrl('values', ['record' => $egypt]), function () use ($egypt) {
+            foreach (range(1, 8) as $i) {
+                $egypt->children()->create(['name_en' => "City {$i}", 'slug' => "city_{$i}"])->children()->create(['name_en' => 'Region', 'slug' => 'region']);
             }
         });
     }

@@ -6,6 +6,7 @@ use Filament\Facades\Filament;
 use Filament\Pages\BasePage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\Lookups\Filament\Resources\LookupResource;
+use Modules\Lookups\Models\Lookup;
 use Modules\Users\Filament\Resources\UserResource;
 use Modules\Users\Models\User;
 use Tests\TestCase;
@@ -44,10 +45,12 @@ class AdminUiTest extends TestCase
     {
         $this->actingAs($this->createAdmin());
 
-        $this->get(LookupResource::getUrl('index'))
-            ->assertSee(__('admin.table.empty_heading', ['name' => LookupResource::getPluralModelLabel()]))
+        $type = Lookup::create(['name_en' => 'Unit Type', 'slug' => 'unittype']);
+
+        $this->get(LookupResource::getUrl('values', ['record' => $type]))
+            ->assertSee(__('admin.table.empty_heading', ['name' => 'Unit Type']))
             ->assertSee(__('admin.table.empty_description'))
-            ->assertSee(LookupResource::getUrl('create'), false);
+            ->assertSee(__('admin.lookups.add_value'));
     }
 
     public function test_user_form_is_split_into_tabs(): void

@@ -3,9 +3,10 @@
 namespace Modules\Users\Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
 use Modules\Lookups\Filament\Resources\LookupResource;
-use Modules\Lookups\Filament\Resources\LookupResource\Pages\ListLookups;
+use Modules\Lookups\Filament\Resources\LookupResource\Pages\ManageLookupValues;
 use Modules\Lookups\Models\Lookup;
 use Modules\Users\Filament\Resources\RoleResource;
 use Modules\Users\Filament\Resources\RoleResource\Pages\ListRoles;
@@ -21,13 +22,16 @@ class ActionPermissionsTest extends TestCase
 {
     use RefreshDatabase;
 
+    private Lookup $type;
+
     private Lookup $lookup;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->lookup = Lookup::create(['name_en' => 'Views', 'name_ar' => 'الإطلالة', 'slug' => 'views']);
+        $this->type = Lookup::create(['name_en' => 'Views', 'name_ar' => 'الإطلالة', 'slug' => 'views', 'is_deletable' => false]);
+        $this->lookup = $this->type->children()->create(['name_en' => 'Sea View', 'name_ar' => 'بحر', 'slug' => 'sea_view']);
     }
 
     private function actAs(array $actions): void
@@ -35,22 +39,24 @@ class ActionPermissionsTest extends TestCase
         $this->actingAs($this->createUserWithPermissions(['lookups' => $actions]));
     }
 
-    public function test_view_only_can_list_and_view_but_not_change_anything(): void
+    private function valuesPage(): Testable
+    {
+        return Livewire::test(ManageLookupValues::class, ['record' => $this->type->getRouteKey()]);
+    }
+
+    public function test_view_only_can_open_the_pages_but_not_change_anything(): void
     {
         $this->actAs(['view']);
 
         $this->get(LookupResource::getUrl('index'))->assertOk();
-        $this->get(LookupResource::getUrl('view', ['record' => $this->lookup]))->assertOk();
-        $this->get(LookupResource::getUrl('create'))->assertForbidden();
-        $this->get(LookupResource::getUrl('edit', ['record' => $this->lookup]))->assertForbidden();
+        $this->get(LookupResource::getUrl('values', ['record' => $this->type]))->assertOk();
 
-        Livewire::test(ListLookups::class)
-            ->assertActionHidden('create')
-            ->assertTableActionVisible('view', $this->lookup)
+        $this->valuesPage()
+            ->assertTableActionHidden('create')
             ->assertTableActionHidden('edit', $this->lookup)
             ->assertTableActionHidden('delete', $this->lookup)
-            ->assertTableBulkActionHidden('delete')
-            ->assertTableBulkActionHidden('activate');
+            ->assertTableBulkActionHidden('delete');
+        $this->assertFalse(LookupResource::canReorder());
     }
 
     public function test_without_view_nothing_works_even_with_other_actions(): void
@@ -58,37 +64,50 @@ class ActionPermissionsTest extends TestCase
         $this->actAs(['create', 'edit', 'delete', 'bulk']);
 
         $this->get(LookupResource::getUrl('index'))->assertForbidden();
-        $this->get(LookupResource::getUrl('create'))->assertForbidden();
-        $this->get(LookupResource::getUrl('edit', ['record' => $this->lookup]))->assertForbidden();
+        $this->get(LookupResource::getUrl('values', ['record' => $this->type]))->assertForbidden();
     }
 
-    public function test_create_allows_only_creating(): void
+    public function test_create_allows_only_adding_values(): void
     {
         $this->actAs(['view', 'create']);
 
-        $this->get(LookupResource::getUrl('create'))->assertOk();
-        $this->get(LookupResource::getUrl('edit', ['record' => $this->lookup]))->assertForbidden();
-        Livewire::test(ListLookups::class)->assertActionVisible('create');
+        $this->valuesPage()
+            ->assertTableActionVisible('create')
+            ->assertTableActionHidden('edit', $this->lookup)
+            ->callTableAction('create', data: ['name_en' => 'Garden View', 'name_ar' => 'حديقة', 'slug' => 'garden_view'])
+            ->assertHasNoTableActionErrors();
+
+        $this->assertDatabaseHas('lookups', ['slug' => 'garden_view', 'parent_id' => $this->type->id]);
     }
 
-    public function test_edit_allows_only_editing(): void
+    public function test_edit_allows_editing_reordering_and_the_active_toggle(): void
     {
         $this->actAs(['view', 'edit']);
 
-        $this->get(LookupResource::getUrl('edit', ['record' => $this->lookup]))->assertOk();
-        $this->get(LookupResource::getUrl('create'))->assertForbidden();
-
-        Livewire::test(ListLookups::class)
+        $this->valuesPage()
             ->assertTableActionVisible('edit', $this->lookup)
             ->assertTableActionHidden('delete', $this->lookup)
-            ->assertTableBulkActionHidden('activate');
+            ->assertTableActionHidden('create')
+            ->call('updateTableColumnState', 'is_active', (string) $this->lookup->getKey(), false);
+
+        $this->assertTrue(LookupResource::canReorder());
+        $this->assertFalse($this->lookup->fresh()->is_active);
+    }
+
+    public function test_without_edit_the_active_toggle_is_refused(): void
+    {
+        $this->actAs(['view', 'create', 'delete']);
+
+        $this->valuesPage()->call('updateTableColumnState', 'is_active', (string) $this->lookup->getKey(), false);
+
+        $this->assertTrue($this->lookup->fresh()->is_active);
     }
 
     public function test_delete_without_bulk_shows_only_the_row_delete(): void
     {
         $this->actAs(['view', 'delete']);
 
-        Livewire::test(ListLookups::class)
+        $this->valuesPage()
             ->assertTableActionVisible('delete', $this->lookup)
             ->assertTableBulkActionHidden('delete');
     }
@@ -96,39 +115,26 @@ class ActionPermissionsTest extends TestCase
     public function test_bulk_with_delete_allows_bulk_delete(): void
     {
         $this->actAs(['view', 'delete', 'bulk']);
-        $other = Lookup::create(['name_en' => 'Types', 'slug' => 'types']);
+        $other = $this->type->children()->create(['name_en' => 'Pool View', 'slug' => 'pool_view']);
 
-        Livewire::test(ListLookups::class)
+        $this->valuesPage()
             ->assertTableBulkActionVisible('delete')
-            ->assertTableBulkActionHidden('activate')
             ->callTableBulkAction('delete', [$this->lookup, $other]);
 
         $this->assertSoftDeleted($this->lookup);
         $this->assertSoftDeleted($other);
     }
 
-    public function test_bulk_with_edit_allows_custom_bulk_actions(): void
-    {
-        $this->actAs(['view', 'edit', 'bulk']);
-        $this->lookup->update(['is_active' => false]);
-
-        Livewire::test(ListLookups::class)
-            ->assertTableBulkActionVisible('activate')
-            ->assertTableBulkActionHidden('delete')
-            ->callTableBulkAction('activate', [$this->lookup]);
-
-        $this->assertTrue($this->lookup->fresh()->is_active);
-    }
-
     public function test_bulk_delete_skips_protected_lookups(): void
     {
         $this->actingAs($this->createAdmin());
-        $protected = Lookup::create(['name_en' => 'Types', 'slug' => 'types', 'is_deletable' => false]);
+        $protected = $this->type->children()->create(['name_en' => 'Locked', 'slug' => 'locked', 'is_deletable' => false]);
 
-        Livewire::test(ListLookups::class)->callTableBulkAction('delete', [$this->lookup, $protected]);
+        $this->valuesPage()->callTableBulkAction('delete', [$this->lookup, $protected]);
 
         $this->assertSoftDeleted($this->lookup);
         $this->assertNotSoftDeleted($protected);
+        $this->assertFalse(LookupResource::canDelete($protected));
     }
 
     public function test_bulk_delete_skips_seeded_roles(): void
@@ -163,7 +169,7 @@ class ActionPermissionsTest extends TestCase
     {
         $this->actingAs($this->createUserWithPermissions(['lookups' => true, 'users' => ['view']]));
 
-        $this->get(LookupResource::getUrl('create'))->assertOk();
+        $this->assertTrue(LookupResource::canCreate());
         $this->get(UserResource::getUrl('create'))->assertForbidden();
     }
 }

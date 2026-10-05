@@ -26,8 +26,8 @@ class QueryBudgetTest extends TestCase
         'users.view' => 2,     // user, roles
         'users.edit' => 2,     // user, roles
         'users.create' => 1,   // roles
-        'lookups.index' => 4,  // count, page (+ children count and delete flag as subqueries), parents, category filter
-        'lookups.edit' => 2,   // lookup, parent options (itself and its items left out in the same query)
+        'lookups.index' => 1,  // every type card with its number of values, in one query
+        'lookups.values' => 4, // the type, its ancestors (breadcrumbs, tree depth), the values (+ delete flag), the count
         'roles.index' => 2,    // count, page
         'roles.edit' => 1,     // role
     ];
@@ -46,7 +46,7 @@ class QueryBudgetTest extends TestCase
             'users.edit' => UserResource::getUrl('edit', ['record' => $user]),
             'users.create' => UserResource::getUrl('create'),
             'lookups.index' => LookupResource::getUrl('index'),
-            'lookups.edit' => LookupResource::getUrl('edit', ['record' => $lookup]),
+            'lookups.values' => LookupResource::getUrl('values', ['record' => $lookup]),
             'roles.index' => RoleResource::getUrl('index'),
             'roles.edit' => RoleResource::getUrl('edit', ['record' => $this->role('user_roles_editor')]),
         ];

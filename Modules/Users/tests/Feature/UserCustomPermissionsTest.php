@@ -58,9 +58,9 @@ class UserCustomPermissionsTest extends TestCase
 
         $this->assertSame(['view', 'edit'], $user->fresh()->custom_permissions['lookups']);
         $this->assertFalse($other->fresh()->hasPermission('lookups'));
-        $this->actingAs($user->fresh())
-            ->get(LookupResource::getUrl('edit', ['record' => Lookup::create(['name_en' => 'Views', 'slug' => 'views'])]))
-            ->assertOk();
+        $type = Lookup::create(['name_en' => 'Views', 'slug' => 'views']);
+        $this->actingAs($user->fresh())->get(LookupResource::getUrl('values', ['record' => $type]))->assertOk();
+        $this->assertTrue(LookupResource::canEdit($type->children()->create(['name_en' => 'Sea', 'slug' => 'sea'])));
     }
 
     public function test_switching_off_goes_back_to_the_role(): void
