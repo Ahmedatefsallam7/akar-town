@@ -7,6 +7,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Livewire;
 use Modules\Developers\Filament\Resources\DeveloperResource;
 use Modules\Developers\Models\Developer;
 use Modules\Galleries\Filament\Resources\GalleryResource;
@@ -17,6 +18,10 @@ use Modules\Lookups\Filament\Resources\LookupResource;
 use Modules\Lookups\Models\Lookup;
 use Modules\Projects\Filament\Resources\ProjectResource;
 use Modules\Projects\Models\Project;
+use Modules\Sliders\Filament\Resources\SliderResource\Pages\ViewSlider;
+use Modules\Sliders\Filament\Resources\SliderResource\RelationManagers\SlidesRelationManager;
+use Modules\Sliders\Models\Slider;
+use Modules\Sliders\Models\SliderItem;
 use Modules\Units\Filament\Resources\UnitResource;
 use Modules\Units\Models\Unit;
 use Modules\Users\Filament\Resources\RoleResource;
@@ -165,6 +170,26 @@ class NoNPlusOneTest extends TestCase
         $unit();
 
         $this->assertNoNPlusOne(UnitResource::getUrl('index'), fn () => collect(range(1, 9))->each(fn () => $unit()));
+    }
+
+    public function test_hero_slides_tab(): void
+    {
+        Storage::fake('public');
+        $this->actingAs($this->createAdmin());
+        $hero = Slider::factory()->hero()->create();
+        $slide = function () use ($hero) {
+            $project = Project::factory()->create();
+            $project->addMedia(UploadedFile::fake()->image('cover.jpg', 40, 40))->toMediaCollection(Project::FEATURED_IMAGE);
+            SliderItem::factory()->create(['slider_id' => $hero->id, 'project_id' => $project->id]);
+        };
+        $slide();
+        $render = fn () => $this->countQueries(fn () => Livewire::test(SlidesRelationManager::class, ['ownerRecord' => $hero, 'pageClass' => ViewSlider::class]));
+        $render();
+        $few = $render();
+
+        collect(range(1, 9))->each(fn () => $slide());
+
+        $this->assertSame($few, $render(), 'The hero slides tab runs a query per slide (N+1).');
     }
 
     public function test_roles_list(): void

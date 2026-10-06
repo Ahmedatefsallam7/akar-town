@@ -14,6 +14,7 @@ use Modules\Developers\Models\Developer;
 use Modules\Galleries\Models\Gallery;
 use Modules\Lookups\Models\Concerns\HasLookups;
 use Modules\Projects\Database\Factories\ProjectFactory;
+use Modules\Sliders\Models\SliderItem;
 use Modules\Units\Models\Unit;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
@@ -133,6 +134,14 @@ class Project extends Model implements HasMedia
     public function units(): HasMany
     {
         return $this->hasMany(Unit::class);
+    }
+
+    /**
+     * The homepage slides showing this project (the hero slider's).
+     */
+    public function sliderItems(): HasMany
+    {
+        return $this->hasMany(SliderItem::class);
     }
 
     /**

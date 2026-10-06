@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 use Modules\Developers\Database\Seeders\DevelopersDatabaseSeeder;
 use Modules\Locations\Database\Seeders\LocationsDatabaseSeeder;
 use Modules\Lookups\Database\Seeders\LookupsDatabaseSeeder;
+use Modules\Sliders\Database\Seeders\SlidersDatabaseSeeder;
 use Modules\Users\Database\Seeders\UsersDatabaseSeeder;
 
 class DatabaseSeeder extends Seeder
@@ -20,6 +21,7 @@ class DatabaseSeeder extends Seeder
             UsersDatabaseSeeder::class,
             LocationsDatabaseSeeder::class,
             DevelopersDatabaseSeeder::class,
+            SlidersDatabaseSeeder::class,
         ]);
     }
 }

@@ -410,6 +410,7 @@ class ProjectResource extends Resource implements HasPermissionModule
         return [
             RelationManagers\UnitsRelationManager::class,
             RelationManagers\GalleriesRelationManager::class,
+            RelationManagers\SlidersRelationManager::class,
         ];
     }
 

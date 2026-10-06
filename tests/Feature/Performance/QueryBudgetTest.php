@@ -15,6 +15,9 @@ use Modules\Lookups\Filament\Resources\LookupResource;
 use Modules\Lookups\Models\Lookup;
 use Modules\Projects\Filament\Resources\ProjectResource;
 use Modules\Projects\Models\Project;
+use Modules\Sliders\Filament\Resources\SliderResource;
+use Modules\Sliders\Models\Slider;
+use Modules\Sliders\Models\SliderItem;
 use Modules\Units\Filament\Resources\UnitResource;
 use Modules\Units\Models\Unit;
 use Modules\Users\Filament\Resources\RoleResource;
@@ -51,6 +54,8 @@ class QueryBudgetTest extends TestCase
         'units.index' => 6,       // count, page, images, projects (column), location chain, lookup values
         'units.edit' => 11,       // unit, picks, media per upload field (3), projects (options + current), the project's choices, galleries, location chain, lookup values
         'projects.edit' => 11,    // project, picked values, media per image field (5: the plugin reloads it per field), developers (options + current), location chain, lookup values
+        'sliders.index' => 2,     // page (not paginated: a fixed handful of blocks), count
+        'sliders.view' => 1,      // slider (the slides tab loads on its own)
     ];
 
     public function test_every_admin_page_stays_within_its_query_budget(): void
@@ -65,6 +70,8 @@ class QueryBudgetTest extends TestCase
         $project = Project::factory()->create(['developer_id' => $developer->id]);
         $gallery = Gallery::factory()->create(['project_id' => $project->id]);
         $unit = Unit::factory()->create(['project_id' => $project->id, 'price' => 1000000]);
+        $hero = Slider::factory()->hero()->create();
+        SliderItem::factory()->create(['slider_id' => $hero->id, 'project_id' => $project->id]);
 
         $pages = [
             'dashboard' => '/admin',
@@ -87,6 +94,8 @@ class QueryBudgetTest extends TestCase
             'units.edit' => UnitResource::getUrl('edit', ['record' => $unit]),
             'projects.index' => ProjectResource::getUrl('index'),
             'projects.edit' => ProjectResource::getUrl('edit', ['record' => $project]),
+            'sliders.index' => SliderResource::getUrl('index'),
+            'sliders.view' => SliderResource::getUrl('view', ['record' => $hero]),
         ];
 
         $actual = [];
