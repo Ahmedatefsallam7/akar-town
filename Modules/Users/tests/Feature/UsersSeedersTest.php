@@ -4,6 +4,7 @@ namespace Modules\Users\Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Modules\Developers\Models\Developer;
 use Modules\Locations\Models\Location;
 use Modules\Lookups\Models\Lookup;
 use Modules\Users\Database\Seeders\AdminSeeder;
@@ -101,12 +102,13 @@ class UsersSeedersTest extends TestCase
         $this->assertDatabaseMissing('users', ['email' => 'ahmed@gmail.com']);
     }
 
-    public function test_database_seeder_seeds_lookups_roles_and_location_pages(): void
+    public function test_database_seeder_seeds_lookups_roles_location_pages_and_developers(): void
     {
         $this->seed();
 
         $this->assertTrue(Lookup::where('slug', 'amenities')->exists());
         $this->assertSame(3, Lookup::roles()->count());
         $this->assertTrue(Location::where('slug', 'new-cairo')->exists());
+        $this->assertTrue(Developer::where('slug', 'mountain-view')->exists());
     }
 }

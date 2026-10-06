@@ -7,6 +7,8 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Modules\Developers\Filament\Resources\DeveloperResource;
+use Modules\Developers\Models\Developer;
 use Modules\Locations\Filament\Resources\LocationResource;
 use Modules\Locations\Models\Location;
 use Modules\Lookups\Filament\Resources\LookupResource;
@@ -100,6 +102,21 @@ class NoNPlusOneTest extends TestCase
         $withImage(Location::factory()->create(['neighbourhoods' => ['A']]));
 
         $this->assertNoNPlusOne(LocationResource::getUrl('index'), fn () => Location::factory()->count(9)->create(['neighbourhoods' => ['A', 'B']])->each($withImage));
+    }
+
+    public function test_developers_list_with_logos_images_and_locations(): void
+    {
+        Storage::fake('public');
+        $this->actingAs($this->createAdmin());
+        $root = Lookup::create(['slug' => 'locations', 'name_en' => 'Locations']);
+        $egypt = $root->children()->create(['slug' => 'egypt', 'name_en' => 'Egypt']);
+        $withImages = function (Developer $developer) {
+            $developer->addMedia(UploadedFile::fake()->image('logo.png', 40, 40))->toMediaCollection(Developer::LOGO);
+            $developer->addMedia(UploadedFile::fake()->image('cover.jpg', 40, 40))->toMediaCollection(Developer::FEATURED_IMAGE);
+        };
+        $withImages(Developer::factory()->create(['country_id' => $egypt->id]));
+
+        $this->assertNoNPlusOne(DeveloperResource::getUrl('index'), fn () => Developer::factory()->count(9)->create(['country_id' => $egypt->id])->each($withImages));
     }
 
     public function test_roles_list(): void

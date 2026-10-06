@@ -5,6 +5,8 @@ namespace Tests\Feature\Performance;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Once;
+use Modules\Developers\Filament\Resources\DeveloperResource;
+use Modules\Developers\Models\Developer;
 use Modules\Locations\Filament\Resources\LocationResource;
 use Modules\Locations\Models\Location;
 use Modules\Lookups\Filament\Resources\LookupResource;
@@ -35,6 +37,8 @@ class QueryBudgetTest extends TestCase
         'locations.index' => 4,  // count, page, featured images, location chain (one query for the 5 level filters)
         'locations.create' => 1, // location chain
         'locations.edit' => 3,   // location, its image, location chain
+        'developers.index' => 4,  // count, page, logos + featured images (one query), location chain (filters + column)
+        'developers.edit' => 4,   // developer, media for each image field (the plugin reloads it per field), location chain
     ];
 
     public function test_every_admin_page_stays_within_its_query_budget(): void
@@ -44,6 +48,7 @@ class QueryBudgetTest extends TestCase
         $lookup = Lookup::create(['name_en' => 'Views', 'slug' => 'views']);
         $lookup->children()->create(['name_en' => 'Sea', 'slug' => 'sea']);
         $location = Location::factory()->create();
+        $developer = Developer::factory()->create();
 
         $pages = [
             'dashboard' => '/admin',
@@ -58,6 +63,8 @@ class QueryBudgetTest extends TestCase
             'locations.index' => LocationResource::getUrl('index'),
             'locations.create' => LocationResource::getUrl('create'),
             'locations.edit' => LocationResource::getUrl('edit', ['record' => $location]),
+            'developers.index' => DeveloperResource::getUrl('index'),
+            'developers.edit' => DeveloperResource::getUrl('edit', ['record' => $developer]),
         ];
 
         $actual = [];

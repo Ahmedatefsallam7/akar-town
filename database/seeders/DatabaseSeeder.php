@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Modules\Developers\Database\Seeders\DevelopersDatabaseSeeder;
 use Modules\Locations\Database\Seeders\LocationsDatabaseSeeder;
 use Modules\Lookups\Database\Seeders\LookupsDatabaseSeeder;
 use Modules\Users\Database\Seeders\UsersDatabaseSeeder;
@@ -18,6 +19,7 @@ class DatabaseSeeder extends Seeder
             LookupsDatabaseSeeder::class,
             UsersDatabaseSeeder::class,
             LocationsDatabaseSeeder::class,
+            DevelopersDatabaseSeeder::class,
         ]);
     }
 }

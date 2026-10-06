@@ -55,6 +55,22 @@ class LocationTree
     }
 
     /**
+     * A saved chain as text, top level first, e.g. "Egypt › Cairo › New Cairo". Empty when nothing is chosen.
+     *
+     * @param  array<int|null>  $ids  country_id … sub_area_id
+     */
+    public static function path(array $ids): string
+    {
+        $nodes = static::tree()['nodes'];
+
+        return collect($ids)
+            ->filter()
+            ->map(fn (int $id) => $nodes->get($id)?->getLocalized('name'))
+            ->filter()
+            ->implode(' › ');
+    }
+
+    /**
      * @return array{root: ?int, nodes: Collection<int, Lookup>, children: array<int, Collection<int, Lookup>>, levels: array<int, int>}
      */
     private static function tree(): array
