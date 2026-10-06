@@ -2,5 +2,6 @@
     "Lookups": true,
     "Users": true,
     "Locations": true,
-    "Developers": true
+    "Developers": true,
+    "Projects": true
 }

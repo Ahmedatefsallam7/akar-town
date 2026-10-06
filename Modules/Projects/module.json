@@ -1,0 +1,11 @@
+{
+    "name": "Projects",
+    "alias": "projects",
+    "description": "Projects: the core catalogue (compounds and developments) that units, galleries and sliders hang off.",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Projects\\Providers\\ProjectsServiceProvider"
+    ],
+    "files": []
+}

@@ -13,6 +13,8 @@ use Modules\Locations\Filament\Resources\LocationResource;
 use Modules\Locations\Models\Location;
 use Modules\Lookups\Filament\Resources\LookupResource;
 use Modules\Lookups\Models\Lookup;
+use Modules\Projects\Filament\Resources\ProjectResource;
+use Modules\Projects\Models\Project;
 use Modules\Users\Filament\Resources\RoleResource;
 use Modules\Users\Filament\Resources\UserResource;
 use Modules\Users\Models\User;
@@ -117,6 +119,20 @@ class NoNPlusOneTest extends TestCase
         $withImages(Developer::factory()->create(['country_id' => $egypt->id]));
 
         $this->assertNoNPlusOne(DeveloperResource::getUrl('index'), fn () => Developer::factory()->count(9)->create(['country_id' => $egypt->id])->each($withImages));
+    }
+
+    public function test_projects_list_with_logos_developers_currencies_and_locations(): void
+    {
+        Storage::fake('public');
+        $this->actingAs($this->createAdmin());
+        $root = Lookup::create(['slug' => 'locations', 'name_en' => 'Locations']);
+        $egypt = $root->children()->create(['slug' => 'egypt', 'name_en' => 'Egypt']);
+        $egp = Lookup::create(['slug' => 'currencies', 'name_en' => 'Currencies'])->children()->create(['slug' => 'egp', 'name_en' => 'EGP']);
+        $project = fn () => Project::factory()->create(['country_id' => $egypt->id, 'currency_id' => $egp->id, 'price_from' => 1000000])
+            ->addMedia(UploadedFile::fake()->image('logo.png', 40, 40))->toMediaCollection(Project::LOGO);
+        $project();
+
+        $this->assertNoNPlusOne(ProjectResource::getUrl('index'), fn () => collect(range(1, 9))->each(fn () => $project()));
     }
 
     public function test_roles_list(): void

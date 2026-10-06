@@ -11,6 +11,8 @@ use Modules\Locations\Filament\Resources\LocationResource;
 use Modules\Locations\Models\Location;
 use Modules\Lookups\Filament\Resources\LookupResource;
 use Modules\Lookups\Models\Lookup;
+use Modules\Projects\Filament\Resources\ProjectResource;
+use Modules\Projects\Models\Project;
 use Modules\Users\Filament\Resources\RoleResource;
 use Modules\Users\Filament\Resources\UserResource;
 use Modules\Users\Models\User;
@@ -39,6 +41,8 @@ class QueryBudgetTest extends TestCase
         'locations.edit' => 3,   // location, its image, location chain
         'developers.index' => 4,  // count, page, logos + featured images (one query), location chain (filters + column)
         'developers.edit' => 4,   // developer, media for each image field (the plugin reloads it per field), location chain
+        'projects.index' => 6,    // count, page, logos, developers, location chain (filters + country), lookup values (currency)
+        'projects.edit' => 11,    // project, picked values, media per image field (5: the plugin reloads it per field), developers (options + current), location chain, lookup values
     ];
 
     public function test_every_admin_page_stays_within_its_query_budget(): void
@@ -50,6 +54,7 @@ class QueryBudgetTest extends TestCase
         $location = Location::factory()->create();
         Lookup::create(['parent_id' => $this->role(Lookup::ROLES_SLUG)->id, 'name_en' => 'Sales', 'slug' => 'user_roles_sales']);
         $developer = Developer::factory()->create();
+        $project = Project::factory()->create(['developer_id' => $developer->id]);
 
         $pages = [
             'dashboard' => '/admin',
@@ -66,6 +71,8 @@ class QueryBudgetTest extends TestCase
             'locations.edit' => LocationResource::getUrl('edit', ['record' => $location]),
             'developers.index' => DeveloperResource::getUrl('index'),
             'developers.edit' => DeveloperResource::getUrl('edit', ['record' => $developer]),
+            'projects.index' => ProjectResource::getUrl('index'),
+            'projects.edit' => ProjectResource::getUrl('edit', ['record' => $project]),
         ];
 
         $actual = [];

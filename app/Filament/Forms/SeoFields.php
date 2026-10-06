@@ -6,6 +6,10 @@ use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 /**
  * The "SEO & Metadata" tab for any module with website pages: meta title, description and keywords in English
@@ -13,6 +17,39 @@ use Filament\Schemas\Components\Tabs\Tab;
  */
 class SeoFields
 {
+    /**
+     * The page's URL slug (the model uses HasUniqueSlug). Filled from the English name, see slugFrom().
+     */
+    public static function slug(): TextInput
+    {
+        return TextInput::make('slug')
+            ->label(__('admin.seo.slug'))
+            ->helperText(__('admin.seo.slug_help'))
+            ->alphaDash()
+            ->maxLength(191)
+            ->unique(ignoreRecord: true)
+            ->columnSpanFull();
+    }
+
+    /**
+     * Makes the English name/title field fill the slug: the slug follows it until someone writes their own.
+     *
+     * @param  class-string<Model>  $model  uses HasUniqueSlug
+     */
+    public static function slugFrom(TextInput $field, string $model): TextInput
+    {
+        return $field
+            ->live(onBlur: true)
+            ->afterStateUpdated(function (Set $set, Get $get, ?string $old, ?string $state, ?Model $record) use ($model) {
+                $slug = (string) $get('slug');
+                $followsName = blank($slug) || preg_match('/^'.preg_quote(Str::slug((string) $old), '/').'(-\d+)?$/', $slug);
+
+                if (filled($state) && $followsName) {
+                    $set('slug', $model::uniqueSlug($state, $record?->getKey()));
+                }
+            });
+    }
+
     /**
      * @param  array  $before  module fields shown first (e.g. the page's URL slug)
      */

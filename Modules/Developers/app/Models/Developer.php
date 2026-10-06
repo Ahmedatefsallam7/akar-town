@@ -2,24 +2,27 @@
 
 namespace Modules\Developers\Models;
 
+use App\Models\Concerns\HasUniqueSlug;
 use App\Traits\HasLocalization;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Str;
 use Mattiverse\Userstamps\Traits\Userstamps;
 use Modules\Developers\Database\Factories\DeveloperFactory;
+use Modules\Projects\Models\Project;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
 /**
- * A real-estate developer (e.g. Mountain View). Every project belongs to one. Only published developers show on the
+ * A real-estate developer (e.g. Mountain View). Every project belongs to one, so a developer with projects can't be
+ * deleted. Only published developers show on the
  * website; featured ones also appear in the homepage partners slider.
  */
 class Developer extends Model implements HasMedia
 {
-    use HasFactory, HasLocalization, InteractsWithMedia, SoftDeletes, Userstamps;
+    use HasFactory, HasLocalization, HasUniqueSlug, InteractsWithMedia, SoftDeletes, Userstamps;
 
     public const LOGO = 'logo';
 
@@ -60,6 +63,21 @@ class Developer extends Model implements HasMedia
         'meta_keywords_ar' => 'array',
     ];
 
+    public function projects(): HasMany
+    {
+        return $this->hasMany(Project::class);
+    }
+
+    /**
+     * Whether any project (also one in the trash) belongs to this developer. Lists load it as "all_projects_count".
+     */
+    public function hasProjects(): bool
+    {
+        return array_key_exists('all_projects_count', $this->attributes)
+            ? $this->attributes['all_projects_count'] > 0
+            : $this->projects()->withTrashed()->exists();
+    }
+
     protected static function newFactory(): DeveloperFactory
     {
         return DeveloperFactory::new();
@@ -91,29 +109,5 @@ class Developer extends Model implements HasMedia
                     ->format('webp')
                     ->nonQueued();
             });
-    }
-
-    /**
-     * A URL slug from the English name when none is given, kept unique (also against trashed developers).
-     */
-    public static function uniqueSlug(string $name, ?int $ignoreId = null): string
-    {
-        $base = Str::slug($name) ?: 'developer';
-        $slug = $base;
-
-        for ($i = 2; static::withTrashed()->where('slug', $slug)->when($ignoreId, fn ($query) => $query->whereKeyNot($ignoreId))->exists(); $i++) {
-            $slug = "{$base}-{$i}";
-        }
-
-        return $slug;
-    }
-
-    protected static function booted(): void
-    {
-        static::saving(function (Developer $developer) {
-            if (blank($developer->slug)) {
-                $developer->slug = static::uniqueSlug((string) $developer->name_en, $developer->getKey());
-            }
-        });
     }
 }

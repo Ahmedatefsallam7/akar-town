@@ -13,8 +13,6 @@ use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
@@ -23,8 +21,8 @@ use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Str;
 use Modules\Developers\Filament\Resources\DeveloperResource\Pages;
 use Modules\Developers\Models\Developer;
 use Modules\Lookups\Filament\Forms\LocationFields;
@@ -72,6 +70,21 @@ class DeveloperResource extends Resource implements HasPermissionModule
         return __('admin.developers.plural');
     }
 
+    /**
+     * A developer that has projects (also in the trash) can't be deleted: every project needs its developer.
+     */
+    protected static function canPerformOnRecord(string $ability, Model $record): bool
+    {
+        return static::recordDenialMessage($ability, $record) === null;
+    }
+
+    protected static function recordDenialMessage(string $ability, Model $record): ?string
+    {
+        return in_array($ability, ['delete', 'forceDelete'], true) && $record->hasProjects()
+            ? __('admin.developers.cannot_delete_with_projects')
+            : null;
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -83,20 +96,10 @@ class DeveloperResource extends Resource implements HasPermissionModule
                         Tab::make(__('admin.developers.identity'))
                             ->icon('heroicon-o-identification')
                             ->schema([
-                                TextInput::make('name_en')
+                                SeoFields::slugFrom(TextInput::make('name_en')
                                     ->label(__('admin.developers.name_en'))
                                     ->required()
-                                    ->maxLength(191)
-                                    ->live(onBlur: true)
-                                    // The slug follows the name until someone writes their own.
-                                    ->afterStateUpdated(function (Set $set, Get $get, ?string $old, ?string $state, ?Developer $record) {
-                                        $slug = (string) $get('slug');
-                                        $followsName = blank($slug) || preg_match('/^'.preg_quote(Str::slug((string) $old), '/').'(-\d+)?$/', $slug);
-
-                                        if (filled($state) && $followsName) {
-                                            $set('slug', Developer::uniqueSlug($state, $record?->getKey()));
-                                        }
-                                    }),
+                                    ->maxLength(191), Developer::class),
                                 TextInput::make('name_ar')
                                     ->label(__('admin.developers.name_ar'))
                                     ->required()
@@ -190,15 +193,7 @@ class DeveloperResource extends Resource implements HasPermissionModule
                                     ->imageResizeUpscale(false),
                             ])
                             ->columns(2),
-                        SeoFields::tab([
-                            TextInput::make('slug')
-                                ->label(__('admin.developers.slug'))
-                                ->helperText(__('admin.developers.slug_help'))
-                                ->alphaDash()
-                                ->maxLength(191)
-                                ->unique(ignoreRecord: true)
-                                ->columnSpanFull(),
-                        ]),
+                        SeoFields::tab([SeoFields::slug()]),
                     ]),
             ]);
     }
@@ -223,6 +218,13 @@ class DeveloperResource extends Resource implements HasPermissionModule
                     ->imageSize(48)
                     ->alignment('center')
                     ->url(fn (Developer $record) => static::getUrl('view', ['record' => $record])),
+                TextColumn::make('projects_count')
+                    ->label(__('admin.developers.projects_count'))
+                    ->counts('projects')
+                    ->badge()
+                    ->color('info')
+                    ->sortable()
+                    ->alignment('center'),
                 TextColumn::make('name_en')
                     ->label(__('admin.developers.name_en'))
                     ->searchable(['name_en', 'name_ar', 'email', 'phone'])
@@ -269,6 +271,8 @@ class DeveloperResource extends Resource implements HasPermissionModule
                     ->alignment('center'),
                 TableHelper::createdAtColumn(),
             ])
+            // Projects in the trash count too when deciding whether the developer can be deleted.
+            ->modifyQueryUsing(fn (Builder $query) => $query->withCount(['projects as all_projects_count' => fn (Builder $query) => $query->withTrashed()]))
             ->defaultSort('created_at', 'desc')
             ->paginated([10, 25, 50, 100])
             ->filters([

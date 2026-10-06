@@ -15,8 +15,6 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
@@ -26,7 +24,6 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Str;
 use Modules\Locations\Filament\Resources\LocationResource\Pages;
 use Modules\Locations\Models\Location;
 use Modules\Lookups\Filament\Forms\LocationFields;
@@ -86,20 +83,10 @@ class LocationResource extends Resource implements HasPermissionModule
                             ->schema([
                                 Section::make(__('admin.tabs.details'))
                                     ->schema([
-                                        TextInput::make('name_en')
+                                        SeoFields::slugFrom(TextInput::make('name_en')
                                             ->label(__('admin.locations.name_en'))
                                             ->required()
-                                            ->maxLength(191)
-                                            ->live(onBlur: true)
-                                            // The slug follows the name until someone writes their own.
-                                            ->afterStateUpdated(function (Set $set, Get $get, ?string $old, ?string $state, ?Location $record) {
-                                                $slug = (string) $get('slug');
-                                                $followsName = blank($slug) || preg_match('/^'.preg_quote(Str::slug((string) $old), '/').'(-\d+)?$/', $slug);
-
-                                                if (filled($state) && $followsName) {
-                                                    $set('slug', Location::uniqueSlug($state, $record?->getKey()));
-                                                }
-                                            }),
+                                            ->maxLength(191), Location::class),
                                         TextInput::make('name_ar')
                                             ->label(__('admin.locations.name_ar'))
                                             ->required()
@@ -112,6 +99,8 @@ class LocationResource extends Resource implements HasPermissionModule
                                             ->label(__('admin.table.order'))
                                             ->helperText(__('admin.locations.order_help'))
                                             ->integer()
+                                            ->minValue(0)
+                                            ->maxValue(999_999)
                                             ->default(0),
                                         Toggle::make('is_featured')
                                             ->label(__('admin.locations.featured'))
@@ -155,15 +144,7 @@ class LocationResource extends Resource implements HasPermissionModule
                                             ->rows(5),
                                     ]),
                             ]),
-                        SeoFields::tab([
-                            TextInput::make('slug')
-                                ->label(__('admin.locations.slug'))
-                                ->helperText(__('admin.locations.slug_help'))
-                                ->alphaDash()
-                                ->maxLength(191)
-                                ->unique(ignoreRecord: true)
-                                ->columnSpanFull(),
-                        ]),
+                        SeoFields::tab([SeoFields::slug()]),
                         Tab::make(__('admin.tabs.media'))
                             ->icon('heroicon-o-photo')
                             ->schema([

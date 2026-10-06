@@ -187,6 +187,16 @@ class LocationResourceTest extends TestCase
             ->assertHasFormErrors(['longitude' => 'required_with']);
     }
 
+    public function test_display_order_must_be_a_sensible_number(): void
+    {
+        $this->actingAs($this->createAdmin());
+
+        Livewire::test(CreateLocation::class)
+            ->fillForm($this->validData(['order' => 99_999_999_999]))
+            ->call('create')
+            ->assertHasFormErrors(['order']);
+    }
+
     public function test_the_slug_is_unique_even_against_trashed_locations(): void
     {
         $this->actingAs($this->createAdmin());

@@ -2,11 +2,11 @@
 
 namespace Modules\Locations\Models;
 
+use App\Models\Concerns\HasUniqueSlug;
 use App\Traits\HasLocalization;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Str;
 use Mattiverse\Userstamps\Traits\Userstamps;
 use Modules\Locations\Database\Factories\LocationFactory;
 use Spatie\Image\Enums\Fit;
@@ -19,7 +19,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  */
 class Location extends Model implements HasMedia
 {
-    use HasFactory, HasLocalization, InteractsWithMedia, SoftDeletes, Userstamps;
+    use HasFactory, HasLocalization, HasUniqueSlug, InteractsWithMedia, SoftDeletes, Userstamps;
 
     public const FEATURED_IMAGE = 'featured_image';
 
@@ -80,29 +80,5 @@ class Location extends Model implements HasMedia
                     ->format('webp')
                     ->nonQueued();
             });
-    }
-
-    /**
-     * A URL slug from the English name when none is given, kept unique (also against trashed locations).
-     */
-    public static function uniqueSlug(string $name, ?int $ignoreId = null): string
-    {
-        $base = Str::slug($name) ?: 'location';
-        $slug = $base;
-
-        for ($i = 2; static::withTrashed()->where('slug', $slug)->when($ignoreId, fn ($query) => $query->whereKeyNot($ignoreId))->exists(); $i++) {
-            $slug = "{$base}-{$i}";
-        }
-
-        return $slug;
-    }
-
-    protected static function booted(): void
-    {
-        static::saving(function (Location $location) {
-            if (blank($location->slug)) {
-                $location->slug = static::uniqueSlug((string) $location->name_en, $location->getKey());
-            }
-        });
     }
 }

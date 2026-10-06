@@ -17,6 +17,7 @@ use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables\Columns\TextColumn;
@@ -126,6 +127,34 @@ class TableHelper
                 foreach ([$from, $until] as $field) {
                     if ($data[$field] ?? null) {
                         $indicators[] = Indicator::make(__("admin.filter.{$field}").': '.$data[$field])->removeField($field);
+                    }
+                }
+
+                return $indicators;
+            });
+    }
+
+    /**
+     * Filter for records that have a From/To range (price, area): shows those whose range overlaps the one asked for.
+     * A record with only "From" counts as that single value.
+     */
+    public static function rangeFilter(string $name, string $fromColumn, string $toColumn, string $label): Filter
+    {
+        return Filter::make($name)
+            ->schema([
+                TextInput::make('min')->label(__('admin.filter.min', ['name' => $label]))->numeric()->minValue(0),
+                TextInput::make('max')->label(__('admin.filter.max', ['name' => $label]))->numeric()->minValue(0),
+            ])
+            ->columns(2)
+            ->query(fn (Builder $query, array $data): Builder => $query
+                ->when(filled($data['min'] ?? null), fn (Builder $query) => $query->whereRaw("coalesce({$toColumn}, {$fromColumn}) >= ?", [(int) $data['min']]))
+                ->when(filled($data['max'] ?? null), fn (Builder $query) => $query->where($fromColumn, '<=', (int) $data['max'])))
+            ->indicateUsing(function (array $data) use ($label): array {
+                $indicators = [];
+
+                foreach (['min', 'max'] as $field) {
+                    if (filled($data[$field] ?? null)) {
+                        $indicators[] = Indicator::make(__("admin.filter.{$field}", ['name' => $label]).': '.number_format((int) $data[$field]))->removeField($field);
                     }
                 }
 

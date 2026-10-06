@@ -31,10 +31,10 @@ class RolePermissionsTest extends TestCase
     {
         $modules = PermissionModules::all();
 
-        $this->assertEqualsCanonicalizing(['developers', 'locations', 'lookups', 'users', 'roles'], array_keys($modules));
+        $this->assertEqualsCanonicalizing(['developers', 'locations', 'lookups', 'projects', 'users', 'roles'], array_keys($modules));
         $this->assertSame('system_configuration', $modules['lookups']['group']);
         $this->assertSame(self::ALL, PermissionModules::actionsFor('lookups'));
-        $this->assertSame([], PermissionModules::actionsFor('projects'));
+        $this->assertSame([], PermissionModules::actionsFor('unknown_module'));
         $this->assertSame(self::ALL, PermissionModules::everything()['users']);
     }
 
@@ -54,10 +54,10 @@ class RolePermissionsTest extends TestCase
 
     public function test_unknown_actions_and_unknown_modules_are_dropped(): void
     {
-        $data = RoleResource::formDataToPermissions(['permission_matrix' => ['lookups' => ['view', 'hack'], 'projects' => ['view']]]);
+        $data = RoleResource::formDataToPermissions(['permission_matrix' => ['lookups' => ['view', 'hack'], 'unknown_module' => ['view']]]);
 
         $this->assertSame(['view'], $data['attributes']['permissions']['lookups']);
-        $this->assertArrayNotHasKey('projects', $data['attributes']['permissions']);
+        $this->assertArrayNotHasKey('unknown_module', $data['attributes']['permissions']);
     }
 
     public function test_modules_not_in_the_form_keep_their_saved_actions(): void
