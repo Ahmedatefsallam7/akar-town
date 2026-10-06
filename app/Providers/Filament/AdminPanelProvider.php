@@ -44,6 +44,10 @@ class AdminPanelProvider extends PanelProvider
             ->brandName(fn (): string => __(config('app.name')))
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->sidebarCollapsibleOnDesktop()
+            // As in Dastan: a wider sidebar, a narrow one when collapsed, and no dark mode.
+            ->sidebarWidth('18rem')
+            ->collapsedSidebarWidth('4.5rem')
+            ->darkMode(false)
             // Warn before leaving a form with unsaved changes.
             ->unsavedChangesAlerts()
             // Move between pages without full reloads (a link starts loading on hover, so pages open almost instantly),
