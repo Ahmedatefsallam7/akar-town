@@ -9,6 +9,8 @@ use Modules\Developers\Filament\Resources\DeveloperResource;
 use Modules\Developers\Models\Developer;
 use Modules\Galleries\Filament\Resources\GalleryResource;
 use Modules\Galleries\Models\Gallery;
+use Modules\GeneralSettings\Filament\Clusters\GeneralSettings\Pages\AboutUsSettingsPage;
+use Modules\GeneralSettings\Filament\Clusters\GeneralSettings\Pages\HomeSettingsPage;
 use Modules\Locations\Filament\Resources\LocationResource;
 use Modules\Locations\Models\Location;
 use Modules\Lookups\Filament\Resources\LookupResource;
@@ -55,6 +57,8 @@ class QueryBudgetTest extends TestCase
         'units.edit' => 11,       // unit, picks, media per upload field (3), projects (options + current), the project's choices, galleries, location chain, lookup values
         'projects.edit' => 11,    // project, picked values, media per image field (5: the plugin reloads it per field), developers (options + current), location chain, lookup values
         'sliders.index' => 2,     // page (not paginated: a fixed handful of blocks), count
+        'settings.home' => 1,     // the page's settings (one query per group)
+        'settings.about_us' => 1, // the page's settings
         'sliders.view' => 1,      // slider (the slides tab loads on its own)
     ];
 
@@ -96,6 +100,8 @@ class QueryBudgetTest extends TestCase
             'projects.edit' => ProjectResource::getUrl('edit', ['record' => $project]),
             'sliders.index' => SliderResource::getUrl('index'),
             'sliders.view' => SliderResource::getUrl('view', ['record' => $hero]),
+            'settings.home' => HomeSettingsPage::getUrl(),
+            'settings.about_us' => AboutUsSettingsPage::getUrl(),
         ];
 
         $actual = [];

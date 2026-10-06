@@ -6,5 +6,6 @@
     "Projects": true,
     "Galleries": true,
     "Units": true,
-    "Sliders": true
+    "Sliders": true,
+    "GeneralSettings": true
 }

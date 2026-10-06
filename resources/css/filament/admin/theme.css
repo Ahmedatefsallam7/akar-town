@@ -129,3 +129,8 @@
 .fi-input {
     @apply transition-colors duration-200 ease-in-out;
 }
+
+/* Page tabs at the top (e.g. General Settings): wrap onto a second line instead of hiding tabs off-screen */
+.fi-page-sub-navigation-tabs {
+    @apply flex-wrap gap-y-1;
+}

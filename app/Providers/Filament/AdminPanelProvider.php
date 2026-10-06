@@ -127,7 +127,7 @@ class AdminPanelProvider extends PanelProvider
     }
 
     /**
-     * Register the Filament resources, pages and widgets of every enabled module.
+     * Register the Filament resources, pages, clusters and widgets of every enabled module.
      */
     protected function discoverModules(Panel $panel): void
     {
@@ -137,6 +137,7 @@ class AdminPanelProvider extends PanelProvider
             $panel
                 ->discoverResources(in: $module->getExtraPath('app/Filament/Resources'), for: $namespace.'\\Resources')
                 ->discoverPages(in: $module->getExtraPath('app/Filament/Pages'), for: $namespace.'\\Pages')
+                ->discoverClusters(in: $module->getExtraPath('app/Filament/Clusters'), for: $namespace.'\\Clusters')
                 ->discoverWidgets(in: $module->getExtraPath('app/Filament/Widgets'), for: $namespace.'\\Widgets');
         }
     }
