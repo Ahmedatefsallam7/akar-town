@@ -14,6 +14,7 @@ return [
     // The CRM web-form id each kind of lead is routed to.
     'forms' => [
         'contact_us' => env('CRM_FORM_CONTACT_US'),
+        'schedule_viewing' => env('CRM_FORM_SCHEDULE_VIEWING'),
     ],
 
     'email_account_type_id' => (int) env('CRM_EMAIL_ACCOUNT_TYPE_ID', 22),

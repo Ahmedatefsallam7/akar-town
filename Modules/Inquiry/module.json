@@ -1,7 +1,7 @@
 {
     "name": "Inquiry",
     "alias": "inquiry",
-    "description": "Inquiry: the website's contact messages (Contact Us), each sent to the CRM as a fresh lead.",
+    "description": "Inquiry: the website's contact messages (Contact Us) and meeting / viewing bookings, each sent to the CRM as a fresh lead.",
     "keywords": [],
     "priority": 0,
     "providers": [

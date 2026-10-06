@@ -13,7 +13,9 @@ use Modules\Developers\Models\Developer;
 use Modules\Galleries\Filament\Resources\GalleryResource;
 use Modules\Galleries\Models\Gallery;
 use Modules\Inquiry\Filament\Resources\InquiryResource;
+use Modules\Inquiry\Filament\Resources\MeetingResource;
 use Modules\Inquiry\Models\Inquiry;
+use Modules\Inquiry\Models\Meeting;
 use Modules\Locations\Filament\Resources\LocationResource;
 use Modules\Locations\Models\Location;
 use Modules\Lookups\Filament\Resources\LookupResource;
@@ -200,6 +202,14 @@ class NoNPlusOneTest extends TestCase
         Inquiry::factory()->create();
 
         $this->assertNoNPlusOne(InquiryResource::getUrl('index'), fn () => Inquiry::factory()->count(9)->create());
+    }
+
+    public function test_meetings_list(): void
+    {
+        $this->actingAs($this->createAdmin());
+        Meeting::factory()->create();
+
+        $this->assertNoNPlusOne(MeetingResource::getUrl('index'), fn () => Meeting::factory()->count(9)->create());
     }
 
     public function test_roles_list(): void

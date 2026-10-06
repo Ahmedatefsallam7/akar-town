@@ -12,7 +12,9 @@ use Modules\Galleries\Models\Gallery;
 use Modules\GeneralSettings\Filament\Clusters\GeneralSettings\Pages\AboutUsSettingsPage;
 use Modules\GeneralSettings\Filament\Clusters\GeneralSettings\Pages\HomeSettingsPage;
 use Modules\Inquiry\Filament\Resources\InquiryResource;
+use Modules\Inquiry\Filament\Resources\MeetingResource;
 use Modules\Inquiry\Models\Inquiry;
+use Modules\Inquiry\Models\Meeting;
 use Modules\Locations\Filament\Resources\LocationResource;
 use Modules\Locations\Models\Location;
 use Modules\Lookups\Filament\Resources\LookupResource;
@@ -61,9 +63,11 @@ class QueryBudgetTest extends TestCase
         'sliders.index' => 2,     // page (not paginated: a fixed handful of blocks), count
         'settings.home' => 1,     // the page's settings (one query per group)
         'settings.about_us' => 1, // the page's settings
-        'sliders.view' => 1,
+        'sliders.view' => 1,      // slider (the slides tab loads on its own)
         'contact_us.index' => 2,  // count, page
-        'contact_us.view' => 1,   // message      // slider (the slides tab loads on its own)
+        'contact_us.view' => 1,   // message
+        'meetings.index' => 2,    // count, page
+        'meetings.view' => 1,     // booking
     ];
 
     public function test_every_admin_page_stays_within_its_query_budget(): void
@@ -80,6 +84,7 @@ class QueryBudgetTest extends TestCase
         $unit = Unit::factory()->create(['project_id' => $project->id, 'price' => 1000000]);
         $hero = Slider::factory()->hero()->create();
         $inquiry = Inquiry::factory()->create();
+        $meeting = Meeting::factory()->create();
         SliderItem::factory()->create(['slider_id' => $hero->id, 'project_id' => $project->id]);
 
         $pages = [
@@ -108,6 +113,8 @@ class QueryBudgetTest extends TestCase
             'settings.home' => HomeSettingsPage::getUrl(),
             'contact_us.index' => InquiryResource::getUrl('index'),
             'contact_us.view' => InquiryResource::getUrl('view', ['record' => $inquiry]),
+            'meetings.index' => MeetingResource::getUrl('index'),
+            'meetings.view' => MeetingResource::getUrl('view', ['record' => $meeting]),
             'settings.about_us' => AboutUsSettingsPage::getUrl(),
         ];
 
