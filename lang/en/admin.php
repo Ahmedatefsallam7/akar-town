@@ -617,6 +617,8 @@ return [
         'description_en' => 'Description (English)',
         'description_ar' => 'Description (Arabic)',
         'permissions' => 'Permissions',
+        'cannot_delete_seeded' => 'Built-in role — can\'t be deleted.',
+        'cannot_delete_used' => 'Given to users — move them to another role first.',
         'permissions_description' => 'Choose what this role can do in each module. Every action also needs View.',
         'select_all' => 'Select all',
         'clear_all' => 'Clear all',

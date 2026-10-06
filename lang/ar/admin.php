@@ -616,6 +616,8 @@ return [
         'description_en' => 'الوصف (إنجليزي)',
         'description_ar' => 'الوصف (عربي)',
         'permissions' => 'الصلاحيات',
+        'cannot_delete_seeded' => 'دور أساسي — لا يمكن حذفه.',
+        'cannot_delete_used' => 'مُعطى لمستخدمين — انقلهم لدور آخر أولًا.',
         'permissions_description' => 'اختر ما يمكن لهذا الدور فعله في كل وحدة. كل إجراء يحتاج أيضًا إلى صلاحية العرض.',
         'select_all' => 'تحديد الكل',
         'clear_all' => 'إلغاء الكل',

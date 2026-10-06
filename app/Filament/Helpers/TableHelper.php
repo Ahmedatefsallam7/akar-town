@@ -60,11 +60,13 @@ class TableHelper
             ViewAction::make()->label(__('admin.actions.view'))->iconButton()->tooltip(__('admin.actions.view')),
             EditAction::make()->label(__('admin.actions.edit'))->iconButton()->tooltip(__('admin.actions.edit')),
             ActionGroup::make([
+                // A record rule with a reason (e.g. "in use") shows the action disabled with it instead of hiding it.
                 DeleteAction::make()
                     ->label(__('admin.actions.delete'))
-                    ->successNotification(fn (Model $record) => Notification::make()->success()->title($deletedTitle($record))),
+                    ->successNotification(fn (Model $record) => Notification::make()->success()->title($deletedTitle($record)))
+                    ->authorizationTooltip(),
                 RestoreAction::make()->label(__('admin.actions.restore')),
-                ForceDeleteAction::make()->label(__('admin.actions.force_delete')),
+                ForceDeleteAction::make()->label(__('admin.actions.force_delete'))->authorizationTooltip(),
             ])->tooltip(__('admin.actions.more')),
         ];
     }

@@ -144,7 +144,8 @@ class ActionPermissionsTest extends TestCase
 
         Livewire::test(ListRoles::class)
             ->tap(fn () => $this->assertFalse(RoleResource::canDelete($editor)))
-            ->assertTableActionHidden('delete', $editor)
+            // Shown disabled with the reason ("built-in role") rather than hidden.
+            ->assertTableActionDisabled('delete', $editor)
             ->callTableBulkAction('delete', [$editor]);
 
         $this->assertNotSoftDeleted($editor);

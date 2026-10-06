@@ -6,6 +6,7 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Events\MigrationsEnded;
 use Illuminate\Database\Events\NoPendingMigrations;
 use Illuminate\Support\Facades\Event;
+use Modules\Lookups\Support\LookupUsage;
 use Modules\Users\Support\PermissionModules;
 use Nwidart\Modules\Support\ModuleServiceProvider;
 
@@ -41,6 +42,9 @@ class UsersServiceProvider extends ModuleServiceProvider
     public function boot(): void
     {
         parent::boot();
+
+        // Roles are lookups: a role that users have can't be deleted.
+        LookupUsage::register('users', ['role_id']);
 
         // A module added in a new release is given to the Admin role once, when the release is migrated (also when
         // the release has no new migrations).

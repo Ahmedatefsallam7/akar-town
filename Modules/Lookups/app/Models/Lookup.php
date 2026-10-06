@@ -133,22 +133,10 @@ class Lookup extends Model
     }
 
     /**
-     * Adds "is_used": whether another module (e.g. a location) uses this lookup or a value inside it.
-     */
-    public function scopeWithUsageFlag(Builder $query): void
-    {
-        LookupUsage::addFlag($query);
-    }
-
-    /**
-     * Whether another module uses this lookup or a value inside it (see LookupUsage).
+     * Whether another module (e.g. a location, a user's role) uses this lookup or a value inside it.
      */
     public function isUsed(): bool
     {
-        if (array_key_exists('is_used', $this->attributes)) {
-            return (bool) $this->attributes['is_used'];
-        }
-
         return LookupUsage::isUsed($this);
     }
 

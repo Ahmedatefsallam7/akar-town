@@ -122,6 +122,8 @@ class NoNPlusOneTest extends TestCase
     public function test_roles_list(): void
     {
         $this->actingAs($this->createAdmin());
+        // One deletable role from the start, so the "given to users?" check (run once per page) is in both counts.
+        Lookup::create(['parent_id' => $this->role(Lookup::ROLES_SLUG)->id, 'name_en' => 'Sales', 'slug' => 'user_roles_sales']);
 
         $this->assertNoNPlusOne(RoleResource::getUrl('index'), function () {
             foreach (range(1, 7) as $i) {

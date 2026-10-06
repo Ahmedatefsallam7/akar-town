@@ -31,8 +31,8 @@ class QueryBudgetTest extends TestCase
         'users.edit' => 2,     // user, roles
         'users.create' => 1,   // roles
         'lookups.index' => 1,  // every type card with its number of values, in one query
-        'lookups.values' => 4, // the type, its ancestors (breadcrumbs, tree depth), the values (+ delete flag), the count
-        'roles.index' => 2,    // count, page
+        'lookups.values' => 6, // the type, its ancestors (breadcrumbs, tree depth), the values (+ protected flag), the count, values in use (2: used ids, their tree positions)
+        'roles.index' => 4,    // count, page, roles given to users (2: used ids, their tree positions)
         'roles.edit' => 1,     // role
         'locations.index' => 4,  // count, page, featured images, location chain (one query for the 5 level filters)
         'locations.create' => 1, // location chain
@@ -48,6 +48,7 @@ class QueryBudgetTest extends TestCase
         $lookup = Lookup::create(['name_en' => 'Views', 'slug' => 'views']);
         $lookup->children()->create(['name_en' => 'Sea', 'slug' => 'sea']);
         $location = Location::factory()->create();
+        Lookup::create(['parent_id' => $this->role(Lookup::ROLES_SLUG)->id, 'name_en' => 'Sales', 'slug' => 'user_roles_sales']);
         $developer = Developer::factory()->create();
 
         $pages = [

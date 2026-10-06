@@ -245,6 +245,45 @@ class RoleResourceTest extends TestCase
         $this->assertSame(array_values(array_intersect(AdminPanelProvider::NAVIGATION_GROUPS, $order)), $order);
     }
 
+    public function test_a_role_given_to_users_cannot_be_deleted_and_says_why(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $used = $this->createCustomRole('Sales');
+        $free = $this->createCustomRole('Content');
+        User::factory()->create(['role_id' => $used->id]);
+
+        $this->assertFalse(RoleResource::canDelete($used->fresh()));
+        $this->assertFalse(RoleResource::canForceDelete($used->fresh()));
+        $this->assertTrue(RoleResource::canDelete($free->fresh()));
+        $this->assertSame(__('admin.roles.cannot_delete_used'), RoleResource::getAuthorizationResponse('delete', $used->fresh())->message());
+
+        Livewire::test(ListRoles::class)
+            ->assertTableActionDisabled('delete', $used)
+            ->assertTableActionEnabled('delete', $free);
+    }
+
+    public function test_a_user_in_the_trash_still_keeps_their_role(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $role = $this->createCustomRole('Sales');
+        User::factory()->create(['role_id' => $role->id])->delete();
+
+        $this->assertFalse(RoleResource::canDelete($role->fresh()));
+    }
+
+    public function test_bulk_delete_skips_roles_given_to_users(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $used = $this->createCustomRole('Sales');
+        $free = $this->createCustomRole('Content');
+        User::factory()->create(['role_id' => $used->id]);
+
+        Livewire::test(ListRoles::class)->callTableBulkAction('delete', [$used, $free]);
+
+        $this->assertFalse($used->fresh()->trashed());
+        $this->assertTrue(Lookup::withTrashed()->find($free->id)->trashed());
+    }
+
     public function test_seeded_roles_cannot_be_deleted(): void
     {
         $this->actingAs($this->createAdmin());

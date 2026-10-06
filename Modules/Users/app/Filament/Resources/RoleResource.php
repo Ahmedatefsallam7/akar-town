@@ -74,16 +74,32 @@ class RoleResource extends Resource implements HasPermissionModule
     }
 
     /**
-     * Only an admin may change the Admin role, seeded roles can't be deleted, and nobody manages a role with more
-     * access than they have (also applies to bulk actions).
+     * Only an admin may change the Admin role, seeded roles and roles that users have can't be deleted, and nobody
+     * manages a role with more access than they have (also applies to bulk actions).
      */
     protected static function canPerformOnRecord(string $ability, Model $record): bool
     {
         return match ($ability) {
             'update' => ($record->slug !== User::ADMIN_ROLE || (bool) auth()->user()?->isAdmin()) && static::canManageRole($record),
-            'delete', 'forceDelete' => (bool) $record->is_deletable && static::canManageRole($record),
+            'delete', 'forceDelete' => static::recordDenialMessage($ability, $record) === null && static::canManageRole($record),
             'restore' => static::canManageRole($record),
             default => true,
+        };
+    }
+
+    /**
+     * Why a role can't be deleted: seeded, or still given to users (deleting it would silently take their access).
+     */
+    protected static function recordDenialMessage(string $ability, Model $record): ?string
+    {
+        if (! in_array($ability, ['delete', 'forceDelete'], true)) {
+            return null;
+        }
+
+        return match (true) {
+            ! $record->is_deletable => __('admin.roles.cannot_delete_seeded'),
+            $record->isUsed() => __('admin.roles.cannot_delete_used'),
+            default => null,
         };
     }
 

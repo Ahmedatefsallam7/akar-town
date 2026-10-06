@@ -66,7 +66,6 @@ class ManageLookupValues extends ManageRelatedRecords
             ->modifyQueryUsing(fn (Builder $query) => $query
                 ->withoutGlobalScopes([SoftDeletingScope::class])
                 ->withProtectedDescendantsFlag()
-                ->withUsageFlag()
                 ->when($opensLevel, fn (Builder $query) => $query->withCount('children')))
             ->reorderable('order')
             ->defaultSort('order')

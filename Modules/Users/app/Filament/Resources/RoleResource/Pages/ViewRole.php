@@ -17,6 +17,7 @@ class ViewRole extends ViewRecord
         return [
             EditAction::make(),
             DeleteAction::make()
+                ->authorizationTooltip()
                 ->successNotification(fn ($record) => Notification::make()
                     ->success()
                     ->title(__('admin.roles.notifications.deleted', ['name' => $record->getLocalized('name')]))),
