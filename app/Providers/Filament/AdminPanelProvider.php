@@ -53,6 +53,8 @@ class AdminPanelProvider extends PanelProvider
             ->navigationGroups(collect(self::NAVIGATION_GROUPS)
                 ->map(fn (string $group) => NavigationGroup::make(fn () => __("admin.navigation.{$group}")))
                 ->all())
+            // A save is all or nothing: if anything fails (e.g. an attachment), the record isn't half-saved.
+            ->databaseTransactions()
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
             ->login(Login::class)
             // ->registration()
