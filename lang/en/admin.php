@@ -397,7 +397,7 @@ return [
         'featured_image' => 'Featured Image',
         'featured_image_dimensions' => 'Page header image. JPG, PNG or WebP, max 5 MB.',
         'projects_count' => 'Projects',
-        'cannot_delete_with_projects' => 'Has projects — move or delete them first.',
+        'cannot_delete_with_projects' => 'Has projects (check the trash too) — move them to another developer or delete them permanently first.',
         'notifications' => [
             'created' => 'Developer ":name" has been created successfully.',
             'updated' => 'Developer ":name" has been updated successfully.',

@@ -107,7 +107,8 @@ class DeveloperResource extends Resource implements HasPermissionModule
                                 Toggle::make('is_published')
                                     ->label(__('admin.developers.published'))
                                     ->helperText(__('admin.developers.published_help'))
-                                    ->default(true),
+                                    // New developers start unpublished (as in Dastan): publish when the profile is ready.
+                                    ->default(false),
                                 Toggle::make('is_featured')
                                     ->label(__('admin.developers.featured'))
                                     ->helperText(__('admin.developers.featured_help'))

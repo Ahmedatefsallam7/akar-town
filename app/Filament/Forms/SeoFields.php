@@ -32,7 +32,9 @@ class SeoFields
     }
 
     /**
-     * Makes the English name/title field fill the slug: the slug follows it until someone writes their own.
+     * Makes the English name/title field fill the slug while a record is being created: the slug follows it until
+     * someone writes their own. After creation the slug stays put when the name changes, so published links (Google,
+     * social posts) keep working; it can still be edited by hand, or refilled by clearing it.
      *
      * @param  class-string<Model>  $model  uses HasUniqueSlug
      */
@@ -40,9 +42,10 @@ class SeoFields
     {
         return $field
             ->live(onBlur: true)
-            ->afterStateUpdated(function (Set $set, Get $get, ?string $old, ?string $state, ?Model $record) use ($model) {
+            ->afterStateUpdated(function (Set $set, Get $get, ?string $old, ?string $state, ?Model $record, string $operation) use ($model) {
                 $slug = (string) $get('slug');
-                $followsName = blank($slug) || preg_match('/^'.preg_quote(Str::slug((string) $old), '/').'(-\d+)?$/', $slug);
+                $followsName = blank($slug)
+                    || ($operation === 'create' && preg_match('/^'.preg_quote(Str::slug((string) $old), '/').'(-\d+)?$/', $slug));
 
                 if (filled($state) && $followsName) {
                     $set('slug', $model::uniqueSlug($state, $record?->getKey()));

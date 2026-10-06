@@ -397,7 +397,7 @@ return [
         'featured_image' => 'الصورة المميزة',
         'featured_image_dimensions' => 'صورة هيدر الصفحة. JPG أو PNG أو WebP، بحد أقصى 5 ميجابايت.',
         'projects_count' => 'المشاريع',
-        'cannot_delete_with_projects' => 'لديه مشاريع — انقلها أو احذفها أولًا.',
+        'cannot_delete_with_projects' => 'لديه مشاريع (راجع سلة المحذوفات أيضًا) — انقلها لمطور آخر أو احذفها نهائيًا أولًا.',
         'notifications' => [
             'created' => 'تم إضافة المطور ":name" بنجاح.',
             'updated' => 'تم تعديل المطور ":name" بنجاح.',

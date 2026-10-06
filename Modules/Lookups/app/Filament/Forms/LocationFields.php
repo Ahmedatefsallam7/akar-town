@@ -16,7 +16,8 @@ use Modules\Lookups\Support\LocationTree;
 class LocationFields
 {
     /**
-     * @param  int  $required  how many levels from the top must be chosen (e.g. 3 = country, city and region)
+     * @param  int  $required  how many levels from the top must be chosen (e.g. 3 = country, city and region), when the
+     *                         level has values
      * @return array<Select>
      */
     public static function make(int $required = 0): array
@@ -32,7 +33,10 @@ class LocationFields
                     ? LocationTree::options($parent ? (int) $get($parent) : null, (int) $get($column) ?: null)
                     : [])
                 ->searchable()
-                ->required($index < $required)
+                // A required level is only required when there is something to pick (a new city may have no
+                // regions yet); an empty parent is reported on the parent itself.
+                ->required(fn (Get $get) => $index < $required
+                    && ($parent === null || blank($get($parent)) || LocationTree::options((int) $get($parent)) !== []))
                 ->live()
                 ->afterStateUpdated(fn (Set $set) => collect($below)->each(fn (string $column) => $set($column, null)));
         })->all();

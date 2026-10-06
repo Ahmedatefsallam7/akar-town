@@ -141,7 +141,7 @@ class ProjectResourceTest extends TestCase
         $this->assertSame([3500000, 9000000, 120, 300], [$project->price_from, $project->price_to, $project->area_from, $project->area_to]);
         $this->assertSame([10.0, 6, 8], [$project->down_payment, $project->installment_years_from, $project->installment_years_to]);
         $this->assertSame('2028-06-30', $project->delivery_date->toDateString());
-        $this->assertTrue($project->is_published);
+        $this->assertFalse($project->is_published, 'New projects start unpublished.');
         $this->assertTrue($project->is_featured);
         $this->assertEqualsCanonicalizing([$this->value['amenities']['pool']->id, $this->value['amenities']['gym']->id], $project->lookupIds('amenities'));
         $this->assertSame([$this->value['views']['sea']->id], $project->lookupIds('views'));
@@ -402,6 +402,59 @@ class ProjectResourceTest extends TestCase
         Livewire::test(CreateProject::class)
             ->fillForm(['title_en' => 'Bloom Fields'])
             ->assertSchemaStateSet(['slug' => 'bloom-fields-2']);
+    }
+
+    public function test_the_slug_stays_when_a_saved_project_is_renamed(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $project = $this->cairoProject(['title_en' => 'Bloom Fields']);
+        $this->assertSame('bloom-fields', $project->slug);
+
+        // Renaming keeps the published link working.
+        Livewire::test(EditProject::class, ['record' => $project->getRouteKey()])
+            ->fillForm(['title_en' => 'Bloom Fields Phase 2'])
+            ->assertSchemaStateSet(['slug' => 'bloom-fields']);
+
+        // Clearing the slug fills it again from the title.
+        Livewire::test(EditProject::class, ['record' => $project->getRouteKey()])
+            ->fillForm(['slug' => ''])
+            ->fillForm(['title_en' => 'Bloom Gardens'])
+            ->assertSchemaStateSet(['slug' => 'bloom-gardens']);
+    }
+
+    public function test_a_price_needs_its_currency(): void
+    {
+        $this->actingAs($this->createAdmin());
+
+        Livewire::test(CreateProject::class)
+            ->fillForm($this->validData(['price_from' => 2000000, 'currency_id' => null]))
+            ->call('create')
+            ->assertHasFormErrors(['currency_id' => 'required_with']);
+
+        Livewire::test(CreateProject::class)
+            ->fillForm($this->validData(['currency_id' => null]))
+            ->call('create')
+            ->assertHasNoFormErrors();
+    }
+
+    public function test_the_region_is_not_required_when_the_city_has_no_regions_yet(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $newCity = $this->place['egypt']->children()->create(['slug' => 'el-alamein', 'name_en' => 'El Alamein', 'name_ar' => 'العلمين']);
+
+        Livewire::test(CreateProject::class)
+            ->fillForm($this->validData())
+            ->fillForm(['city_id' => $newCity->id])
+            ->assertSchemaStateSet(['region_id' => null])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        // A city with regions still needs one.
+        Livewire::test(CreateProject::class)
+            ->fillForm($this->validData(['title_en' => 'Other']))
+            ->fillForm(['region_id' => null])
+            ->call('create')
+            ->assertHasFormErrors(['region_id' => 'required']);
     }
 
     public function test_project_number_is_unique(): void

@@ -121,7 +121,7 @@ class DeveloperResourceTest extends TestCase
 
         $developer = Developer::sole();
         $this->assertSame('mountain-view', $developer->slug);
-        $this->assertTrue($developer->is_published);
+        $this->assertFalse($developer->is_published, 'New developers start unpublished.');
         $this->assertTrue($developer->is_featured);
         $this->assertSame([$tree['egypt']->id, $tree['cairo']->id, $tree['new_cairo']->id, null, null], [$developer->country_id, $developer->city_id, $developer->region_id, $developer->area_id, $developer->sub_area_id]);
         $this->assertSame('Fifth Settlement', $developer->neighbourhood);

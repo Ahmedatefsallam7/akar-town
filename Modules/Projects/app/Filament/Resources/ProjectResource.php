@@ -166,7 +166,9 @@ class ProjectResource extends Resource implements HasPermissionModule
                             ->icon('heroicon-o-banknotes')
                             ->schema([
                                 LookupFields::select('currency_id', 'currencies')
-                                    ->label(__('admin.projects.currency')),
+                                    ->label(__('admin.projects.currency'))
+                                    // A price means nothing without its currency.
+                                    ->requiredWith('price_from,price_to'),
                                 DatePicker::make('delivery_date')
                                     ->label(__('admin.projects.delivery_date')),
                                 TextInput::make('price_from')
@@ -215,7 +217,8 @@ class ProjectResource extends Resource implements HasPermissionModule
                                 Toggle::make('is_published')
                                     ->label(__('admin.projects.published'))
                                     ->helperText(__('admin.projects.published_help'))
-                                    ->default(true),
+                                    // New projects start unpublished (as in Dastan): publish when the data is complete.
+                                    ->default(false),
                                 Toggle::make('is_featured')
                                     ->label(__('admin.projects.featured'))
                                     ->helperText(__('admin.projects.featured_help'))
