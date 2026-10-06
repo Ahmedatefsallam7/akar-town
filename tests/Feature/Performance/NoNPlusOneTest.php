@@ -12,6 +12,8 @@ use Modules\Developers\Filament\Resources\DeveloperResource;
 use Modules\Developers\Models\Developer;
 use Modules\Galleries\Filament\Resources\GalleryResource;
 use Modules\Galleries\Models\Gallery;
+use Modules\Inquiry\Filament\Resources\InquiryResource;
+use Modules\Inquiry\Models\Inquiry;
 use Modules\Locations\Filament\Resources\LocationResource;
 use Modules\Locations\Models\Location;
 use Modules\Lookups\Filament\Resources\LookupResource;
@@ -190,6 +192,14 @@ class NoNPlusOneTest extends TestCase
         collect(range(1, 9))->each(fn () => $slide());
 
         $this->assertSame($few, $render(), 'The hero slides tab runs a query per slide (N+1).');
+    }
+
+    public function test_contact_us_list(): void
+    {
+        $this->actingAs($this->createAdmin());
+        Inquiry::factory()->create();
+
+        $this->assertNoNPlusOne(InquiryResource::getUrl('index'), fn () => Inquiry::factory()->count(9)->create());
     }
 
     public function test_roles_list(): void

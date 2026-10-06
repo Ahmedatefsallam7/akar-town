@@ -7,5 +7,6 @@
     "Galleries": true,
     "Units": true,
     "Sliders": true,
-    "GeneralSettings": true
+    "GeneralSettings": true,
+    "Inquiry": true
 }

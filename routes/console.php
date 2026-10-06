@@ -45,3 +45,6 @@ Artisan::command('users:prune-orphan-avatars {--hours=24}', function () {
 })->purpose('Delete avatar files that no user uses');
 
 Schedule::command('users:prune-orphan-avatars')->daily();
+
+// No long-running worker on cPanel: the scheduler (cron every minute) runs the queue (e.g. CRM leads) until it's empty.
+Schedule::command('queue:work --stop-when-empty --max-time=55')->everyMinute()->withoutOverlapping();
