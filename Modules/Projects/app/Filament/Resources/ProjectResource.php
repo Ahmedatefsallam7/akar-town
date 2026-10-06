@@ -286,6 +286,14 @@ class ProjectResource extends Resource implements HasPermissionModule
                     ->label(__('admin.projects.id'))
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                SpatieMediaLibraryImageColumn::make('featured_image')
+                    ->label(__('admin.projects.featured_image'))
+                    ->collection(Project::FEATURED_IMAGE)
+                    ->conversion('thumb')
+                    ->imageSize(48)
+                    ->square()
+                    ->alignment('center')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 SpatieMediaLibraryImageColumn::make('logo')
                     ->label(__('admin.projects.logo'))
                     ->collection(Project::LOGO)
@@ -367,6 +375,8 @@ class ProjectResource extends Resource implements HasPermissionModule
                     ->searchable()
                     ->preload(),
                 TableHelper::dateRangeFilter('delivery_date', 'delivery_from', 'delivery_until'),
+                TableHelper::yesNoFilter('is_published', __('admin.projects.published')),
+                TableHelper::yesNoFilter('is_featured', __('admin.projects.featured')),
                 TrashedFilter::make(),
             ])
             ->filtersLayout(FiltersLayout::Modal)

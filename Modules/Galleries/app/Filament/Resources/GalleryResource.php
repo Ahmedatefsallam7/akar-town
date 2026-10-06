@@ -15,6 +15,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
@@ -165,6 +166,13 @@ class GalleryResource extends Resource implements HasPermissionModule
                     ->label(__('admin.galleries.project'))
                     ->placeholder(__('admin.galleries.no_project'))
                     ->url(fn (Gallery $record) => $record->project_id && ProjectResource::canViewAny() ? ProjectResource::getUrl('view', ['record' => $record->project_id]) : null),
+                TextColumn::make('units_count')
+                    ->label(__('admin.galleries.units_count'))
+                    ->counts('units')
+                    ->badge()
+                    ->color('info')
+                    ->sortable()
+                    ->alignment('center'),
                 TableHelper::createdAtColumn(),
             ])
             // Units in the trash count too when deciding whether the gallery can be deleted.
@@ -178,6 +186,12 @@ class GalleryResource extends Resource implements HasPermissionModule
                     ->relationship('project', getLocalizedFieldName('title'))
                     ->searchable()
                     ->preload(),
+                Filter::make('standalone')
+                    ->label(__('admin.galleries.standalone'))
+                    ->toggle()
+                    ->query(fn (Builder $query) => $query->whereNull('project_id'))
+                    ->indicator(__('admin.galleries.standalone')),
+                TableHelper::hasFilter('has_units', 'units', __('admin.galleries.has_units')),
                 TrashedFilter::make(),
             ])
             ->filtersLayout(FiltersLayout::Modal)

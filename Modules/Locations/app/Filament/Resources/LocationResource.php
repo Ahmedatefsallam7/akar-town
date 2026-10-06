@@ -25,8 +25,10 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Modules\Locations\Filament\Resources\LocationResource\Pages;
+use Modules\Locations\Filament\Resources\LocationResource\RelationManagers;
 use Modules\Locations\Models\Location;
 use Modules\Lookups\Filament\Forms\LocationFields;
+use Modules\Lookups\Support\LocationTree;
 
 /**
  * Location landing pages for the website's "Explore by Location" section.
@@ -191,6 +193,13 @@ class LocationResource extends Resource implements HasPermissionModule
                     ->color('gray')
                     ->limitList(3)
                     ->expandableLimitedList(),
+                TextColumn::make('code')
+                    ->label(__('admin.locations.code'))
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('location')
+                    ->label(__('admin.locations.chain'))
+                    ->state(fn (Location $record) => LocationTree::path([$record->country_id, $record->city_id, $record->region_id, $record->area_id, $record->sub_area_id]) ?: null)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('is_featured')
                     ->label(__('admin.table.featured'))
                     ->boolean()
@@ -212,6 +221,8 @@ class LocationResource extends Resource implements HasPermissionModule
             ->filters([
                 TableHelper::dateRangeFilter('created_at', 'created_from', 'created_until'),
                 ...LocationFields::filters(),
+                TableHelper::yesNoFilter('is_active', __('admin.locations.active')),
+                TableHelper::yesNoFilter('is_featured', __('admin.locations.featured')),
                 TrashedFilter::make(),
             ])
             ->filtersLayout(FiltersLayout::Modal)
@@ -235,6 +246,17 @@ class LocationResource extends Resource implements HasPermissionModule
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
+    }
+
+    /**
+     * Related-record tabs on the View page (as in Dastan).
+     */
+    public static function getRelations(): array
+    {
+        return [
+            RelationManagers\ProjectsRelationManager::class,
+            RelationManagers\UnitsRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

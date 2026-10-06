@@ -23,6 +23,7 @@ use Filament\Resources\Resource;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\Indicator;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -132,6 +133,31 @@ class TableHelper
 
                 return $indicators;
             });
+    }
+
+    /**
+     * Yes / no / all filter on a boolean column (published, featured, active…).
+     */
+    public static function yesNoFilter(string $column, string $label): TernaryFilter
+    {
+        return TernaryFilter::make($column)
+            ->label($label)
+            ->indicator($label);
+    }
+
+    /**
+     * Filter on whether a relation has records ("has projects", "has properties"…), trashed ones included.
+     */
+    public static function hasFilter(string $name, string $relationship, string $label): TernaryFilter
+    {
+        return TernaryFilter::make($name)
+            ->label($label)
+            ->indicator($label)
+            ->queries(
+                true: fn (Builder $query) => $query->whereHas($relationship, fn (Builder $query) => $query->withTrashed()),
+                false: fn (Builder $query) => $query->whereDoesntHave($relationship, fn (Builder $query) => $query->withTrashed()),
+                blank: fn (Builder $query) => $query,
+            );
     }
 
     /**

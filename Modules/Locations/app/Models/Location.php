@@ -6,9 +6,13 @@ use App\Models\Concerns\HasUniqueSlug;
 use App\Traits\HasLocalization;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Mattiverse\Userstamps\Traits\Userstamps;
 use Modules\Locations\Database\Factories\LocationFactory;
+use Modules\Lookups\Support\LocationTree;
+use Modules\Projects\Models\Project;
+use Modules\Units\Models\Unit;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -59,6 +63,35 @@ class Location extends Model implements HasMedia
         'is_featured' => 'boolean',
         'is_active' => 'boolean',
     ];
+
+    /**
+     * Projects in this location: their chain has the location's deepest chosen level (e.g. its area).
+     */
+    public function projects(): HasMany
+    {
+        return $this->inLocation(Project::class);
+    }
+
+    /**
+     * Properties in this location, matched the same way.
+     */
+    public function units(): HasMany
+    {
+        return $this->inLocation(Unit::class);
+    }
+
+    /**
+     * @param  class-string<Model>  $model  has the country_id … sub_area_id columns
+     */
+    private function inLocation(string $model): HasMany
+    {
+        $column = collect(LocationTree::LEVELS)->reverse()->first(fn (string $column) => filled($this->{$column}));
+
+        // A location with no chain chosen matches nothing.
+        return $column
+            ? $this->hasMany($model, $column, $column)
+            : $this->hasMany($model, 'id', 'id')->whereRaw('1 = 0');
+    }
 
     protected static function newFactory(): LocationFactory
     {

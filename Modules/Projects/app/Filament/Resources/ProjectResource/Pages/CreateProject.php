@@ -4,6 +4,7 @@ namespace Modules\Projects\Filament\Resources\ProjectResource\Pages;
 
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
+use Livewire\Attributes\Url;
 use Modules\Projects\Filament\Resources\ProjectResource;
 
 class CreateProject extends CreateRecord
@@ -13,6 +14,19 @@ class CreateProject extends CreateRecord
     public function getTitle(): string
     {
         return __('admin.actions.create_title', ['name' => $this->getResource()::getModelLabel()]);
+    }
+
+    /**
+     * Opened from a developer's Projects tab (?developer=ID): start with that developer chosen.
+     */
+    #[Url]
+    public ?int $developer = null;
+
+    protected function afterFill(): void
+    {
+        if ($this->developer) {
+            $this->data['developer_id'] = $this->developer;
+        }
     }
 
     protected function getRedirectUrl(): string

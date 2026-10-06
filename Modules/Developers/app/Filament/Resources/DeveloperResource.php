@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Modules\Developers\Filament\Resources\DeveloperResource\Pages;
+use Modules\Developers\Filament\Resources\DeveloperResource\RelationManagers;
 use Modules\Developers\Models\Developer;
 use Modules\Lookups\Filament\Forms\LocationFields;
 use Modules\Lookups\Support\LocationTree;
@@ -279,6 +280,9 @@ class DeveloperResource extends Resource implements HasPermissionModule
             ->filters([
                 TableHelper::dateRangeFilter('created_at', 'created_from', 'created_until'),
                 ...LocationFields::filters(),
+                TableHelper::yesNoFilter('is_published', __('admin.developers.published')),
+                TableHelper::yesNoFilter('is_featured', __('admin.developers.featured')),
+                TableHelper::hasFilter('has_projects', 'projects', __('admin.developers.has_projects')),
                 TrashedFilter::make(),
             ])
             ->filtersLayout(FiltersLayout::Modal)
@@ -302,6 +306,16 @@ class DeveloperResource extends Resource implements HasPermissionModule
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
+    }
+
+    /**
+     * Related-record tabs on the View page (as in Dastan).
+     */
+    public static function getRelations(): array
+    {
+        return [
+            RelationManagers\ProjectsRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

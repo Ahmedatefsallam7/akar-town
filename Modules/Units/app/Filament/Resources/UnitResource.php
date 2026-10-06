@@ -384,6 +384,8 @@ class UnitResource extends Resource implements HasPermissionModule
                 SelectFilter::make('offering_type_id')
                     ->label(__('admin.units.offering_type'))
                     ->options(fn () => LookupOptions::for('offeringtype')),
+                TableHelper::yesNoFilter('is_published', __('admin.units.published')),
+                TableHelper::yesNoFilter('is_featured', __('admin.units.featured')),
                 TrashedFilter::make(),
             ])
             ->filtersLayout(FiltersLayout::Modal)
