@@ -99,6 +99,19 @@ class AdminUiTest extends TestCase
         }
     }
 
+    public function test_every_module_has_its_names_translated_in_both_languages(): void
+    {
+        foreach (['en', 'ar'] as $locale) {
+            app()->setLocale($locale);
+
+            foreach (Filament::getPanel('admin')->getResources() as $resource) {
+                foreach (['breadcrumb' => $resource::getBreadcrumb(), 'navigation' => $resource::getNavigationLabel(), 'model' => $resource::getModelLabel(), 'plural' => $resource::getPluralModelLabel()] as $what => $text) {
+                    $this->assertStringNotContainsString('admin.', $text, "{$resource} {$what} is not translated in {$locale}.");
+                }
+            }
+        }
+    }
+
     public function test_the_permissions_table_has_a_translated_label_for_screen_readers(): void
     {
         $this->actingAs($this->createAdmin());

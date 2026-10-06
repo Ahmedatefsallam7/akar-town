@@ -4,5 +4,6 @@
     "Locations": true,
     "Developers": true,
     "Projects": true,
-    "Galleries": true
+    "Galleries": true,
+    "Units": true
 }

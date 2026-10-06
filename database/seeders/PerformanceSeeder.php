@@ -8,11 +8,12 @@ use Illuminate\Support\Facades\Hash;
 use Modules\Lookups\Models\Lookup;
 use Modules\Lookups\Support\LocationTree;
 use Modules\Projects\Models\Project;
+use Modules\Units\Models\Unit;
 use Modules\Users\Models\User;
 
 /**
  * Lots of data to check speed locally: 20,000 users, 10,000 lookups (50 categories x 200 items), 2,000 location
- * pages, 300 developers and 10,000 projects (each with 6 picked lookup values).
+ * pages, 300 developers, 10,000 projects (each with 6 picked lookup values) and 50,000 units (3 picks each).
  * Local only. Rows are marked ("perf-" emails and slugs, "perf_" lookup slugs) so PerformanceCleanupSeeder can remove them.
  *
  *   php artisan db:seed --class=PerformanceSeeder
@@ -31,6 +32,8 @@ class PerformanceSeeder extends Seeder
     private const DEVELOPERS = 300;
 
     private const PROJECTS = 10_000;
+
+    private const UNITS = 50_000;
 
     private const CHUNK = 1_000;
 
@@ -87,6 +90,8 @@ class PerformanceSeeder extends Seeder
             ], $numbers));
         }
 
+        $this->seedUnits($chain, $picks);
+
         if ($picks === []) {
             return;
         }
@@ -123,6 +128,46 @@ class PerformanceSeeder extends Seeder
                 'updated_at' => $now,
             ], $numbers));
         }
+    }
+
+    /**
+     * Units: 4 in 5 inside a perf project, with real offering/property types; 3 picked amenities/views each.
+     *
+     * @param  array<string, int|null>  $chain
+     * @param  array<array{id: int, type: string}>  $picks
+     */
+    private function seedUnits(array $chain, array $picks): void
+    {
+        $now = now();
+        $projectIds = DB::table('projects')->where('slug', 'like', 'perf-project-%')->pluck('id')->all();
+        $valuesOf = fn (string $type) => Lookup::where('parent_id', Lookup::whereNull('parent_id')->where('slug', $type)->value('id'))->pluck('id')->all() ?: [null];
+        $offering = $valuesOf('offeringtype');
+        $propertyType = $valuesOf('unittype');
+
+        foreach (array_chunk(range(1, self::UNITS), self::CHUNK) as $numbers) {
+            DB::table('units')->insert(array_map(fn (int $n) => $chain + [
+                'name_en' => "Perf Unit {$n}", 'name_ar' => "وحدة تجريبية {$n}", 'slug' => "perf-unit-{$n}",
+                'project_id' => $n % 5 === 0 ? null : $projectIds[$n % count($projectIds)],
+                'offering_type_id' => $offering[$n % count($offering)], 'property_type_id' => $propertyType[$n % count($propertyType)],
+                'price' => 800_000 + ($n % 400) * 25_000, 'area' => 50 + $n % 350, 'bedrooms' => $n % 6, 'bathrooms' => 1 + $n % 4,
+                'is_published' => $n % 10 !== 0, 'is_featured' => $n % 25 === 0, 'created_at' => $now, 'updated_at' => $now,
+            ], $numbers));
+        }
+
+        if ($picks === []) {
+            return;
+        }
+
+        DB::table('units')->where('slug', 'like', 'perf-unit-%')->select('id')->orderBy('id')->chunk(self::CHUNK, function ($units) use ($picks) {
+            $rows = [];
+            foreach ($units as $unit) {
+                foreach (range(0, 2) as $i) {
+                    $pick = $picks[($unit->id + $i * 5) % count($picks)];
+                    $rows["{$unit->id}-{$pick['id']}"] = ['lookup_id' => $pick['id'], 'lookupable_type' => Unit::class, 'lookupable_id' => $unit->id, 'type' => $pick['type']];
+                }
+            }
+            DB::table('lookupables')->insert(array_values($rows));
+        });
     }
 
     private function seedLookups(): void

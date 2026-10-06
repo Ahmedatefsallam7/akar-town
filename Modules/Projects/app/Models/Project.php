@@ -14,6 +14,7 @@ use Modules\Developers\Models\Developer;
 use Modules\Galleries\Models\Gallery;
 use Modules\Lookups\Models\Concerns\HasLookups;
 use Modules\Projects\Database\Factories\ProjectFactory;
+use Modules\Units\Models\Unit;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -127,6 +128,21 @@ class Project extends Model implements HasMedia
     public function galleries(): HasMany
     {
         return $this->hasMany(Gallery::class);
+    }
+
+    public function units(): HasMany
+    {
+        return $this->hasMany(Unit::class);
+    }
+
+    /**
+     * Whether any unit (also one in the trash) belongs to this project. Lists load it as "all_units_count".
+     */
+    public function hasUnits(): bool
+    {
+        return array_key_exists('all_units_count', $this->attributes)
+            ? $this->attributes['all_units_count'] > 0
+            : $this->units()->withTrashed()->exists();
     }
 
     /**

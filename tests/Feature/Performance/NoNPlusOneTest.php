@@ -17,6 +17,8 @@ use Modules\Lookups\Filament\Resources\LookupResource;
 use Modules\Lookups\Models\Lookup;
 use Modules\Projects\Filament\Resources\ProjectResource;
 use Modules\Projects\Models\Project;
+use Modules\Units\Filament\Resources\UnitResource;
+use Modules\Units\Models\Unit;
 use Modules\Users\Filament\Resources\RoleResource;
 use Modules\Users\Filament\Resources\UserResource;
 use Modules\Users\Models\User;
@@ -146,6 +148,23 @@ class NoNPlusOneTest extends TestCase
         $gallery();
 
         $this->assertNoNPlusOne(GalleryResource::getUrl('index'), fn () => collect(range(1, 9))->each(fn () => $gallery()));
+    }
+
+    public function test_units_list_with_images_projects_offering_types_and_locations(): void
+    {
+        Storage::fake('public');
+        $this->actingAs($this->createAdmin());
+        $root = Lookup::create(['slug' => 'locations', 'name_en' => 'Locations']);
+        $egypt = $root->children()->create(['slug' => 'egypt', 'name_en' => 'Egypt']);
+        $primary = Lookup::create(['slug' => 'offeringtype', 'name_en' => 'Offering'])->children()->create(['slug' => 'primary', 'name_en' => 'Primary']);
+        $usd = Lookup::create(['slug' => 'currencies', 'name_en' => 'Currencies'])->children()->create(['slug' => 'usd', 'name_en' => 'USD']);
+        $unit = fn () => Unit::factory()->create([
+            'project_id' => Project::factory()->create(['currency_id' => $usd->id])->id, 'country_id' => $egypt->id,
+            'offering_type_id' => $primary->id, 'price' => 1000000,
+        ])->addMedia(UploadedFile::fake()->image('c.jpg', 40, 40))->toMediaCollection(Unit::FEATURED_IMAGE);
+        $unit();
+
+        $this->assertNoNPlusOne(UnitResource::getUrl('index'), fn () => collect(range(1, 9))->each(fn () => $unit()));
     }
 
     public function test_roles_list(): void

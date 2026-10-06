@@ -6,10 +6,12 @@ use App\Traits\HasLocalization;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Mattiverse\Userstamps\Traits\Userstamps;
 use Modules\Galleries\Database\Factories\GalleryFactory;
 use Modules\Projects\Models\Project;
+use Modules\Units\Models\Unit;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -47,6 +49,21 @@ class Gallery extends Model implements HasMedia
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
+    }
+
+    public function units(): HasMany
+    {
+        return $this->hasMany(Unit::class);
+    }
+
+    /**
+     * Whether any unit (also one in the trash) uses this gallery.
+     */
+    public function isUsedByUnits(): bool
+    {
+        return array_key_exists('all_units_count', $this->attributes)
+            ? $this->attributes['all_units_count'] > 0
+            : $this->units()->withTrashed()->exists();
     }
 
     /**

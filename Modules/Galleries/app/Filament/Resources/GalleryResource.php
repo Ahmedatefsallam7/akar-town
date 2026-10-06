@@ -19,6 +19,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Modules\Galleries\Filament\Resources\GalleryResource\Pages;
 use Modules\Galleries\Models\Gallery;
@@ -64,6 +65,21 @@ class GalleryResource extends Resource implements HasPermissionModule
     public static function getPluralModelLabel(): string
     {
         return __('admin.galleries.plural');
+    }
+
+    /**
+     * A gallery that units use (also in the trash) can't be deleted: their media would disappear.
+     */
+    protected static function canPerformOnRecord(string $ability, Model $record): bool
+    {
+        return static::recordDenialMessage($ability, $record) === null;
+    }
+
+    protected static function recordDenialMessage(string $ability, Model $record): ?string
+    {
+        return in_array($ability, ['delete', 'forceDelete'], true) && $record->isUsedByUnits()
+            ? __('admin.galleries.cannot_delete_used')
+            : null;
     }
 
     public static function form(Schema $schema): Schema
@@ -151,6 +167,8 @@ class GalleryResource extends Resource implements HasPermissionModule
                     ->url(fn (Gallery $record) => $record->project_id && ProjectResource::canViewAny() ? ProjectResource::getUrl('view', ['record' => $record->project_id]) : null),
                 TableHelper::createdAtColumn(),
             ])
+            // Units in the trash count too when deciding whether the gallery can be deleted.
+            ->modifyQueryUsing(fn (Builder $query) => $query->withCount(['units as all_units_count' => fn (Builder $query) => $query->withTrashed()]))
             ->defaultSort('created_at', 'desc')
             ->paginated([10, 25, 50, 100])
             ->filters([

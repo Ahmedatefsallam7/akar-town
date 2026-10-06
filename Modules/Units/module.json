@@ -1,0 +1,11 @@
+{
+    "name": "Units",
+    "alias": "units",
+    "description": "Units: reusable media packs (photos, 360° images, floor plans, attachments, video) for a project or unit type.",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Units\\Providers\\UnitsServiceProvider"
+    ],
+    "files": []
+}

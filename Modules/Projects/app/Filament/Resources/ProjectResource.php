@@ -29,6 +29,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Modules\Lookups\Filament\Forms\LocationFields;
 use Modules\Lookups\Filament\Forms\LookupFields;
@@ -85,6 +86,21 @@ class ProjectResource extends Resource implements HasPermissionModule
     public static function getPluralModelLabel(): string
     {
         return __('admin.projects.plural');
+    }
+
+    /**
+     * A project that has units (also in the trash) can't be deleted: every unit needs its project's context.
+     */
+    protected static function canPerformOnRecord(string $ability, Model $record): bool
+    {
+        return static::recordDenialMessage($ability, $record) === null;
+    }
+
+    protected static function recordDenialMessage(string $ability, Model $record): ?string
+    {
+        return in_array($ability, ['delete', 'forceDelete'], true) && $record->hasUnits()
+            ? __('admin.projects.cannot_delete_with_units')
+            : null;
     }
 
     public static function form(Schema $schema): Schema
@@ -292,6 +308,13 @@ class ProjectResource extends Resource implements HasPermissionModule
                     ->weight('medium')
                     ->url(fn (Project $record) => static::getUrl('view', ['record' => $record]))
                     ->color('primary'),
+                TextColumn::make('units_count')
+                    ->label(__('admin.projects.units_count'))
+                    ->counts('units')
+                    ->badge()
+                    ->color('info')
+                    ->sortable()
+                    ->alignment('center'),
                 TextColumn::make('price_from')
                     ->label(__('admin.projects.price_from'))
                     ->formatStateUsing(fn (Project $record, ?int $state) => static::money($state, $record))
@@ -330,6 +353,8 @@ class ProjectResource extends Resource implements HasPermissionModule
                     ->toggleable(isToggledHiddenByDefault: true),
                 TableHelper::createdAtColumn(),
             ])
+            // Units in the trash count too when deciding whether the project can be deleted.
+            ->modifyQueryUsing(fn (Builder $query) => $query->withCount(['units as all_units_count' => fn (Builder $query) => $query->withTrashed()]))
             ->defaultSort('created_at', 'desc')
             ->paginated([10, 25, 50, 100])
             ->filters([
@@ -368,11 +393,12 @@ class ProjectResource extends Resource implements HasPermissionModule
     }
 
     /**
-     * Related-record tabs on the View page (Units and Sliders come with their modules).
+     * Related-record tabs on the View page (Sliders comes with its module).
      */
     public static function getRelations(): array
     {
         return [
+            RelationManagers\UnitsRelationManager::class,
             RelationManagers\GalleriesRelationManager::class,
         ];
     }

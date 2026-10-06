@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Modules\Lookups\Models\Lookup;
 use Modules\Projects\Models\Project;
+use Modules\Units\Models\Unit;
 
 /**
  * Removes everything PerformanceSeeder added.
@@ -15,6 +16,9 @@ class PerformanceCleanupSeeder extends Seeder
 {
     public function run(): void
     {
+        $units = DB::table('units')->where('slug', 'like', 'perf-unit-%')->select('id');
+        DB::table('lookupables')->where('lookupable_type', Unit::class)->whereIn('lookupable_id', $units)->delete();
+        DB::table('units')->where('slug', 'like', 'perf-unit-%')->delete();
         $projects = DB::table('projects')->where('slug', 'like', 'perf-project-%')->select('id');
         DB::table('lookupables')->where('lookupable_type', Project::class)->whereIn('lookupable_id', $projects)->delete();
         DB::table('projects')->where('slug', 'like', 'perf-project-%')->delete();

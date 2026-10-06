@@ -15,6 +15,8 @@ use Modules\Lookups\Filament\Resources\LookupResource;
 use Modules\Lookups\Models\Lookup;
 use Modules\Projects\Filament\Resources\ProjectResource;
 use Modules\Projects\Models\Project;
+use Modules\Units\Filament\Resources\UnitResource;
+use Modules\Units\Models\Unit;
 use Modules\Users\Filament\Resources\RoleResource;
 use Modules\Users\Filament\Resources\UserResource;
 use Modules\Users\Models\User;
@@ -46,6 +48,8 @@ class QueryBudgetTest extends TestCase
         'projects.index' => 6,    // count, page, logos, developers, location chain (filters + country), lookup values (currency)
         'galleries.index' => 5,   // count, page, featured images, projects (column), projects (filter options)
         'galleries.edit' => 8,    // gallery, media per upload field (5), projects (options + current)
+        'units.index' => 6,       // count, page, images, projects (column), location chain, lookup values
+        'units.edit' => 11,       // unit, picks, media per upload field (3), projects (options + current), the project's choices, galleries, location chain, lookup values
         'projects.edit' => 11,    // project, picked values, media per image field (5: the plugin reloads it per field), developers (options + current), location chain, lookup values
     ];
 
@@ -60,6 +64,7 @@ class QueryBudgetTest extends TestCase
         $developer = Developer::factory()->create();
         $project = Project::factory()->create(['developer_id' => $developer->id]);
         $gallery = Gallery::factory()->create(['project_id' => $project->id]);
+        $unit = Unit::factory()->create(['project_id' => $project->id, 'price' => 1000000]);
 
         $pages = [
             'dashboard' => '/admin',
@@ -78,6 +83,8 @@ class QueryBudgetTest extends TestCase
             'developers.edit' => DeveloperResource::getUrl('edit', ['record' => $developer]),
             'galleries.index' => GalleryResource::getUrl('index'),
             'galleries.edit' => GalleryResource::getUrl('edit', ['record' => $gallery]),
+            'units.index' => UnitResource::getUrl('index'),
+            'units.edit' => UnitResource::getUrl('edit', ['record' => $unit]),
             'projects.index' => ProjectResource::getUrl('index'),
             'projects.edit' => ProjectResource::getUrl('edit', ['record' => $project]),
         ];
