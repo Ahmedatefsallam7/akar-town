@@ -66,9 +66,12 @@ class RolesTableSeeder extends Seeder
                 $role + ['order' => $index + 1, 'is_active' => true, 'is_deletable' => false]
             );
 
-            // A new Admin role starts with every module allowed. Saved permissions are never overwritten.
+            // A new Admin role starts with every module allowed (and offered). Saved permissions are never overwritten.
             if ($record->slug === User::ADMIN_ROLE && empty($record->getAttribute('attributes')['permissions'])) {
-                $record->update(['attributes' => ['permissions' => PermissionModules::everything()]]);
+                $record->update(['attributes' => [
+                    'permissions' => PermissionModules::everything(),
+                    'offered_modules' => array_keys(PermissionModules::all()),
+                ]]);
             }
         }
     }

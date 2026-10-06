@@ -5,7 +5,10 @@ namespace Modules\Users\Support;
 use App\Filament\Contracts\HasPermissionModule;
 use App\Providers\Filament\AdminPanelProvider;
 use Filament\Facades\Filament;
+use Illuminate\Support\Facades\Schema;
+use Modules\Lookups\Models\Lookup;
 use Modules\Users\Enums\PermissionAction;
+use Modules\Users\Models\User;
 
 /**
  * The permission modules, discovered from the admin panel: every resource or page that implements
@@ -71,5 +74,39 @@ class PermissionModules
     public static function everything(): array
     {
         return array_map(fn (array $module) => $module['actions'], static::all());
+    }
+
+    /**
+     * Gives the Admin role, once, every module it has never been offered (a module added in a new release), with
+     * every action. The role remembers the modules it was offered ("offered_modules"), so a module the admin
+     * switched off stays off. Runs after every `migrate` (see UsersServiceProvider).
+     */
+    public static function grantNewModulesToAdmin(): void
+    {
+        if (! Schema::hasTable('lookups')) {
+            return;
+        }
+
+        $admin = Lookup::roles()->where('slug', User::ADMIN_ROLE)->first();
+
+        if (! $admin) {
+            return;
+        }
+
+        $attributes = $admin->getAttribute('attributes') ?? [];
+        // Before this list existed, the modules already on the role count as offered.
+        $offered = $attributes['offered_modules'] ?? array_keys($attributes['permissions'] ?? []);
+        $new = array_diff(array_keys(static::all()), $offered);
+
+        if ($new === [] && isset($attributes['offered_modules'])) {
+            return;
+        }
+
+        foreach ($new as $module) {
+            $attributes['permissions'][$module] = static::actionsFor($module);
+        }
+
+        $attributes['offered_modules'] = array_values(array_unique([...$offered, ...$new]));
+        $admin->update(['attributes' => $attributes]);
     }
 }
