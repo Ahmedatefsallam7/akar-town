@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Cache;
 /**
  * Sidebar (and dashboard) counts for every resource in ONE cache entry: one cache query per request instead of one
  * per resource, and remembered for the rest of the request. Each resource says how to count with
- * getNavigationBadgeCount(). Counts may be up to 2 minutes old; Utilities → Refresh clears them.
+ * getNavigationBadgeCount(). Counts may be up to 2 minutes old; the top bar Refresh button rebuilds them.
  */
 class NavigationBadges
 {

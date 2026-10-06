@@ -43,7 +43,6 @@ return [
         'sell_unit_requests' => 'طلبات بيع الوحدات',
         'settings' => 'الإعدادات العامة',
         'roles' => 'الأدوار',
-        'utilities' => 'الأدوات',
         'go_to_website' => 'الذهاب إلى الموقع',
         'other' => 'أخرى',
         'dashboard' => 'لوحة التحكم',
@@ -588,18 +587,10 @@ return [
         ],
     ],
 
-    'utilities' => [
-        'title' => 'الأدوات',
-        'refresh_lists' => 'تحديث قوائم التطبيق',
-        'refresh_lists_desc' => 'مسح جميع القوائم المخزنة مؤقتًا.',
-        'refresh_lists_confirm' => 'سيتم إعادة بناء جميع القوائم والعدادات المخزنة مؤقتًا من قاعدة البيانات.',
-        'refresh_permissions' => 'تحديث الصلاحيات',
-        'refresh_permissions_desc' => 'تحديث صلاحيات المستخدمين.',
-        'refresh_permissions_confirm' => 'إعادة تحميل صلاحياتك والقائمة الجانبية بأحدث إعدادات الأدوار.',
-        'notifications' => [
-            'lists_refreshed' => 'تم تحديث قوائم التطبيق.',
-            'permissions_refreshed' => 'تم تحديث الصلاحيات.',
-        ],
+    'refresh' => [
+        'label' => 'تحديث',
+        'tooltip' => 'تحديث',
+        'done' => 'تم تحديث كل شيء.',
     ],
 
     'auth' => [

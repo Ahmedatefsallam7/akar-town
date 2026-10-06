@@ -43,7 +43,6 @@ return [
         'settings' => 'General Settings',
         'lookups' => 'Lookups',
         'roles' => 'Roles',
-        'utilities' => 'Utilities',
         'go_to_website' => 'Go to website',
         'other' => 'Other',
         'dashboard' => 'Dashboard',
@@ -589,18 +588,10 @@ return [
         ],
     ],
 
-    'utilities' => [
-        'title' => 'Utilities',
-        'refresh_lists' => 'Refresh App Lists',
-        'refresh_lists_desc' => 'Clear all cached lists.',
-        'refresh_lists_confirm' => 'All cached lists and counters will be rebuilt from the database.',
-        'refresh_permissions' => 'Refresh Permissions',
-        'refresh_permissions_desc' => 'Update user permissions.',
-        'refresh_permissions_confirm' => 'Reload your permissions and the sidebar with the latest role settings.',
-        'notifications' => [
-            'lists_refreshed' => 'App lists refreshed.',
-            'permissions_refreshed' => 'Permissions refreshed.',
-        ],
+    'refresh' => [
+        'label' => 'Refresh',
+        'tooltip' => 'Refresh',
+        'done' => 'Everything is up to date.',
     ],
 
     'auth' => [

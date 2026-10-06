@@ -31,10 +31,9 @@ class RolePermissionsTest extends TestCase
     {
         $modules = PermissionModules::all();
 
-        $this->assertEqualsCanonicalizing(['developers', 'locations', 'lookups', 'users', 'roles', 'utilities'], array_keys($modules));
+        $this->assertEqualsCanonicalizing(['developers', 'locations', 'lookups', 'users', 'roles'], array_keys($modules));
         $this->assertSame('system_configuration', $modules['lookups']['group']);
         $this->assertSame(self::ALL, PermissionModules::actionsFor('lookups'));
-        $this->assertSame(['view'], PermissionModules::actionsFor('utilities'));
         $this->assertSame([], PermissionModules::actionsFor('projects'));
         $this->assertSame(self::ALL, PermissionModules::everything()['users']);
     }
@@ -53,12 +52,12 @@ class RolePermissionsTest extends TestCase
         $this->assertArrayNotHasKey('permission_matrix', $data);
     }
 
-    public function test_unknown_actions_and_actions_a_module_does_not_offer_are_dropped(): void
+    public function test_unknown_actions_and_unknown_modules_are_dropped(): void
     {
-        $data = RoleResource::formDataToPermissions(['permission_matrix' => ['lookups' => ['view', 'hack'], 'utilities' => ['view', 'delete']]]);
+        $data = RoleResource::formDataToPermissions(['permission_matrix' => ['lookups' => ['view', 'hack'], 'projects' => ['view']]]);
 
         $this->assertSame(['view'], $data['attributes']['permissions']['lookups']);
-        $this->assertSame(['view'], $data['attributes']['permissions']['utilities']);
+        $this->assertArrayNotHasKey('projects', $data['attributes']['permissions']);
     }
 
     public function test_modules_not_in_the_form_keep_their_saved_actions(): void
@@ -102,12 +101,12 @@ class RolePermissionsTest extends TestCase
 
     public function test_stored_permissions_become_form_state(): void
     {
-        $role = new Lookup(['slug' => 'user_roles_editor', 'attributes' => ['permissions' => ['lookups' => ['view', 'edit'], 'utilities' => ['view']]]]);
+        $role = new Lookup(['slug' => 'user_roles_editor', 'attributes' => ['permissions' => ['lookups' => ['view', 'edit'], 'locations' => ['view']]]]);
 
         $data = RoleResource::permissionsToFormData($role, []);
 
         $this->assertSame(['view', 'edit'], $data['permission_matrix']['lookups']);
-        $this->assertSame(['view'], $data['permission_matrix']['utilities']);
+        $this->assertSame(['view'], $data['permission_matrix']['locations']);
         $this->assertSame([], $data['permission_matrix']['users']);
     }
 

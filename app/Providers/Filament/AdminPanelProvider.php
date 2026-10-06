@@ -20,6 +20,7 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Modules\Users\Filament\Auth\EditProfile;
@@ -59,6 +60,10 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 PanelsRenderHook::BODY_END,
                 fn (): string => view('filament.tab-title')->render(),
+            )
+            ->renderHook(
+                PanelsRenderHook::GLOBAL_SEARCH_AFTER,
+                fn (): string => Blade::render('<livewire:refresh-button />'),
             )
             ->renderHook(
                 PanelsRenderHook::USER_MENU_BEFORE,

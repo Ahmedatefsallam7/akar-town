@@ -57,7 +57,7 @@ class RoleResourceTest extends TestCase
                 'name_ar' => 'فريق المبيعات',
                 'is_active' => true,
                 'permission_matrix.lookups' => ['view', 'create', 'edit'],
-                'permission_matrix.utilities' => ['view'],
+                'permission_matrix.locations' => ['view'],
             ])
             ->call('create')
             ->assertHasNoFormErrors();
@@ -65,7 +65,7 @@ class RoleResourceTest extends TestCase
         $role = Lookup::where('slug', 'user_roles_sales_team')->sole();
         $this->assertSame($this->role(Lookup::ROLES_SLUG)->id, $role->parent_id);
         $this->assertSame(['view', 'create', 'edit'], $role->getAttribute('attributes')['permissions']['lookups']);
-        $this->assertSame(['view'], $role->getAttribute('attributes')['permissions']['utilities']);
+        $this->assertSame(['view'], $role->getAttribute('attributes')['permissions']['locations']);
         $this->assertSame([], $role->getAttribute('attributes')['permissions']['users']);
     }
 
