@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Once;
 use Modules\Developers\Filament\Resources\DeveloperResource;
 use Modules\Developers\Models\Developer;
+use Modules\Galleries\Filament\Resources\GalleryResource;
+use Modules\Galleries\Models\Gallery;
 use Modules\Locations\Filament\Resources\LocationResource;
 use Modules\Locations\Models\Location;
 use Modules\Lookups\Filament\Resources\LookupResource;
@@ -42,6 +44,8 @@ class QueryBudgetTest extends TestCase
         'developers.index' => 4,  // count, page, logos + featured images (one query), location chain (filters + column)
         'developers.edit' => 4,   // developer, media for each image field (the plugin reloads it per field), location chain
         'projects.index' => 6,    // count, page, logos, developers, location chain (filters + country), lookup values (currency)
+        'galleries.index' => 5,   // count, page, featured images, projects (column), projects (filter options)
+        'galleries.edit' => 8,    // gallery, media per upload field (5), projects (options + current)
         'projects.edit' => 11,    // project, picked values, media per image field (5: the plugin reloads it per field), developers (options + current), location chain, lookup values
     ];
 
@@ -55,6 +59,7 @@ class QueryBudgetTest extends TestCase
         Lookup::create(['parent_id' => $this->role(Lookup::ROLES_SLUG)->id, 'name_en' => 'Sales', 'slug' => 'user_roles_sales']);
         $developer = Developer::factory()->create();
         $project = Project::factory()->create(['developer_id' => $developer->id]);
+        $gallery = Gallery::factory()->create(['project_id' => $project->id]);
 
         $pages = [
             'dashboard' => '/admin',
@@ -71,6 +76,8 @@ class QueryBudgetTest extends TestCase
             'locations.edit' => LocationResource::getUrl('edit', ['record' => $location]),
             'developers.index' => DeveloperResource::getUrl('index'),
             'developers.edit' => DeveloperResource::getUrl('edit', ['record' => $developer]),
+            'galleries.index' => GalleryResource::getUrl('index'),
+            'galleries.edit' => GalleryResource::getUrl('edit', ['record' => $gallery]),
             'projects.index' => ProjectResource::getUrl('index'),
             'projects.edit' => ProjectResource::getUrl('edit', ['record' => $project]),
         ];

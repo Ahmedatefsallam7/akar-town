@@ -3,5 +3,6 @@
     "Users": true,
     "Locations": true,
     "Developers": true,
-    "Projects": true
+    "Projects": true,
+    "Galleries": true
 }

@@ -35,6 +35,7 @@ use Modules\Lookups\Filament\Forms\LookupFields;
 use Modules\Lookups\Support\LocationTree;
 use Modules\Lookups\Support\LookupOptions;
 use Modules\Projects\Filament\Resources\ProjectResource\Pages;
+use Modules\Projects\Filament\Resources\ProjectResource\RelationManagers;
 use Modules\Projects\Models\Project;
 
 /**
@@ -364,6 +365,16 @@ class ProjectResource extends Resource implements HasPermissionModule
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
+    }
+
+    /**
+     * Related-record tabs on the View page (Units and Sliders come with their modules).
+     */
+    public static function getRelations(): array
+    {
+        return [
+            RelationManagers\GalleriesRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

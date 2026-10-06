@@ -31,7 +31,7 @@ class RolePermissionsTest extends TestCase
     {
         $modules = PermissionModules::all();
 
-        $this->assertEqualsCanonicalizing(['developers', 'locations', 'lookups', 'projects', 'users', 'roles'], array_keys($modules));
+        $this->assertEqualsCanonicalizing(['developers', 'galleries', 'locations', 'lookups', 'projects', 'users', 'roles'], array_keys($modules));
         $this->assertSame('system_configuration', $modules['lookups']['group']);
         $this->assertSame(self::ALL, PermissionModules::actionsFor('lookups'));
         $this->assertSame([], PermissionModules::actionsFor('unknown_module'));

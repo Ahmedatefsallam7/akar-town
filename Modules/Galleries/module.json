@@ -1,0 +1,11 @@
+{
+    "name": "Galleries",
+    "alias": "galleries",
+    "description": "Galleries: reusable media packs (photos, 360° images, floor plans, attachments, video) for a project or unit type.",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Galleries\\Providers\\GalleriesServiceProvider"
+    ],
+    "files": []
+}

@@ -7,9 +7,11 @@ use App\Traits\HasLocalization;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Mattiverse\Userstamps\Traits\Userstamps;
 use Modules\Developers\Models\Developer;
+use Modules\Galleries\Models\Gallery;
 use Modules\Lookups\Models\Concerns\HasLookups;
 use Modules\Projects\Database\Factories\ProjectFactory;
 use Spatie\Image\Enums\Fit;
@@ -120,6 +122,11 @@ class Project extends Model implements HasMedia
     public function developer(): BelongsTo
     {
         return $this->belongsTo(Developer::class);
+    }
+
+    public function galleries(): HasMany
+    {
+        return $this->hasMany(Gallery::class);
     }
 
     /**

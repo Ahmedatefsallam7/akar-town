@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Modules\Developers\Filament\Resources\DeveloperResource;
 use Modules\Developers\Models\Developer;
+use Modules\Galleries\Filament\Resources\GalleryResource;
+use Modules\Galleries\Models\Gallery;
 use Modules\Locations\Filament\Resources\LocationResource;
 use Modules\Locations\Models\Location;
 use Modules\Lookups\Filament\Resources\LookupResource;
@@ -133,6 +135,17 @@ class NoNPlusOneTest extends TestCase
         $project();
 
         $this->assertNoNPlusOne(ProjectResource::getUrl('index'), fn () => collect(range(1, 9))->each(fn () => $project()));
+    }
+
+    public function test_galleries_list_with_images_and_projects(): void
+    {
+        Storage::fake('public');
+        $this->actingAs($this->createAdmin());
+        $gallery = fn () => Gallery::factory()->create(['project_id' => Project::factory()->create()->id])
+            ->addMedia(UploadedFile::fake()->image('cover.jpg', 40, 40))->toMediaCollection(Gallery::FEATURED_IMAGE);
+        $gallery();
+
+        $this->assertNoNPlusOne(GalleryResource::getUrl('index'), fn () => collect(range(1, 9))->each(fn () => $gallery()));
     }
 
     public function test_roles_list(): void
