@@ -16,11 +16,12 @@ use Modules\Lookups\Support\LocationTree;
 class LocationFields
 {
     /**
+     * @param  int  $required  how many levels from the top must be chosen (e.g. 3 = country, city and region)
      * @return array<Select>
      */
-    public static function make(): array
+    public static function make(int $required = 0): array
     {
-        return collect(LocationTree::LEVELS)->map(function (string $column, int $index) {
+        return collect(LocationTree::LEVELS)->map(function (string $column, int $index) use ($required) {
             $parent = LocationTree::LEVELS[$index - 1] ?? null;
             $below = array_slice(LocationTree::LEVELS, $index + 1);
 
@@ -31,6 +32,7 @@ class LocationFields
                     ? LocationTree::options($parent ? (int) $get($parent) : null, (int) $get($column) ?: null)
                     : [])
                 ->searchable()
+                ->required($index < $required)
                 ->live()
                 ->afterStateUpdated(fn (Set $set) => collect($below)->each(fn (string $column) => $set($column, null)));
         })->all();

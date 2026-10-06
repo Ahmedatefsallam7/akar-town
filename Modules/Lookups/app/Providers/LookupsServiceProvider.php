@@ -3,6 +3,8 @@
 namespace Modules\Lookups\Providers;
 
 use Illuminate\Console\Scheduling\Schedule;
+use Modules\Lookups\Support\LookupOptions;
+use Modules\Lookups\Support\LookupUsage;
 use Nwidart\Modules\Support\ModuleServiceProvider;
 
 class LookupsServiceProvider extends ModuleServiceProvider
@@ -33,6 +35,22 @@ class LookupsServiceProvider extends ModuleServiceProvider
         EventServiceProvider::class,
         RouteServiceProvider::class,
     ];
+
+    public function register(): void
+    {
+        parent::register();
+
+        // Lookup values for selects and checkbox lists: loaded once per request.
+        $this->app->scoped(LookupOptions::class);
+    }
+
+    public function boot(): void
+    {
+        parent::boot();
+
+        // Values picked on records (a project's amenities…) can't be deleted from Lookups.
+        LookupUsage::register('lookupables', ['lookup_id']);
+    }
 
     /**
      * Define module schedules.
