@@ -10,6 +10,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 use Modules\Inquiry\Filament\Resources\InquiryResource;
 use Modules\Inquiry\Models\Inquiry;
+use Modules\WebsiteUsers\Filament\Resources\WebsiteUserResource;
 
 class ViewInquiry extends ViewRecord
 {
@@ -18,6 +19,7 @@ class ViewInquiry extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
+            WebsiteUserResource::leadLinkAction(),
             // Sending happens by itself; this is for a message the CRM didn't take (e.g. the CRM was down for hours).
             Action::make('sendToCrm')
                 ->label(__('admin.contact_us.send_to_crm'))

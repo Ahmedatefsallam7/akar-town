@@ -35,6 +35,8 @@ use Modules\Units\Models\Unit;
 use Modules\Users\Filament\Resources\RoleResource;
 use Modules\Users\Filament\Resources\UserResource;
 use Modules\Users\Models\User;
+use Modules\WebsiteUsers\Filament\Resources\WebsiteUserResource;
+use Modules\WebsiteUsers\Models\WebsiteUser;
 use Tests\TestCase;
 
 /**
@@ -79,7 +81,9 @@ class QueryBudgetTest extends TestCase
         'careers.index' => 2,         // count, page
         'careers.edit' => 3,
         'applicants.index' => 5,      // count, page, their jobs, CVs, jobs (filter options)
-        'applicants.edit' => 4,       // application, its CV, jobs (options + current)          // job, its benefits, choices (location chain + lookup values)    // request, its image, picked values, choices (location chain + lookup values)
+        'applicants.edit' => 4,
+        'website_users.index' => 2,   // count, page
+        'website_users.edit' => 1,    // user       // application, its CV, jobs (options + current)          // job, its benefits, choices (location chain + lookup values)    // request, its image, picked values, choices (location chain + lookup values)
     ];
 
     public function test_every_admin_page_stays_within_its_query_budget(): void
@@ -99,6 +103,7 @@ class QueryBudgetTest extends TestCase
         $meeting = Meeting::factory()->create();
         $unitRequest = UnitRequest::factory()->create();
         $career = Career::factory()->create();
+        $websiteUser = WebsiteUser::factory()->create();
         $applicant = Applicant::factory()->create(['career_id' => $career->id]);
         SliderItem::factory()->create(['slider_id' => $hero->id, 'project_id' => $project->id]);
 
@@ -136,6 +141,8 @@ class QueryBudgetTest extends TestCase
             'careers.edit' => CareerResource::getUrl('edit', ['record' => $career]),
             'applicants.index' => ApplicantResource::getUrl('index'),
             'applicants.edit' => ApplicantResource::getUrl('edit', ['record' => $applicant]),
+            'website_users.index' => WebsiteUserResource::getUrl('index'),
+            'website_users.edit' => WebsiteUserResource::getUrl('edit', ['record' => $websiteUser]),
             'settings.about_us' => AboutUsSettingsPage::getUrl(),
         ];
 

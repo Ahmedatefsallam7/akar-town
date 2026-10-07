@@ -1,0 +1,11 @@
+{
+    "name": "WebsiteUsers",
+    "alias": "websiteusers",
+    "description": "Website Users: people who register on the public website (separate from admin users).",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\WebsiteUsers\\Providers\\WebsiteUsersServiceProvider"
+    ],
+    "files": []
+}

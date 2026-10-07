@@ -10,5 +10,6 @@
     "GeneralSettings": true,
     "Inquiry": true,
     "UnitRequests": true,
-    "Careers": true
+    "Careers": true,
+    "WebsiteUsers": true
 }

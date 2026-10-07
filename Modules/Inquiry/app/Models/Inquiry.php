@@ -6,9 +6,11 @@ use App\Jobs\SendLeadToCrm;
 use App\Support\Crm\CrmLead;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Mattiverse\Userstamps\Traits\Userstamps;
 use Modules\Inquiry\Database\Factories\InquiryFactory;
+use Modules\WebsiteUsers\Models\WebsiteUser;
 
 /**
  * A contact message from the website (or added by hand, e.g. after a phone call). Every new one goes to the CRM
@@ -19,6 +21,7 @@ class Inquiry extends Model implements CrmLead
     use HasFactory, SoftDeletes, Userstamps;
 
     protected $fillable = [
+        'website_user_id',
         'full_name',
         'email',
         'phone',
@@ -35,6 +38,14 @@ class Inquiry extends Model implements CrmLead
     {
         // After the save is committed, so the CRM never gets a lead whose save was undone.
         static::created(fn (Inquiry $inquiry) => SendLeadToCrm::dispatch($inquiry)->afterCommit());
+    }
+
+    /**
+     * The website account it was sent from, when the visitor was logged in (guests: none).
+     */
+    public function websiteUser(): BelongsTo
+    {
+        return $this->belongsTo(WebsiteUser::class)->withTrashed();
     }
 
     protected static function newFactory(): InquiryFactory

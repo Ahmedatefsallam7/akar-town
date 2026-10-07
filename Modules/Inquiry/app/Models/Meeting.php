@@ -7,9 +7,11 @@ use App\Support\Crm\CrmLead;
 use App\Traits\HasLocalization;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Mattiverse\Userstamps\Traits\Userstamps;
 use Modules\Inquiry\Database\Factories\MeetingFactory;
+use Modules\WebsiteUsers\Models\WebsiteUser;
 
 /**
  * A meeting or property-viewing booking: Pending → Confirmed → Completed, with Rescheduled and Cancelled on the
@@ -34,6 +36,7 @@ class Meeting extends Model implements CrmLead
     public const STATUSES = [self::PENDING, self::CONFIRMED, self::RESCHEDULED, self::COMPLETED, self::CANCELLED];
 
     protected $fillable = [
+        'website_user_id',
         'name',
         'phone',
         'email',
@@ -61,6 +64,14 @@ class Meeting extends Model implements CrmLead
     {
         // After the save is committed, so the CRM never gets a lead whose save was undone.
         static::created(fn (Meeting $meeting) => SendLeadToCrm::dispatch($meeting)->afterCommit());
+    }
+
+    /**
+     * The website account it was sent from, when the visitor was logged in (guests: none).
+     */
+    public function websiteUser(): BelongsTo
+    {
+        return $this->belongsTo(WebsiteUser::class)->withTrashed();
     }
 
     protected static function newFactory(): MeetingFactory

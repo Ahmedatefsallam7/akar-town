@@ -11,6 +11,7 @@ use Mattiverse\Userstamps\Traits\Userstamps;
 use Modules\Lookups\Models\Concerns\HasLookups;
 use Modules\UnitRequests\Database\Factories\UnitRequestFactory;
 use Modules\Units\Models\Unit;
+use Modules\WebsiteUsers\Models\WebsiteUser;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -51,6 +52,7 @@ class UnitRequest extends Model implements HasMedia
     ];
 
     protected $fillable = [
+        'website_user_id',
         'seller_name', 'email', 'phone',
         'name_en', 'name_ar', 'country_id', 'city_id', 'region_id', 'area_id', 'sub_area_id', 'address', 'latitude', 'longitude',
         'price', 'area', 'bedrooms', 'bathrooms', 'down_payment', 'installment_years_from', 'installment_years_to',
@@ -73,6 +75,14 @@ class UnitRequest extends Model implements HasMedia
     protected $attributes = [
         'status' => self::PENDING,
     ];
+
+    /**
+     * The website account it was sent from, when the visitor was logged in (guests: none).
+     */
+    public function websiteUser(): BelongsTo
+    {
+        return $this->belongsTo(WebsiteUser::class)->withTrashed();
+    }
 
     protected static function newFactory(): UnitRequestFactory
     {

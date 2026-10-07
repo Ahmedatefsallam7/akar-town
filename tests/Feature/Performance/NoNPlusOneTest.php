@@ -37,6 +37,8 @@ use Modules\Units\Models\Unit;
 use Modules\Users\Filament\Resources\RoleResource;
 use Modules\Users\Filament\Resources\UserResource;
 use Modules\Users\Models\User;
+use Modules\WebsiteUsers\Filament\Resources\WebsiteUserResource;
+use Modules\WebsiteUsers\Models\WebsiteUser;
 use Tests\TestCase;
 
 /**
@@ -247,6 +249,14 @@ class NoNPlusOneTest extends TestCase
         $applicant();
 
         $this->assertNoNPlusOne(ApplicantResource::getUrl('index'), fn () => collect(range(1, 9))->each(fn () => $applicant()));
+    }
+
+    public function test_website_users_list(): void
+    {
+        $this->actingAs($this->createAdmin());
+        WebsiteUser::factory()->create();
+
+        $this->assertNoNPlusOne(WebsiteUserResource::getUrl('index'), fn () => WebsiteUser::factory()->count(9)->create());
     }
 
     public function test_roles_list(): void

@@ -1,6 +1,7 @@
 <?php
 
 use Modules\Users\Models\User;
+use Modules\WebsiteUsers\Models\WebsiteUser;
 
 return [
 
@@ -42,6 +43,12 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        // People who register on the public website: their own table, never the admin panel.
+        'website' => [
+            'driver' => 'session',
+            'provider' => 'website_users',
+        ],
     ],
 
     /*
@@ -65,6 +72,11 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', User::class),
+        ],
+
+        'website_users' => [
+            'driver' => 'eloquent',
+            'model' => WebsiteUser::class,
         ],
 
         // 'users' => [

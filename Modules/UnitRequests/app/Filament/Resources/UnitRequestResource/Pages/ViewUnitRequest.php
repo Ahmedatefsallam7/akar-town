@@ -10,6 +10,7 @@ use Filament\Resources\Pages\ViewRecord;
 use Modules\UnitRequests\Filament\Resources\UnitRequestResource;
 use Modules\UnitRequests\Models\UnitRequest;
 use Modules\Units\Filament\Resources\UnitResource;
+use Modules\WebsiteUsers\Filament\Resources\WebsiteUserResource;
 
 class ViewUnitRequest extends ViewRecord
 {
@@ -18,6 +19,7 @@ class ViewUnitRequest extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
+            WebsiteUserResource::leadLinkAction(),
             UnitRequestResource::convertAction(),
             Action::make('viewUnit')
                 ->label(__('admin.unit_requests.view_unit'))
