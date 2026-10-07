@@ -23,6 +23,8 @@ use Modules\Locations\Filament\Resources\LocationResource;
 use Modules\Locations\Models\Location;
 use Modules\Lookups\Filament\Resources\LookupResource;
 use Modules\Lookups\Models\Lookup;
+use Modules\PossibleLeads\Filament\Resources\PossibleLeadResource;
+use Modules\PossibleLeads\Models\PossibleLead;
 use Modules\Projects\Filament\Resources\ProjectResource;
 use Modules\Projects\Models\Project;
 use Modules\Sliders\Filament\Resources\SliderResource;
@@ -83,7 +85,8 @@ class QueryBudgetTest extends TestCase
         'applicants.index' => 5,      // count, page, their jobs, CVs, jobs (filter options)
         'applicants.edit' => 4,
         'website_users.index' => 2,   // count, page
-        'website_users.edit' => 1,    // user       // application, its CV, jobs (options + current)          // job, its benefits, choices (location chain + lookup values)    // request, its image, picked values, choices (location chain + lookup values)
+        'website_users.edit' => 1,
+        'possible_leads.index' => 5,  // count, page, their properties, projects, website users (stats cached)    // user       // application, its CV, jobs (options + current)          // job, its benefits, choices (location chain + lookup values)    // request, its image, picked values, choices (location chain + lookup values)
     ];
 
     public function test_every_admin_page_stays_within_its_query_budget(): void
@@ -104,6 +107,7 @@ class QueryBudgetTest extends TestCase
         $unitRequest = UnitRequest::factory()->create();
         $career = Career::factory()->create();
         $websiteUser = WebsiteUser::factory()->create();
+        PossibleLead::factory()->create(['unit_id' => $unit->id, 'website_user_id' => $websiteUser->id]);
         $applicant = Applicant::factory()->create(['career_id' => $career->id]);
         SliderItem::factory()->create(['slider_id' => $hero->id, 'project_id' => $project->id]);
 
@@ -143,6 +147,7 @@ class QueryBudgetTest extends TestCase
             'applicants.edit' => ApplicantResource::getUrl('edit', ['record' => $applicant]),
             'website_users.index' => WebsiteUserResource::getUrl('index'),
             'website_users.edit' => WebsiteUserResource::getUrl('edit', ['record' => $websiteUser]),
+            'possible_leads.index' => PossibleLeadResource::getUrl('index'),
             'settings.about_us' => AboutUsSettingsPage::getUrl(),
         ];
 

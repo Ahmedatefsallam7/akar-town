@@ -11,5 +11,6 @@
     "Inquiry": true,
     "UnitRequests": true,
     "Careers": true,
-    "WebsiteUsers": true
+    "WebsiteUsers": true,
+    "PossibleLeads": true
 }

@@ -24,6 +24,8 @@ use Modules\Locations\Filament\Resources\LocationResource;
 use Modules\Locations\Models\Location;
 use Modules\Lookups\Filament\Resources\LookupResource;
 use Modules\Lookups\Models\Lookup;
+use Modules\PossibleLeads\Filament\Resources\PossibleLeadResource;
+use Modules\PossibleLeads\Models\PossibleLead;
 use Modules\Projects\Filament\Resources\ProjectResource;
 use Modules\Projects\Models\Project;
 use Modules\Sliders\Filament\Resources\SliderResource\Pages\ViewSlider;
@@ -257,6 +259,19 @@ class NoNPlusOneTest extends TestCase
         WebsiteUser::factory()->create();
 
         $this->assertNoNPlusOne(WebsiteUserResource::getUrl('index'), fn () => WebsiteUser::factory()->count(9)->create());
+    }
+
+    public function test_possible_leads_list(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $click = fn () => PossibleLead::factory()->create([
+            'unit_id' => Unit::factory()->create()->id,
+            'project_id' => Project::factory()->create()->id,
+            'website_user_id' => WebsiteUser::factory()->create()->id,
+        ]);
+        $click();
+
+        $this->assertNoNPlusOne(PossibleLeadResource::getUrl('index'), fn () => collect(range(1, 9))->each(fn () => $click()));
     }
 
     public function test_roles_list(): void

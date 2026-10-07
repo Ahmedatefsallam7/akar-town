@@ -55,6 +55,7 @@ class UnitRequest extends Model implements CrmLead, HasMedia
 
     protected $fillable = [
         'website_user_id',
+        'visitor_id',
         'seller_name', 'email', 'phone',
         'name_en', 'name_ar', 'country_id', 'city_id', 'region_id', 'area_id', 'sub_area_id', 'address', 'latitude', 'longitude',
         'price', 'area', 'bedrooms', 'bathrooms', 'down_payment', 'installment_years_from', 'installment_years_to',

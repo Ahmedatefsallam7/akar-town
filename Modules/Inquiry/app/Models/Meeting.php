@@ -37,6 +37,7 @@ class Meeting extends Model implements CrmLead
 
     protected $fillable = [
         'website_user_id',
+        'visitor_id',
         'name',
         'phone',
         'email',
