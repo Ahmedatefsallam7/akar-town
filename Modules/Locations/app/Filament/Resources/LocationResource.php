@@ -3,6 +3,7 @@
 namespace Modules\Locations\Filament\Resources;
 
 use App\Filament\Contracts\HasPermissionModule;
+use App\Filament\Forms\MapPicker;
 use App\Filament\Forms\SeoFields;
 use App\Filament\Helpers\TableHelper;
 use App\Filament\Schemas\Tab;
@@ -134,6 +135,7 @@ class LocationResource extends Resource implements HasPermissionModule
                                             ->minValue(-180)
                                             ->maxValue(180)
                                             ->requiredWith('latitude'),
+                                        MapPicker::make(),
                                     ])
                                     ->columns(2),
                                 Section::make(__('admin.tabs.description'))

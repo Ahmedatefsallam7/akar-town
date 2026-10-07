@@ -3,6 +3,7 @@
 namespace Modules\Units\Filament\Resources;
 
 use App\Filament\Contracts\HasPermissionModule;
+use App\Filament\Forms\MapPicker;
 use App\Filament\Forms\SeoFields;
 use App\Filament\Helpers\TableHelper;
 use App\Filament\Schemas\Tab;
@@ -158,6 +159,7 @@ class UnitResource extends Resource implements HasPermissionModule
                                     ->minValue(-180)
                                     ->maxValue(180)
                                     ->requiredWith('latitude'),
+                                MapPicker::make(),
                                 Toggle::make('is_published')
                                     ->label(__('admin.units.published'))
                                     ->helperText(__('admin.units.published_help'))

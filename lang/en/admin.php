@@ -576,6 +576,11 @@ return [
         ],
     ],
 
+    'map' => [
+        'set_location' => 'Set location on map',
+        'help' => 'Click the map (or drag the pin) to fill Latitude and Longitude. Only listings with a location show on the website map.',
+    ],
+
     'possible_leads' => [
         'singular' => 'Possible Lead',
         'plural' => 'Possible Leads',

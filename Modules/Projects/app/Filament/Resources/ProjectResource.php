@@ -3,6 +3,7 @@
 namespace Modules\Projects\Filament\Resources;
 
 use App\Filament\Contracts\HasPermissionModule;
+use App\Filament\Forms\MapPicker;
 use App\Filament\Forms\SeoFields;
 use App\Filament\Helpers\TableHelper;
 use App\Filament\Schemas\Tab;
@@ -171,6 +172,7 @@ class ProjectResource extends Resource implements HasPermissionModule
                                     ->minValue(-180)
                                     ->maxValue(180)
                                     ->requiredWith('latitude'),
+                                MapPicker::make(),
                                 TextInput::make('address_en')
                                     ->label(__('admin.projects.address_en'))
                                     ->maxLength(191),

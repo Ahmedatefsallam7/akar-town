@@ -3,6 +3,7 @@
 namespace Modules\UnitRequests\Filament\Resources;
 
 use App\Filament\Contracts\HasPermissionModule;
+use App\Filament\Forms\MapPicker;
 use App\Filament\Helpers\CrmHelper;
 use App\Filament\Helpers\TableHelper;
 use App\Filament\Schemas\Tab;
@@ -152,6 +153,7 @@ class UnitRequestResource extends Resource implements HasPermissionModule
                                     ->minValue(-180)
                                     ->maxValue(180)
                                     ->requiredWith('latitude'),
+                                MapPicker::make(),
                             ])
                             ->columns(2),
                         Tab::make(__('admin.tabs.pricing_space'))
