@@ -8,5 +8,6 @@
     "Units": true,
     "Sliders": true,
     "GeneralSettings": true,
-    "Inquiry": true
+    "Inquiry": true,
+    "UnitRequests": true
 }

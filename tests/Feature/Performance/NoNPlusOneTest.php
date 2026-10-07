@@ -26,6 +26,8 @@ use Modules\Sliders\Filament\Resources\SliderResource\Pages\ViewSlider;
 use Modules\Sliders\Filament\Resources\SliderResource\RelationManagers\SlidesRelationManager;
 use Modules\Sliders\Models\Slider;
 use Modules\Sliders\Models\SliderItem;
+use Modules\UnitRequests\Filament\Resources\UnitRequestResource;
+use Modules\UnitRequests\Models\UnitRequest;
 use Modules\Units\Filament\Resources\UnitResource;
 use Modules\Units\Models\Unit;
 use Modules\Users\Filament\Resources\RoleResource;
@@ -210,6 +212,17 @@ class NoNPlusOneTest extends TestCase
         Meeting::factory()->create();
 
         $this->assertNoNPlusOne(MeetingResource::getUrl('index'), fn () => Meeting::factory()->count(9)->create());
+    }
+
+    public function test_sell_requests_list(): void
+    {
+        Storage::fake('public');
+        $this->actingAs($this->createAdmin());
+        $request = fn () => UnitRequest::factory()->create()
+            ->addMedia(UploadedFile::fake()->image('flat.jpg', 40, 40))->toMediaCollection(UnitRequest::FEATURED_IMAGE);
+        $request();
+
+        $this->assertNoNPlusOne(UnitRequestResource::getUrl('index'), fn () => collect(range(1, 9))->each(fn () => $request()));
     }
 
     public function test_roles_list(): void

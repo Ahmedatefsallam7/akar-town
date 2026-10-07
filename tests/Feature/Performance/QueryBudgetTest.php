@@ -24,6 +24,8 @@ use Modules\Projects\Models\Project;
 use Modules\Sliders\Filament\Resources\SliderResource;
 use Modules\Sliders\Models\Slider;
 use Modules\Sliders\Models\SliderItem;
+use Modules\UnitRequests\Filament\Resources\UnitRequestResource;
+use Modules\UnitRequests\Models\UnitRequest;
 use Modules\Units\Filament\Resources\UnitResource;
 use Modules\Units\Models\Unit;
 use Modules\Users\Filament\Resources\RoleResource;
@@ -68,6 +70,8 @@ class QueryBudgetTest extends TestCase
         'contact_us.view' => 1,   // message
         'meetings.index' => 2,    // count, page
         'meetings.view' => 1,     // booking
+        'unit_requests.index' => 3,   // count, page, images
+        'unit_requests.edit' => 4,    // request, its image, picked values, choices (location chain + lookup values)
     ];
 
     public function test_every_admin_page_stays_within_its_query_budget(): void
@@ -85,6 +89,7 @@ class QueryBudgetTest extends TestCase
         $hero = Slider::factory()->hero()->create();
         $inquiry = Inquiry::factory()->create();
         $meeting = Meeting::factory()->create();
+        $unitRequest = UnitRequest::factory()->create();
         SliderItem::factory()->create(['slider_id' => $hero->id, 'project_id' => $project->id]);
 
         $pages = [
@@ -115,6 +120,8 @@ class QueryBudgetTest extends TestCase
             'contact_us.view' => InquiryResource::getUrl('view', ['record' => $inquiry]),
             'meetings.index' => MeetingResource::getUrl('index'),
             'meetings.view' => MeetingResource::getUrl('view', ['record' => $meeting]),
+            'unit_requests.index' => UnitRequestResource::getUrl('index'),
+            'unit_requests.edit' => UnitRequestResource::getUrl('edit', ['record' => $unitRequest]),
             'settings.about_us' => AboutUsSettingsPage::getUrl(),
         ];
 
