@@ -8,7 +8,9 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
+use Modules\Careers\Filament\Resources\ApplicantResource;
 use Modules\Careers\Filament\Resources\CareerResource;
+use Modules\Careers\Models\Applicant;
 use Modules\Careers\Models\Career;
 use Modules\Developers\Filament\Resources\DeveloperResource;
 use Modules\Developers\Models\Developer;
@@ -232,7 +234,19 @@ class NoNPlusOneTest extends TestCase
         $this->actingAs($this->createAdmin());
         Career::factory()->create();
 
-        $this->assertNoNPlusOne(CareerResource::getUrl('index'), fn () => Career::factory()->count(9)->create());
+        $this->assertNoNPlusOne(CareerResource::getUrl('index'), fn () => Career::factory()->count(9)->create()
+            ->each(fn (Career $career) => Applicant::factory()->create(['career_id' => $career->id])));
+    }
+
+    public function test_applicants_list(): void
+    {
+        Storage::fake('local');
+        $this->actingAs($this->createAdmin());
+        $applicant = fn () => Applicant::factory()->create()
+            ->addMedia(UploadedFile::fake()->create('cv.pdf', 10, 'application/pdf'))->toMediaCollection(Applicant::RESUME);
+        $applicant();
+
+        $this->assertNoNPlusOne(ApplicantResource::getUrl('index'), fn () => collect(range(1, 9))->each(fn () => $applicant()));
     }
 
     public function test_roles_list(): void

@@ -5,7 +5,9 @@ namespace Tests\Feature\Performance;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Once;
+use Modules\Careers\Filament\Resources\ApplicantResource;
 use Modules\Careers\Filament\Resources\CareerResource;
+use Modules\Careers\Models\Applicant;
 use Modules\Careers\Models\Career;
 use Modules\Developers\Filament\Resources\DeveloperResource;
 use Modules\Developers\Models\Developer;
@@ -75,7 +77,9 @@ class QueryBudgetTest extends TestCase
         'unit_requests.index' => 3,   // count, page, images
         'unit_requests.edit' => 4,
         'careers.index' => 2,         // count, page
-        'careers.edit' => 3,          // job, its benefits, choices (location chain + lookup values)    // request, its image, picked values, choices (location chain + lookup values)
+        'careers.edit' => 3,
+        'applicants.index' => 5,      // count, page, their jobs, CVs, jobs (filter options)
+        'applicants.edit' => 4,       // application, its CV, jobs (options + current)          // job, its benefits, choices (location chain + lookup values)    // request, its image, picked values, choices (location chain + lookup values)
     ];
 
     public function test_every_admin_page_stays_within_its_query_budget(): void
@@ -95,6 +99,7 @@ class QueryBudgetTest extends TestCase
         $meeting = Meeting::factory()->create();
         $unitRequest = UnitRequest::factory()->create();
         $career = Career::factory()->create();
+        $applicant = Applicant::factory()->create(['career_id' => $career->id]);
         SliderItem::factory()->create(['slider_id' => $hero->id, 'project_id' => $project->id]);
 
         $pages = [
@@ -129,6 +134,8 @@ class QueryBudgetTest extends TestCase
             'unit_requests.edit' => UnitRequestResource::getUrl('edit', ['record' => $unitRequest]),
             'careers.index' => CareerResource::getUrl('index'),
             'careers.edit' => CareerResource::getUrl('edit', ['record' => $career]),
+            'applicants.index' => ApplicantResource::getUrl('index'),
+            'applicants.edit' => ApplicantResource::getUrl('edit', ['record' => $applicant]),
             'settings.about_us' => AboutUsSettingsPage::getUrl(),
         ];
 

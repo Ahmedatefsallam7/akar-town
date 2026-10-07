@@ -1,7 +1,7 @@
 {
     "name": "Careers",
     "alias": "careers",
-    "description": "Careers: job openings on the website's careers page; candidates apply against a job.",
+    "description": "Careers: job openings on the website's careers page, and the applications sent for them.",
     "keywords": [],
     "priority": 0,
     "providers": [

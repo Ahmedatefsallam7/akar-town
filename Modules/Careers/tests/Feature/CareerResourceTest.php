@@ -171,17 +171,6 @@ class CareerResourceTest extends TestCase
         $this->assertSame([$open->id], Career::open()->pluck('id')->all());
     }
 
-    public function test_the_list_shows_whether_each_job_is_on_the_website(): void
-    {
-        $this->actingAs($this->createAdmin());
-        $expired = Career::factory()->create(['closing_date' => now()->subDay()]);
-        $open = Career::factory()->create();
-
-        Livewire::test(ListCareers::class)
-            ->assertTableColumnStateSet('open', false, $expired)
-            ->assertTableColumnStateSet('open', true, $open);
-    }
-
     public function test_filters_query_builder_bulk_status_and_trash(): void
     {
         $this->actingAs($this->createAdmin());

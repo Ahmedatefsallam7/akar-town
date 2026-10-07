@@ -7,6 +7,7 @@ use App\Traits\HasLocalization;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Mattiverse\Userstamps\Traits\Userstamps;
 use Modules\Careers\Database\Factories\CareerFactory;
@@ -58,6 +59,21 @@ class Career extends Model
     protected static function newFactory(): CareerFactory
     {
         return CareerFactory::new();
+    }
+
+    public function applicants(): HasMany
+    {
+        return $this->hasMany(Applicant::class);
+    }
+
+    /**
+     * Whether anyone applied (also applications in the trash): such a job can't be removed for good.
+     */
+    public function hasApplicants(): bool
+    {
+        return array_key_exists('all_applicants_count', $this->attributes)
+            ? $this->attributes['all_applicants_count'] > 0
+            : $this->applicants()->withTrashed()->exists();
     }
 
     /**

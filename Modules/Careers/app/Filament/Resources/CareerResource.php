@@ -31,6 +31,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Modules\Careers\Filament\Resources\CareerResource\Pages;
 use Modules\Careers\Models\Career;
@@ -79,6 +80,21 @@ class CareerResource extends Resource implements HasPermissionModule
     public static function getPluralModelLabel(): string
     {
         return __('admin.careers.plural');
+    }
+
+    protected static function canPerformOnRecord(string $ability, Model $record): bool
+    {
+        return static::recordDenialMessage($ability, $record) === null;
+    }
+
+    /**
+     * A job people applied for can go to the trash (its applications stay) but can't be removed for good.
+     */
+    protected static function recordDenialMessage(string $ability, Model $record): ?string
+    {
+        return $ability === 'forceDelete' && $record->hasApplicants()
+            ? __('admin.careers.cannot_force_delete_with_applicants')
+            : null;
     }
 
     public static function form(Schema $schema): Schema
@@ -175,6 +191,8 @@ class CareerResource extends Resource implements HasPermissionModule
     {
         return TableHelper::emptyState($table, static::class, 'heroicon-o-briefcase')
             ->striped()
+            // Applications per job (also trashed ones), counted in the page query: the column and the delete rule.
+            ->modifyQueryUsing(fn (Builder $query) => $query->withCount(['applicants as all_applicants_count' => fn (Builder $query) => $query->withTrashed()]))
             ->columns([
                 TableHelper::indexColumn(),
                 TextColumn::make(getLocalizedFieldName('title'))
@@ -196,22 +214,24 @@ class CareerResource extends Resource implements HasPermissionModule
                     ->label(__('admin.careers.vacancies'))
                     ->sortable()
                     ->alignment('center'),
+                TextColumn::make('all_applicants_count')
+                    ->label(__('admin.careers.applicants_count'))
+                    ->badge()
+                    ->color('gray')
+                    ->sortable()
+                    ->url(fn (Career $record) => ApplicantResource::canViewAny() ? ApplicantResource::getUrl('index', ['tableFilters' => ['career_id' => ['value' => $record->getKey()]]]) : null)
+                    ->alignment('center'),
                 IconColumn::make('is_active')
                     ->label(__('admin.careers.published'))
                     ->boolean()
                     ->sortable()
-                    ->alignment('center'),
-                // Published but past its closing date = hidden from the website.
-                IconColumn::make('open')
-                    ->label(__('admin.careers.on_website'))
-                    ->state(fn (Career $record) => $record->isOpen())
-                    ->boolean()
                     ->alignment('center'),
                 TextColumn::make('closing_date')
                     ->label(__('admin.careers.closing_date'))
                     ->date()
                     ->placeholder('—')
                     ->sortable()
+                    // Past = the job no longer shows on the website, even if published.
                     ->color(fn (Career $record) => $record->closing_date?->lt(today()) ? 'danger' : null)
                     ->toggleable(),
                 TableHelper::createdAtColumn(),
