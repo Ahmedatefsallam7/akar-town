@@ -892,6 +892,12 @@ return [
         'source_help' => 'اسم النموذج أو السياق، مثل "مشروع: ماونتن بارك".',
         'url' => 'الرابط',
         'url_help' => 'الصفحة التي جاء منها العميل.',
+        'form' => 'النموذج',
+        'forms' => [
+            'contact_us' => 'تواصل معنا',
+            'property_enquiry' => 'استفسار عن عقار',
+            'project_enquiry' => 'استفسار عن مشروع',
+        ],
         'crm' => 'أُرسلت للـ CRM',
         'send_to_crm' => 'إرسال للـ CRM',
         'notifications' => [

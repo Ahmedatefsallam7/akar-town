@@ -28,7 +28,7 @@ class SendLeadToCrm implements ShouldQueue
     public function handle(): void
     {
         $record = $this->record;
-        $formId = config('crm.forms.'.$record->crmForm());
+        $formId = static::formId($record->crmForm());
 
         if (filled($record->crm_lead_id)) {
             return;
@@ -52,6 +52,22 @@ class SendLeadToCrm implements ShouldQueue
             'crm_lead_id' => (string) ($response->json('data.id') ?? $response->json('id') ?? 'synced'),
             'crm_synced_at' => now(),
         ])->saveQuietly();
+    }
+
+    /**
+     * The CRM form a kind of lead goes to; one without its own goes to the Contact Us form (never dropped).
+     */
+    public static function formId(string $form): ?string
+    {
+        return config("crm.forms.{$form}") ?: config('crm.forms.contact_us');
+    }
+
+    /**
+     * Whether leads can be sent at all (token, address and a Contact Us form set).
+     */
+    public static function isConfigured(): bool
+    {
+        return filled(config('crm.token')) && filled(config('crm.base_url')) && filled(config('crm.forms.contact_us'));
     }
 
     public function failed(Throwable $exception): void

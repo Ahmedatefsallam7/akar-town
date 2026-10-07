@@ -3,6 +3,7 @@
 namespace Modules\Inquiry\Filament\Resources;
 
 use App\Filament\Contracts\HasPermissionModule;
+use App\Filament\Helpers\CrmHelper;
 use App\Filament\Helpers\TableHelper;
 use App\Filament\Support\PrefixSearch;
 use App\Filament\Traits\HasResourceTranslations;
@@ -14,7 +15,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
@@ -213,12 +213,7 @@ class MeetingResource extends Resource implements HasPermissionModule
                     ->color('primary')
                     ->placeholder('—')
                     ->toggleable(isToggledHiddenByDefault: true),
-                IconColumn::make('crm_lead_id')
-                    ->label(__('admin.contact_us.crm'))
-                    ->state(fn (Meeting $record) => $record->isSentToCrm())
-                    ->boolean()
-                    ->alignment('center')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                CrmHelper::sentColumn(),
                 TableHelper::createdAtColumn(),
             ])
             ->defaultSort('created_at', 'desc')
@@ -234,6 +229,7 @@ class MeetingResource extends Resource implements HasPermissionModule
                     ->multiple(),
                 TableHelper::dateRangeFilter('meeting_at', 'meeting_from', 'meeting_until'),
                 TableHelper::dateRangeFilter('created_at', 'created_from', 'created_until'),
+                CrmHelper::sentFilter(),
                 TrashedFilter::make(),
             ])
             ->filtersLayout(FiltersLayout::Modal)

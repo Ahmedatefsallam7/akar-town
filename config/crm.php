@@ -11,10 +11,14 @@ return [
 
     'timeout' => (int) env('CRM_TIMEOUT', 30),
 
-    // The CRM web-form id each kind of lead is routed to.
+    // The CRM web-form id each kind of lead is routed to. A form without its own id goes to the Contact Us one, so a
+    // lead is never dropped.
     'forms' => [
         'contact_us' => env('CRM_FORM_CONTACT_US'),
+        'property_enquiry' => env('CRM_FORM_PROPERTY_ENQUIRY'),
+        'project_enquiry' => env('CRM_FORM_PROJECT_ENQUIRY'),
         'schedule_viewing' => env('CRM_FORM_SCHEDULE_VIEWING'),
+        'sell_property' => env('CRM_FORM_SELL_PROPERTY'),
     ],
 
     'email_account_type_id' => (int) env('CRM_EMAIL_ACCOUNT_TYPE_ID', 22),

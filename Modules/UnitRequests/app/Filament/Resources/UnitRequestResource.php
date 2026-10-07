@@ -3,6 +3,7 @@
 namespace Modules\UnitRequests\Filament\Resources;
 
 use App\Filament\Contracts\HasPermissionModule;
+use App\Filament\Helpers\CrmHelper;
 use App\Filament\Helpers\TableHelper;
 use App\Filament\Schemas\Tab;
 use App\Filament\Support\PrefixSearch;
@@ -306,6 +307,7 @@ class UnitRequestResource extends Resource implements HasPermissionModule
                     ->color(fn (string $state) => UnitRequest::statusColor($state))
                     ->sortable()
                     ->alignment('center'),
+                CrmHelper::sentColumn(),
                 IconColumn::make('unit_id')
                     ->label(__('admin.unit_requests.converted'))
                     ->state(fn (UnitRequest $record) => $record->isConverted())
@@ -345,6 +347,7 @@ class UnitRequestResource extends Resource implements HasPermissionModule
                         NumberConstraint::make('price')->label(__('admin.units.price'))->integer(),
                     ]),
                 TableHelper::dateRangeFilter('created_at', 'created_from', 'created_until'),
+                CrmHelper::sentFilter(),
                 TrashedFilter::make(),
             ])
             ->filtersLayout(FiltersLayout::Modal)

@@ -2,6 +2,7 @@
 
 namespace Modules\WebsiteUsers\Tests\Feature;
 
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -75,7 +76,7 @@ class WebsiteUserResourceTest extends TestCase
             try {
                 WebsiteUser::factory()->create($invalid);
                 $this->fail('Saved an account with '.json_encode($invalid));
-            } catch (\Illuminate\Database\QueryException) {
+            } catch (QueryException) {
             }
         }
 

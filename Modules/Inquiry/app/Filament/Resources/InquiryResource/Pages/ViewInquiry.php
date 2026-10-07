@@ -2,8 +2,7 @@
 
 namespace Modules\Inquiry\Filament\Resources\InquiryResource\Pages;
 
-use App\Jobs\SendLeadToCrm;
-use Filament\Actions\Action;
+use App\Filament\Helpers\CrmHelper;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Notifications\Notification;
@@ -20,17 +19,7 @@ class ViewInquiry extends ViewRecord
     {
         return [
             WebsiteUserResource::leadLinkAction(),
-            // Sending happens by itself; this is for a message the CRM didn't take (e.g. the CRM was down for hours).
-            Action::make('sendToCrm')
-                ->label(__('admin.contact_us.send_to_crm'))
-                ->icon('heroicon-o-arrow-up-tray')
-                ->color('gray')
-                ->visible(fn (Inquiry $record) => ! $record->isSentToCrm() && InquiryResource::canEdit($record))
-                ->action(function (Inquiry $record) {
-                    SendLeadToCrm::dispatch($record);
-
-                    Notification::make()->success()->title(__('admin.contact_us.notifications.queued_for_crm'))->send();
-                }),
+            CrmHelper::sendAction(InquiryResource::class),
             EditAction::make(),
             DeleteAction::make()
                 ->successNotification(fn (Inquiry $record) => Notification::make()

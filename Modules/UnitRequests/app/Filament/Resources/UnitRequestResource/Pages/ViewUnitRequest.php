@@ -2,6 +2,7 @@
 
 namespace Modules\UnitRequests\Filament\Resources\UnitRequestResource\Pages;
 
+use App\Filament\Helpers\CrmHelper;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -21,6 +22,7 @@ class ViewUnitRequest extends ViewRecord
         return [
             WebsiteUserResource::leadLinkAction(),
             UnitRequestResource::convertAction(),
+            CrmHelper::sendAction(UnitRequestResource::class),
             Action::make('viewUnit')
                 ->label(__('admin.unit_requests.view_unit'))
                 ->icon('heroicon-o-home-modern')

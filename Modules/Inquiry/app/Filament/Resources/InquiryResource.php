@@ -3,6 +3,7 @@
 namespace Modules\Inquiry\Filament\Resources;
 
 use App\Filament\Contracts\HasPermissionModule;
+use App\Filament\Helpers\CrmHelper;
 use App\Filament\Helpers\TableHelper;
 use App\Filament\Support\PrefixSearch;
 use App\Filament\Traits\HasResourceTranslations;
@@ -11,7 +12,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\QueryBuilder;
@@ -147,6 +147,12 @@ class InquiryResource extends Resource implements HasPermissionModule
                     ->label(__('admin.contact_us.message'))
                     ->limit(40)
                     ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('form')
+                    ->label(__('admin.contact_us.form'))
+                    ->formatStateUsing(fn (string $state) => __("admin.contact_us.forms.{$state}"))
+                    ->badge()
+                    ->color('gray')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('source')
                     ->label(__('admin.contact_us.source'))
                     ->badge()
@@ -160,12 +166,7 @@ class InquiryResource extends Resource implements HasPermissionModule
                     ->color('primary')
                     ->placeholder('—')
                     ->toggleable(isToggledHiddenByDefault: true),
-                IconColumn::make('crm_lead_id')
-                    ->label(__('admin.contact_us.crm'))
-                    ->state(fn (Inquiry $record) => $record->isSentToCrm())
-                    ->boolean()
-                    ->alignment('center')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                CrmHelper::sentColumn(),
                 TableHelper::createdAtColumn(),
             ])
             ->defaultSort('created_at', 'desc')
@@ -179,6 +180,7 @@ class InquiryResource extends Resource implements HasPermissionModule
                         TextConstraint::make('message')->label(__('admin.contact_us.message')),
                     ]),
                 TableHelper::dateRangeFilter('created_at', 'created_from', 'created_until'),
+                CrmHelper::sentFilter(),
                 TrashedFilter::make(),
             ])
             ->filtersLayout(FiltersLayout::Modal)

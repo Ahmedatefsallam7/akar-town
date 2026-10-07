@@ -2,6 +2,8 @@
 
 namespace Modules\UnitRequests\Models;
 
+use App\Jobs\SendLeadToCrm;
+use App\Support\Crm\CrmLead;
 use App\Traits\HasLocalization;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -20,7 +22,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * A unit an owner submitted for sale on the website: Pending → Reviewed → Contacted → Closed, or Cancelled. Staff
  * keep private notes and can turn it into a property (see ConvertUnitRequestToUnit).
  */
-class UnitRequest extends Model implements HasMedia
+class UnitRequest extends Model implements CrmLead, HasMedia
 {
     use HasFactory, HasLocalization, HasLookups, InteractsWithMedia, SoftDeletes, Userstamps;
 
@@ -61,6 +63,7 @@ class UnitRequest extends Model implements HasMedia
     ];
 
     protected $casts = [
+        'crm_synced_at' => 'datetime',
         'price' => 'integer',
         'area' => 'integer',
         'bedrooms' => 'integer',
@@ -84,6 +87,12 @@ class UnitRequest extends Model implements HasMedia
         return $this->belongsTo(WebsiteUser::class)->withTrashed();
     }
 
+    protected static function booted(): void
+    {
+        // A sell request is a lead too: after the save is committed, it goes to the CRM.
+        static::created(fn (UnitRequest $request) => SendLeadToCrm::dispatch($request)->afterCommit());
+    }
+
     protected static function newFactory(): UnitRequestFactory
     {
         return UnitRequestFactory::new();
@@ -98,6 +107,36 @@ class UnitRequest extends Model implements HasMedia
     {
         $this->addMediaCollection(self::FEATURED_IMAGE)->useDisk('public')->singleFile()
             ->registerMediaConversions(fn () => $this->addMediaConversion('thumb')->fit(Fit::Crop, 160, 160)->format('webp')->nonQueued());
+    }
+
+    public function isSentToCrm(): bool
+    {
+        return filled($this->crm_lead_id);
+    }
+
+    public function crmForm(): string
+    {
+        return 'sell_property';
+    }
+
+    /**
+     * The owner and the unit they offer (the internal notes stay here).
+     */
+    public function toCrmLead(): array
+    {
+        return [
+            'full_name' => $this->seller_name,
+            'phone' => $this->phone,
+            'email' => $this->email,
+            'description' => collect([
+                'Sell request: '.$this->name_en,
+                $this->price ? 'Price: '.number_format($this->price).' EGP' : null,
+                $this->area ? "Area: {$this->area} m²" : null,
+                $this->bedrooms ? "Bedrooms: {$this->bedrooms}" : null,
+                $this->address ? "Address: {$this->address}" : null,
+                $this->short_description_en,
+            ])->filter()->implode("\n"),
+        ];
     }
 
     public function isConverted(): bool

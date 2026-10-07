@@ -18,6 +18,9 @@ use Modules\WebsiteUsers\Models\WebsiteUser;
  */
 class Inquiry extends Model implements CrmLead
 {
+    /** The website forms that send contact messages: each goes to its own CRM form (or the Contact Us one). */
+    public const FORMS = ['contact_us', 'property_enquiry', 'project_enquiry'];
+
     use HasFactory, SoftDeletes, Userstamps;
 
     protected $fillable = [
@@ -26,8 +29,13 @@ class Inquiry extends Model implements CrmLead
         'email',
         'phone',
         'message',
+        'form',
         'source',
         'url',
+    ];
+
+    protected $attributes = [
+        'form' => 'contact_us',
     ];
 
     protected $casts = [
@@ -60,7 +68,7 @@ class Inquiry extends Model implements CrmLead
 
     public function crmForm(): string
     {
-        return 'contact_us';
+        return in_array($this->form, self::FORMS, true) ? $this->form : 'contact_us';
     }
 
     public function toCrmLead(): array
@@ -71,6 +79,7 @@ class Inquiry extends Model implements CrmLead
             'email' => $this->email,
             'description' => collect([
                 $this->message,
+                'Form: '.__("admin.contact_us.forms.{$this->crmForm()}", [], 'en'),
                 filled($this->source) ? "Source: {$this->source}" : null,
                 filled($this->url) ? "URL: {$this->url}" : null,
             ])->filter()->implode("\n\n"),

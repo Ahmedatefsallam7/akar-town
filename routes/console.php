@@ -1,10 +1,14 @@
 <?php
 
+use App\Jobs\SendLeadToCrm;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schedule;
 use Illuminate\Support\Facades\Storage;
+use Modules\Inquiry\Models\Inquiry;
+use Modules\Inquiry\Models\Meeting;
+use Modules\UnitRequests\Models\UnitRequest;
 use Modules\Users\Models\User;
 
 Artisan::command('inspire', function () {
@@ -48,3 +52,34 @@ Schedule::command('users:prune-orphan-avatars')->daily();
 
 // No long-running worker on cPanel: the scheduler (cron every minute) runs the queue (e.g. CRM leads) until it's empty.
 Schedule::command('queue:work --stop-when-empty --max-time=55')->everyMinute()->withoutOverlapping();
+
+// Website leads the CRM never got (it was down for longer than the job's own retries): sent again every hour, for a
+// few days, so no lead needs re-entering by hand. Starts an hour after the lead, once the job's retries are over.
+Artisan::command('crm:send-unsent {--days=3}', function () {
+    if (! SendLeadToCrm::isConfigured()) {
+        $this->warn('CRM settings are missing: nothing sent.');
+
+        return;
+    }
+
+    $queued = 0;
+
+    foreach ([Inquiry::class, Meeting::class, UnitRequest::class] as $leads) {
+        $leads::query()
+            ->whereNull('crm_lead_id')
+            ->whereBetween('created_at', [now()->subDays((int) $this->option('days')), now()->subHour()])
+            ->chunkById(200, function ($records) use (&$queued) {
+                foreach ($records as $record) {
+                    // One attempt: the next try is the next hour's run.
+                    $job = new SendLeadToCrm($record);
+                    $job->tries = 1;
+                    dispatch($job);
+                    $queued++;
+                }
+            });
+    }
+
+    $this->info("Queued {$queued} unsent leads for the CRM.");
+})->purpose('Send again the website leads the CRM never got');
+
+Schedule::command('crm:send-unsent')->hourly();

@@ -892,6 +892,12 @@ return [
         'source_help' => 'The form or context name, e.g. "Project: Mountain Park".',
         'url' => 'URL',
         'url_help' => 'The page the lead came from.',
+        'form' => 'Form',
+        'forms' => [
+            'contact_us' => 'Contact Us',
+            'property_enquiry' => 'Property Enquiry',
+            'project_enquiry' => 'Project Enquiry',
+        ],
         'crm' => 'Sent to CRM',
         'send_to_crm' => 'Send to CRM',
         'notifications' => [
