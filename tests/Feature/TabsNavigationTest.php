@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Modules\Careers\Filament\Resources\CareerResource;
 use Modules\Developers\Filament\Resources\DeveloperResource;
 use Modules\Locations\Filament\Resources\LocationResource;
 use Modules\Projects\Filament\Resources\ProjectResource;
@@ -22,7 +23,7 @@ class TabsNavigationTest extends TestCase
     {
         $this->actingAs($this->createAdmin());
 
-        foreach ([ProjectResource::class, UnitResource::class, DeveloperResource::class, LocationResource::class, UnitRequestResource::class, UserResource::class] as $resource) {
+        foreach ([ProjectResource::class, UnitResource::class, DeveloperResource::class, LocationResource::class, CareerResource::class, UnitRequestResource::class, UserResource::class] as $resource) {
             $this->get($resource::getUrl('create'))
                 ->assertOk()
                 ->assertSee(__('admin.actions.next'))

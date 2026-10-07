@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
+use Modules\Careers\Filament\Resources\CareerResource;
+use Modules\Careers\Models\Career;
 use Modules\Developers\Filament\Resources\DeveloperResource;
 use Modules\Developers\Models\Developer;
 use Modules\Galleries\Filament\Resources\GalleryResource;
@@ -223,6 +225,14 @@ class NoNPlusOneTest extends TestCase
         $request();
 
         $this->assertNoNPlusOne(UnitRequestResource::getUrl('index'), fn () => collect(range(1, 9))->each(fn () => $request()));
+    }
+
+    public function test_careers_list(): void
+    {
+        $this->actingAs($this->createAdmin());
+        Career::factory()->create();
+
+        $this->assertNoNPlusOne(CareerResource::getUrl('index'), fn () => Career::factory()->count(9)->create());
     }
 
     public function test_roles_list(): void
