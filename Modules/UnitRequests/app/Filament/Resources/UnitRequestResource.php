@@ -4,6 +4,7 @@ namespace Modules\UnitRequests\Filament\Resources;
 
 use App\Filament\Contracts\HasPermissionModule;
 use App\Filament\Helpers\TableHelper;
+use App\Filament\Schemas\Tab;
 use App\Filament\Support\PrefixSearch;
 use App\Filament\Traits\HasResourceTranslations;
 use Closure;
@@ -18,7 +19,6 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
-use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;

@@ -4,6 +4,7 @@ namespace Modules\Users\Filament\Resources;
 
 use App\Filament\Contracts\HasPermissionModule;
 use App\Filament\Helpers\TableHelper;
+use App\Filament\Schemas\Tab;
 use App\Filament\Support\PrefixSearch;
 use App\Filament\Traits\HasResourceTranslations;
 use Filament\Actions\BulkAction;
@@ -16,7 +17,6 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Tabs;
-use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\View;
