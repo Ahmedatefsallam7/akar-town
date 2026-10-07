@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Modules\GeneralSettings\Settings\SiteSettings;
 use Modules\Users\Models\User;
 use Tests\TestCase;
 
@@ -12,6 +13,12 @@ class AdminPanelTest extends TestCase
 
     public function test_home_page_loads(): void
     {
+        // Offline until an admin switches the site on: visitors get the maintenance page.
+        $this->get('/')->assertStatus(503)->assertSee(__('admin.site_status.offline_message'));
+
+        $settings = app(SiteSettings::class);
+        $settings->is_live = true;
+        $settings->save();
         $this->get('/')->assertOk();
     }
 

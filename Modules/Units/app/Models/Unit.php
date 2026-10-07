@@ -128,9 +128,10 @@ class Unit extends Model implements HasMedia
 
     /**
      * The project's "price from / to" follow its units (as in Dastan): lowest and highest unit price. A project whose
-     * units have no price keeps the price typed on it.
+     * units never had a price keeps the price typed on it; when the last priced unit leaves (deleted, moved, or its
+     * price removed: $priceLeft), the range came from units and is cleared rather than left stale.
      */
-    public static function updateProjectPrices(?int $projectId): void
+    public static function updateProjectPrices(?int $projectId, bool $priceLeft = false): void
     {
         if (! $projectId) {
             return;
@@ -141,6 +142,8 @@ class Unit extends Model implements HasMedia
 
         if ($prices?->low !== null) {
             Project::query()->whereKey($projectId)->update(['price_from' => $prices->low, 'price_to' => $prices->high]);
+        } elseif ($priceLeft) {
+            Project::query()->whereKey($projectId)->update(['price_from' => null, 'price_to' => null]);
         }
     }
 
@@ -178,12 +181,13 @@ class Unit extends Model implements HasMedia
             }
 
             if ($unit->wasChanged(['price', 'project_id'])) {
-                static::updateProjectPrices($unit->project_id);
-                static::updateProjectPrices($unit->wasChanged('project_id') ? $unit->getOriginal('project_id') : null);
+                $hadPrice = $unit->getOriginal('price') !== null;
+                static::updateProjectPrices($unit->project_id, $unit->wasChanged('price') && $hadPrice);
+                static::updateProjectPrices($unit->wasChanged('project_id') ? $unit->getOriginal('project_id') : null, $hadPrice);
             }
         });
 
-        static::deleted(fn (Unit $unit) => static::updateProjectPrices($unit->project_id));
+        static::deleted(fn (Unit $unit) => static::updateProjectPrices($unit->project_id, $unit->price !== null));
         static::restored(fn (Unit $unit) => static::updateProjectPrices($unit->project_id));
     }
 }

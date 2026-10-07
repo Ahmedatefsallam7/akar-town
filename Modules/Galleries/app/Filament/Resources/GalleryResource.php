@@ -105,7 +105,10 @@ class GalleryResource extends Resource implements HasPermissionModule
                             ->helperText(__('admin.galleries.project_help'))
                             ->relationship('project', getLocalizedFieldName('title'))
                             ->searchable()
-                            ->preload(),
+                            ->preload()
+                            // Units pick galleries of their own project: moving a gallery in use would break them.
+                            ->disabled(fn (?Gallery $record) => $record?->isUsedByUnits() ?? false)
+                            ->hint(fn (?Gallery $record) => $record?->isUsedByUnits() ? __('admin.galleries.project_locked') : null),
                     ]),
                 static::mediaSection('featured_image', 'heroicon-o-star', static::images(Gallery::FEATURED_IMAGE, 5120, 1920)),
                 static::mediaSection('images_360', 'heroicon-o-globe-alt', static::images(Gallery::IMAGES_360, 20480)

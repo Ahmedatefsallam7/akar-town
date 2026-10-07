@@ -21,7 +21,8 @@ trait HasUniqueSlug
 
     public static function uniqueSlug(string $text, ?int $ignoreId = null): string
     {
-        $base = Str::slug($text) ?: Str::slug(class_basename(static::class));
+        // Room for a "-12" suffix in the 191-character column.
+        $base = Str::limit(Str::slug($text) ?: Str::slug(class_basename(static::class)), 180, '');
         $slug = $base;
         $query = fn () => in_array(SoftDeletes::class, class_uses_recursive(static::class), true) ? static::withTrashed() : static::query();
 

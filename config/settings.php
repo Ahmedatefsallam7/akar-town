@@ -6,6 +6,7 @@ use Modules\GeneralSettings\Settings\CtaRibbonSettings;
 use Modules\GeneralSettings\Settings\DeveloperDetailsSettings;
 use Modules\GeneralSettings\Settings\HomeSettings;
 use Modules\GeneralSettings\Settings\PrivacyPolicySettings;
+use Modules\GeneralSettings\Settings\SiteSettings;
 use Modules\GeneralSettings\Settings\SubmitPropertySettings;
 use Modules\GeneralSettings\Settings\TermsOfUseSettings;
 
@@ -23,7 +24,16 @@ return [
         DeveloperDetailsSettings::class,
         PrivacyPolicySettings::class,
         TermsOfUseSettings::class,
+        SiteSettings::class,
     ],
 
     'auto_discover_settings' => [],
+
+    // Settings are read on every website request: keep them in the cache (cleared by itself when saved).
+    'cache' => [
+        'enabled' => (bool) env('SETTINGS_CACHE_ENABLED', true),
+        'store' => null,
+        'prefix' => null,
+        'ttl' => null,
+    ],
 ];

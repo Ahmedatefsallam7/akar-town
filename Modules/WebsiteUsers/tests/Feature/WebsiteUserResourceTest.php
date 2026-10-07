@@ -7,6 +7,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Livewire\Livewire;
+use Modules\GeneralSettings\Settings\SiteSettings;
 use Modules\Inquiry\Filament\Resources\InquiryResource\Pages\ViewInquiry;
 use Modules\Inquiry\Filament\Resources\MeetingResource\Pages\ViewMeeting;
 use Modules\Inquiry\Models\Inquiry;
@@ -147,6 +148,9 @@ class WebsiteUserResourceTest extends TestCase
     public function test_a_blocked_user_cannot_log_in_and_is_signed_out_on_the_next_request(): void
     {
         Route::middleware(['web', 'auth:website', 'website.active'])->get('/test-account', fn () => 'my account');
+        $site = app(SiteSettings::class);
+        $site->is_live = true;
+        $site->save();
         $user = WebsiteUser::factory()->create(['email' => 'sara@example.com']);
         $rememberToken = $user->remember_token;
 

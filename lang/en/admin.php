@@ -58,6 +58,9 @@ return [
         'no_access' => 'You don\'t have access to any section yet. Please contact the administrators.',
         'open_list' => 'Open list',
         'stats' => [
+            'total_properties' => 'Total Properties',
+            'contact_inquiries' => 'Contact Us Inquiries',
+            'total_developers' => 'Total Developers',
             'total_projects' => 'Total Projects',
             'projects_desc' => 'Premium inventory',
             'total_units' => 'Total Units',
@@ -89,7 +92,11 @@ return [
             'closed_of_total' => ':closed closed of :total total',
         ],
         'charts' => [
-            'inventory' => 'Unit Category Distribution',
+            'projects_by_city' => 'Projects by city',
+            'other' => 'Other',
+            'no_city' => 'No city',
+            'no_type' => 'No type',
+            'inventory' => 'Property Category Distribution',
             'units_by_bedrooms' => 'Units by Bedrooms',
             'studio' => 'Studio',
             'projects' => 'Project Distribution',
@@ -427,6 +434,7 @@ return [
         'identity' => 'Identity',
         'project' => 'Project',
         'project_help' => 'Optional. The gallery then shows on the project\'s Galleries tab.',
+        'project_locked' => 'Locked: properties use this gallery, and they must stay in its project.',
         'no_project' => 'No project',
         'none_for_project' => 'No galleries for this project yet',
         'featured_image' => 'Featured Image',
@@ -579,6 +587,18 @@ return [
     'map' => [
         'set_location' => 'Set location on map',
         'help' => 'Click the map (or drag the pin) to fill Latitude and Longitude. Only listings with a location show on the website map.',
+    ],
+
+    'site_status' => [
+        'label' => 'Site Status',
+        'online' => 'Online',
+        'offline' => 'Offline',
+        'switch' => 'Switch the website on or off',
+        'confirm_offline' => 'Take the website offline? Visitors will see a maintenance page.',
+        'confirm_online' => 'Put the website online for visitors?',
+        'now_online' => 'The website is online.',
+        'now_offline' => 'The website is offline: visitors see the maintenance page.',
+        'offline_message' => 'We are working on the website and will be back soon. Thank you for your patience.',
     ],
 
     'possible_leads' => [
@@ -760,6 +780,7 @@ return [
         'password' => 'Password',
         'password_confirmation' => 'Confirm Password',
         'password_leave_blank' => 'Leave blank to keep the current password.',
+        'cannot_grant_more' => 'You can\'t give this user more access than you have yourself.',
         'permissions' => 'Permissions',
         'custom_permissions' => 'Custom permissions for this user',
         'custom_permissions_help' => 'Off: follows their role. On: the permissions below replace the role\'s, for this user only.',

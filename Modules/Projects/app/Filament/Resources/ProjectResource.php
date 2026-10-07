@@ -143,9 +143,11 @@ class ProjectResource extends Resource implements HasPermissionModule
                                 Textarea::make('short_description_en')
                                     ->label(__('admin.projects.short_description_en'))
                                     ->helperText(__('admin.projects.short_description_help'))
+                                    ->maxLength(20000)
                                     ->rows(3),
                                 Textarea::make('short_description_ar')
                                     ->label(__('admin.projects.short_description_ar'))
+                                    ->maxLength(20000)
                                     ->rows(3),
                                 static::richEditor('description_en', __('admin.projects.description_en'))
                                     ->helperText(__('admin.projects.description_help')),

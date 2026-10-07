@@ -90,7 +90,11 @@ class SliderResource extends Resource implements HasPermissionModule
                         Select::make('placement')
                             ->label(__('admin.sliders.placement'))
                             ->helperText(__('admin.sliders.placement_help'))
-                            ->options(Slider::placementOptions())
+                            // One hero slider (it holds the slides): it stays the hero, and no other block becomes one.
+                            ->options(fn (?Slider $record) => $record?->isHero()
+                                ? Slider::placementOptions()
+                                : collect(Slider::placementOptions())->except(Slider::HOME_HERO)->all())
+                            ->disabled(fn (?Slider $record) => $record?->isHero() ?? false)
                             ->required()
                             ->native(false),
                         Select::make('content_type')

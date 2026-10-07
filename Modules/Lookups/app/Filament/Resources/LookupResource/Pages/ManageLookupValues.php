@@ -35,6 +35,19 @@ class ManageLookupValues extends ManageRelatedRecords
     /** Per-request memo of the record's ancestors (for the breadcrumbs, the title and the tree depth). */
     private ?Collection $ancestors = null;
 
+    /**
+     * Values exist only down to the type's depth (e.g. a flat list has no values under a value): a deeper page can't be
+     * opened by typing its URL.
+     */
+    public function mount(int|string $record): void
+    {
+        parent::mount($record);
+
+        $type = $this->ancestors()->first() ?? $this->getOwnerRecord();
+
+        abort_if($this->ancestors()->count() + 1 > LookupResource::depthOf($type), 404);
+    }
+
     public function getTitle(): string|Htmlable
     {
         return $this->getOwnerRecord()->getLocalized('name');

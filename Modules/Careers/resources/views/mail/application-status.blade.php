@@ -1,6 +1,3 @@
-@php
-    $status = $applicant->status;
-@endphp
 <x-mail::message>
 {{ __('admin.applicants.mail.greeting', ['name' => $applicant->name], 'en') }}
 

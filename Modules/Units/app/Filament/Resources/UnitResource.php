@@ -257,9 +257,11 @@ class UnitResource extends Resource implements HasPermissionModule
                             ->schema([
                                 Textarea::make('short_description_en')
                                     ->label(__('admin.units.short_description_en'))
+                                    ->maxLength(20000)
                                     ->rows(3),
                                 Textarea::make('short_description_ar')
                                     ->label(__('admin.units.short_description_ar'))
+                                    ->maxLength(20000)
                                     ->rows(3),
                                 static::richEditor('description_en', __('admin.units.description_en')),
                                 static::richEditor('description_ar', __('admin.units.description_ar')),

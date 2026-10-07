@@ -20,6 +20,9 @@ class SendLeadToCrm implements ShouldQueue
 
     public int $tries = 4;
 
+    /** A lead deleted for good before the job runs: drop the job quietly. */
+    public bool $deleteWhenMissingModels = true;
+
     /** @var array<int> Seconds between attempts. */
     public array $backoff = [60, 300, 1800];
 
@@ -30,7 +33,8 @@ class SendLeadToCrm implements ShouldQueue
         $record = $this->record;
         $formId = static::formId($record->crmForm());
 
-        if (filled($record->crm_lead_id)) {
+        // Already in the CRM, or deleted by staff (e.g. spam) before it was sent.
+        if (filled($record->crm_lead_id) || (method_exists($record, 'trashed') && $record->trashed())) {
             return;
         }
 

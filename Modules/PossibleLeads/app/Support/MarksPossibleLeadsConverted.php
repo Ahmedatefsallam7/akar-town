@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Modules\PossibleLeads\Models\PossibleLead;
 
 /**
- * When a website lead is sent (contact message, meeting, sell request), the same visitor's earlier clicks — matched by
- * visitor id, or by account when logged in — become "converted" and point at that lead.
+ * When a website lead is sent (contact message, meeting, sell request), the same visitor's earlier clicks (same browser
+ * cookie) become "converted", point at that lead, and get the account when the visitor was logged in.
  */
 class MarksPossibleLeadsConverted
 {
@@ -24,6 +24,7 @@ class MarksPossibleLeadsConverted
                 ->when($lead->visitor_id, fn ($query, $visitor) => $query->orWhere('visitor_id', $visitor))
                 ->when($lead->website_user_id, fn ($query, $user) => $query->orWhere('website_user_id', $user)))
             ->update([
+                'website_user_id' => $lead->website_user_id,
                 'converted_at' => $lead->created_at,
                 'converted_lead_type' => $lead->getMorphClass(),
                 'converted_lead_id' => $lead->getKey(),

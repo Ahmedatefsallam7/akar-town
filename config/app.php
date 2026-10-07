@@ -65,7 +65,8 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    // Egypt: dates and times are entered, shown and compared (e.g. job closing dates) in Cairo time.
+    'timezone' => env('APP_TIMEZONE', 'Africa/Cairo'),
 
     /*
     |--------------------------------------------------------------------------

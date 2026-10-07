@@ -4,7 +4,6 @@ namespace Modules\PossibleLeads\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Modules\PossibleLeads\Models\PossibleLead;
 use Modules\PossibleLeads\Support\Visitor;
@@ -26,10 +25,8 @@ class TrackClickController
 
         $visitor = Visitor::id($request) ?? Visitor::newId();
 
-        PossibleLead::create($data + [
-            'visitor_id' => $visitor,
-            'website_user_id' => Auth::guard('website')->id(),
-        ]);
+        // No session here (kept cheap), so the account isn't known yet: it's linked when the visitor sends a lead.
+        PossibleLead::create($data + ['visitor_id' => $visitor]);
 
         return response()->json(status: 201)->withCookie(Visitor::cookie($visitor));
     }

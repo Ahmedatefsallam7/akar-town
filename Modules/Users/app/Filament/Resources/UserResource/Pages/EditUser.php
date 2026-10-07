@@ -4,6 +4,7 @@ namespace Modules\Users\Filament\Resources\UserResource\Pages;
 
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Validation\ValidationException;
 use Modules\Users\Filament\Resources\UserResource;
 
 class EditUser extends EditRecord
@@ -32,7 +33,18 @@ class EditUser extends EditRecord
             return collect($data)->reject(fn ($value, string $key) => in_array($key, ['use_custom_permissions', 'permission_matrix'], true))->all();
         }
 
-        return UserResource::formDataToPermissions($data, $this->record);
+        $data = UserResource::formDataToPermissions($data, $this->record);
+
+        // What the user will really have after saving (their role again when custom permissions are turned off): never
+        // more than the editor has, or turning the switch off would hand over a role's full access.
+        $after = (clone $this->record)->forceFill(['role_id' => $data['role_id'] ?? $this->record->role_id, 'custom_permissions' => $data['custom_permissions']]);
+        $after->unsetRelation('role');
+
+        if (! auth()->user()->covers($after->effectivePermissions())) {
+            throw ValidationException::withMessages(['data.use_custom_permissions' => __('admin.users.cannot_grant_more')]);
+        }
+
+        return $data;
     }
 
     protected function getRedirectUrl(): string

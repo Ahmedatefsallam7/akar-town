@@ -12,6 +12,7 @@ use Modules\Users\Filament\Resources\UserResource;
 use Modules\Users\Filament\Resources\UserResource\Pages\CreateUser;
 use Modules\Users\Filament\Resources\UserResource\Pages\EditUser;
 use Modules\Users\Models\User;
+use Modules\Users\Support\PermissionModules;
 use Tests\TestCase;
 
 /**
@@ -61,6 +62,24 @@ class UserCustomPermissionsTest extends TestCase
         $type = Lookup::create(['name_en' => 'Views', 'slug' => 'views']);
         $this->actingAs($user->fresh())->get(LookupResource::getUrl('values', ['record' => $type]))->assertOk();
         $this->assertTrue(LookupResource::canEdit($type->children()->create(['name_en' => 'Sea', 'slug' => 'sea'])));
+    }
+
+    public function test_turning_custom_permissions_off_cannot_hand_over_a_role_the_editor_does_not_have(): void
+    {
+        // X's role gives full access, but custom permissions cut X down to "Lookups: view".
+        $this->seedRoles();
+        $manager = Lookup::create(['parent_id' => $this->role(Lookup::ROLES_SLUG)->id, 'name_en' => 'Manager', 'slug' => 'user_roles_manager', 'is_active' => true, 'attributes' => ['permissions' => PermissionModules::everything()]]);
+        $x = User::factory()->create(['role_id' => $manager->id, 'username' => 'x_user', 'phone' => '+201001112223', 'custom_permissions' => ['lookups' => ['view']]]);
+
+        // The editor only has Lookups view and Users edit: they cover X's current access, not the Manager role.
+        $this->actingAs($this->createUserWithPermissions(['lookups' => ['view'], 'users' => ['view', 'edit']]));
+
+        Livewire::test(EditUser::class, ['record' => $x->getRouteKey()])
+            ->fillForm(['use_custom_permissions' => false])
+            ->call('save')
+            ->assertHasErrors(['data.use_custom_permissions']);
+
+        $this->assertSame(['lookups' => ['view']], $x->fresh()->custom_permissions);
     }
 
     public function test_switching_off_goes_back_to_the_role(): void

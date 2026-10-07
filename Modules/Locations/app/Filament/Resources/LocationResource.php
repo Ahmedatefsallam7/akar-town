@@ -142,9 +142,11 @@ class LocationResource extends Resource implements HasPermissionModule
                                     ->schema([
                                         Textarea::make('description_en')
                                             ->label(__('admin.table.description_en'))
+                                            ->maxLength(20000)
                                             ->rows(5),
                                         Textarea::make('description_ar')
                                             ->label(__('admin.table.description_ar'))
+                                            ->maxLength(20000)
                                             ->rows(5),
                                     ]),
                             ]),

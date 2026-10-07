@@ -18,7 +18,10 @@ class ApplicationStatusChanged extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
-    public function __construct(public Applicant $applicant)
+    /**
+     * @param  string  $status  the status at the change (the applicant may change again before the mail goes out)
+     */
+    public function __construct(public Applicant $applicant, public string $status)
     {
         $this->afterCommit();
     }
@@ -33,6 +36,6 @@ class ApplicationStatusChanged extends Mailable implements ShouldQueue
 
     public function content(): Content
     {
-        return new Content(markdown: 'careers::mail.application-status');
+        return new Content(markdown: 'careers::mail.application-status', with: ['status' => $this->status]);
     }
 }

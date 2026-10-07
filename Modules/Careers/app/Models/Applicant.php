@@ -58,7 +58,7 @@ class Applicant extends Model implements HasMedia
         // inside "updated", which is always false there, so its e-mail was never sent. Back to "pending" isn't news.
         static::updated(function (Applicant $applicant) {
             if ($applicant->wasChanged('status') && $applicant->status !== self::PENDING) {
-                Mail::to($applicant->email)->queue(new ApplicationStatusChanged($applicant));
+                Mail::to($applicant->email)->queue(new ApplicationStatusChanged($applicant, $applicant->status));
             }
         });
     }

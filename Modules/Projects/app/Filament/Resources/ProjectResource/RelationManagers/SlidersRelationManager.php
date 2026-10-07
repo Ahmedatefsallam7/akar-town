@@ -77,7 +77,8 @@ class SlidersRelationManager extends RelationManager
                     ->label(__('admin.sliders.add_to_hero'))
                     ->icon('heroicon-o-plus')
                     ->authorize(fn (): bool => $this->getAuthorizationResponse('create')->allowed())
-                    ->visible(fn (): bool => ($hero = $this->heroSlider()) !== null
+                    ->visible(fn (): bool => ! $this->getOwnerRecord()->trashed()
+                        && ($hero = $this->heroSlider()) !== null
                         && ! $hero->items()->where('project_id', $this->getOwnerRecord()->getKey())->exists())
                     ->action(function (): void {
                         $hero = $this->heroSlider();

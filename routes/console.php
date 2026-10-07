@@ -51,7 +51,11 @@ Artisan::command('users:prune-orphan-avatars {--hours=24}', function () {
 Schedule::command('users:prune-orphan-avatars')->daily();
 
 // No long-running worker on cPanel: the scheduler (cron every minute) runs the queue (e.g. CRM leads) until it's empty.
-Schedule::command('queue:work --stop-when-empty --max-time=55')->everyMinute()->withoutOverlapping();
+// The overlap lock expires after 5 minutes: if the host kills a worker, the queue restarts soon (the default is 24 h).
+Schedule::command('queue:work --stop-when-empty --max-time=55')->everyMinute()->withoutOverlapping(5);
+
+// Failed jobs (e.g. hourly CRM resends while the CRM is down) are kept a week for checking, then removed.
+Schedule::command('queue:prune-failed --hours=168')->daily();
 
 // Website leads the CRM never got (it was down for longer than the job's own retries): sent again every hour, for a
 // few days, so no lead needs re-entering by hand. Starts an hour after the lead, once the job's retries are over.

@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
             SetLocale::class,
+            App\Http\Middleware\EnsureSiteIsLive::class,
         ]);
 
         // The anonymous visitor id (Possible Leads) is set by a stateless API route, so it isn't encrypted.

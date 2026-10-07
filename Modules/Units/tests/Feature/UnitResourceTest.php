@@ -263,6 +263,35 @@ class UnitResourceTest extends TestCase
         $this->assertSame([7000000, 8000000], [$alone->fresh()->price_from, $alone->fresh()->price_to]);
     }
 
+    public function test_the_range_clears_when_the_last_priced_unit_leaves_and_a_typed_price_stays_otherwise(): void
+    {
+        $range = fn (Project $project) => [$project->fresh()->price_from, $project->fresh()->price_to];
+
+        // Deleted: the range came from the unit, so it doesn't stay behind.
+        $project = Project::factory()->create();
+        $unit = Unit::factory()->create(['project_id' => $project->id, 'price' => 5_000_000]);
+        $unit->delete();
+        $this->assertSame([null, null], $range($project));
+
+        // Price removed ("price on request").
+        $unit->restore();
+        $this->assertSame([5_000_000, 5_000_000], $range($project));
+        $unit->update(['price' => null]);
+        $this->assertSame([null, null], $range($project));
+
+        // Moved to another project.
+        $unit->update(['price' => 4_000_000]);
+        $other = Project::factory()->create();
+        $unit->update(['project_id' => $other->id]);
+        $this->assertSame([null, null], $range($project));
+        $this->assertSame([4_000_000, 4_000_000], $range($other));
+
+        // A price typed on a project whose units never had one stays.
+        $typed = Project::factory()->create(['price_from' => 2_000_000, 'price_to' => 3_000_000]);
+        Unit::factory()->create(['project_id' => $typed->id, 'price' => null])->delete();
+        $this->assertSame([2_000_000, 3_000_000], $range($typed));
+    }
+
     public function test_prices_show_the_projects_currency_or_egp(): void
     {
         $usdProject = $this->project(['currency_id' => $this->id('currencies', 'usd')]);

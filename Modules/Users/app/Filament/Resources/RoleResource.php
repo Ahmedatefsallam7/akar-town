@@ -114,7 +114,8 @@ class RoleResource extends Resource implements HasPermissionModule
                         TextInput::make('name_en')
                             ->label(__('admin.roles.name_en'))
                             ->required()
-                            ->maxLength(191)
+                            // The slug is "user_roles_" + this name, in a 191-character column.
+                            ->maxLength(180)
                             // Role slugs are built from this name, so it must be unique among roles.
                             ->unique(ignoreRecord: true, modifyRuleUsing: fn (Unique $rule) => $rule
                                 ->where('parent_id', static::rolesParentId())
