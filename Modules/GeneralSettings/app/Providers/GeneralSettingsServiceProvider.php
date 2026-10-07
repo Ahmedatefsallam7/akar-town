@@ -3,7 +3,10 @@
 namespace Modules\GeneralSettings\Providers;
 
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Database\Events\MigrationsEnded;
+use Illuminate\Support\Facades\Event;
 use Nwidart\Modules\Support\ModuleServiceProvider;
+use Spatie\LaravelSettings\Support\SettingsCacheFactory;
 
 class GeneralSettingsServiceProvider extends ModuleServiceProvider
 {
@@ -33,6 +36,19 @@ class GeneralSettingsServiceProvider extends ModuleServiceProvider
         EventServiceProvider::class,
         RouteServiceProvider::class,
     ];
+
+    public function boot(): void
+    {
+        parent::boot();
+
+        // Settings are cached; a migration that adds or changes one would leave the old copy in the cache (a missing
+        // property breaks the page). So every migrate run clears it.
+        Event::listen(function (MigrationsEnded $event) {
+            foreach (app(SettingsCacheFactory::class)->all() as $cache) {
+                $cache->clear();
+            }
+        });
+    }
 
     /**
      * Define module schedules.

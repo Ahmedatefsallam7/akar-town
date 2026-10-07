@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
     <title>{{ __(config('app.name')) }}</title>
-    @vite('resources/css/app.css')
+    {{-- The offline page must show even when the built assets are missing. --}}
+    @if (is_file(public_path('build/manifest.json')))
+        @vite('resources/css/app.css')
+    @endif
 </head>
 <body class="flex min-h-screen items-center justify-center bg-gray-50 p-6 text-center text-gray-900">
     <main class="max-w-md">

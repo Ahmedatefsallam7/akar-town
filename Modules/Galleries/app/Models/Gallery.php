@@ -41,6 +41,8 @@ class Gallery extends Model implements HasMedia
         'video_url',
     ];
 
+    private ?bool $usedByUnits = null;
+
     protected static function newFactory(): GalleryFactory
     {
         return GalleryFactory::new();
@@ -61,9 +63,12 @@ class Gallery extends Model implements HasMedia
      */
     public function isUsedByUnits(): bool
     {
-        return array_key_exists('all_units_count', $this->attributes)
-            ? $this->attributes['all_units_count'] > 0
-            : $this->units()->withTrashed()->exists();
+        if (array_key_exists('all_units_count', $this->attributes)) {
+            return $this->attributes['all_units_count'] > 0;
+        }
+
+        // Asked once per record (the edit form asks several times).
+        return $this->usedByUnits ??= $this->units()->withTrashed()->exists();
     }
 
     /**

@@ -66,7 +66,7 @@ class QueryBudgetTest extends TestCase
         'developers.edit' => 4,   // developer, media for each image field (the plugin reloads it per field), location chain
         'projects.index' => 6,    // count, page, logos, developers, location chain (filters + country), lookup values (currency)
         'galleries.index' => 5,   // count, page, featured images, projects (column), projects (filter options)
-        'galleries.edit' => 8,    // gallery, media per upload field (5), projects (options + current)
+        'galleries.edit' => 9,    // gallery, media per upload field (5), projects (options + current), used by properties? (locks the project)
         'units.index' => 6,       // count, page, images, projects (column), location chain, lookup values
         'units.edit' => 11,       // unit, picks, media per upload field (3), projects (options + current), the project's choices, galleries, location chain, lookup values
         'projects.edit' => 11,    // project, picked values, media per image field (5: the plugin reloads it per field), developers (options + current), location chain, lookup values

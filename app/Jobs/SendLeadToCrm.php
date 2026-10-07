@@ -6,6 +6,7 @@ use App\Support\Crm\CrmLead;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -78,7 +79,9 @@ class SendLeadToCrm implements ShouldQueue
     {
         Log::error('CRM lead not sent after all attempts.', [
             'record' => $this->record::class.'#'.$this->record->getKey(),
-            'error' => $exception->getMessage(),
+            // Not the message: the CRM's reply in it may repeat the lead's personal details.
+            'error' => $exception::class,
+            'status' => $exception instanceof RequestException ? $exception->response->status() : null,
         ]);
     }
 

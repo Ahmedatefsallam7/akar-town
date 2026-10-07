@@ -175,7 +175,7 @@ class ApplicantResourceTest extends TestCase
         Mail::assertQueued(ApplicationStatusChanged::class, fn (ApplicationStatusChanged $mail) => $mail->hasTo('sara@example.com'));
         Mail::assertQueuedCount(1);
 
-        $mail = new ApplicationStatusChanged($applicant->fresh());
+        $mail = new ApplicationStatusChanged($applicant->fresh(), Applicant::ACCEPTED);
         $mail->assertHasSubject('Your application for Sales Consultant | طلبك لوظيفة مستشار مبيعات');
         $mail->assertSeeInHtml('Hello Sara,');
         $mail->assertSeeInHtml('Accepted');
