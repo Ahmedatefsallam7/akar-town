@@ -69,6 +69,21 @@ class CareerResourceTest extends TestCase
             ->assertHasFormErrors(['type', 'vacancies', 'salary_to', 'salary_currency']);
     }
 
+    public function test_a_job_can_be_online_or_hybrid(): void
+    {
+        $this->actingAs($this->createAdmin());
+
+        $this->assertSame(['full_time', 'part_time', 'online', 'hybrid'], array_keys(Career::typeOptions()));
+
+        foreach (['online', 'hybrid'] as $type) {
+            Livewire::test(CreateCareer::class)
+                ->fillForm(['title_en' => "Sales {$type}", 'title_ar' => 'مبيعات', 'type' => $type, 'vacancies' => 1])
+                ->call('create')
+                ->assertHasNoFormErrors();
+            $this->assertDatabaseHas('careers', ['title_en' => "Sales {$type}", 'type' => $type]);
+        }
+    }
+
     public function test_a_salary_needs_its_currency(): void
     {
         $this->actingAs($this->createAdmin());

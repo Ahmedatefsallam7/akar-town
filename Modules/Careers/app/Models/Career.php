@@ -21,7 +21,7 @@ class Career extends Model
 {
     use HasFactory, HasLocalization, HasLookups, HasUniqueSlug, SoftDeletes, Userstamps;
 
-    public const TYPES = ['full_time', 'part_time'];
+    public const TYPES = ['full_time', 'part_time', 'online', 'hybrid'];
 
     public const CURRENCIES = ['EGP', 'USD', 'EUR', 'GBP', 'SAR', 'AED'];
 

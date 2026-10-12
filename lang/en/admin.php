@@ -553,6 +553,8 @@ return [
         'type_options' => [
             'full_time' => 'Full Time',
             'part_time' => 'Part Time',
+            'online' => 'Online',
+            'hybrid' => 'Hybrid',
         ],
         'vacancies' => 'Vacancies',
         'applicants_count' => 'Applicants',

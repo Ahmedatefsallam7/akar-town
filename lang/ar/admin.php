@@ -553,6 +553,8 @@ return [
         'type_options' => [
             'full_time' => 'دوام كامل',
             'part_time' => 'دوام جزئي',
+            'online' => 'أونلاين',
+            'hybrid' => 'هجين',
         ],
         'vacancies' => 'عدد الشواغر',
         'applicants_count' => 'المتقدمون',
