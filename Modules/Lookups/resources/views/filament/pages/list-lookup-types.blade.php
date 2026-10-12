@@ -39,7 +39,7 @@
                 >
                     <div class="min-w-0">
                         <div class="truncate font-semibold text-gray-950 group-hover:text-primary-600 dark:text-white dark:group-hover:text-primary-400">{{ $type['name'] }}</div>
-                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ $type['note'] ?? trans_choice('admin.lookups.values_count', $type['count'], ['count' => $type['count']]) }}</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ trans_choice('admin.lookups.values_count', $type['count'], ['count' => $type['count']]) }}</div>
                     </div>
 
                     <span class="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary-50 text-sm font-bold text-primary-700 dark:bg-primary-400/10 dark:text-primary-300">{{ $type['count'] }}</span>

@@ -6,7 +6,6 @@ use Filament\Resources\Pages\Page;
 use Illuminate\Support\Collection;
 use Modules\Lookups\Filament\Resources\LookupResource;
 use Modules\Lookups\Models\Lookup;
-use Modules\Users\Filament\Resources\RoleResource;
 
 /**
  * Lookup types as cards (with their number of values). The name filter runs in the browser; Super Search looks for
@@ -33,29 +32,23 @@ class ListLookupTypes extends Page
     }
 
     /**
-     * One query: every type with its number of direct values. User Roles is a card too, but opens the Roles page.
+     * One query: every type with its number of direct values. User Roles isn't one: roles have their own page.
      *
-     * @return Collection<int, array{name: string, count: int, url: ?string, note: ?string}>
+     * @return Collection<int, array{name: string, search: string, count: int, url: string}>
      */
     public function getTypes(): Collection
     {
-        $types = Lookup::query()
+        return Lookup::withoutRoles()
             ->whereNull('parent_id')
             ->withCount('children')
             ->orderBy('order')
             ->orderBy(getLocalizedFieldName('name'))
-            ->get(['id', 'slug', 'name_en', 'name_ar', 'order']);
-
-        return $types
-            ->filter(fn (Lookup $type) => $type->slug !== Lookup::ROLES_SLUG || RoleResource::canAccess())
+            ->get(['id', 'slug', 'name_en', 'name_ar', 'order'])
             ->map(fn (Lookup $type) => [
                 'name' => $type->getLocalized('name'),
                 'search' => mb_strtolower($type->name_en.' '.$type->name_ar),
                 'count' => $type->children_count,
-                'url' => $type->slug === Lookup::ROLES_SLUG
-                    ? RoleResource::getUrl('index')
-                    : LookupResource::getUrl('values', ['record' => $type]),
-                'note' => $type->slug === Lookup::ROLES_SLUG ? __('admin.lookups.roles_note') : null,
+                'url' => LookupResource::getUrl('values', ['record' => $type]),
             ])
             ->values();
     }

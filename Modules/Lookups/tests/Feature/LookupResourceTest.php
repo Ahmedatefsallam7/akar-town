@@ -8,7 +8,6 @@ use Modules\Lookups\Filament\Resources\LookupResource;
 use Modules\Lookups\Filament\Resources\LookupResource\Pages\ListLookupTypes;
 use Modules\Lookups\Filament\Resources\LookupResource\Pages\ManageLookupValues;
 use Modules\Lookups\Models\Lookup;
-use Modules\Users\Filament\Resources\RoleResource;
 use Tests\TestCase;
 
 class LookupResourceTest extends TestCase
@@ -57,15 +56,16 @@ class LookupResourceTest extends TestCase
             ->assertSee(LookupResource::getUrl('values', ['record' => $amenities]), false);
     }
 
-    public function test_user_roles_card_opens_the_roles_page_only_for_users_who_can_manage_roles(): void
+    public function test_there_is_no_user_roles_card(): void
     {
         $this->actingAs($this->createAdmin());
-        $this->get(LookupResource::getUrl('index'))
-            ->assertSee(__('admin.lookups.roles_note'))
-            ->assertSee(RoleResource::getUrl('index'), false);
 
-        $this->actingAs($this->createUserWithPermissions(['lookups' => true]));
-        $this->get(LookupResource::getUrl('index'))->assertDontSee(__('admin.lookups.roles_note'));
+        // Roles have their own page in the sidebar, not a card among the lookup types.
+        $this->get(LookupResource::getUrl('index'))
+            ->assertOk()
+            ->assertDontSee($this->role(Lookup::ROLES_SLUG)->name_en);
+
+        $this->assertNotContains($this->role(Lookup::ROLES_SLUG)->name_en, Livewire::test(ListLookupTypes::class)->instance()->getTypes()->pluck('name'));
     }
 
     public function test_roles_can_never_be_managed_as_lookup_values(): void

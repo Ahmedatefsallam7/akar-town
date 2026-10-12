@@ -920,7 +920,6 @@ return [
         'values_count' => '{0} No values|{1} 1 value|[2,*] :count values',
         'cannot_delete_protected' => 'Protected — can\'t be deleted.',
         'cannot_delete_used' => 'In use (e.g. by a location) — can\'t be deleted.',
-        'roles_note' => 'Managed on the Roles page',
         'delete_with_items' => '{1} This also deletes 1 item inside it.|[2,*] This also deletes :count items inside it.',
         'order_helper' => 'Lower numbers appear first.',
         'slug_helper' => 'Auto-generated from the English name. Can be edited.',
