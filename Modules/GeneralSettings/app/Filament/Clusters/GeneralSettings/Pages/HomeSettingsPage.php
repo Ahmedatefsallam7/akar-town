@@ -44,7 +44,8 @@ class HomeSettingsPage extends GeneralSettingsPage
                 ->columns(2)
                 ->columnSpanFull(),
             Section::make(__('admin.settings.sections.why_choose_cards'))
-                ->schema([static::cards('why_choose_cards', 'why_choose_cards')->hiddenLabel()])
+                // A fixed set of cards on the homepage (the user asked, 2026-10-11): edited, not added.
+                ->schema([static::cards('why_choose_cards', 'why_choose_cards')->hiddenLabel()->addable(false)])
                 ->columnSpanFull(),
         ]);
     }

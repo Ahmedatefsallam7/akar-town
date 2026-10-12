@@ -173,6 +173,15 @@ class GeneralSettingsTest extends TestCase
         $this->assertSame([12, 4500, 100], [$settings->years_of_excellence, $settings->stats_happy_clients, $settings->stats_commitment]);
     }
 
+    public function test_why_akar_town_cards_cannot_be_added(): void
+    {
+        $this->actingAs($this->createAdmin());
+
+        Livewire::test(HomeSettingsPage::class)
+            ->assertSee(__('admin.settings.sections.why_choose_cards'))
+            ->assertDontSee(__('admin.settings.add_item'));
+    }
+
     public function test_cards_can_be_added_removed_and_reordered(): void
     {
         $this->actingAs($this->createAdmin());
