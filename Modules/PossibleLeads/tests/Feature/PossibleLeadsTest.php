@@ -106,6 +106,19 @@ class PossibleLeadsTest extends TestCase
         $this->assertTrue($byVisitor->fresh()->convertedLead->is($request));
     }
 
+    public function test_a_form_sent_logged_out_keeps_the_account_of_clicks_made_logged_in(): void
+    {
+        Queue::fake();
+        $user = WebsiteUser::factory()->create();
+        $visitor = Visitor::newId();
+        $click = PossibleLead::factory()->create(['visitor_id' => $visitor, 'website_user_id' => $user->id, 'created_at' => now()->subHour()]);
+
+        $inquiry = Inquiry::factory()->create(['visitor_id' => $visitor, 'website_user_id' => null]);
+
+        $this->assertSame($user->id, $click->fresh()->website_user_id);
+        $this->assertTrue($click->fresh()->convertedLead->is($inquiry));
+    }
+
     public function test_a_lead_added_by_staff_converts_nothing(): void
     {
         PossibleLead::factory()->create();
