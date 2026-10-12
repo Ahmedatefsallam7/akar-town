@@ -115,12 +115,15 @@ class MeetingResourceTest extends TestCase
     public function test_a_booking_the_crm_did_not_take_can_be_sent_again(): void
     {
         $this->actingAs($this->createAdmin());
-        Queue::fake();
-        $meeting = Meeting::factory()->create();
+        $meeting = Meeting::factory()->create(); // no CRM settings yet: not sent
+        config(['crm.token' => 't', 'crm.base_url' => 'https://akartown.8xcrm.com', 'crm.forms.contact_us' => '1']);
+        Http::fake([self::CRM_URL => Http::response(['data' => ['id' => 91]])]);
 
-        Livewire::test(ViewMeeting::class, ['record' => $meeting->getRouteKey()])->callAction('sendToCrm');
+        Livewire::test(ViewMeeting::class, ['record' => $meeting->getRouteKey()])
+            ->callAction('sendToCrm')
+            ->assertNotified(__('admin.crm.sent', ['id' => 91]));
 
-        Queue::assertPushed(SendLeadToCrm::class, 2);
+        $this->assertSame('91', $meeting->fresh()->crm_lead_id);
     }
 
     public function test_bulk_confirm_and_complete_leave_closed_bookings_alone(): void

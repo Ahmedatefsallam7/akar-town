@@ -3,12 +3,14 @@
 namespace Tests\Feature\Crm;
 
 use App\Jobs\SendLeadToCrm;
+use Filament\Notifications\Notification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Livewire\Livewire;
 use Modules\Inquiry\Filament\Resources\InquiryResource\Pages\ListInquiries;
+use Modules\Inquiry\Filament\Resources\InquiryResource\Pages\ViewInquiry;
 use Modules\Inquiry\Models\Inquiry;
 use Modules\Inquiry\Models\Meeting;
 use Modules\UnitRequests\Filament\Resources\UnitRequestResource\Pages\ViewUnitRequest;
@@ -143,19 +145,48 @@ class WebsiteLeadsToCrmTest extends TestCase
 
     public function test_staff_see_and_filter_leads_the_crm_did_not_get_and_can_send_one_at_once(): void
     {
-        Queue::fake();
         $this->actingAs($this->createAdmin());
         $unsent = Inquiry::factory()->create();
         $sent = Inquiry::factory()->create();
         $sent->forceFill(['crm_lead_id' => '7'])->saveQuietly();
-        $request = UnitRequest::factory()->create();
+        $request = UnitRequest::factory()->create(); // no CRM settings yet: none sent
 
         Livewire::test(ListInquiries::class)
             ->filterTable('sent_to_crm', false)
             ->assertCanSeeTableRecords([$unsent])
             ->assertCanNotSeeTableRecords([$sent]);
 
-        Livewire::test(ViewUnitRequest::class, ['record' => $request->getRouteKey()])->callAction('sendToCrm');
-        Queue::assertPushed(SendLeadToCrm::class, fn (SendLeadToCrm $job) => $job->record->is($request));
+        $this->configureCrm();
+        Livewire::test(ViewUnitRequest::class, ['record' => $request->getRouteKey()])
+            ->callAction('sendToCrm')
+            ->assertNotified(__('admin.crm.sent', ['id' => 500]));
+        $this->assertSame('500', $request->fresh()->crm_lead_id);
+    }
+
+    public function test_the_send_button_says_why_the_crm_did_not_take_a_lead(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $inquiry = Inquiry::factory()->create(); // no CRM settings: not sent
+        $send = fn (string $reason) => Livewire::test(ViewInquiry::class, ['record' => $inquiry->getRouteKey()])
+            ->callAction('sendToCrm')
+            ->assertNotified(Notification::make()->danger()->persistent()->title(__('admin.crm.not_sent'))->body($reason));
+
+        $send(__('admin.crm.errors.settings'));
+
+        config(['crm.token' => 'old', 'crm.base_url' => 'https://akartown.8xcrm.com', 'crm.forms.contact_us' => '1']);
+        Http::fake([self::CRM_URL => Http::sequence()
+            ->push(['message' => 'Unauthenticated.'], 401)
+            ->push(['errors' => []], 422)
+            ->push('down', 503)
+            ->push('<html>login</html>', 200, ['Content-Type' => 'text/html'])
+            ->pushFailedConnection()]);
+
+        $send(__('admin.crm.errors.token'));
+        $send(__('admin.crm.errors.refused', ['status' => 422]));
+        $send(__('admin.crm.errors.server', ['status' => 503]));
+        $send(__('admin.crm.errors.not_api'));
+        $send(__('admin.crm.errors.connection'));
+
+        $this->assertNull($inquiry->fresh()->crm_lead_id);
     }
 }

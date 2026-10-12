@@ -589,6 +589,19 @@ return [
         'help' => 'Click the map (or drag the pin) to fill Latitude and Longitude. Only listings with a location show on the website map.',
     ],
 
+    'crm' => [
+        'sent' => 'Sent to the CRM (lead #:id).',
+        'not_sent' => 'Not sent to the CRM',
+        'errors' => [
+            'settings' => 'The CRM settings are missing (token, address or Contact Us form) in the .env file.',
+            'connection' => "Couldn't reach the CRM: it may be down, or its address is wrong. Try again later.",
+            'token' => 'The CRM refused the token: it is wrong or expired. Get a new one and put it in CRM_TOKEN.',
+            'server' => 'The CRM had an error on its side (HTTP :status). Try again later.',
+            'refused' => 'The CRM refused the lead (HTTP :status): check the form ID in the .env file and the phone / email.',
+            'not_api' => 'The CRM address is wrong: it answered with a web page, not the API. Check CRM_SUBDOMAIN.',
+            'unknown' => 'Something unexpected went wrong. The details are in the log.',
+        ],
+    ],
     'site_status' => [
         'label' => 'Site Status',
         'online' => 'Online',
@@ -958,7 +971,6 @@ return [
             'created' => 'Message from ":name" has been added successfully.',
             'updated' => 'Message from ":name" has been updated successfully.',
             'deleted' => 'Message from ":name" has been deleted successfully.',
-            'queued_for_crm' => 'The message will be sent to the CRM within a minute.',
         ],
     ],
 

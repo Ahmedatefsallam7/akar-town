@@ -10,6 +10,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Filters\TernaryFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Throwable;
 
 /**
  * The same CRM pieces on every lead screen (contact messages, meetings, sell requests).
@@ -17,8 +18,8 @@ use Illuminate\Database\Eloquent\Model;
 class CrmHelper
 {
     /**
-     * "Send to CRM" on a lead's View page. Sending happens by itself (and unsent leads are retried every hour); this is
-     * for sending one at once, e.g. right after the CRM settings are fixed.
+     * "Send to CRM" on a lead's View page. Sending happens by itself (and unsent leads are retried every hour); this
+     * sends one at once, e.g. right after the CRM settings are fixed, and says why when the CRM didn't take it.
      *
      * @param  class-string<resource>  $resource
      */
@@ -28,11 +29,28 @@ class CrmHelper
             ->label(__('admin.contact_us.send_to_crm'))
             ->icon('heroicon-o-arrow-up-tray')
             ->color('gray')
-            ->visible(fn (Model $record) => ! $record->isSentToCrm() && $resource::canEdit($record))
+            ->visible(fn (Model $record) => ! $record->isSentToCrm()
+                && ! (method_exists($record, 'trashed') && $record->trashed())
+                && $resource::canEdit($record))
             ->action(function (Model $record) {
-                SendLeadToCrm::dispatch($record);
+                $notSent = fn (string $reason) => Notification::make()->danger()->persistent()
+                    ->title(__('admin.crm.not_sent'))->body($reason)->send();
 
-                Notification::make()->success()->title(__('admin.contact_us.notifications.queued_for_crm'))->send();
+                if (! SendLeadToCrm::isConfigured()) {
+                    $notSent(__('admin.crm.errors.settings'));
+
+                    return;
+                }
+
+                try {
+                    SendLeadToCrm::dispatchSync($record);
+                } catch (Throwable $exception) {
+                    $notSent(SendLeadToCrm::failureReason($exception));
+
+                    return;
+                }
+
+                Notification::make()->success()->title(__('admin.crm.sent', ['id' => $record->refresh()->crm_lead_id]))->send();
             });
     }
 

@@ -6,6 +6,7 @@ use App\Support\Crm\CrmLead;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -81,6 +82,32 @@ class SendLeadToCrm implements ShouldQueue
     public static function isConfigured(): bool
     {
         return filled(config('crm.token')) && filled(config('crm.base_url')) && filled(config('crm.forms.contact_us'));
+    }
+
+    /**
+     * Why a send failed, in words staff understand (no CRM reply in it: it may repeat the lead's personal details).
+     */
+    public static function failureReason(Throwable $exception): string
+    {
+        if ($exception instanceof ConnectionException) {
+            return __('admin.crm.errors.connection');
+        }
+
+        if ($exception instanceof RequestException) {
+            $status = $exception->response->status();
+
+            return match (true) {
+                in_array($status, [401, 403]) => __('admin.crm.errors.token'),
+                $status >= 500 => __('admin.crm.errors.server', ['status' => $status]),
+                default => __('admin.crm.errors.refused', ['status' => $status]),
+            };
+        }
+
+        if ($exception instanceof RuntimeException) {
+            return __('admin.crm.errors.not_api');
+        }
+
+        return __('admin.crm.errors.unknown');
     }
 
     public function failed(Throwable $exception): void

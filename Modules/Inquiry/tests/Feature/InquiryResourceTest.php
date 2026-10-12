@@ -170,14 +170,16 @@ class InquiryResourceTest extends TestCase
     public function test_a_message_the_crm_did_not_take_can_be_sent_again_from_its_page(): void
     {
         $this->actingAs($this->createAdmin());
-        Queue::fake();
-        $inquiry = Inquiry::factory()->create();
+        $inquiry = Inquiry::factory()->create(); // no CRM settings yet: not sent
         $sent = Inquiry::factory()->create();
         $sent->forceFill(['crm_lead_id' => '5'])->saveQuietly();
+        $this->configureCrm();
+        Http::fake([self::CRM_URL => Http::response(['data' => ['id' => 90]])]);
 
         Livewire::test(ViewInquiry::class, ['record' => $inquiry->getRouteKey()])
-            ->callAction('sendToCrm');
-        Queue::assertPushed(SendLeadToCrm::class, 3); // two on create, one by hand
+            ->callAction('sendToCrm')
+            ->assertNotified(__('admin.crm.sent', ['id' => 90]));
+        $this->assertSame('90', $inquiry->fresh()->crm_lead_id);
 
         Livewire::test(ViewInquiry::class, ['record' => $sent->getRouteKey()])->assertActionHidden('sendToCrm');
     }
