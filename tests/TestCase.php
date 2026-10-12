@@ -5,6 +5,7 @@ namespace Tests;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Modules\Lookups\Models\Lookup;
 use Modules\Users\Database\Seeders\RolesTableSeeder;
 use Modules\Users\Models\User;
@@ -15,6 +16,9 @@ abstract class TestCase extends BaseTestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        // No test may reach a real outside service (e.g. the CRM): an HTTP call that isn't faked fails the test.
+        Http::preventStrayRequests();
 
         Filament::setCurrentPanel(Filament::getPanel('admin'));
     }

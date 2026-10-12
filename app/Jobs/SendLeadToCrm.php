@@ -9,6 +9,7 @@ use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use RuntimeException;
 use Throwable;
 
 /**
@@ -50,8 +51,15 @@ class SendLeadToCrm implements ShouldQueue
             ->acceptJson()
             ->withUserAgent(config('app.name').'/Web')
             ->timeout(config('crm.timeout'))
+            ->withoutRedirecting()
             ->post('api/v1/lead_generation/web_form_routings/storeLead', $this->payload($record->toCrmLead(), (string) $formId))
             ->throw();
+
+        // Only a JSON answer from the CRM's API counts: a web page (wrong address, a login redirect) is a 200 too,
+        // and must not mark the lead as sent.
+        if (! is_array($response->json())) {
+            throw new RuntimeException("CRM didn't answer with JSON (HTTP {$response->status()}, {$response->header('Content-Type')}).");
+        }
 
         $record->forceFill([
             'crm_lead_id' => (string) ($response->json('data.id') ?? $response->json('id') ?? 'synced'),

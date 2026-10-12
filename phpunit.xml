@@ -37,5 +37,9 @@
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
+        <!-- Tests never talk to the real CRM: tests that need it set their own fake settings. -->
+        <env name="CRM_TOKEN" value="" force="true"/>
+        <env name="CRM_SUBDOMAIN" value="" force="true"/>
+        <env name="CRM_FORM_CONTACT_US" value="" force="true"/>
     </php>
 </phpunit>

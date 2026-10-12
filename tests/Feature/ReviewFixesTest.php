@@ -6,6 +6,7 @@ use App\Jobs\SendLeadToCrm;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Events\MigrationsEnded;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\StrayRequestException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
@@ -160,6 +161,18 @@ class ReviewFixesTest extends TestCase
         $events = collect(app(Schedule::class)->events());
         $worker = $events->first(fn ($event) => str_contains($event->command, 'queue:work'));
         $this->assertSame(5, $worker->expiresAt);
+    }
+
+    public function test_tests_never_reach_the_real_crm(): void
+    {
+        // The real CRM settings in .env are blanked for tests (phpunit.xml)...
+        $this->assertNull(config('crm.base_url'));
+        $this->assertSame('', (string) config('crm.token'));
+
+        // ...and even with settings, a call that isn't faked is refused.
+        config(['crm.token' => 't', 'crm.base_url' => 'https://testing.8xcrm.com', 'crm.forms.contact_us' => '1']);
+        $this->expectException(StrayRequestException::class);
+        Inquiry::factory()->create();
     }
 
     public function test_dates_are_in_cairo_time(): void

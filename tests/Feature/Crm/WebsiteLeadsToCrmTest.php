@@ -90,6 +90,24 @@ class WebsiteLeadsToCrmTest extends TestCase
             && ! str_contains($request['description'], 'difficult'));
     }
 
+    public function test_a_web_page_answer_is_not_taken_as_sent(): void
+    {
+        // A wrong address (e.g. the CRM's website instead of its API) answers 200 with an HTML page.
+        config(['crm.token' => 'secret', 'crm.base_url' => 'https://akartown.8xcrm.com', 'crm.forms.contact_us' => '1']);
+        Http::fake([self::CRM_URL => Http::response('<!doctype html><title>8X CRM</title>', 200, ['Content-Type' => 'text/html'])]);
+        Queue::fake();
+        $inquiry = Inquiry::factory()->create();
+
+        try {
+            (new SendLeadToCrm($inquiry))->handle();
+            $this->fail('An HTML answer should count as a failure.');
+        } catch (\RuntimeException $exception) {
+            $this->assertStringContainsString('JSON', $exception->getMessage());
+        }
+
+        $this->assertNull($inquiry->fresh()->crm_lead_id);
+    }
+
     public function test_leads_the_crm_missed_are_sent_again_every_hour(): void
     {
         $this->configureCrm();
