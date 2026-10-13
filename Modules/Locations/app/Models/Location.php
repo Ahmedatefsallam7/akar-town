@@ -107,11 +107,15 @@ class Location extends Model implements HasMedia
             ->useDisk('public')
             ->singleFile()
             ->registerMediaConversions(function () {
-                // Small WebP for the admin list. Website sizes are added with the frontend.
+                // Small WebP for the admin list, and the website's size (made in the background).
                 $this->addMediaConversion('thumb')
                     ->fit(Fit::Crop, 160, 160)
                     ->format('webp')
                     ->nonQueued();
+                $this->addMediaConversion('large')
+                    ->fit(Fit::Max, 1920, 1920)
+                    ->format('webp')
+                    ->queued();
             });
     }
 }

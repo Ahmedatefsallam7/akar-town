@@ -119,7 +119,11 @@ class Unit extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection(self::FEATURED_IMAGE)->useDisk('public')->singleFile()
-            ->registerMediaConversions(fn () => $this->addMediaConversion('thumb')->fit(Fit::Crop, 160, 160)->format('webp')->nonQueued());
+            ->registerMediaConversions(function () {
+                $this->addMediaConversion('thumb')->fit(Fit::Crop, 160, 160)->format('webp')->nonQueued();
+                // The website's size, made in the background (the original is used until then).
+                $this->addMediaConversion('large')->fit(Fit::Max, 1920, 1920)->format('webp')->queued();
+            });
         // 360° images are kept whole (too big to resize on the server); only the website viewer uses them.
         $this->addMediaCollection(self::IMAGES_360)->useDisk('public');
         $this->addMediaCollection(self::FLOOR_PLAN)->useDisk('public')->singleFile()

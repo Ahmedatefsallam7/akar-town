@@ -155,12 +155,15 @@ class Project extends Model implements HasMedia
     }
 
     /**
-     * Small WebP copies for the admin (website sizes are added with the frontend). Files stay while the project is
-     * in the trash; they go with a permanent delete.
+     * Small WebP copies for the admin, plus a large one for the website (made in the background; the website uses
+     * the original until it exists). Files stay while the project is in the trash; they go with a permanent delete.
      */
     public function registerMediaCollections(): void
     {
-        $crop = fn () => $this->addMediaConversion('thumb')->fit(Fit::Crop, 160, 160)->format('webp')->nonQueued();
+        $crop = function () {
+            $this->addMediaConversion('thumb')->fit(Fit::Crop, 160, 160)->format('webp')->nonQueued();
+            $this->addMediaConversion('large')->fit(Fit::Max, 1920, 1920)->format('webp')->queued();
+        };
         // Logos and plans are shown whole, never cropped.
         $whole = fn () => $this->addMediaConversion('thumb')->fit(Fit::Max, 160, 160)->format('webp')->nonQueued();
 

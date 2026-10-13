@@ -72,12 +72,16 @@ class Gallery extends Model implements HasMedia
     }
 
     /**
-     * Small WebP copies for the admin (website sizes come with the frontend). 360° images get none: they are very
-     * large and only the website's panorama viewer uses them. Files stay in the trash; they go with a permanent delete.
+     * Small WebP copies for the admin, plus a large one for the website (made in the background; the original is
+     * used until then). 360° images get none: they are very large and only the website's panorama viewer uses them.
+     * Files stay in the trash; they go with a permanent delete.
      */
     public function registerMediaCollections(): void
     {
-        $crop = fn () => $this->addMediaConversion('thumb')->fit(Fit::Crop, 160, 160)->format('webp')->nonQueued();
+        $crop = function () {
+            $this->addMediaConversion('thumb')->fit(Fit::Crop, 160, 160)->format('webp')->nonQueued();
+            $this->addMediaConversion('large')->fit(Fit::Max, 1920, 1920)->format('webp')->queued();
+        };
         $whole = fn () => $this->addMediaConversion('thumb')->fit(Fit::Max, 160, 160)->format('webp')->nonQueued();
 
         $this->addMediaCollection(self::FEATURED_IMAGE)->useDisk('public')->singleFile()->registerMediaConversions($crop);
