@@ -2,9 +2,15 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Public website. Pages are built one by one from the design; the ones not built yet show the layout only.
+Route::view('/', 'website.placeholder')->name('home');
+Route::view('/properties', 'website.placeholder')->name('properties');
+Route::view('/projects', 'website.placeholder')->name('projects');
+Route::view('/developers', 'website.placeholder')->name('developers');
+Route::view('/about', 'website.placeholder')->name('about');
+Route::view('/contact', 'website.placeholder')->name('contact');
+Route::view('/careers', 'website.placeholder')->name('careers');
+Route::view('/compare', 'website.placeholder')->name('compare');
 
 Route::get('/locale/{locale}', function (string $locale) {
     abort_unless(array_key_exists($locale, config('app.available_locales')), 404);

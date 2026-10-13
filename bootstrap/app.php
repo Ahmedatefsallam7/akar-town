@@ -20,8 +20,9 @@ return Application::configure(basePath: dirname(__DIR__))
             EnsureSiteIsLive::class,
         ]);
 
-        // The anonymous visitor id (Possible Leads) is set by a stateless API route, so it isn't encrypted.
-        $middleware->encryptCookies(except: [Visitor::COOKIE]);
+        // Not encrypted: the anonymous visitor id (Possible Leads) is set by a stateless API route, and the website's
+        // light / dark choice is set by the browser (Alpine) and only read to render the matching theme.
+        $middleware->encryptCookies(except: [Visitor::COOKIE, 'theme']);
 
         // Behind a proxy or tunnel (e.g. ngrok for a client demo) its https address must be trusted: TRUSTED_PROXIES=*.
         // Empty by default, so nobody can fake their IP (rate limits) or https on a server without a proxy.
