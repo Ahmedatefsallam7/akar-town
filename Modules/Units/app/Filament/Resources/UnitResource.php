@@ -209,6 +209,22 @@ class UnitResource extends Resource implements HasPermissionModule
                                     ->integer()
                                     ->minValue(-10)
                                     ->maxValue(300),
+                                TextInput::make('parking_spaces')
+                                    ->label(__('admin.units.parking_spaces'))
+                                    ->integer()
+                                    ->minValue(0)
+                                    ->maxValue(50),
+                                TextInput::make('building_floors')
+                                    ->label(__('admin.units.building_floors'))
+                                    ->helperText(__('admin.units.building_floors_help'))
+                                    ->integer()
+                                    ->minValue(0)
+                                    ->maxValue(300),
+                                TextInput::make('building_year')
+                                    ->label(__('admin.units.building_year'))
+                                    ->integer()
+                                    ->minValue(1900)
+                                    ->maxValue(2100),
                                 TextInput::make('down_payment')
                                     ->label(__('admin.projects.down_payment'))
                                     ->numeric()
@@ -248,6 +264,7 @@ class UnitResource extends Resource implements HasPermissionModule
                                         LookupFields::radio('finishing_type_id', 'finishingtype')->label(__('admin.units.finishing_type')),
                                         LookupFields::radio('furnishing_status_id', 'furnishingstatus')->label(__('admin.units.furnishing_status')),
                                         LookupFields::radio('unit_status_id', 'unitstatus')->label(__('admin.units.unit_status')),
+                                        LookupFields::radio('ownership_type_id', 'ownershiptype')->label(__('admin.units.ownership_type')),
                                         LookupFields::radio('property_usage_id', 'propertyusage', static::projectScope('propertyusage'))->label(__('admin.units.property_usage')),
                                         LookupFields::radio('property_type_id', 'unittype', static::projectScope('unittype'))->label(__('admin.units.property_type')),
                                     ]),

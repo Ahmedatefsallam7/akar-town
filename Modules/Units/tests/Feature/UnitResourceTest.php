@@ -51,7 +51,7 @@ class UnitResourceTest extends TestCase
         $types = [
             'offeringtype' => ['primary', 'resale', 'rent'], 'unittype' => ['apartment', 'villa'], 'propertyusage' => ['residential', 'commercial'],
             'finishingtype' => ['finished', 'core'], 'furnishingstatus' => ['furnished'], 'unitstatus' => ['available', 'sold'],
-            'amenities' => ['pool', 'gym'], 'views' => ['sea'], 'currencies' => ['egp', 'usd'],
+            'amenities' => ['pool', 'gym'], 'views' => ['sea'], 'currencies' => ['egp', 'usd'], 'ownershiptype' => ['freehold'],
         ];
         foreach ($types as $type => $values) {
             $parent = Lookup::create(['slug' => $type, 'name_en' => ucfirst($type), 'name_ar' => $type, 'is_deletable' => false]);
@@ -107,6 +107,7 @@ class UnitResourceTest extends TestCase
                 'neighbourhood' => 'Dokki', 'address' => '12 Tahrir St', 'latitude' => '30.04', 'longitude' => '31.21',
                 'is_featured' => true, 'order' => 3,
                 'price' => 4200000, 'area' => 165, 'bedrooms' => 3, 'bathrooms' => 2, 'floor' => -1,
+                'parking_spaces' => 2, 'building_floors' => 12, 'building_year' => 2024, 'ownership_type_id' => $this->id('ownershiptype', 'freehold'),
                 'down_payment' => 15, 'installment_years_from' => 2, 'installment_years_to' => 5, 'delivery_date' => '2027-03-01',
                 'amenities' => [$this->id('amenities', 'pool')], 'views' => [$this->id('views', 'sea')],
                 'finishing_type_id' => $this->id('finishingtype', 'finished'), 'furnishing_status_id' => $this->id('furnishingstatus', 'furnished'),
@@ -125,6 +126,7 @@ class UnitResourceTest extends TestCase
         $this->assertNull($unit->project_id);
         $this->assertSame('resale-apartment-12', $unit->slug);
         $this->assertSame([4200000, 165, 3, 2, -1], [$unit->price, $unit->area, $unit->bedrooms, $unit->bathrooms, $unit->floor]);
+        $this->assertSame([2, 12, 2024, $this->id('ownershiptype', 'freehold')], [$unit->parking_spaces, $unit->building_floors, $unit->building_year, $unit->ownership_type_id]);
         $this->assertSame($this->id('offeringtype', 'resale'), $unit->offering_type_id);
         $this->assertSame($this->id('unittype', 'apartment'), $unit->property_type_id);
         $this->assertSame([$this->id('amenities', 'pool')], $unit->lookupIds('amenities'));
@@ -143,9 +145,11 @@ class UnitResourceTest extends TestCase
                 'name_en' => '', 'name_ar' => '',
                 'finishing_type_id' => $this->id('unitstatus', 'sold'),
                 'offering_type_id' => $this->id('amenities', 'pool'),
+                'ownership_type_id' => $this->id('views', 'sea'),
+                'building_year' => 1800,
             ])
             ->call('create')
-            ->assertHasFormErrors(['name_en' => 'required', 'name_ar' => 'required', 'finishing_type_id', 'offering_type_id']);
+            ->assertHasFormErrors(['name_en' => 'required', 'name_ar' => 'required', 'finishing_type_id', 'offering_type_id', 'ownership_type_id', 'building_year']);
     }
 
     public function test_picking_a_project_takes_its_location(): void

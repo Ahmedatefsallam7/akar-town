@@ -759,6 +759,23 @@ return [
         ],
     ],
     [
+        'slug' => 'ownershiptype',
+        'name_en' => 'Ownership Type',
+        'name_ar' => 'نوع الملكية',
+        'items' => [
+            [
+                'slug' => 'freehold',
+                'name_en' => 'Freehold',
+                'name_ar' => 'تمليك',
+            ],
+            [
+                'slug' => 'leasehold',
+                'name_en' => 'Leasehold',
+                'name_ar' => 'حق انتفاع',
+            ],
+        ],
+    ],
+    [
         'slug' => 'offeringtype',
         'name_en' => 'Offering Type',
         'name_ar' => 'نوع العرض',

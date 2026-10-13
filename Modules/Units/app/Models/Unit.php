@@ -55,6 +55,7 @@ class Unit extends Model implements HasMedia
         'finishing_type_id' => 'finishingtype',
         'furnishing_status_id' => 'furnishingstatus',
         'unit_status_id' => 'unitstatus',
+        'ownership_type_id' => 'ownershiptype',
     ];
 
     /**
@@ -68,10 +69,10 @@ class Unit extends Model implements HasMedia
 
     protected $fillable = [
         'name_en', 'name_ar', 'slug', 'project_id',
-        'offering_type_id', 'property_type_id', 'property_usage_id', 'finishing_type_id', 'furnishing_status_id', 'unit_status_id',
+        'offering_type_id', 'property_type_id', 'property_usage_id', 'finishing_type_id', 'furnishing_status_id', 'unit_status_id', 'ownership_type_id',
         'country_id', 'city_id', 'region_id', 'area_id', 'sub_area_id', 'neighbourhood', 'address', 'latitude', 'longitude',
         'is_published', 'is_featured', 'order',
-        'price', 'area', 'bedrooms', 'bathrooms', 'floor', 'down_payment', 'installment_years_from', 'installment_years_to', 'delivery_date',
+        'price', 'area', 'bedrooms', 'bathrooms', 'floor', 'parking_spaces', 'building_floors', 'building_year', 'down_payment', 'installment_years_from', 'installment_years_to', 'delivery_date',
         'short_description_en', 'short_description_ar', 'description_en', 'description_ar',
         'gallery_id', 'video_url',
         'meta_title_en', 'meta_title_ar', 'meta_description_en', 'meta_description_ar', 'meta_keywords_en', 'meta_keywords_ar',
@@ -83,6 +84,9 @@ class Unit extends Model implements HasMedia
         'bedrooms' => 'integer',
         'bathrooms' => 'integer',
         'floor' => 'integer',
+        'parking_spaces' => 'integer',
+        'building_floors' => 'integer',
+        'building_year' => 'integer',
         'order' => 'integer',
         'down_payment' => 'float',
         'installment_years_from' => 'integer',
