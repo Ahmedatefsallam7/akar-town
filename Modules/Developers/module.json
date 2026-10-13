@@ -1,0 +1,11 @@
+{
+    "name": "Developers",
+    "alias": "developers",
+    "description": "Real-estate developer profiles: developer pages and the Our Partners strip on the website.",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Developers\\Providers\\DevelopersServiceProvider"
+    ],
+    "files": []
+}

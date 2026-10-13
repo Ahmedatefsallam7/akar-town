@@ -1,0 +1,136 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';
+@source '../../../../resources/views/vendor/**/*';
+@source '../../../../Modules/*/app/Filament/**/*';
+@source '../../../../Modules/*/resources/views/**/*';
+
+/*
+ * Admin look ported from Dastan's public/css/custom-filament.css (Filament 3 class names mapped to Filament 5).
+ * Dark mode is off (as in Dastan), so only the light styles are kept. Not ported: Dastan's logo rules (no logo
+ * yet), dashboard table-widget rules (with the dashboard), the import page's "New" badge.
+ */
+
+/* Page background and text rendering */
+.fi-body {
+    @apply bg-[#f4f6f9] antialiased;
+    font-feature-settings: 'liga' 1, 'kern' 1;
+}
+
+/* Arabic reads better with more line height */
+[dir='rtl'] .fi-body {
+    @apply leading-relaxed tracking-normal;
+}
+
+/* Top bar and sidebar header: same soft background and bottom line */
+.fi-topbar > nav,
+.fi-sidebar-header {
+    @apply min-h-20 border-b border-gray-200/80 bg-[#fafafc];
+}
+
+/* Sidebar */
+.fi-sidebar {
+    @apply border-e border-gray-200/80 bg-[#fafafc] transition-[width] duration-300 ease-in-out;
+}
+
+.fi-sidebar-nav::-webkit-scrollbar {
+    @apply w-[5px];
+}
+
+.fi-sidebar-nav::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-gray-400/25 hover:bg-gray-400/45;
+}
+
+.fi-sidebar-group-btn {
+    @apply mb-1 py-3;
+}
+
+.fi-sidebar-group-label {
+    @apply text-[0.72rem] font-bold tracking-[0.07em] text-slate-500 uppercase;
+}
+
+.fi-sidebar-item-btn {
+    @apply relative mb-1 rounded-[10px] px-3.5 py-2.5 transition-all duration-200 ease-in-out;
+
+    &:hover {
+        @apply translate-x-1 bg-slate-100 rtl:-translate-x-1;
+    }
+}
+
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn {
+    @apply bg-indigo-500/8 font-semibold;
+
+    /* Bar on the start side of the active item */
+    &::before {
+        @apply absolute start-0 top-1/4 h-1/2 w-1 rounded-e bg-indigo-600 content-[''];
+    }
+
+    & > .fi-sidebar-item-label {
+        @apply font-semibold text-indigo-600;
+    }
+
+    & > .fi-icon,
+    & > .fi-sidebar-item-icon {
+        @apply scale-105 text-indigo-600 transition-transform duration-200;
+    }
+}
+
+.fi-sidebar-item-grouped-border {
+    @apply border-slate-300/80;
+}
+
+/* Collapsed sidebar: centred icons only */
+.fi-sidebar:not(.fi-sidebar-open) {
+    .fi-sidebar-item {
+        @apply flex w-full justify-center;
+    }
+
+    .fi-sidebar-item-btn {
+        @apply flex size-11 items-center justify-center px-0;
+
+        &:hover {
+            @apply translate-x-0;
+        }
+    }
+}
+
+/* Header controls (collapse button…) */
+.fi-sidebar-header-controls .fi-icon-btn {
+    @apply rounded-full transition-all duration-200 hover:scale-[1.08] hover:bg-slate-100;
+}
+
+/* Headings, labels and table headers */
+.fi-header-heading,
+.fi-section-header-heading,
+.fi-modal-heading {
+    @apply font-semibold tracking-[-0.01em] rtl:font-bold rtl:tracking-normal;
+}
+
+.fi-fo-field-label-content {
+    @apply font-medium tracking-[-0.01em];
+}
+
+.fi-ta-header-cell {
+    @apply font-semibold tracking-[-0.005em];
+}
+
+/* Cards (sections, tables): white, soft border and shadow, rounded */
+.fi-section:not(.fi-section-not-contained),
+.fi-ta-ctn {
+    @apply rounded-xl border border-gray-200/80 bg-white shadow-[0_1px_3px_0_rgb(0_0_0/0.05),0_1px_2px_-1px_rgb(0_0_0/0.05)] ring-0;
+}
+
+/* Smooth colour changes */
+.fi-body,
+.fi-sidebar,
+.fi-section,
+.fi-btn,
+.fi-input {
+    @apply transition-colors duration-200 ease-in-out;
+}
+
+/* Page tabs at the top (e.g. General Settings): wrap onto a second line instead of hiding tabs off-screen */
+.fi-page-sub-navigation-tabs {
+    @apply flex-wrap gap-y-1;
+}

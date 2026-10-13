@@ -1,0 +1,16 @@
+{
+    "Lookups": true,
+    "Users": true,
+    "Locations": true,
+    "Developers": true,
+    "Projects": true,
+    "Galleries": true,
+    "Units": true,
+    "Sliders": true,
+    "GeneralSettings": true,
+    "Inquiry": true,
+    "UnitRequests": true,
+    "Careers": true,
+    "WebsiteUsers": true,
+    "PossibleLeads": true
+}

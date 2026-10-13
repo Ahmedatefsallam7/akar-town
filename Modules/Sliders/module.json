@@ -1,0 +1,11 @@
+{
+    "name": "Sliders",
+    "alias": "sliders",
+    "description": "Sliders: the homepage blocks (hero slider and body sections), their placement, content type and order.",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Sliders\\Providers\\SlidersServiceProvider"
+    ],
+    "files": []
+}

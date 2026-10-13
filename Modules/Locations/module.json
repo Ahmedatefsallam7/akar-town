@@ -1,0 +1,11 @@
+{
+    "name": "Locations",
+    "alias": "locations",
+    "description": "Location landing pages for the website's Explore by Location section.",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Locations\\Providers\\LocationsServiceProvider"
+    ],
+    "files": []
+}

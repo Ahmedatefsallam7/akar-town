@@ -1,0 +1,311 @@
+<?php
+
+namespace Modules\Users\Tests\Feature;
+
+use App\Providers\Filament\AdminPanelProvider;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
+use Modules\Lookups\Models\Lookup;
+use Modules\Users\Enums\PermissionAction;
+use Modules\Users\Filament\Resources\RoleResource;
+use Modules\Users\Filament\Resources\RoleResource\Pages\CreateRole;
+use Modules\Users\Filament\Resources\RoleResource\Pages\EditRole;
+use Modules\Users\Filament\Resources\RoleResource\Pages\ListRoles;
+use Modules\Users\Models\User;
+use Modules\Users\Support\PermissionModules;
+use Tests\TestCase;
+
+class RoleResourceTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_user_without_the_roles_permission_is_forbidden(): void
+    {
+        $this->actingAs($this->createUserWithPermissions(['users' => true]))
+            ->get(RoleResource::getUrl('index'))
+            ->assertForbidden();
+    }
+
+    public function test_admin_can_open_every_page(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $editor = $this->role('user_roles_editor');
+
+        $this->get(RoleResource::getUrl('index'))->assertOk();
+        $this->get(RoleResource::getUrl('create'))->assertOk();
+        $this->get(RoleResource::getUrl('view', ['record' => $editor]))->assertOk();
+        $this->get(RoleResource::getUrl('edit', ['record' => $editor]))->assertOk();
+    }
+
+    public function test_list_shows_only_roles(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $views = Lookup::create(['name_en' => 'Views', 'slug' => 'views']);
+
+        Livewire::test(ListRoles::class)
+            ->assertCanSeeTableRecords(Lookup::roles()->get())
+            ->assertCanNotSeeTableRecords([$views, $this->role(Lookup::ROLES_SLUG)]);
+    }
+
+    public function test_admin_can_create_a_role_with_permissions(): void
+    {
+        $this->actingAs($this->createAdmin());
+
+        Livewire::test(CreateRole::class)
+            ->fillForm([
+                'name_en' => 'Sales Team',
+                'name_ar' => 'فريق المبيعات',
+                'is_active' => true,
+                'permission_matrix.lookups' => ['view', 'create', 'edit'],
+                'permission_matrix.locations' => ['view'],
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $role = Lookup::where('slug', 'user_roles_sales_team')->sole();
+        $this->assertSame($this->role(Lookup::ROLES_SLUG)->id, $role->parent_id);
+        $this->assertSame(['view', 'create', 'edit'], $role->getAttribute('attributes')['permissions']['lookups']);
+        $this->assertSame(['view'], $role->getAttribute('attributes')['permissions']['locations']);
+        $this->assertSame([], $role->getAttribute('attributes')['permissions']['users']);
+    }
+
+    public function test_slug_fills_in_while_typing_the_english_name(): void
+    {
+        $this->actingAs($this->createAdmin());
+
+        Livewire::test(CreateRole::class)
+            ->fillForm(['name_en' => 'Sales Team'])
+            ->assertSchemaStateSet(['slug' => 'user_roles_sales_team']);
+    }
+
+    public function test_renaming_a_custom_role_updates_its_slug(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $role = $this->createCustomRole('Sales Team');
+
+        Livewire::test(EditRole::class, ['record' => $role->getRouteKey()])
+            ->fillForm(['name_en' => 'Sales Managers'])
+            ->assertSchemaStateSet(['slug' => 'user_roles_sales_managers'])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame('user_roles_sales_managers', $role->fresh()->slug);
+    }
+
+    public function test_renaming_a_seeded_non_admin_role_updates_its_slug(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $editor = $this->role('user_roles_editor');
+
+        Livewire::test(EditRole::class, ['record' => $editor->getRouteKey()])
+            ->fillForm(['name_en' => 'Content Editor'])
+            ->assertSchemaStateSet(['slug' => 'user_roles_content_editor'])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame('user_roles_content_editor', $editor->fresh()->slug);
+        $this->assertSame('info', $editor->fresh()->getAttribute('attributes')['color']);
+    }
+
+    public function test_renaming_the_admin_role_keeps_its_slug(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $admin = $this->role(User::ADMIN_ROLE);
+
+        Livewire::test(EditRole::class, ['record' => $admin->getRouteKey()])
+            ->fillForm(['name_en' => 'Super Admin'])
+            ->assertSchemaStateSet(['slug' => User::ADMIN_ROLE])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame(User::ADMIN_ROLE, $admin->fresh()->slug);
+        $this->assertSame('Super Admin', $admin->fresh()->name_en);
+    }
+
+    public function test_a_name_that_gives_a_used_slug_is_rejected(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $this->createCustomRole('Sales Team');
+        $this->createCustomRole('Old Team')->delete();
+
+        Livewire::test(CreateRole::class)
+            ->fillForm(['name_en' => 'Sales-Team', 'name_ar' => 'المبيعات'])
+            ->call('create')
+            ->assertHasFormErrors(['name_en']);
+
+        // A deleted role still holds its slug, so it can be restored.
+        Livewire::test(CreateRole::class)
+            ->fillForm(['name_en' => 'Old Team', 'name_ar' => 'قديم'])
+            ->call('create')
+            ->assertHasFormErrors(['name_en']);
+    }
+
+    public function test_renaming_a_role_to_a_used_slug_is_rejected(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $this->createCustomRole('Sales Team');
+        $role = $this->createCustomRole('Support');
+
+        Livewire::test(EditRole::class, ['record' => $role->getRouteKey()])
+            ->fillForm(['name_en' => 'Sales-Team'])
+            ->call('save')
+            ->assertHasFormErrors(['name_en']);
+
+        $this->assertSame('user_roles_support', $role->fresh()->slug);
+    }
+
+    public function test_role_name_must_be_unique_among_roles(): void
+    {
+        $this->actingAs($this->createAdmin());
+
+        Livewire::test(CreateRole::class)
+            ->fillForm(['name_en' => 'Editor', 'name_ar' => 'المحرر'])
+            ->call('create')
+            ->assertHasFormErrors(['name_en' => 'unique']);
+    }
+
+    public function test_editing_a_role_saves_permissions_and_keeps_other_attributes(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $editor = $this->role('user_roles_editor');
+        $editor->update(['attributes' => ['color' => 'blue', 'permissions' => ['lookups' => ['view', 'edit']]]]);
+
+        Livewire::test(EditRole::class, ['record' => $editor->getRouteKey()])
+            ->assertSchemaStateSet(['permission_matrix.lookups' => ['view', 'edit'], 'permission_matrix.users' => []])
+            ->fillForm(['permission_matrix.lookups' => [], 'permission_matrix.users' => ['view', 'delete']])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $attributes = $editor->fresh()->getAttribute('attributes');
+        $this->assertSame('blue', $attributes['color']);
+        $this->assertSame([], $attributes['permissions']['lookups']);
+        $this->assertSame(['view', 'delete'], $attributes['permissions']['users']);
+    }
+
+    public function test_admin_role_keeps_users_and_roles_after_saving(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $admin = $this->role(User::ADMIN_ROLE);
+
+        Livewire::test(EditRole::class, ['record' => $admin->getRouteKey()])
+            ->fillForm(['permission_matrix.users' => [], 'permission_matrix.roles' => [], 'permission_matrix.lookups' => []])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $permissions = $admin->fresh()->getAttribute('attributes')['permissions'];
+        $this->assertSame(PermissionModules::actionsFor('users'), $permissions['users']);
+        $this->assertSame(PermissionModules::actionsFor('roles'), $permissions['roles']);
+        $this->assertSame([], $permissions['lookups']);
+    }
+
+    public function test_only_an_admin_can_edit_the_admin_role(): void
+    {
+        $this->actingAs($this->createUserWithPermissions(['roles' => true]));
+        $admin = $this->role(User::ADMIN_ROLE);
+
+        $this->assertFalse(RoleResource::canEdit($admin));
+        $this->assertTrue(RoleResource::canEdit($this->role('user_roles_editor')));
+        $this->get(RoleResource::getUrl('edit', ['record' => $admin]))->assertForbidden();
+    }
+
+    public function test_permissions_table_lists_every_module_and_action(): void
+    {
+        $this->actingAs($this->createAdmin());
+
+        $page = $this->get(RoleResource::getUrl('create'))->assertOk();
+
+        foreach (PermissionModules::all() as $module) {
+            $page->assertSee($module['label']);
+        }
+
+        foreach (PermissionAction::cases() as $action) {
+            $page->assertSee($action->label());
+        }
+
+        $page->assertSee(__('admin.roles.select_all'))->assertSee(__('admin.roles.clear_all'));
+
+        // Alpine expressions must reach the browser as JS (Blade component attributes don't run @js()).
+        $page->assertDontSee('@js(', false)->assertSee("has('lookups', 'view')", false);
+    }
+
+    public function test_each_permission_group_has_a_select_all(): void
+    {
+        $this->actingAs($this->createAdmin());
+
+        $this->get(RoleResource::getUrl('create'))
+            ->assertOk()
+            ->assertSee(__('admin.navigation.system_configuration').' - '.__('admin.roles.all'))
+            ->assertSee('setGroup(', false);
+    }
+
+    public function test_permission_groups_follow_the_sidebar_order(): void
+    {
+        $order = array_keys(PermissionModules::grouped());
+
+        $this->assertSame(array_values(array_intersect(AdminPanelProvider::NAVIGATION_GROUPS, $order)), $order);
+    }
+
+    public function test_a_role_given_to_users_cannot_be_deleted_and_says_why(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $used = $this->createCustomRole('Sales');
+        $free = $this->createCustomRole('Content');
+        User::factory()->create(['role_id' => $used->id]);
+
+        $this->assertFalse(RoleResource::canDelete($used->fresh()));
+        $this->assertFalse(RoleResource::canForceDelete($used->fresh()));
+        $this->assertTrue(RoleResource::canDelete($free->fresh()));
+        $this->assertSame(__('admin.roles.cannot_delete_used'), RoleResource::getAuthorizationResponse('delete', $used->fresh())->message());
+
+        Livewire::test(ListRoles::class)
+            ->assertTableActionDisabled('delete', $used)
+            ->assertTableActionEnabled('delete', $free);
+    }
+
+    public function test_a_user_in_the_trash_still_keeps_their_role(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $role = $this->createCustomRole('Sales');
+        User::factory()->create(['role_id' => $role->id])->delete();
+
+        $this->assertFalse(RoleResource::canDelete($role->fresh()));
+    }
+
+    public function test_bulk_delete_skips_roles_given_to_users(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $used = $this->createCustomRole('Sales');
+        $free = $this->createCustomRole('Content');
+        User::factory()->create(['role_id' => $used->id]);
+
+        Livewire::test(ListRoles::class)->callTableBulkAction('delete', [$used, $free]);
+
+        $this->assertFalse($used->fresh()->trashed());
+        $this->assertTrue(Lookup::withTrashed()->find($free->id)->trashed());
+    }
+
+    public function test_seeded_roles_cannot_be_deleted(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $custom = Lookup::create([
+            'parent_id' => $this->role(Lookup::ROLES_SLUG)->id,
+            'name_en' => 'Temp',
+            'slug' => 'user_roles_temp',
+            'is_deletable' => true,
+        ]);
+
+        $this->assertFalse(RoleResource::canDelete($this->role('user_roles_editor')));
+        $this->assertTrue(RoleResource::canDelete($custom));
+    }
+
+    private function createCustomRole(string $name): Lookup
+    {
+        return Lookup::create([
+            'parent_id' => $this->role(Lookup::ROLES_SLUG)->id,
+            'name_en' => $name,
+            'name_ar' => $name,
+            'slug' => RoleResource::makeSlug($name),
+            'is_deletable' => true,
+        ]);
+    }
+}

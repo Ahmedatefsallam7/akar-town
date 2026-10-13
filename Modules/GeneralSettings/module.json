@@ -1,0 +1,11 @@
+{
+    "name": "GeneralSettings",
+    "alias": "generalsettings",
+    "description": "General Settings: the website's fixed page content (homepage, About Us, footer, legal pages) and company contact details.",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\GeneralSettings\\Providers\\GeneralSettingsServiceProvider"
+    ],
+    "files": []
+}

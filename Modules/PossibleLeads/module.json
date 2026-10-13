@@ -1,0 +1,11 @@
+{
+    "name": "PossibleLeads",
+    "alias": "possibleleads",
+    "description": "Possible Leads: website engagement clicks (form, WhatsApp, phone) for sales to follow up, marked converted when the visitor sends a form.",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\PossibleLeads\\Providers\\PossibleLeadsServiceProvider"
+    ],
+    "files": []
+}

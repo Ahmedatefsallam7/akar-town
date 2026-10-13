@@ -1,0 +1,11 @@
+{
+    "name": "UnitRequests",
+    "alias": "unitrequests",
+    "description": "Sell Property Requests: owners submit their unit for sale on the website; staff review it and can turn it into a property.",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\UnitRequests\\Providers\\UnitRequestsServiceProvider"
+    ],
+    "files": []
+}
