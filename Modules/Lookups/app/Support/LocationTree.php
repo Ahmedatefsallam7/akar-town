@@ -89,6 +89,29 @@ class LocationTree
     }
 
     /**
+     * The places whose English or Arabic name starts with the text, as their chain column and id (from the tree read
+     * once per request), e.g. "new" → ['column' => 'region_id', 'id' => <New Cairo>].
+     *
+     * @return list<array{column: string, id: int}>
+     */
+    public static function startingWith(string $text): array
+    {
+        $text = mb_strtolower(trim($text));
+        $tree = static::tree();
+
+        if ($text === '') {
+            return [];
+        }
+
+        return $tree['nodes']
+            ->filter(fn (Lookup $node) => isset($tree['levels'][$node->id])
+                && (str_starts_with(mb_strtolower((string) $node->name_en), $text) || str_starts_with(mb_strtolower((string) $node->name_ar), $text)))
+            ->map(fn (Lookup $node) => ['column' => static::LEVELS[$tree['levels'][$node->id] - 1], 'id' => $node->id])
+            ->values()
+            ->all();
+    }
+
+    /**
      * @return array{root: ?int, nodes: Collection<int, Lookup>, children: array<int, Collection<int, Lookup>>, levels: array<int, int>}
      */
     private static function tree(): array
