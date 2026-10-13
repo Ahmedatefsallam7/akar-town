@@ -51,7 +51,7 @@ class PropertyCards
             return [
                 'id' => $unit->id,
                 'title' => $unit->getLocalized('name'),
-                'url' => route('properties'),
+                'url' => route('properties.show', $unit->slug),
                 'type' => $names->get($unit->property_type_id)?->getLocalized('name'),
                 'status' => static::status($names->get($unit->offering_type_id), $names->get($unit->unit_status_id)),
                 'featured' => $unit->is_featured,

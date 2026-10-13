@@ -64,7 +64,7 @@ class FeaturedUnits
                 ])),
                 'images' => $photos->map(fn (Media $media) => Image::url($media))->values()->all(),
                 'thumb' => Image::url($photos->first(), 'thumb'),
-                'url' => route('properties'),
+                'url' => route('properties.show', $unit->slug),
             ];
         })->all();
     }

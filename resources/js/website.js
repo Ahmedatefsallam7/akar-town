@@ -5,6 +5,7 @@ import featuredUnits from './website/featured'
 import heroSlider from './website/hero'
 import locationsSlider from './website/locations'
 import projectsGrid from './website/projects'
+import propertyPage from './website/property'
 import splashScreen from './website/splash'
 import whyChoose from './website/why'
 
@@ -30,6 +31,7 @@ document.addEventListener('alpine:init', () => {
     Alpine.data('projectsGrid', projectsGrid)
     Alpine.data('locationsSlider', locationsSlider)
     Alpine.data('splashScreen', splashScreen)
+    Alpine.data('propertyPage', propertyPage)
 
     // Light / dark theme: <html data-theme>, remembered in a cookie so the server renders the right theme (no flash).
     Alpine.store('theme', {
