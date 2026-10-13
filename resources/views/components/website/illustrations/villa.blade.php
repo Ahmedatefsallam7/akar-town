@@ -1,0 +1,80 @@
+{{-- The design's "villa" illustration (index.html, Why Choose Us). --}}
+<svg
+  {{ $attributes }}
+  viewBox="0 0 120 100"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <rect
+    x="15"
+    y="52"
+    width="90"
+    height="40"
+    rx="2"
+    fill="rgba(200,16,46,0.22)"
+    stroke="rgba(200,16,46,0.6)"
+    stroke-width="1.2"
+  />
+  <polygon
+    points="15,52 60,18 105,52"
+    fill="rgba(200,16,46,0.16)"
+    stroke="rgba(200,16,46,0.6)"
+    stroke-width="1.2"
+    stroke-linejoin="round"
+  />
+  <rect
+    x="48"
+    y="66"
+    width="24"
+    height="26"
+    rx="1"
+    fill="rgba(200,16,46,0.28)"
+    stroke="rgba(200,16,46,0.8)"
+    stroke-width="1"
+  />
+  <rect
+    x="22"
+    y="60"
+    width="16"
+    height="14"
+    rx="1"
+    fill="rgba(200,16,46,0.18)"
+    stroke="rgba(200,16,46,0.7)"
+    stroke-width="0.8"
+  />
+  <rect
+    x="82"
+    y="60"
+    width="16"
+    height="14"
+    rx="1"
+    fill="rgba(200,16,46,0.18)"
+    stroke="rgba(200,16,46,0.7)"
+    stroke-width="0.8"
+  />
+  <line
+    x1="60"
+    y1="18"
+    x2="60"
+    y2="10"
+    stroke="rgba(200,16,46,0.7)"
+    stroke-width="1"
+  />
+  <circle cx="60" cy="9" r="2" fill="rgba(200,16,46,0.6)" />
+  <rect
+    x="8"
+    y="90"
+    width="104"
+    height="1.5"
+    rx="0.75"
+    fill="rgba(200,16,46,0.3)"
+  />
+  <rect
+    x="0"
+    y="91.5"
+    width="120"
+    height="0.5"
+    rx="0.25"
+    fill="rgba(200,16,46,0.22)"
+  />
+</svg>

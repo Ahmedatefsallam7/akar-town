@@ -1,6 +1,12 @@
 // Public website: Alpine components (Alpine comes with Livewire's scripts) and the design's GSAP motion.
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import featuredUnits from './website/featured'
+import heroSlider from './website/hero'
+import locationsSlider from './website/locations'
+import projectsGrid from './website/projects'
+import splashScreen from './website/splash'
+import whyChoose from './website/why'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -17,6 +23,13 @@ document.addEventListener('alpine:init', () => {
             body: JSON.stringify({ click_type: type, page_url: location.href, ...ids }),
         }).catch(() => {}),
     )
+
+    Alpine.data('heroSlider', heroSlider)
+    Alpine.data('featuredUnits', featuredUnits)
+    Alpine.data('whyChoose', whyChoose)
+    Alpine.data('projectsGrid', projectsGrid)
+    Alpine.data('locationsSlider', locationsSlider)
+    Alpine.data('splashScreen', splashScreen)
 
     // Light / dark theme: <html data-theme>, remembered in a cookie so the server renders the right theme (no flash).
     Alpine.store('theme', {

@@ -71,6 +71,24 @@ class LocationTree
     }
 
     /**
+     * A saved chain as a short place, the most specific level and the country, e.g. "New Cairo, Egypt" (the
+     * website's cards). Empty when nothing is chosen.
+     *
+     * @param  array<int|null>  $ids  country_id … sub_area_id
+     */
+    public static function place(array $ids): string
+    {
+        $ids = array_values(array_filter($ids));
+        $nodes = static::tree()['nodes'];
+        $chosen = count($ids) > 1 ? [end($ids), $ids[0]] : $ids;
+
+        return collect($chosen)
+            ->map(fn (int $id) => $nodes->get($id)?->getLocalized('name'))
+            ->filter()
+            ->implode(app()->getLocale() === 'ar' ? '، ' : ', ');
+    }
+
+    /**
      * @return array{root: ?int, nodes: Collection<int, Lookup>, children: array<int, Collection<int, Lookup>>, levels: array<int, int>}
      */
     private static function tree(): array
