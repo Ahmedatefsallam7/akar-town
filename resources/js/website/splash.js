@@ -1,6 +1,9 @@
-// Home splash screen (the design's script): the sketch columns race upward every frame, the logo shows at 3s and
-// the panels part at 4.5s (or on click / Escape); the splash is removed 800ms after it starts leaving.
+// Home splash screen (the design's script, shortened on request: the design waits 3s / 4.5s): the sketch columns
+// race upward every frame, the logo shows at 1.2s and the panels part at 2.2s (or on click / Escape); the splash is
+// removed 800ms after it starts leaving.
 const SPEEDS = [27.0, 21.6, 31.5, 23.4, 28.8]
+const LOGO_AT = 1000
+const EXIT_AT = 2000
 const CARD_HEIGHT = 234
 const CARDS_PER_COLUMN = 8
 
@@ -23,7 +26,7 @@ export default () => ({
         }
         this.raf = requestAnimationFrame(tick)
 
-        this.timers = [setTimeout(() => (this.state = 'ready'), 3000), setTimeout(() => this.exit(), 4500)]
+        this.timers = [setTimeout(() => (this.state = 'ready'), LOGO_AT), setTimeout(() => this.exit(), EXIT_AT)]
     },
 
     exit() {

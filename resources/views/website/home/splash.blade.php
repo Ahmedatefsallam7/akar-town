@@ -1,6 +1,6 @@
 {{--
     Splash screen (the design's #splash, home page only): columns of property sketches racing upward, the logo fades
-    in at 3s, and two white panels slide apart to reveal the page at 4.5s (or on click / Escape).
+    in at 1.2s, and two white panels slide apart to reveal the page at 2.2s (or on click / Escape).
     Behaviour: splashScreen in resources/js/website/splash.js.
 --}}
 @php
