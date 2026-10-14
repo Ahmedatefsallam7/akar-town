@@ -46,7 +46,8 @@ class LayoutTest extends TestCase
                 ->assertSee('https://www.instagram.com/akar.town.real.estate/', false)
                 ->assertDontSee('aria-label="Facebook"', false)
                 ->assertSee($business->mini_description_en)
-                ->assertSee(['Property Matching', 'Privacy Policy']);
+                ->assertSee(['Property Matching', 'Privacy Policy'])
+                ->assertSee('href="'.route('locations').'"', false);
         }
     }
 

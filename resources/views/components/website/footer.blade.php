@@ -94,6 +94,7 @@
                     <li><a class="{{ $link }}" href="#">{{ __('Penthouse Collection') }}</a></li>
                     <li><a class="{{ $link }}" href="#">{{ __('Off-Plan Projects') }}</a></li>
                     <li><a class="{{ $link }}" href="#">{{ __('North Coast') }}</a></li>
+                    <li><a class="{{ $link }}" href="{{ route('locations') }}">{{ __('Locations') }}</a></li>
                     <li><a class="{{ $link }}" href="{{ route('developers') }}">{{ __('Developers') }}</a></li>
                     <li><a class="{{ $link }}" href="{{ route('properties') }}">{{ __('Compare Units') }}</a></li>
                 </ul>

@@ -102,6 +102,7 @@ class HomeTest extends TestCase
         Project::factory()->create(['title_en' => 'Hidden', 'is_featured' => true, 'is_published' => false]);
         $this->assertSame(['Lumiere'], array_column(FeaturedProjects::get(), 'title'));
         $this->assertSame('Starting from EGP 85,000,000', FeaturedProjects::get()[0]['price']);
+        $this->assertSame(route('projects.show', Project::where('title_en', 'Lumiere')->value('slug')), FeaturedProjects::get()[0]['url']);
 
         Location::factory()->create(['name_en' => 'Cairo', 'is_featured' => true, 'country_id' => $egypt->id, 'city_id' => $cairo->id]);
         Location::factory()->create(['name_en' => 'Inactive', 'is_featured' => true, 'is_active' => false]);

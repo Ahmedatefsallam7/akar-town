@@ -44,7 +44,7 @@ class FeaturedProjects
                 'price' => $project->price_from ? __('Starting from EGP :price', ['price' => number_format($project->price_from)]) : null,
                 'image' => Image::url($photos->first()),
                 'images' => $photos->map(fn (Media $media) => Image::url($media))->values()->all(),
-                'url' => route('projects'),
+                'url' => route('projects.show', $project->slug),
             ];
         })->all();
     }
