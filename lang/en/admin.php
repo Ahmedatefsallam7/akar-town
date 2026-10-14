@@ -517,6 +517,7 @@ return [
         ],
         'content_type' => 'Content Type',
         'content_type_help' => 'What the block lists.',
+        'hero_content_type_help' => 'The hero slider always shows projects.',
         'content_types' => [
             'projects' => 'Projects',
             'properties' => 'Properties',
@@ -527,6 +528,7 @@ return [
         'order_help' => 'Lower shows first. Giving a block the order of another one in the same placement swaps them.',
         'active' => 'Active',
         'active_help' => 'Hidden from the homepage when off.',
+        'hero_active_help' => 'When off (or without slides), the homepage shows the featured projects instead.',
         'reorder' => 'Re-order',
         'reorder_done' => 'Done',
         'slides' => 'Slides',

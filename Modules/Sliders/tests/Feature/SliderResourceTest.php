@@ -99,6 +99,24 @@ class SliderResourceTest extends TestCase
         $this->assertSame(['Prime Destinations', 'وجهات مميزة', Slider::NONE, 'locations', false], [$slider->title_en, $slider->title_ar, $slider->placement, $slider->content_type, $slider->is_active]);
     }
 
+    public function test_the_hero_always_shows_projects(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $hero = Slider::factory()->hero()->create();
+
+        Livewire::test(EditSlider::class, ['record' => $hero->getRouteKey()])
+            ->assertFormFieldIsDisabled('content_type')
+            ->fillForm(['title_en' => 'Hero', 'content_type' => 'locations'])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame(['Hero', 'projects'], [$hero->refresh()->title_en, $hero->content_type]);
+
+        // Not even outside the form.
+        $hero->update(['content_type' => 'locations']);
+        $this->assertSame('projects', $hero->refresh()->content_type);
+    }
+
     public function test_taking_the_order_of_another_block_in_the_same_placement_swaps_them(): void
     {
         $first = Slider::factory()->create(['order' => 1]);

@@ -99,8 +99,10 @@ class SliderResource extends Resource implements HasPermissionModule
                             ->native(false),
                         Select::make('content_type')
                             ->label(__('admin.sliders.content_type'))
-                            ->helperText(__('admin.sliders.content_type_help'))
+                            ->helperText(fn (?Slider $record) => $record?->isHero() ? __('admin.sliders.hero_content_type_help') : __('admin.sliders.content_type_help'))
                             ->options(Slider::contentTypeOptions())
+                            // The hero always shows projects (see Slider::booted()).
+                            ->disabled(fn (?Slider $record) => $record?->isHero() ?? false)
                             ->required()
                             ->native(false),
                         TextInput::make('order')
@@ -112,7 +114,7 @@ class SliderResource extends Resource implements HasPermissionModule
                             ->maxValue(65_535),
                         Toggle::make('is_active')
                             ->label(__('admin.sliders.active'))
-                            ->helperText(__('admin.sliders.active_help'))
+                            ->helperText(fn (?Slider $record) => $record?->isHero() ? __('admin.sliders.hero_active_help') : __('admin.sliders.active_help'))
                             ->default(true),
                     ])
                     ->columns(2)

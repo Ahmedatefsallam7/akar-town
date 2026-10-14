@@ -43,6 +43,13 @@ class Slider extends Model
 
     protected static function booted(): void
     {
+        // The hero's slides are always projects (its slides list only offers projects), whatever was picked.
+        static::saving(function (Slider $slider) {
+            if ($slider->isHero()) {
+                $slider->content_type = 'projects';
+            }
+        });
+
         // As in Dastan: giving a block the order of another block in the same placement swaps the two.
         static::updating(function (Slider $slider) {
             if (! $slider->isDirty('order')) {
