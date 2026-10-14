@@ -92,7 +92,8 @@
                             </button>
                             <button
                                 type="button"
-                                @click="$store.lightbox.show(current.images, 0)"
+                                x-show="current.photos.length"
+                                @click="$store.lightbox.show(current.photos, 0)"
                                 class="{{ $action }} border-ink-10 text-ink-60 hover:border-ink-30 hover:text-ink"
                                 aria-label="{{ __('View Gallery') }}"
                                 title="{{ __('View Gallery') }}"

@@ -5,7 +5,6 @@ namespace App\Support\Website;
 use Modules\Lookups\Models\Lookup;
 use Modules\Lookups\Support\LocationTree;
 use Modules\Projects\Models\Project;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 /**
  * The home page's "Our Projects" grid: four published, featured projects (newest first), shaped for the cards.
@@ -42,8 +41,8 @@ class FeaturedProjects
                 'badge' => $status instanceof Lookup ? $status->getLocalized('name') : __('Featured'),
                 'location' => LocationTree::place([$project->country_id, $project->city_id, $project->region_id, $project->area_id, $project->sub_area_id]),
                 'price' => $project->price_from ? __('Starting from EGP :price', ['price' => number_format($project->price_from)]) : null,
-                'image' => Image::url($photos->first()),
-                'images' => $photos->map(fn (Media $media) => Image::url($media))->values()->all(),
+                'image' => Image::orPlaceholder($photos->first()),
+                'images' => Image::photos($photos),
                 'url' => route('projects.show', $project->slug),
             ];
         })->all();

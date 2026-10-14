@@ -39,7 +39,7 @@ class FeaturedLocations
                 'country' => LocationTree::path([$location->country_id]),
                 'description' => $location->getLocalized('description'),
                 'count' => $level ? ($counts[$level][$location->{$level}] ?? 0) : 0,
-                'image' => Image::url($location->getFirstMedia(Location::FEATURED_IMAGE)),
+                'image' => Image::orPlaceholder($location->getFirstMedia(Location::FEATURED_IMAGE)),
                 'url' => route('properties', ['location' => $location->slug]),
             ];
         })->all();

@@ -7,6 +7,7 @@ use App\Support\Website\FeaturedProjects;
 use App\Support\Website\FeaturedUnits;
 use App\Support\Website\HomeHero;
 use App\Support\Website\HomeSections;
+use App\Support\Website\Image;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Modules\GeneralSettings\Settings\SiteSettings;
@@ -74,6 +75,20 @@ class HomeTest extends TestCase
             ->assertOk()
             ->assertSeeInOrder(['Featured <em>Properties</em>', 'Sky Penthouse', 'id="why-us"', 'Our <em>Projects</em>', 'Crown Tower'], false)
             ->assertDontSee('Hidden Coast');
+    }
+
+    public function test_missing_photos_show_the_placeholder_instead_of_a_broken_image(): void
+    {
+        Unit::factory()->create(['is_featured' => true]);
+        Project::factory()->create(['is_featured' => true]);
+        Location::factory()->create(['is_featured' => true]);
+        $placeholder = Image::placeholder();
+
+        $unit = FeaturedUnits::get()[0];
+        $this->assertSame([[$placeholder], $placeholder, []], [$unit['images'], $unit['thumb'], $unit['photos']]);
+        $this->assertSame([$placeholder, [$placeholder]], [FeaturedProjects::get()[0]['image'], FeaturedProjects::get()[0]['images']]);
+        $this->assertSame($placeholder, HomeHero::slides()[0]['image']);
+        $this->assertSame($placeholder, FeaturedLocations::get()[0]['image']);
     }
 
     public function test_featured_properties_show_only_published_featured_units_with_their_details(): void

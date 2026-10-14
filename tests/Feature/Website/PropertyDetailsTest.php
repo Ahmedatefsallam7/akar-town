@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Website;
 
+use App\Support\Website\Image;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -94,6 +95,16 @@ class PropertyDetailsTest extends TestCase
         $this->get(route('properties.show', $other->slug))
             ->assertOk()
             ->assertDontSee(['View floor plan fullscreen', 'View master plan fullscreen', 'project-master.png']);
+    }
+
+    public function test_a_property_without_photos_shows_the_placeholder_and_no_photo_counter(): void
+    {
+        $unit = Unit::factory()->create();
+
+        $this->get(route('properties.show', $unit->slug))
+            ->assertOk()
+            ->assertSee(Image::placeholder())
+            ->assertDontSee('Open gallery fullscreen');
     }
 
     public function test_unpublished_or_unknown_properties_are_not_found(): void

@@ -127,7 +127,7 @@
 
             <div class="flex animate-slide-in flex-col py-9 pr-[52px] pl-0 rtl:pr-0 rtl:pl-[52px] max-[960px]:px-6! max-[960px]:pt-0! max-[960px]:pb-10!">
                 <div x-ref="gallery" class="relative aspect-[16/10] overflow-hidden rounded-xl bg-[rgb(17,17,17)] select-none">
-                    @foreach ($p['images'] as $i => $image)
+                    @forelse ($p['images'] as $i => $image)
                         <img
                             src="{{ $image }}"
                             alt="{{ $p['title'] }}"
@@ -136,7 +136,9 @@
                             class="pointer-events-none absolute inset-0 size-full object-cover transition-opacity duration-600 ease-out-ex"
                             :class="{ 'z-1 opacity-100': current === {{ $i }}, 'opacity-0': current !== {{ $i }} }"
                         />
-                    @endforeach
+                    @empty
+                        <img src="{{ \App\Support\Website\Image::placeholder() }}" alt="{{ $p['title'] }}" class="pointer-events-none absolute inset-0 size-full object-cover" />
+                    @endforelse
 
                     <div class="absolute bottom-[54px] left-4 z-20 flex gap-2 rtl:right-4 rtl:left-auto">
                         <button type="button" @click="$store.compare.toggle(@js($compare))" class="flex size-[34px] cursor-pointer items-center justify-center rounded-full border-[1.5px] border-white/40 bg-white/15 backdrop-blur-[10px] transition-[background,scale] duration-200 hover:scale-108 hover:bg-white/28" title="{{ __('Compare') }}" aria-label="{{ __('Compare') }}">

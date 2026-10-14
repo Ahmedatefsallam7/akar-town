@@ -46,7 +46,7 @@ class PropertyCards
                 ->merge($unit->gallery?->media ?? [])
                 ->filter()
                 ->take(self::PHOTOS);
-            $image = Image::url($photos->first());
+            $image = Image::orPlaceholder($photos->first());
 
             return [
                 'id' => $unit->id,

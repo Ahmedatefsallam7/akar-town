@@ -59,7 +59,7 @@ class ProjectCards
                 'delivery' => $delivery ? 'Q'.$delivery->quarter.' '.$delivery->year : null,
                 'tags' => $amenities->take(self::TAGS)->all(),
                 'more' => max(0, $amenities->count() - self::TAGS),
-                'image' => Image::url($project->getFirstMedia(Project::FEATURED_IMAGE)),
+                'image' => Image::orPlaceholder($project->getFirstMedia(Project::FEATURED_IMAGE)),
                 'url' => route('projects.show', $project->slug),
                 'unitsUrl' => route('properties', ['project' => $project->id]),
             ];

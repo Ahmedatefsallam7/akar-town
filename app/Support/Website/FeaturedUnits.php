@@ -62,8 +62,9 @@ class FeaturedUnits
                     ($offering = $names->get($unit->offering_type_id)) ? ['label' => $offering->getLocalized('name'), 'style' => 'red'] : null,
                     ($status = $names->get($unit->unit_status_id)) ? ['label' => $status->getLocalized('name'), 'style' => 'outline'] : null,
                 ])),
-                'images' => $photos->map(fn (Media $media) => Image::url($media))->values()->all(),
-                'thumb' => Image::url($photos->first(), 'thumb'),
+                'images' => Image::photos($photos),
+                'photos' => $photos->map(fn (Media $media) => Image::url($media))->values()->all(),
+                'thumb' => Image::orPlaceholder($photos->first(), 'thumb'),
                 'url' => route('properties.show', $unit->slug),
             ];
         })->all();

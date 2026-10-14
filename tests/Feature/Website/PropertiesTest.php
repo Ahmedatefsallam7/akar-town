@@ -3,6 +3,8 @@
 namespace Tests\Feature\Website;
 
 use App\Livewire\Website\Properties;
+use App\Support\Website\Image;
+use App\Support\Website\PropertyCards;
 use App\Support\Website\PropertySearch;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -133,6 +135,15 @@ class PropertiesTest extends TestCase
             ->test(Properties::class)
             ->assertSee('Four Beds')
             ->assertDontSee('Two Beds');
+    }
+
+    public function test_a_card_without_photos_shows_the_placeholder_and_no_photos_button(): void
+    {
+        Unit::factory()->create();
+
+        $card = PropertyCards::from(PropertyCards::eagerLoad(Unit::query())->get())[0];
+
+        $this->assertSame([Image::placeholder(), []], [$card['image'], $card['images']]);
     }
 
     public function test_the_listing_runs_the_same_queries_for_few_and_many_cards(): void
