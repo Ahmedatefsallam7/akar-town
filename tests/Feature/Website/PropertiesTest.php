@@ -112,7 +112,7 @@ class PropertiesTest extends TestCase
 
         $component = Livewire::test(Properties::class)
             ->assertViewHas('total', 12)
-            ->assertViewHas('cards', fn ($cards) => count($cards) === 9)
+            ->assertViewHas('cards', fn ($cards) => count($cards) === 6)
             ->call('loadMore')
             ->assertViewHas('cards', fn ($cards) => count($cards) === 12);
 

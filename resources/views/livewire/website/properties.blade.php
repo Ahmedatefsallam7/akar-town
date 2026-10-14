@@ -173,18 +173,6 @@
     </div>
 
     @if ($total > count($cards))
-        <div class="flex justify-center pb-20">
-            <button
-                type="button"
-                wire:click="loadMore"
-                wire:loading.attr="data-loading"
-                wire:target="loadMore"
-                class="group/more flex cursor-pointer items-center leading-[normal] gap-[10px] rounded-full border-[1.5px] border-white/65 bg-white/48 px-9 py-[14px] text-[12px] font-medium tracking-[0.04em] text-brand-dk shadow-[0_2px_16px_rgba(0,0,0,0.08),0_1px_4px_rgba(0,0,0,0.05)] backdrop-blur-[20px] backdrop-saturate-180 transition-all duration-300 ease-out-ex hover:-translate-y-0.5 hover:border-[rgba(200,16,46,0.35)] hover:bg-white/65 hover:shadow-[0_6px_24px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.07)] dark:border-white/28 dark:bg-transparent dark:text-white dark:shadow-none dark:backdrop-blur-none dark:hover:border-white/48 dark:hover:bg-white/8 rtl:font-arabic"
-            >
-                <span class="hidden size-[14px] animate-spin rounded-full border-2 border-ink-10 border-t-brand [animation-duration:0.7s] group-data-loading/more:block"></span>
-                <span class="group-data-loading/more:opacity-50">{{ __('Load More Properties') }}</span>
-                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6,9 12,15 18,9" /></svg>
-            </button>
-        </div>
+        <x-website.load-more>{{ __('Load More Properties') }}</x-website.load-more>
     @endif
 </div>

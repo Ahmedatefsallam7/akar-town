@@ -14,7 +14,7 @@ use Livewire\Component;
  */
 class Properties extends Component
 {
-    private const FIRST_PAGE = 9;
+    private const FIRST_PAGE = 6;
 
     private const MORE = 6;
 
