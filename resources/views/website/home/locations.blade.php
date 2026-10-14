@@ -14,10 +14,15 @@
     <div x-ref="ambient" class="pointer-events-none absolute inset-0 z-0 bg-cover bg-center opacity-0 transition-opacity duration-900 [filter:blur(55px)_saturate(130%)] [transform:scale(1.2)]" aria-hidden="true"></div>
 
     <div class="relative z-1 mx-auto max-w-[1340px] px-[60px] max-md:px-5">
-        <header class="mb-[52px] max-md:mb-9">
-            <p data-loc-reveal class="{{ $reveal }} mb-[22px] inline-flex items-center rounded-[20px] border border-white/65 bg-white/52 px-4 py-1.5 font-sans text-[9.5px] font-bold tracking-[0.3em] text-brand-dk uppercase shadow-[0_2px_16px_rgba(0,0,0,0.08),0_1px_4px_rgba(0,0,0,0.05)] backdrop-blur-[20px] backdrop-saturate-180 dark:text-ink-60 rtl:font-arabic">{{ __('Locations') }}</p>
-            <h2 data-loc-reveal class="{{ $reveal }} m-0 mb-3 font-sans text-[clamp(34px,3.8vw,52px)] leading-[1.08] font-light tracking-[-0.025em] text-ink rtl:font-arabic [&_em]:font-sans [&_em]:text-[1.04em] [&_em]:font-normal [&_em]:tracking-[-0.01em] [&_em]:text-brand [&_em]:not-italic rtl:[&_em]:font-arabic">{!! \App\Support\Website\HomeSections::accent($title) !!}</h2>
-            <p data-loc-reveal class="{{ $reveal }} max-w-[400px] text-[15px] leading-[1.65] text-ink-60">{{ __('Handpicked neighbourhoods where luxury meets lifestyle.') }}</p>
+        <header class="mb-[52px] flex items-end justify-between gap-10 max-md:mb-9 max-md:flex-col max-md:items-start max-md:gap-4">
+            <div class="flex-1">
+                <p data-loc-reveal class="{{ $reveal }} mb-[22px] inline-flex items-center rounded-[20px] border border-white/65 bg-white/52 px-4 py-1.5 font-sans text-[9.5px] font-bold tracking-[0.3em] text-brand-dk uppercase shadow-[0_2px_16px_rgba(0,0,0,0.08),0_1px_4px_rgba(0,0,0,0.05)] backdrop-blur-[20px] backdrop-saturate-180 dark:text-ink-60 rtl:font-arabic">{{ __('Locations') }}</p>
+                <h2 data-loc-reveal class="{{ $reveal }} m-0 mb-3 font-sans text-[clamp(34px,3.8vw,52px)] leading-[1.08] font-light tracking-[-0.025em] text-ink rtl:font-arabic [&_em]:font-sans [&_em]:text-[1.04em] [&_em]:font-normal [&_em]:tracking-[-0.01em] [&_em]:text-brand [&_em]:not-italic rtl:[&_em]:font-arabic">{!! \App\Support\Website\HomeSections::accent($title) !!}</h2>
+                <p data-loc-reveal class="{{ $reveal }} max-w-[400px] text-[15px] leading-[1.65] text-ink-60">{{ __('Handpicked neighbourhoods where luxury meets lifestyle.') }}</p>
+            </div>
+            <div data-loc-reveal class="{{ $reveal }} shrink-0 pb-1">
+                <x-website.view-all :href="route('locations')">{{ __('View All Locations') }}</x-website.view-all>
+            </div>
         </header>
 
         <div x-ref="wrap" class="-mx-[60px] cursor-grab overflow-x-auto overflow-y-hidden px-[60px] pb-5 [scrollbar-width:none] active:cursor-grabbing max-md:-mx-5 max-md:px-5 max-md:pb-4 [&::-webkit-scrollbar]:hidden">

@@ -10,6 +10,7 @@ Route::get('/properties', [PropertiesController::class, 'index'])->name('propert
 Route::get('/properties/{slug}', [PropertiesController::class, 'show'])->name('properties.show');
 Route::view('/projects', 'website.placeholder')->name('projects');
 Route::view('/projects/{slug}', 'website.placeholder')->name('projects.show');
+Route::view('/locations', 'website.placeholder')->name('locations');
 Route::view('/developers', 'website.placeholder')->name('developers');
 Route::view('/about', 'website.placeholder')->name('about');
 Route::view('/contact', 'website.placeholder')->name('contact');

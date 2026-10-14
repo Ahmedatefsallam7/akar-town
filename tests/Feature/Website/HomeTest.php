@@ -113,6 +113,16 @@ class HomeTest extends TestCase
         $this->assertSame(['Egypt', 2], [$locations[0]['country'], $locations[0]['count']]);
     }
 
+    public function test_destinations_link_to_all_locations(): void
+    {
+        Slider::factory()->create(['content_type' => 'locations', 'title_en' => 'Prime Destinations', 'is_active' => true]);
+        Location::factory()->create(['name_en' => 'Cairo', 'is_featured' => true]);
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee(['View All Locations', 'href="'.route('locations').'"'], false);
+    }
+
     public function test_the_quick_search_lists_the_admins_property_types_and_sends_to_the_listings(): void
     {
         $types = Lookup::create(['slug' => 'unittype', 'name_en' => 'Unit Type']);
