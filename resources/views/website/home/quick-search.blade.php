@@ -1,6 +1,7 @@
 {{--
     Quick property search (the design's .qf): Buy / Rent / New Projects with their sub-tabs, a text search and
-    filter chips whose panels open below them (teleported to <body> as in the design). Sends a GET search to the
+    filter chips whose panels open below them (teleported to <body> as in the design; unlike the design they stay
+    open while the page scrolls, following their chip, and long lists scroll). Sends a GET search to the
     properties (or projects) page.
 --}}
 @php
@@ -23,10 +24,23 @@
 <section
     class="relative bg-page pt-[70px]"
     aria-label="{{ __('Quick property search') }}"
-    x-data="{ tab: 'buy', sub: { buy: 'all', rent: 'all', new: 'all' }, open: null, pos: { top: 0, left: 0 } }"
+    x-data="{
+        tab: 'buy',
+        sub: { buy: 'all', rent: 'all', new: 'all' },
+        open: null,
+        anchor: null,
+        pos: { top: 0, left: 0 },
+        // The open list follows its chip while the page scrolls; it closes once the chip leaves the screen.
+        place() {
+            if (this.open === null) return
+            const r = this.anchor.getBoundingClientRect()
+            if (r.bottom < 0 || r.top > innerHeight) return (this.open = null)
+            this.pos = { top: r.bottom + 8, left: r.left }
+        },
+    }"
     @click.window="open = null"
-    @resize.window="open = null"
-    @scroll.window.capture="open = null"
+    @resize.window="place()"
+    @scroll.window.passive="place()"
 >
     <div class="px-[60px] max-[720px]:px-5">
         <form
@@ -102,9 +116,9 @@
                             type="button"
                             @click.stop="
                                 if (open === {{ $i }}) { open = null; return }
-                                const r = $el.getBoundingClientRect()
-                                pos = { top: r.bottom + 8, left: r.left }
+                                anchor = $el
                                 open = {{ $i }}
+                                place()
                             "
                             :aria-expanded="open === {{ $i }}"
                             class="inline-flex cursor-pointer items-center gap-[7px] rounded-[99px] border bg-transparent px-4 py-2 font-sans text-[13px] font-medium whitespace-nowrap transition-[border-color,color,background] duration-180 rtl:font-arabic"
@@ -123,7 +137,7 @@
                                 role="listbox"
                                 @click.stop
                                 :style="`top: ${pos.top}px; left: ${pos.left}px`"
-                                class="fixed top-0 left-0 z-9999 min-w-[190px] rounded-[14px] border border-ink-10 bg-page p-2 shadow-[0_10px_36px_rgba(0,0,0,0.1),0_2px_8px_rgba(0,0,0,0.06)] transition-[opacity,translate,scale] duration-180"
+                                class="fixed top-0 left-0 z-9999 max-h-[min(320px,calc(100dvh-24px))] min-w-[190px] overflow-y-auto overscroll-contain rounded-[14px] border border-ink-10 bg-page p-2 shadow-[0_10px_36px_rgba(0,0,0,0.1),0_2px_8px_rgba(0,0,0,0.06)] transition-[opacity,translate,scale] duration-180"
                                 :class="open === {{ $i }} ? 'pointer-events-auto translate-y-0 scale-100 opacity-100' : 'pointer-events-none -translate-y-1.5 scale-98 opacity-0'"
                             >
                                 @foreach ($filter['options'] as $value => $optionLabel)

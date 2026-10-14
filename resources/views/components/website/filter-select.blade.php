@@ -52,7 +52,7 @@
 
     <div
         role="listbox"
-        class="pointer-events-none absolute top-[calc(100%+6px)] left-0 z-150 min-w-full origin-top -translate-y-1.5 scale-y-96 overflow-hidden rounded-xl border border-ink-10 bg-page opacity-0 shadow-[0_4px_6px_-1px_rgba(13,13,13,0.06),0_16px_40px_-4px_rgba(13,13,13,0.12)] [transition:opacity_0.18s_var(--ease-out-ex),translate_0.18s_var(--ease-out-ex),scale_0.18s_var(--ease-out-ex)] dark:border-line-md dark:bg-surface-2 dark:shadow-[0_4px_6px_-1px_rgba(0,0,0,0.4),0_20px_48px_-4px_rgba(0,0,0,0.7)] rtl:right-0 rtl:left-auto"
+        class="pointer-events-none absolute top-[calc(100%+6px)] left-0 z-150 max-h-[280px] min-w-full origin-top -translate-y-1.5 scale-y-96 overflow-y-auto overscroll-contain rounded-xl border border-ink-10 bg-page opacity-0 shadow-[0_4px_6px_-1px_rgba(13,13,13,0.06),0_16px_40px_-4px_rgba(13,13,13,0.12)] [transition:opacity_0.18s_var(--ease-out-ex),translate_0.18s_var(--ease-out-ex),scale_0.18s_var(--ease-out-ex)] dark:border-line-md dark:bg-surface-2 dark:shadow-[0_4px_6px_-1px_rgba(0,0,0,0.4),0_20px_48px_-4px_rgba(0,0,0,0.7)] rtl:right-0 rtl:left-auto"
         :class="{ 'pointer-events-auto translate-y-0 scale-y-100 opacity-100': open, 'pointer-events-none -translate-y-1.5 scale-y-96 opacity-0': ! open }"
     >
         @foreach ($options as $value => $optionLabel)
