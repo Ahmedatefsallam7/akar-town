@@ -3,6 +3,8 @@
 namespace Modules\Sliders\Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Modules\Projects\Filament\Resources\ProjectResource\Pages\EditProject;
 use Modules\Projects\Filament\Resources\ProjectResource\Pages\ViewProject;
@@ -218,6 +220,21 @@ class SliderResourceTest extends TestCase
 
         $this->assertFalse($slide->fresh()->is_active);
         $this->assertTrue($other->fresh()->is_active);
+    }
+
+    public function test_slides_show_their_projects_image(): void
+    {
+        Storage::fake('public');
+        $this->actingAs($this->createAdmin());
+        $hero = Slider::factory()->hero()->create();
+        $project = Project::factory()->create();
+        $media = $project->addMedia(UploadedFile::fake()->image('cover.jpg'))->toMediaCollection(Project::FEATURED_IMAGE);
+        SliderItem::factory()->create(['slider_id' => $hero->id, 'project_id' => $project->id]);
+
+        // A relative storage URL must not be prefixed twice ("/storage//storage/...").
+        Livewire::test(SlidesRelationManager::class, ['ownerRecord' => $hero, 'pageClass' => ViewSlider::class])
+            ->assertSee(Storage::disk('public')->url($media->getPathRelativeToRoot('thumb')), false)
+            ->assertDontSee('/storage//storage', false);
     }
 
     public function test_view_only_users_cannot_change_slides(): void
