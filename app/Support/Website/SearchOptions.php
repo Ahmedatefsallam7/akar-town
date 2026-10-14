@@ -16,7 +16,7 @@ class SearchOptions
     {
         return once(fn () => Lookup::query()
             ->whereNull('parent_id')
-            ->whereIn('slug', ['unittype', 'finishingtype', 'amenities'])
+            ->whereIn('slug', ['unittype', 'finishingtype', 'amenities', 'projectstatus'])
             ->with(['children' => fn ($query) => $query->where('is_active', true)->orderBy('order')->orderBy('name_en')])
             ->get()
             ->mapWithKeys(fn (Lookup $root) => [$root->slug => $root->children->mapWithKeys(fn (Lookup $value) => [$value->id => $value->getLocalized('name')])->all()])

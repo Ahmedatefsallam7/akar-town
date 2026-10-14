@@ -113,7 +113,7 @@
             </div>
 
             {{-- Property matching (Livewire: saved as a Contact Us message and sent to the CRM) --}}
-            <div class="max-lg:col-span-full max-sm:order-4" data-reveal>
+            <div id="property-matching" class="max-lg:col-span-full max-sm:order-4" data-reveal>
                 <livewire:website.property-matching />
             </div>
         </div>

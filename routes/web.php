@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', HomeController::class)->name('home');
 Route::get('/properties', [PropertiesController::class, 'index'])->name('properties');
 Route::get('/properties/{slug}', [PropertiesController::class, 'show'])->name('properties.show');
-Route::view('/projects', 'website.placeholder')->name('projects');
+Route::view('/projects', 'website.projects')->name('projects');
 Route::view('/projects/{slug}', 'website.placeholder')->name('projects.show');
 Route::view('/locations', 'website.placeholder')->name('locations');
 Route::view('/developers', 'website.placeholder')->name('developers');

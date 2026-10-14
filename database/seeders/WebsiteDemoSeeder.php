@@ -45,6 +45,16 @@ class WebsiteDemoSeeder extends Seeder
         ['Aqua Terrace', 'North Coast', 35000000, ['photo-1600585154526-990dced4db0d', 'photo-1512917774080-9991f1c4c750', 'photo-1613490493576-7fde63acd811']],
     ];
 
+    /** The design's project cards (projects.html): status slug, delivery date, description. */
+    private const PROJECT_DETAILS = [
+        ['off-plan', '2027-10-01', 'A gated sanctuary of 320 garden villas set across 180 acres of landscaped parkland. Private pools, tennis courts, and a dedicated commercial strip.'],
+        ['under-construction', '2026-04-01', 'A landmark 38-floor tower redefining vertical luxury in Sheikh Zayed. Sky lounge, panoramic pool deck, and concierge services on demand.'],
+        ['off-plan', '2028-07-01', 'Six kilometres of private Mediterranean coastline, 450 chalets and villas, two beach clubs, and a world-class marina.'],
+        ['ready-to-move', '2025-06-01', 'A mixed-use urban village anchored by two residential towers, a boutique hotel, retail promenade, and rooftop garden terraces.'],
+        ['under-construction', '2027-01-01', 'A crystalline lagoon resort on the Red Sea coast. Floating cabanas, aqua park, private beach strips, and a curated dining village.'],
+        ['ready-to-move', '2025-03-01', '500 twin houses and standalone villas set within 240 acres of English-style gardens. Fully operational community with schools, clinics and retail.'],
+    ];
+
     /** The design's "Prime Destinations" cards (index.html): name, description, photo. */
     private const LOCATIONS = [
         ['New Cairo', "Egypt's fastest-growing urban hub — world-class amenities, gated communities.", 'photo-1512917774080-9991f1c4c750'],
@@ -106,6 +116,11 @@ class WebsiteDemoSeeder extends Seeder
                     $this->photo($project, $photo, Project::GALLERY);
                 }
             }
+        }
+
+        $titles = [...array_column(self::HERO_PROJECTS, 0), ...array_column(self::GRID_PROJECTS, 0)];
+        foreach (Project::query()->whereIn('title_en', $titles)->orderBy('id')->get() as $i => $project) {
+            $this->projectDetails($project, self::PROJECT_DETAILS[$i % count(self::PROJECT_DETAILS)]);
         }
 
         // The design's destinations first: other featured locations move after them.
@@ -194,6 +209,37 @@ class WebsiteDemoSeeder extends Seeder
                 ->whereIn('parent_id', Lookup::query()->select('id')->whereNull('parent_id')->where('slug', $type))
                 ->orderBy('id')->limit($count)->pluck('id'));
         }
+    }
+
+    /**
+     * The design's project card details (status, delivery, description, amenities) on a demo project still without
+     * a status. A hero project keeps its tagline as its short description.
+     *
+     * @param  array{0: string, 1: string, 2: string}  $details
+     */
+    private function projectDetails(Project $project, array $details): void
+    {
+        if ($project->lookupsOfType('projectstatus')->exists()) {
+            return;
+        }
+
+        [$status, $delivery, $description] = $details;
+        $project->update([
+            'delivery_date' => $delivery,
+            'short_description_en' => $project->short_description_en ?: $description,
+        ]);
+        $project->lookupsOfType('projectstatus')->sync(array_filter([$this->lookupBySlug('projectstatus', $status)]));
+        $project->lookupsOfType('amenities')->sync(Lookup::query()
+            ->whereIn('parent_id', Lookup::query()->select('id')->whereNull('parent_id')->where('slug', 'amenities'))
+            ->orderBy('order')->limit(4)->pluck('id'));
+    }
+
+    private function lookupBySlug(string $type, string $slug): ?int
+    {
+        return Lookup::query()
+            ->whereIn('parent_id', Lookup::query()->select('id')->whereNull('parent_id')->where('slug', $type))
+            ->where('slug', $slug)
+            ->value('id');
     }
 
     private function photo($model, string $photo, string $collection): void

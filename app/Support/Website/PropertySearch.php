@@ -50,10 +50,7 @@ class PropertySearch
             $query->whereHas('lookups', fn (Builder $query) => $query->where('lookups.id', (int) $amenity));
         }
 
-        if (filled($filters['location'] ?? null) && $location = Location::query()->where('slug', $filters['location'])->first()) {
-            $level = collect(LocationTree::LEVELS)->reverse()->first(fn (string $column) => filled($location->{$column}));
-            static::inPlaces($query, $level ? [['column' => $level, 'id' => $location->{$level}]] : []);
-        }
+        static::inLocation($query, $filters['location'] ?? null);
 
         if (is_numeric($filters['project'] ?? null)) {
             $query->where('project_id', (int) $filters['project']);
@@ -172,11 +169,26 @@ class PropertySearch
     }
 
     /**
-     * Units inside any of the places (a chain column and its value each); none matches nothing.
+     * Records (units, projects: anything with the location chain columns) in a website location (Locations, by slug):
+     * its most specific level. An unknown slug filters nothing.
+     */
+    public static function inLocation(Builder $query, ?string $slug): void
+    {
+        if (blank($slug) || ! $location = Location::query()->where('slug', $slug)->first()) {
+            return;
+        }
+
+        $level = collect(LocationTree::LEVELS)->reverse()->first(fn (string $column) => filled($location->{$column}));
+        static::inPlaces($query, $level ? [['column' => $level, 'id' => $location->{$level}]] : []);
+    }
+
+    /**
+     * Records inside any of the places (a chain column and its value each, e.g. LocationTree::startingWith()); none
+     * matches nothing.
      *
      * @param  list<array{column: string, id: int}>  $places
      */
-    private static function inPlaces(Builder $query, array $places): void
+    public static function inPlaces(Builder $query, array $places): void
     {
         $query->where(function (Builder $query) use ($places) {
             $query->whereRaw('1 = 0');
