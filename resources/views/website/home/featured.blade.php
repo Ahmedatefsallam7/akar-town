@@ -8,7 +8,7 @@
     $reveal = 'opacity-0 [transform:translateY(30px)]';
     $action = 'relative flex size-9 cursor-pointer items-center justify-center rounded-full border bg-transparent p-0 transition-all duration-250 ease-smooth';
     $actionIcon = 'pointer-events-none size-[15px] fill-none stroke-current stroke-[1.6] transition-all duration-250 ease-smooth [stroke-linecap:round] [stroke-linejoin:round]';
-    $thumbArrow = 'flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-ink-30 bg-page p-0 text-ink transition-all duration-280 hover:border-ink hover:bg-ink hover:text-paper';
+    $thumbArrow = 'flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-ink-30 bg-page p-0 text-ink transition-all duration-280 hover:border-ink hover:bg-ink hover:text-paper disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-25';
 @endphp
 
 <section id="properties" x-data="featuredUnits(@js($featured))" @mouseenter="stop()" @mouseleave="start()" class="relative bg-page pt-[72px] pb-[90px]">
