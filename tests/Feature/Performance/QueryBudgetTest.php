@@ -63,13 +63,13 @@ class QueryBudgetTest extends TestCase
         'locations.create' => 1, // location chain
         'locations.edit' => 3,   // location, its image, location chain
         'developers.index' => 4,  // count, page, logos + featured images (one query), location chain (filters + column)
-        'developers.edit' => 4,   // developer, media for each image field (the plugin reloads it per field), location chain
+        'developers.edit' => 3,   // developer, its media (read once for every image field: AppServiceProvider), location chain
         'projects.index' => 6,    // count, page, logos, developers, location chain (filters + country), lookup values (currency)
         'galleries.index' => 5,   // count, page, featured images, projects (column), projects (filter options)
-        'galleries.edit' => 9,    // gallery, media per upload field (5), projects (options + current), used by properties? (locks the project)
+        'galleries.edit' => 5,    // gallery, its media (read once for every upload field), projects (options + current), used by properties? (locks the project)
         'units.index' => 6,       // count, page, images, projects (column), location chain, lookup values
-        'units.edit' => 11,       // unit, picks, media per upload field (3), projects (options + current), the project's choices, galleries, location chain, lookup values
-        'projects.edit' => 11,    // project, picked values, media per image field (5: the plugin reloads it per field), developers (options + current), location chain, lookup values
+        'units.edit' => 9,        // unit, picks, its media (read once for every upload field), projects (options + current), the project's choices, galleries, location chain, lookup values
+        'projects.edit' => 6,     // project, picked values, its media (read once for every image field), developers (options + current), location chain, lookup values
         'sliders.index' => 2,     // page (not paginated: a fixed handful of blocks), count
         'settings.home' => 1,     // the page's settings (one query per group)
         'settings.about_us' => 1, // the page's settings
