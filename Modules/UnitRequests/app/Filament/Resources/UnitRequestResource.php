@@ -9,6 +9,7 @@ use App\Filament\Helpers\TableHelper;
 use App\Filament\Schemas\Tab;
 use App\Filament\Support\PrefixSearch;
 use App\Filament\Traits\HasResourceTranslations;
+use App\Support\Crm\LeadContact;
 use Closure;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
@@ -118,10 +119,12 @@ class UnitRequestResource extends Resource implements HasPermissionModule
                                 TextInput::make('email')
                                     ->label(__('admin.unit_requests.email'))
                                     ->email()
+                                    ->rules(LeadContact::emailRules())
                                     ->maxLength(191),
                                 TextInput::make('phone')
                                     ->label(__('admin.unit_requests.phone'))
                                     ->tel()
+                                    ->rules(LeadContact::phoneRules())
                                     ->required()
                                     ->maxLength(30),
                             ])

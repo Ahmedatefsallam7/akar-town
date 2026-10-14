@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Website;
 
+use App\Support\Crm\LeadContact;
 use App\Support\Website\SearchOptions;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\RateLimiter;
@@ -60,9 +61,9 @@ class PropertyMatching extends Component
             'budgetMin' => ['nullable', 'integer', 'min:0', 'max:999999999999'],
             'budgetMax' => ['nullable', 'integer', 'min:0', 'max:999999999999', 'gte:budgetMin'],
             'fullName' => ['required', 'string', 'max:191'],
-            // Same phone check as the admin's Contact Us form (Filament's tel()).
-            'phone' => ['required', 'string', 'max:30', 'regex:/^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\.\/0-9]*$/', $this->once('phone')],
-            'email' => ['required', 'email', 'max:191', $this->once('email')],
+            // As strict as the CRM (see LeadContact), so a request that passes here isn't refused there.
+            'phone' => ['required', 'string', 'max:30', ...LeadContact::phoneRules(), $this->once('phone')],
+            'email' => ['required', 'max:191', ...LeadContact::emailRules(), $this->once('email')],
         ], messages: [
             'phone.unique' => __('A request was already sent with this phone number.'),
             'email.unique' => __('A request was already sent with this email.'),

@@ -85,8 +85,15 @@ class PropertyMatchingTest extends TestCase
             ->set('phone', 'call me')
             ->set('email', 'not-an-email')
             ->call('send')
-            ->assertHasErrors(['type', 'budgetMax' => 'gte', 'fullName' => 'required', 'phone' => 'regex', 'email' => 'email'])
+            ->assertHasErrors(['type', 'budgetMax' => 'gte', 'fullName' => 'required', 'phone', 'email'])
             ->assertSet('sent', false);
+
+        // What the CRM refuses: a number that isn't valid for its country, and an address without a real domain.
+        Livewire::test(PropertyMatching::class)
+            ->set(['fullName' => 'Sara', 'phone' => '0100000000', 'email' => 'kfjds@fm'])
+            ->call('send')
+            ->assertHasErrors(['phone', 'email'])
+            ->assertSee('must be a valid phone number');
 
         $this->assertSame(0, Inquiry::count());
     }

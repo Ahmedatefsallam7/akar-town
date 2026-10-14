@@ -78,6 +78,17 @@ class InquiryResourceTest extends TestCase
             ->fillForm(['full_name' => 'Sara', 'phone' => '0100', 'message' => 'Hi', 'email' => 'nope', 'url' => 'javascript:alert(1)'])
             ->call('create')
             ->assertHasFormErrors(['email', 'url']);
+
+        // As strict as the CRM: it refuses a number that isn't valid for its country and an address without a domain.
+        Livewire::test(CreateInquiry::class)
+            ->fillForm(['full_name' => 'Sara', 'phone' => '0100000000', 'message' => 'Hi', 'email' => 'kfjds@fm'])
+            ->call('create')
+            ->assertHasFormErrors(['phone', 'email']);
+
+        Livewire::test(CreateInquiry::class)
+            ->fillForm(['full_name' => 'Sara', 'phone' => '0100 123 4567', 'message' => 'Hi', 'email' => 'sara@example.com'])
+            ->call('create')
+            ->assertHasNoFormErrors();
     }
 
     public function test_an_admin_adds_a_message_by_hand_after_a_phone_call(): void

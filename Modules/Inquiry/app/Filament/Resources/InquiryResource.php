@@ -7,6 +7,7 @@ use App\Filament\Helpers\CrmHelper;
 use App\Filament\Helpers\TableHelper;
 use App\Filament\Support\PrefixSearch;
 use App\Filament\Traits\HasResourceTranslations;
+use App\Support\Crm\LeadContact;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
@@ -85,10 +86,12 @@ class InquiryResource extends Resource implements HasPermissionModule
                         TextInput::make('email')
                             ->label(__('admin.contact_us.email'))
                             ->email()
+                            ->rules(LeadContact::emailRules())
                             ->maxLength(191),
                         TextInput::make('phone')
                             ->label(__('admin.contact_us.phone'))
                             ->tel()
+                            ->rules(LeadContact::phoneRules())
                             ->required()
                             ->maxLength(30),
                         Textarea::make('message')

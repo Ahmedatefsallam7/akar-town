@@ -7,6 +7,7 @@ use App\Filament\Helpers\CrmHelper;
 use App\Filament\Helpers\TableHelper;
 use App\Filament\Support\PrefixSearch;
 use App\Filament\Traits\HasResourceTranslations;
+use App\Support\Crm\LeadContact;
 use Filament\Actions\BulkAction;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
@@ -84,11 +85,13 @@ class MeetingResource extends Resource implements HasPermissionModule
                         TextInput::make('phone')
                             ->label(__('admin.meetings.phone'))
                             ->tel()
+                            ->rules(LeadContact::phoneRules())
                             ->required()
                             ->maxLength(30),
                         TextInput::make('email')
                             ->label(__('admin.meetings.email'))
                             ->email()
+                            ->rules(LeadContact::emailRules())
                             ->maxLength(191),
                     ])
                     ->columns(3)
