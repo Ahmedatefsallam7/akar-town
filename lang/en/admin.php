@@ -1127,6 +1127,7 @@ return [
         'gallery_help' => 'Shared media from Galleries: the project\'s galleries, or galleries with no project for a standalone unit.',
         'images_360' => '360° Images',
         'floor_plan' => 'Floor Plan',
+        'master_plan' => 'Master Plan',
         'video_url' => 'Video Link',
         'price_history' => 'Price History',
         'changed_by' => 'Changed By',

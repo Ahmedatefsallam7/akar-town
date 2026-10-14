@@ -34,6 +34,8 @@ class Unit extends Model implements HasMedia
 
     public const FLOOR_PLAN = 'floor_plan';
 
+    public const MASTER_PLAN = 'master_plan';
+
     /**
      * Several values from Lookups (checkbox lists): form field => lookup type.
      */
@@ -130,8 +132,11 @@ class Unit extends Model implements HasMedia
             });
         // 360° images are kept whole (too big to resize on the server); only the website viewer uses them.
         $this->addMediaCollection(self::IMAGES_360)->useDisk('public');
-        $this->addMediaCollection(self::FLOOR_PLAN)->useDisk('public')->singleFile()
-            ->registerMediaConversions(fn () => $this->addMediaConversion('thumb')->fit(Fit::Max, 160, 160)->format('webp')->nonQueued());
+        // Plans are shown whole, never cropped.
+        foreach ([self::FLOOR_PLAN, self::MASTER_PLAN] as $plan) {
+            $this->addMediaCollection($plan)->useDisk('public')->singleFile()
+                ->registerMediaConversions(fn () => $this->addMediaConversion('thumb')->fit(Fit::Max, 160, 160)->format('webp')->nonQueued());
+        }
     }
 
     /**

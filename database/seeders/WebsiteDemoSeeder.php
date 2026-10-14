@@ -181,6 +181,12 @@ class WebsiteDemoSeeder extends Seeder
      */
     private function details(Unit $unit, ?Project $project): void
     {
+        foreach ([Unit::FLOOR_PLAN, Unit::MASTER_PLAN] as $plan) {
+            if (! $unit->hasMedia($plan)) {
+                $this->photo($unit, 'photo-1503387762-592deb58ef4e', $plan);
+            }
+        }
+
         if ($unit->description_en) {
             return;
         }

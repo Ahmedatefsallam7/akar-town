@@ -6,7 +6,6 @@ use Illuminate\Support\Carbon;
 use Modules\Galleries\Models\Gallery;
 use Modules\Lookups\Models\Lookup;
 use Modules\Lookups\Support\LocationTree;
-use Modules\Projects\Models\Project;
 use Modules\Units\Models\Unit;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
@@ -28,7 +27,6 @@ class PropertyDetails
             'media',
             'gallery.media' => fn ($query) => $query->where('collection_name', Gallery::PHOTOS)->orderBy('order_column'),
             'project.developer',
-            'project.media' => fn ($query) => $query->where('collection_name', Project::MASTER_PLAN),
             'lookups:id,name_en,name_ar',
         ]);
 
@@ -84,7 +82,9 @@ class PropertyDetails
             'facilities' => $listOf('facility'),
             'latitude' => $unit->latitude ?? $unit->project?->latitude,
             'longitude' => $unit->longitude ?? $unit->project?->longitude,
-            'masterPlan' => Image::url($unit->project?->getFirstMedia(Project::MASTER_PLAN)),
+            // The unit's own plans only: a plan it doesn't have isn't shown.
+            'floorPlan' => Image::url($unit->getFirstMedia(Unit::FLOOR_PLAN)),
+            'masterPlan' => Image::url($unit->getFirstMedia(Unit::MASTER_PLAN)),
             'images' => $photos->map(fn (Media $media) => Image::url($media))->all(),
             'thumbs' => $photos->map(fn (Media $media) => Image::url($media, 'thumb'))->all(),
             'payment' => static::paymentPlan($unit, $delivery),

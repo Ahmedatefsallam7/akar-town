@@ -303,6 +303,7 @@ class UnitResource extends Resource implements HasPermissionModule
                                     ->reorderable()
                                     ->helperText(__('admin.galleries.images_360_help', ['size' => 20])),
                                 static::image('floor_plan', Unit::FLOOR_PLAN, 10240, 3000),
+                                static::image('master_plan', Unit::MASTER_PLAN, 10240, 3000),
                                 TextInput::make('video_url')
                                     ->label(__('admin.units.video_url'))
                                     ->url()

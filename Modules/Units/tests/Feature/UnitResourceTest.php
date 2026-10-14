@@ -117,6 +117,7 @@ class UnitResourceTest extends TestCase
                 'featured_image' => [UploadedFile::fake()->image('cover.jpg')],
                 'images_360' => [UploadedFile::fake()->image('pano.jpg', 2000, 1000)],
                 'floor_plan' => [UploadedFile::fake()->image('plan.png')],
+                'master_plan' => [UploadedFile::fake()->image('master.png')],
                 'video_url' => 'https://youtu.be/abc',
             ])
             ->call('create')
@@ -133,7 +134,25 @@ class UnitResourceTest extends TestCase
         $this->assertFalse($unit->is_published, 'New units start unpublished, like projects.');
         $this->assertTrue($unit->is_featured);
         $this->assertNotNull($unit->getFirstMedia(Unit::FLOOR_PLAN));
+        $this->assertNotNull($unit->getFirstMedia(Unit::MASTER_PLAN));
         $this->assertCount(1, $unit->getMedia(Unit::IMAGES_360));
+    }
+
+    public function test_each_image_field_shows_its_own_files_when_editing(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $unit = Unit::factory()->create();
+        $floor = $unit->addMedia(UploadedFile::fake()->image('floor.png'))->toMediaCollection(Unit::FLOOR_PLAN);
+        $master = $unit->addMedia(UploadedFile::fake()->image('master.png'))->toMediaCollection(Unit::MASTER_PLAN);
+        $panos = collect(['a.jpg', 'b.jpg'])->map(fn ($name) => $unit->addMedia(UploadedFile::fake()->image($name, 2000, 1000))->toMediaCollection(Unit::IMAGES_360));
+
+        // The media are read once for all the fields (AppServiceProvider); each field still gets only its collection.
+        $state = Livewire::test(EditUnit::class, ['record' => $unit->getRouteKey()])->instance()->form->getRawState();
+
+        $this->assertSame([$floor->uuid], array_values($state['floor_plan']));
+        $this->assertSame([$master->uuid], array_values($state['master_plan']));
+        $this->assertSame($panos->pluck('uuid')->all(), array_values($state['images_360']));
+        $this->assertSame([], array_values($state['featured_image'] ?? []));
     }
 
     public function test_names_are_required_and_single_choices_only_accept_their_type(): void

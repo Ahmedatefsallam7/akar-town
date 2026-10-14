@@ -349,17 +349,21 @@
                         <div class="{{ $sep }}"></div>
                     @endif
 
-                    @if ($p['masterPlan'])
+                    @foreach ([['floorPlan', __('Floor Plan'), __('View floor plan fullscreen')], ['masterPlan', __('Master Plan'), __('View master plan fullscreen')]] as [$plan, $planTitle, $planFullscreen])
+                        @continue(! $p[$plan])
                         <div class="mb-10">
-                            <div class="{{ $sectionTitle }}">{{ __('Master Plan') }}</div>
+                            <div class="{{ $sectionTitle }}">{{ $planTitle }}</div>
                             <div class="relative mb-10">
-                                <img src="{{ $p['masterPlan'] }}" alt="{{ __('Master Plan') }}" loading="lazy" class="block h-[320px] w-full rounded-xl border border-ink-10 object-cover max-[900px]:h-[220px] max-[640px]:h-[180px]" />
-                                <button type="button" @click="$store.projectLightbox.show([@js($p['masterPlan'])], @js(__('Master Plan')))" class="absolute right-4 bottom-4 flex size-10 cursor-pointer items-center justify-center rounded-lg border border-white/15 bg-[rgba(8,8,8,0.75)] text-white/85 backdrop-blur-[12px] transition-[background,scale] duration-200 hover:scale-106 hover:bg-[rgba(8,8,8,0.92)]" aria-label="{{ __('View master plan fullscreen') }}">
+                                <img src="{{ $p[$plan] }}" alt="{{ $planTitle }}" loading="lazy" class="block h-[320px] w-full rounded-xl border border-ink-10 object-cover max-[900px]:h-[220px] max-[640px]:h-[180px]" />
+                                <button type="button" @click="$store.projectLightbox.show([@js($p[$plan])], @js($planTitle))" class="absolute right-4 bottom-4 flex size-10 cursor-pointer items-center justify-center rounded-lg border border-white/15 bg-[rgba(8,8,8,0.75)] text-white/85 backdrop-blur-[12px] transition-[background,scale] duration-200 hover:scale-106 hover:bg-[rgba(8,8,8,0.92)]" aria-label="{{ $planFullscreen }}">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-[18px]" aria-hidden="true"><polyline points="15 3 21 3 21 9" /><polyline points="9 21 3 21 3 15" /><line x1="21" y1="3" x2="14" y2="10" /><line x1="3" y1="21" x2="10" y2="14" /></svg>
                                 </button>
                             </div>
                         </div>
-                    @endif
+                        @if ($plan === 'floorPlan' && $p['masterPlan'])
+                            <div class="{{ $sep }}"></div>
+                        @endif
+                    @endforeach
                 </div>
 
                 <aside class="sticky top-[calc(var(--spacing-nav)+70px)] flex flex-col gap-4 self-start max-[900px]:static">

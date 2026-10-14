@@ -3,7 +3,9 @@
 namespace Tests\Feature\Website;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Modules\GeneralSettings\Settings\SiteSettings;
 use Modules\Lookups\Models\Lookup;
 use Modules\Projects\Models\Project;
@@ -71,6 +73,27 @@ class PropertyDetailsTest extends TestCase
             // Ground floor (0) is still shown.
             ->assertSeeInOrder(['Floor', '<span data-pdf-val class="text-[14px] font-semibold text-ink">0</span>'], false)
             ->assertDontSee('<script>alert(1)</script>', false);
+    }
+
+    public function test_the_units_own_floor_plan_and_master_plan_show_only_when_it_has_them(): void
+    {
+        Storage::fake('public');
+        $project = Project::factory()->create();
+        $project->addMedia(UploadedFile::fake()->image('project-master.png'))->toMediaCollection(Project::MASTER_PLAN);
+        $unit = Unit::factory()->create(['project_id' => $project->id]);
+        $other = Unit::factory()->create(['project_id' => $project->id]);
+        $unit->addMedia(UploadedFile::fake()->image('floor.png'))->toMediaCollection(Unit::FLOOR_PLAN);
+        $unit->addMedia(UploadedFile::fake()->image('unit-master.png'))->toMediaCollection(Unit::MASTER_PLAN);
+
+        $this->get(route('properties.show', $unit->slug))
+            ->assertOk()
+            ->assertSeeInOrder(['Floor Plan', 'floor.png', 'Master Plan', 'unit-master.png'])
+            ->assertDontSee('project-master.png');
+
+        // Without plans of its own, neither section shows (not even the project's master plan).
+        $this->get(route('properties.show', $other->slug))
+            ->assertOk()
+            ->assertDontSee(['View floor plan fullscreen', 'View master plan fullscreen', 'project-master.png']);
     }
 
     public function test_unpublished_or_unknown_properties_are_not_found(): void
