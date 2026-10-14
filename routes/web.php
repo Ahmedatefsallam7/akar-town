@@ -9,6 +9,7 @@ Route::get('/', HomeController::class)->name('home');
 Route::get('/properties', [PropertiesController::class, 'index'])->name('properties');
 Route::get('/properties/{slug}', [PropertiesController::class, 'show'])->name('properties.show');
 Route::view('/projects', 'website.placeholder')->name('projects');
+Route::view('/projects/{slug}', 'website.placeholder')->name('projects.show');
 Route::view('/developers', 'website.placeholder')->name('developers');
 Route::view('/about', 'website.placeholder')->name('about');
 Route::view('/contact', 'website.placeholder')->name('contact');

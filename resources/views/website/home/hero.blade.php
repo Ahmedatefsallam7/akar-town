@@ -99,8 +99,8 @@
                                 </div>
                             @endif
                             <div data-text data-ctas class="flex items-center gap-[14px] will-change-[transform,opacity,filter]">
-                                <x-website.button :href="$slide['url']" arrow aria-label="{{ __('Explore :title', ['title' => $slide['title']]) }}">{{ __('Explore Project') }}</x-website.button>
-                                <x-website.button :href="$slide['url']" variant="ghost" aria-label="{{ __('View details of :title', ['title' => $slide['title']]) }}">{{ __('View Details') }}</x-website.button>
+                                <x-website.button :href="route('projects')" arrow>{{ __('Explore Projects') }}</x-website.button>
+                                <x-website.button :href="$slide['url']" variant="ghost" aria-label="{{ __('View details of :title', ['title' => $slide['title']]) }}">{{ __('View Project Details') }}</x-website.button>
                             </div>
                         </div>
                     </div>

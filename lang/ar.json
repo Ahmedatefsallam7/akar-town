@@ -284,7 +284,6 @@
     "Exclusive Collection :year": "مجموعة حصرية :year",
     "Exclusive Property": "عقار حصري",
     "Explore :count more projects": "استكشف :count مشاريع أخرى",
-    "Explore :title": "استكشف :title",
     "Explore Project": "استكشف المشروع",
     "Featured luxury properties": "عقارات فاخرة مميزة",
     "Next property": "العقار التالي",
@@ -293,7 +292,6 @@
     "Showing :title, property :number of :total": "يعرض :title، العقار :number من :total",
     "Slide progress": "تقدم الشرائح",
     "View :title": "عرض :title",
-    "View Details": "عرض التفاصيل",
     "View details of :title": "عرض تفاصيل :title",
     "more": "المزيد",
     "+ Add property": "+ أضف عقاراً",
@@ -475,5 +473,7 @@
     "Floors": "الطوابق",
     "G+:count": "أرضي + :count",
     "Ownership": "الملكية",
-    "Parking": "مواقف السيارات"
+    "Parking": "مواقف السيارات",
+    "Explore Projects": "استكشف المشاريع",
+    "View Project Details": "عرض تفاصيل المشروع"
 }

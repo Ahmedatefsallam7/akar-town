@@ -26,7 +26,7 @@ class HomeHero
             'location' => LocationTree::place([$project->country_id, $project->city_id, $project->region_id, $project->area_id, $project->sub_area_id]),
             'image' => Image::url($project->getFirstMedia(Project::FEATURED_IMAGE)),
             'thumb' => Image::url($project->getFirstMedia(Project::FEATURED_IMAGE), 'thumb'),
-            'url' => route('projects'),
+            'url' => route('projects.show', $project->slug),
             'announce' => __('Showing :title, property :number of :total', ['title' => $project->getLocalized('title'), 'number' => $i + 1, 'total' => $projects->count()]),
         ])->all();
     }
