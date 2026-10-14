@@ -19,6 +19,7 @@ return [
         'project_enquiry' => env('CRM_FORM_PROJECT_ENQUIRY'),
         'schedule_viewing' => env('CRM_FORM_SCHEDULE_VIEWING'),
         'sell_property' => env('CRM_FORM_SELL_PROPERTY'),
+        'property_matching' => env('CRM_FORM_PROPERTY_MATCHING'),
     ],
 
     'email_account_type_id' => (int) env('CRM_EMAIL_ACCOUNT_TYPE_ID', 22),

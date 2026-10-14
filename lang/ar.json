@@ -476,5 +476,13 @@
     "Parking": "مواقف السيارات",
     "Explore Projects": "استكشف المشاريع",
     "View Project Details": "عرض تفاصيل المشروع",
-    "View All Locations": "عرض كل المناطق"
+    "View All Locations": "عرض كل المناطق",
+    "Thank you! We've got your request and our team will contact you soon.": "شكراً لك! استلمنا طلبك وسيتواصل معك فريقنا قريباً.",
+    "Your Details": "بياناتك",
+    "Full name": "الاسم بالكامل",
+    "Phone": "رقم الموبايل",
+    "Email": "البريد الإلكتروني",
+    "Too many requests. Please try again later.": "طلبات كثيرة. يرجى المحاولة لاحقاً.",
+    "A request was already sent with this phone number.": "تم إرسال طلب بالفعل بهذا الرقم.",
+    "A request was already sent with this email.": "تم إرسال طلب بالفعل بهذا البريد الإلكتروني."
 }

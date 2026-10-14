@@ -16,8 +16,6 @@
     ]);
     $label = 'mb-[0.9rem] block text-[0.68rem] font-semibold tracking-[0.16em] text-cream/55 uppercase rtl:tracking-[0.04em]';
     $link = 'text-[0.92rem] font-medium text-cream/85 transition-colors duration-300 hover:text-cream focus-visible:text-cream';
-    $fieldLabel = 'mb-[0.45rem] block text-[0.6rem] font-bold tracking-[0.1em] text-cream/60 uppercase';
-    $input = 'min-w-0 flex-1 rounded-[10px] border-[1.5px] border-cream/14 bg-cream/5 px-3 py-[10px] text-[0.8rem] text-cream placeholder:text-cream/42 dark:border-line-md dark:bg-surface-2 dark:text-ink dark:placeholder:text-ink-30';
 @endphp
 
 <footer
@@ -114,42 +112,9 @@
                 </ul>
             </div>
 
-            {{-- Property matching --}}
-            <div class="max-lg:col-span-full max-sm:order-4" data-reveal x-data="{ type: 'apartment' }">
-                <span class="{{ $label }}">{{ __('Property Matching') }}</span>
-                <h3 class="mb-2 text-[clamp(1.1rem,1.8vw,1.5rem)] leading-[1.2] font-bold text-cream [&_em]:text-[#c8102e] [&_em]:not-italic">{!! __('Find Your <em>Perfect</em> Unit') !!}</h3>
-                <p class="mb-4 text-[0.82rem] leading-[1.55] text-cream/75">{{ __("Tell us what you need — we'll alert you the moment it's listed.") }}</p>
-                <div class="mb-4 flex flex-wrap gap-[0.4rem]" role="group" aria-label="{{ __('Property type') }}">
-                    @foreach (['apartment' => __('Apartment'), 'villa' => __('Villa'), 'penthouse' => __('Penthouse'), 'chalet' => __('Chalet')] as $value => $typeLabel)
-                        <button
-                            type="button"
-                            @click="type = @js($value)"
-                            class="cursor-pointer rounded-[99px] border px-[0.9rem] py-[0.38rem] text-[0.78rem] leading-none font-medium transition-[background,border-color,color] duration-200 hover:border-[#c8102e] hover:bg-[#c8102e] hover:text-white"
-                            :class="type === @js($value) ? 'border-[#c8102e] bg-[#c8102e] text-white' : 'border-cream/38 bg-transparent text-cream/88'"
-                        >{{ $typeLabel }}</button>
-                    @endforeach
-                </div>
-                <form novalidate @submit.prevent>
-                    <span class="{{ $fieldLabel }}">{{ __('Budget Range (EGP)') }}</span>
-                    <div class="mb-[0.85rem] flex items-center gap-[0.4rem] max-xs:flex-wrap">
-                        <input type="number" min="0" class="{{ $input }}" placeholder="{{ __('Minimum') }}" aria-label="{{ __('Minimum budget') }}" />
-                        <span class="shrink-0 text-[1rem] text-cream/55" aria-hidden="true">—</span>
-                        <input type="number" min="0" class="{{ $input }}" placeholder="{{ __('Maximum') }}" aria-label="{{ __('Maximum budget') }}" />
-                    </div>
-                    <span class="{{ $fieldLabel }}">{{ __('Your Email') }}</span>
-                    <div class="flex items-stretch gap-[0.45rem]">
-                        <input type="email" required class="{{ $input }}" placeholder="you@example.com" aria-label="{{ __('Your email') }}" />
-                        <button
-                            type="submit"
-                            class="flex size-[38px] shrink-0 cursor-pointer items-center justify-center rounded-full bg-[#c8102e] text-white transition-[background] duration-250 hover:bg-[#a60d24]"
-                            aria-label="{{ __('Submit') }}"
-                        >
-                            <svg width="16" height="14" viewBox="0 0 16 14" fill="none" aria-hidden="true">
-                                <path d="M7.99997 0.414307C7.99997 1.11051 8.68991 2.15231 9.38737 3.02724C10.2855 4.15371 11.3574 5.13777 12.5873 5.88911C13.5087 6.45171 14.6276 6.99177 15.5264 6.99177M7.99997 13.5855C7.99997 12.8893 8.68991 11.8475 9.38737 10.9726C10.2855 9.84617 11.3574 8.86204 12.5873 8.11071C13.5087 7.54811 14.6276 7.00804 15.5264 7.00804M15.5264 6.99991H0.473572" stroke="currentColor" />
-                            </svg>
-                        </button>
-                    </div>
-                </form>
+            {{-- Property matching (Livewire: saved as a Contact Us message and sent to the CRM) --}}
+            <div class="max-lg:col-span-full max-sm:order-4" data-reveal>
+                <livewire:website.property-matching />
             </div>
         </div>
 

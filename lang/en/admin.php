@@ -968,6 +968,7 @@ return [
             'contact_us' => 'Contact Us',
             'property_enquiry' => 'Property Enquiry',
             'project_enquiry' => 'Project Enquiry',
+            'property_matching' => 'Property Matching',
         ],
         'crm' => 'Sent to CRM',
         'send_to_crm' => 'Send to CRM',

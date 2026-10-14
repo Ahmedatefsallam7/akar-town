@@ -968,6 +968,7 @@ return [
             'contact_us' => 'تواصل معنا',
             'property_enquiry' => 'استفسار عن عقار',
             'project_enquiry' => 'استفسار عن مشروع',
+            'property_matching' => 'مطابقة عقار',
         ],
         'crm' => 'أُرسلت للـ CRM',
         'send_to_crm' => 'إرسال للـ CRM',

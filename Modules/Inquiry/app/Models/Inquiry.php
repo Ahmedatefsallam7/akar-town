@@ -19,7 +19,7 @@ use Modules\WebsiteUsers\Models\WebsiteUser;
 class Inquiry extends Model implements CrmLead
 {
     /** The website forms that send contact messages: each goes to its own CRM form (or the Contact Us one). */
-    public const FORMS = ['contact_us', 'property_enquiry', 'project_enquiry'];
+    public const FORMS = ['contact_us', 'property_enquiry', 'project_enquiry', 'property_matching'];
 
     use HasFactory, SoftDeletes, Userstamps;
 
