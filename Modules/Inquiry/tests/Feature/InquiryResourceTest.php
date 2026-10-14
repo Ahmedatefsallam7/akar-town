@@ -227,6 +227,18 @@ class InquiryResourceTest extends TestCase
             ->assertCanSeeTableRecords([$omar]);
     }
 
+    public function test_messages_filter_by_the_form_they_came_from(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $matching = Inquiry::factory()->create(['form' => 'property_matching']);
+        $contact = Inquiry::factory()->create(['form' => 'contact_us']);
+
+        Livewire::test(ListInquiries::class)
+            ->filterTable('form', 'property_matching')
+            ->assertCanSeeTableRecords([$matching])
+            ->assertCanNotSeeTableRecords([$contact]);
+    }
+
     public function test_one_search_box_finds_by_how_the_name_email_or_phone_starts(): void
     {
         $this->actingAs($this->createAdmin());

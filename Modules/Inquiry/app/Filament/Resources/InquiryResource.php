@@ -17,6 +17,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\QueryBuilder;
 use Filament\Tables\Filters\QueryBuilder\Constraints\TextConstraint;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -175,6 +176,9 @@ class InquiryResource extends Resource implements HasPermissionModule
             ->defaultSort('created_at', 'desc')
             ->paginated([10, 25, 50, 100])
             ->filters([
+                SelectFilter::make('form')
+                    ->label(__('admin.contact_us.form'))
+                    ->options(Inquiry::formOptions()),
                 QueryBuilder::make()
                     ->constraints([
                         TextConstraint::make('full_name')->label(__('admin.contact_us.full_name')),

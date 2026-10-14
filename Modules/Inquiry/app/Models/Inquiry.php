@@ -67,6 +67,14 @@ class Inquiry extends Model implements CrmLead
         return filled($this->crm_lead_id);
     }
 
+    /**
+     * @return array<string, string>
+     */
+    public static function formOptions(): array
+    {
+        return collect(self::FORMS)->mapWithKeys(fn (string $form) => [$form => __("admin.contact_us.forms.{$form}")])->all();
+    }
+
     public function crmForm(): string
     {
         return in_array($this->form, self::FORMS, true) ? $this->form : 'contact_us';
