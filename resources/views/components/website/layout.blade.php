@@ -21,12 +21,14 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="csrf-token" content="{{ csrf_token() }}" />
+        {{--  The track URL is used by the possible leads tracking script to send the lead data to the server.--}}
         <meta name="track-url" content="{{ route('api.possible-leads.track', absolute: false) }}" />
+        <meta name="compare-max" content="{{ \App\Support\Website\CompareUnits::MAX }}" />
         <title>{{ $title ? $title.' — '.__('Akar Town') : __('Akar Town — Exclusive Real Estate') }}</title>
         <meta name="description" content="{{ $description ?? __("Akar Town — Discover exceptional luxury properties across Egypt's finest locations.") }}" />
         <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}" />
 
-        @fonts(['archivo', 'noto-kufi-arabic', 'cormorant-garamond'])
+        @fonts(['archivo', 'noto-kufi-arabic'])
         @vite(['resources/css/website.css', 'resources/js/website.js'])
         @livewireStyles
     </head>

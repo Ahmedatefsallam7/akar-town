@@ -4,6 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import featuredUnits from './website/featured'
 import heroSlider from './website/hero'
 import locationsSlider from './website/locations'
+import projectPage from './website/project'
 import projectsGrid from './website/projects'
 import propertyPage from './website/property'
 import splashScreen from './website/splash'
@@ -32,6 +33,7 @@ document.addEventListener('alpine:init', () => {
     Alpine.data('locationsSlider', locationsSlider)
     Alpine.data('splashScreen', splashScreen)
     Alpine.data('propertyPage', propertyPage)
+    Alpine.data('projectPage', projectPage)
 
     // Light / dark theme: <html data-theme>, remembered in a cookie so the server renders the right theme (no flash).
     Alpine.store('theme', {
@@ -57,9 +59,9 @@ document.addEventListener('alpine:init', () => {
         } catch {}
     }
 
-    // Compare list (up to 4 properties), shown in the compare bar on every page.
+    // Compare list, shown in the compare bar on every page. Its size comes from the server (CompareUnits::MAX).
     Alpine.store('compare', {
-        max: 4,
+        max: Number(document.querySelector('meta[name="compare-max"]')?.content) || 4,
         items: read('akar_cmp'),
         open: false,
         has(id) {
@@ -83,6 +85,7 @@ document.addEventListener('alpine:init', () => {
     })
 
     // Favourite properties.
+    // Favourites (the navbar's wishlist): unit ids, and projects as "project-<id>" (the design's "proj-" items).
     Alpine.store('favourites', {
         ids: read('akar_favs'),
         has(id) {
@@ -146,6 +149,7 @@ document.addEventListener('alpine:init', () => {
     // ScrollTrigger timeline). When its content is taller than the screen it falls back to a normal static footer.
     Alpine.data('footerReveal', (reveal = true) => ({
         timeline: null,
+        contentTween: null,
 
         get static() {
             return Alpine.store('footer').static
@@ -175,15 +179,20 @@ document.addEventListener('alpine:init', () => {
             })
         },
 
-        // Fit the "AKAR TOWN" wordmark to the full width (at most a third of the screen height).
+        // Fit the "AKAR TOWN" wordmark to the full width (the design also capped it at a third of the screen height; the user
+        // wants the full width). In the revealed footer it must also fit, whole, in the height left under the content: on a
+        // screen too short for both it gets smaller rather than cut (short screens also hide two form labels to make room).
         fitMark() {
             const { mark, markText } = this.$refs
             const probe = 200
             markText.style.fontSize = probe + 'px'
-            const probeWidth = markText.getBoundingClientRect().width
-            if (!probeWidth) return
-            const fit = (mark.getBoundingClientRect().width / probeWidth) * probe
-            markText.style.fontSize = Math.min(fit, window.innerHeight * 0.34) + 'px'
+            const probeBox = markText.getBoundingClientRect()
+            if (!probeBox.width) return
+            let size = (mark.getBoundingClientRect().width / probeBox.width) * probe
+            if (reveal && !this.static) {
+                size = Math.min(size, (mark.clientHeight / probeBox.height) * probe)
+            }
+            markText.style.fontSize = size + 'px'
         },
 
         // Height of everything but the elastic wordmark.
@@ -221,9 +230,11 @@ document.addEventListener('alpine:init', () => {
             const spacer = document.getElementById('footer-spacer')
             const targets = [...this.$el.querySelectorAll('[data-reveal]')]
 
-            this.timeline?.scrollTrigger?.kill()
-            this.timeline?.kill()
-            this.timeline = null
+            for (const animation of [this.timeline, this.contentTween]) {
+                animation?.scrollTrigger?.kill()
+                animation?.kill()
+            }
+            this.timeline = this.contentTween = null
             gsap.set([page, this.$refs.bg, ...targets], { clearProps: 'transform,opacity' })
 
             if (this.static) {
@@ -231,12 +242,23 @@ document.addEventListener('alpine:init', () => {
                 return
             }
 
+            // The page slides up off the footer with the scroll (as in the design).
             gsap.set(page, { transformOrigin: '50% 0%' })
             this.timeline = gsap
                 .timeline({ scrollTrigger: { trigger: spacer, start: 'top bottom', end: 'bottom bottom', scrub: 0.6 } })
                 .to(page, { yPercent: -6, scale: 0.95, ease: 'none' }, 0)
                 .to(this.$refs.bg, { scale: 1, ease: 'none' }, 0)
-                .from(targets, { opacity: 0, y: 32, stagger: 0.07, ease: 'power2.out' }, 0.08)
+
+            // The footer's content plays in full once half of it shows (and back when scrolling up). The design ties it
+            // to the scroll too, so stopping a little before the end left it faded, its columns at different heights.
+            this.contentTween = gsap.from(targets, {
+                opacity: 0,
+                y: 32,
+                duration: 0.6,
+                stagger: 0.07,
+                ease: 'power2.out',
+                scrollTrigger: { trigger: spacer, start: 'top 50%', toggleActions: 'play none none reverse' },
+            })
         },
     }))
 })
