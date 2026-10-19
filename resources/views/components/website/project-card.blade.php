@@ -86,6 +86,23 @@
     @endif
 
     <div class="flex gap-2 px-[22px] pt-[14px] pb-5">
+        {{-- Wishlist (the navbar's favourites), saved as "project-<id>"; pops when pressed, as in the design --}}
+        <button
+            type="button"
+            x-data="{ pop: false }"
+            @click.stop="$store.favourites.toggle(@js('project-'.$card['id'])); pop = true; setTimeout(() => pop = false, 200)"
+            :aria-label="$store.favourites.has(@js('project-'.$card['id'])) ? @js(__('Remove from Wishlist')) : @js(__('Add to Wishlist'))"
+            :aria-pressed="$store.favourites.has(@js('project-'.$card['id']))"
+            data-tip="{{ __('Save to Wishlist') }}"
+            class="relative flex size-[34px] shrink-0 cursor-pointer items-center justify-center rounded-lg border bg-white transition-all duration-220 ease-out-ex after:pointer-events-none after:absolute after:bottom-[calc(100%+7px)] after:left-1/2 after:-translate-x-1/2 after:rounded after:bg-ink after:px-2 after:py-1 after:text-[10px] after:tracking-[0.08em] after:whitespace-nowrap after:text-white after:opacity-0 after:transition-opacity after:duration-180 after:content-[attr(data-tip)] hover:border-danger hover:bg-[rgba(204,34,34,0.06)] hover:text-danger hover:after:opacity-100 dark:bg-[rgba(28,25,18,0.8)] dark:hover:bg-[rgba(204,34,34,0.12)]"
+            :class="{
+                'border-danger! bg-[rgba(204,34,34,0.06)]! text-danger! dark:bg-[rgba(204,34,34,0.12)]! [&_path]:fill-current': $store.favourites.has(@js('project-'.$card['id'])),
+                'border-ink-10 text-ink-60 dark:border-[rgba(237,232,223,0.13)]': ! $store.favourites.has(@js('project-'.$card['id'])),
+                'scale-130': pop,
+            }"
+        >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>
+        </button>
         <a
             href="{{ $card['unitsUrl'] }}"
             @click.stop

@@ -55,8 +55,8 @@ class PropertyMatchingTest extends TestCase
 
         Livewire::withCookies([Visitor::COOKIE => $visitor])
             ->test(PropertyMatching::class)
-            ->assertSet('type', (string) $this->types['Villa']->id)
-            ->set('type', (string) $this->types['Penthouse']->id)
+            ->assertSet('type', 'villa')
+            ->set('type', 'penthouse')
             ->set('budgetMin', '2000000')
             ->set('budgetMax', '5000000')
             ->set('fullName', 'Sara Ali')
@@ -79,7 +79,7 @@ class PropertyMatchingTest extends TestCase
     public function test_name_phone_and_email_are_required_and_the_budget_must_make_sense(): void
     {
         Livewire::test(PropertyMatching::class)
-            ->set('type', (string) $this->types['Studio']->id) // not one of the shown chips
+            ->set('type', 'studio') // not one of the shown chips
             ->set('budgetMin', '5000000')
             ->set('budgetMax', '1000000')
             ->set('phone', 'call me')
@@ -98,7 +98,7 @@ class PropertyMatchingTest extends TestCase
         $this->assertSame(0, Inquiry::count());
     }
 
-    public function test_sends_are_limited_per_visitor(): void
+    public function test_tries_are_limited_per_visitor_failed_ones_included(): void
     {
         $send = fn (int $i) => Livewire::test(PropertyMatching::class)
             ->set(['fullName' => 'Sara', 'phone' => "0100123456{$i}", 'email' => "sara{$i}@example.com"])
@@ -107,7 +107,11 @@ class PropertyMatchingTest extends TestCase
         foreach (range(1, 5) as $i) {
             $send($i)->assertHasNoErrors();
         }
-        $send(6)->assertHasErrors('email');
+        // Failed tries count too (so "already sent" can't be used to check many numbers).
+        foreach (range(1, 5) as $i) {
+            Livewire::test(PropertyMatching::class)->set(['fullName' => 'Sara', 'phone' => 'bad', 'email' => 'bad'])->call('send')->assertHasErrors('phone');
+        }
+        $send(6)->assertHasErrors('email')->assertSee('Too many requests.');
 
         $this->assertSame(5, Inquiry::count());
     }

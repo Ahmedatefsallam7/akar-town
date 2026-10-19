@@ -1,7 +1,8 @@
 {{--
     The footer's "Property Matching" form (App\Livewire\Website\PropertyMatching): the design's unit type chips, budget
-    and email, plus name and phone. Looks as in the design (inside the dark footer).
-    @var array<int, string> $types  unit type id => name
+    and email, plus name and phone. Looks as in the design (inside the dark footer). On short screens (≤720px tall) the
+    "Your details" / "Your email" labels hide (the fields' placeholders say it), so the footer's wordmark fits whole.
+    @var array<string, string> $types  unit type slug => name
 --}}
 @php
     $label = 'mb-[0.9rem] block text-[0.68rem] font-semibold tracking-[0.16em] text-cream/55 uppercase rtl:tracking-[0.04em]';
@@ -23,17 +24,17 @@
 
         @if ($types)
             <div class="mb-4 flex flex-wrap gap-[0.4rem]" role="group" aria-label="{{ __('Property type') }}">
-                @foreach ($types as $id => $typeLabel)
+                @foreach ($types as $slug => $typeLabel)
                     <button
                         type="button"
-                        @click="$wire.type = '{{ $id }}'"
+                        @click="$wire.type = '{{ $slug }}'"
                         @class([
                             'cursor-pointer rounded-[99px] border px-[0.9rem] py-[0.38rem] text-[0.78rem] leading-none font-medium transition-[background,border-color,color] duration-200 hover:border-[#c8102e] hover:bg-[#c8102e] hover:text-white',
-                            'border-[#c8102e] bg-[#c8102e] text-white' => $type === (string) $id,
-                            'border-cream/38 bg-transparent text-cream/88' => $type !== (string) $id,
+                            'border-[#c8102e] bg-[#c8102e] text-white' => $type === $slug,
+                            'border-cream/38 bg-transparent text-cream/88' => $type !== $slug,
                         ])
-                        :class="{ 'border-[#c8102e] bg-[#c8102e] text-white': $wire.type === '{{ $id }}', 'border-cream/38 bg-transparent text-cream/88': $wire.type !== '{{ $id }}' }"
-                        :aria-pressed="$wire.type === '{{ $id }}'"
+                        :class="{ 'border-[#c8102e] bg-[#c8102e] text-white': $wire.type === '{{ $slug }}', 'border-cream/38 bg-transparent text-cream/88': $wire.type !== '{{ $slug }}' }"
+                        :aria-pressed="$wire.type === '{{ $slug }}'"
                     >{{ $typeLabel }}</button>
                 @endforeach
             </div>
@@ -51,7 +52,7 @@
                 @error('budgetMax') <span class="{{ $error }}">{{ $message }}</span> @enderror
             </div>
 
-            <span class="{{ $fieldLabel }}">{{ __('Your Details') }}</span>
+            <span class="{{ $fieldLabel }} [@media(max-height:720px)]:hidden">{{ __('Your Details') }}</span>
             <div class="mb-[0.85rem] grid grid-cols-2 gap-[0.4rem] max-xs:grid-cols-1">
                 <div class="flex flex-col">
                     <input type="text" wire:model="fullName" autocomplete="name" class="{{ $input }}" placeholder="{{ __('Full name') }}" aria-label="{{ __('Full name') }}" />
@@ -63,7 +64,7 @@
                 </div>
             </div>
 
-            <span class="{{ $fieldLabel }}">{{ __('Your Email') }}</span>
+            <span class="{{ $fieldLabel }} [@media(max-height:720px)]:hidden">{{ __('Your Email') }}</span>
             <div class="flex items-stretch gap-[0.45rem]">
                 <input type="email" wire:model="email" autocomplete="email" class="{{ $input }}" placeholder="you@example.com" aria-label="{{ __('Your email') }}" />
                 <button

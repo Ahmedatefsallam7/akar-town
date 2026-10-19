@@ -58,8 +58,8 @@
                 <p class="mb-[1.4rem] max-w-[30ch] text-[0.85rem] leading-[1.65] text-cream/78">{{ $business->{'mini_description_'.app()->getLocale()} }}</p>
                 <div class="mb-[1.4rem] flex gap-[clamp(1rem,2.5vw,1.75rem)]">
                     @foreach ([
-                        [$stats['listings'], __('Active Listings')],
-                        [$stats['locations'], __('Locations')],
+                        [$stats['projects'], __('Projects')],
+                        [$stats['developers'], __('Developers')],
                         [$stats['years'].'+', __('Years')],
                     ] as [$value, $statLabel])
                         <div>
@@ -85,18 +85,14 @@
                 @endif
             </div>
 
-            {{-- Properties --}}
+            {{-- Explore --}}
             <div data-reveal>
-                <span class="{{ $label }}">{{ __('Properties') }}</span>
+                <span class="{{ $label }}">{{ __('Explore') }}</span>
                 <ul class="m-0 flex list-none flex-col gap-[0.55rem] p-0 max-sm:gap-[0.45rem]">
-                    <li><a class="{{ $link }}" href="{{ route('properties') }}">{{ __('All Properties') }}</a></li>
-                    <li><a class="{{ $link }}" href="#">{{ __('Villas & Compounds') }}</a></li>
-                    <li><a class="{{ $link }}" href="#">{{ __('Penthouse Collection') }}</a></li>
-                    <li><a class="{{ $link }}" href="#">{{ __('Off-Plan Projects') }}</a></li>
-                    <li><a class="{{ $link }}" href="#">{{ __('North Coast') }}</a></li>
-                    <li><a class="{{ $link }}" href="{{ route('locations') }}">{{ __('Locations') }}</a></li>
+                    <li><a class="{{ $link }}" href="{{ route('properties') }}">{{ __('Properties') }}</a></li>
+                    <li><a class="{{ $link }}" href="{{ route('projects') }}">{{ __('Projects') }}</a></li>
                     <li><a class="{{ $link }}" href="{{ route('developers') }}">{{ __('Developers') }}</a></li>
-                    <li><a class="{{ $link }}" href="{{ route('properties') }}">{{ __('Compare Units') }}</a></li>
+                    <li><a class="{{ $link }}" href="{{ route('locations') }}">{{ __('Locations') }}</a></li>
                 </ul>
             </div>
 
@@ -105,10 +101,7 @@
                 <span class="{{ $label }}">{{ __('Company') }}</span>
                 <ul class="m-0 flex list-none flex-col gap-[0.55rem] p-0 max-sm:gap-[0.45rem]">
                     <li><a class="{{ $link }}" href="{{ route('about') }}">{{ __('About Us') }}</a></li>
-                    <li><a class="{{ $link }}" href="#">{{ __('Our Team') }}</a></li>
-                    <li><a class="{{ $link }}" href="#">{{ __('Success Stories') }}</a></li>
                     <li><a class="{{ $link }}" href="{{ route('careers') }}">{{ __('Careers') }}</a></li>
-                    <li><a class="{{ $link }}" href="#">{{ __('Press & Media') }}</a></li>
                     <li><a class="{{ $link }}" href="{{ route('contact') }}">{{ __('Contact Us') }}</a></li>
                 </ul>
             </div>
@@ -120,7 +113,7 @@
         </div>
 
         {{-- Full-width wordmark, sized to fit by footerReveal --}}
-        <div x-ref="mark" @class(['pointer-events-none relative my-[clamp(1.5rem,4vh,3rem)] flex w-full items-center justify-center overflow-hidden', 'min-h-0 flex-1' => $reveal]) data-reveal aria-hidden="true">
+        <div x-ref="mark" @class(['pointer-events-none relative my-[clamp(1.5rem,4vh,3rem)] flex w-full items-center justify-center overflow-hidden [@media(max-height:720px)]:my-2', 'min-h-0 flex-1' => $reveal]) data-reveal aria-hidden="true">
             <span x-ref="markText" class="inline-block bg-[linear-gradient(rgba(246,245,242,0.5)_0%,rgba(246,245,242,0.4)_45%,rgba(246,245,242,0.1)_72%,rgba(246,245,242,0)_88%)] bg-clip-text text-[clamp(4.5rem,16vw,13rem)] leading-[0.86] font-extrabold tracking-[-0.03em] whitespace-nowrap text-transparent select-none [filter:grayscale(0.4)_brightness(0.6)_contrast(1.05)]">AKAR TOWN</span>
         </div>
 
@@ -136,8 +129,8 @@
                 >8WORX</a>
             </span>
             <div class="flex gap-5">
-                <a href="#" class="text-cream/60 transition-colors duration-300 hover:text-cream focus-visible:text-cream">{{ __('Privacy Policy') }}</a>
-                <a href="#" class="text-cream/60 transition-colors duration-300 hover:text-cream focus-visible:text-cream">{{ __('Terms') }}</a>
+                <a href="{{ route('privacy') }}" class="text-cream/60 transition-colors duration-300 hover:text-cream focus-visible:text-cream">{{ __('Privacy Policy') }}</a>
+                <a href="{{ route('terms') }}" class="text-cream/60 transition-colors duration-300 hover:text-cream focus-visible:text-cream">{{ __('Terms') }}</a>
             </div>
         </div>
     </div>

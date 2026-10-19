@@ -3,8 +3,9 @@
 namespace App\Support\Website;
 
 use Illuminate\Support\Facades\Cache;
+use Modules\Developers\Models\Developer;
 use Modules\GeneralSettings\Settings\AboutUsSettings;
-use Modules\Locations\Models\Location;
+use Modules\Projects\Models\Project;
 use Modules\Units\Models\Unit;
 
 /**
@@ -14,13 +15,16 @@ use Modules\Units\Models\Unit;
 class FooterStats
 {
     /**
-     * @return array{listings: int, locations: int, years: int}
+     * The footer shows projects, developers and years; "listings" is the properties page header's count.
+     *
+     * @return array{listings: int, projects: int, developers: int, years: int}
      */
     public static function get(): array
     {
-        return Cache::remember('website.footer_stats', now()->addMinutes(10), fn () => [
+        return Cache::remember('website.footer_counts', now()->addMinutes(10), fn () => [
             'listings' => Unit::query()->where('is_published', true)->count(),
-            'locations' => Location::query()->where('is_active', true)->count(),
+            'projects' => Project::query()->where('is_published', true)->count(),
+            'developers' => Developer::query()->where('is_published', true)->count(),
             'years' => app(AboutUsSettings::class)->years_of_excellence,
         ]);
     }

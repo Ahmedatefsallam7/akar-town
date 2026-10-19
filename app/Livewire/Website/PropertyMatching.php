@@ -24,8 +24,9 @@ class PropertyMatching extends Component
     /** Unit type chips shown, the first ones in the admin's Lookups order (the design shows four). */
     private const TYPES = 4;
 
-    /** Sends allowed per visitor (IP) per hour. */
-    private const MAX_SENDS = 5;
+    /** Tries allowed per visitor (IP) per hour, failed ones included: the "already sent" answers can't be used to
+     * check many phones / emails. */
+    private const MAX_TRIES = 10;
 
     public string $type = '';
 
@@ -53,11 +54,19 @@ class PropertyMatching extends Component
 
     public function send(): void
     {
+        $key = 'property-matching:'.request()->ip();
+        if (RateLimiter::tooManyAttempts($key, self::MAX_TRIES)) {
+            $this->addError('email', __('Too many requests. Please try again later.'));
+
+            return;
+        }
+        RateLimiter::hit($key, 3600);
+
         // "0100 123-4567" and "01001234567" are one number: separators go before the checks and the save.
         $this->phone = preg_replace('/[\s\-.\/()]+/', '', $this->phone);
 
         $this->validate([
-            'type' => ['nullable', Rule::in(array_map('strval', array_keys($this->types())))],
+            'type' => ['nullable', Rule::in(array_keys($this->types()))],
             'budgetMin' => ['nullable', 'integer', 'min:0', 'max:999999999999'],
             'budgetMax' => ['nullable', 'integer', 'min:0', 'max:999999999999', 'gte:budgetMin'],
             'fullName' => ['required', 'string', 'max:191'],
@@ -75,24 +84,17 @@ class PropertyMatching extends Component
             'email' => __('Email'),
         ]);
 
-        $key = 'property-matching:'.request()->ip();
-        if (RateLimiter::tooManyAttempts($key, self::MAX_SENDS)) {
-            $this->addError('email', __('Too many requests. Please try again later.'));
-
-            return;
-        }
-        RateLimiter::hit($key, 3600);
-
+        // Save the request as a Contact Us message (form "property_matching") with the unit type and budget, which sends it to the CRM.
         Inquiry::create([
             'full_name' => $this->fullName,
             'phone' => $this->phone,
             'email' => $this->email,
             'message' => $this->message(),
-            'form' => 'property_matching',
+            'form' => 'property_matching',  // form name
             'source' => 'Website footer',
             'url' => $this->url,
-            'visitor_id' => Visitor::id(request()),
-            'website_user_id' => auth('website')->id(),
+            'visitor_id' => Visitor::id(request()), // optional, if the visitor has a cookie
+            'website_user_id' => auth('website')->id(), // optional, if the user is logged in even if from different IP or device
         ]);
 
         $this->reset('budgetMin', 'budgetMax', 'fullName', 'phone', 'email');
@@ -112,7 +114,7 @@ class PropertyMatching extends Component
      */
     private function message(): string
     {
-        $type = filled($this->type) ? Lookup::query()->whereKey((int) $this->type)->value('name_en') : null;
+        $type = filled($this->type) ? Lookup::query()->whereKey(SearchOptions::ids('unittype', $this->type))->value('name_en') : null;
         $money = fn (string $value) => 'EGP '.number_format((int) $value);
         $budget = match (true) {
             filled($this->budgetMin) && filled($this->budgetMax) => $money($this->budgetMin).' – '.$money($this->budgetMax),
@@ -129,7 +131,7 @@ class PropertyMatching extends Component
     }
 
     /**
-     * @return array<int, string> lookup id => name
+     * @return array<string, string> lookup slug => name
      */
     private function types(): array
     {

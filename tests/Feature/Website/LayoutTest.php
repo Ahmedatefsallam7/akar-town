@@ -5,9 +5,10 @@ namespace Tests\Feature\Website;
 use App\Support\Website\FooterStats;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Modules\Developers\Models\Developer;
 use Modules\GeneralSettings\Settings\BusinessInfoSettings;
 use Modules\GeneralSettings\Settings\SiteSettings;
-use Modules\Locations\Models\Location;
+use Modules\Projects\Models\Project;
 use Modules\Units\Models\Unit;
 use Tests\TestCase;
 
@@ -47,7 +48,8 @@ class LayoutTest extends TestCase
                 ->assertDontSee('aria-label="Facebook"', false)
                 ->assertSee($business->mini_description_en)
                 ->assertSee(['Property Matching', 'Privacy Policy'])
-                ->assertSee('href="'.route('locations').'"', false);
+                ->assertSee('href="'.route('locations').'"', false)
+                ->assertSee(['href="'.route('wishlist').'"', 'aria-label="Wishlist"'], false);
         }
     }
 
@@ -84,14 +86,26 @@ class LayoutTest extends TestCase
         $this->get(route('projects'))->assertDontSee('bg-transparent border-transparent', false)->assertSee('text-white after:w-full', false);
     }
 
+    public function test_every_footer_link_goes_to_a_page(): void
+    {
+        $footer = str($this->get(route('home'))->getContent())->after('<footer')->before('</footer>');
+
+        $this->assertStringNotContainsString('href="#"', $footer);
+        foreach (['properties', 'projects', 'developers', 'locations', 'about', 'careers', 'contact', 'privacy', 'terms'] as $route) {
+            $this->assertStringContainsString('href="'.route($route).'"', $footer);
+            $this->get(route($route))->assertOk();
+        }
+    }
+
     public function test_footer_numbers_are_counted_once_and_cached(): void
     {
         Unit::factory()->count(2)->create(['is_published' => true]);
         Unit::factory()->create(['is_published' => false]);
-        Location::factory()->create(['is_active' => true]);
-        Location::factory()->create(['is_active' => false]);
+        Project::factory()->count(2)->create(); // each with its own published developer
+        Project::factory()->create(['is_published' => false]);
+        Developer::factory()->create(['is_published' => false]);
 
-        $this->assertSame(['listings' => 2, 'locations' => 1], array_intersect_key(FooterStats::get(), ['listings' => 0, 'locations' => 0]));
+        $this->assertSame(['listings' => 2, 'projects' => 2, 'developers' => 3], array_intersect_key(FooterStats::get(), ['listings' => 0, 'projects' => 0, 'developers' => 0]));
 
         DB::enableQueryLog();
         FooterStats::get();

@@ -10,7 +10,8 @@
     $links = [
         ['route' => 'home', 'label' => __('Home')],
         ['route' => 'properties', 'label' => __('Properties')],
-        ['route' => 'projects', 'label' => __('Projects')],
+        // The design marks Projects on a project's page too (not Properties on a property's page).
+        ['route' => 'projects', 'label' => __('Projects'), 'active' => ['projects', 'projects.show']],
         ['route' => 'developers', 'label' => __('Developers')],
     ];
     $isArabic = app()->getLocale() === 'ar';
@@ -29,7 +30,7 @@
             }"
         @endif
         @class([
-            'fixed inset-x-0 top-0 z-200 flex h-nav items-center justify-between border-b px-12 [transition:background_0.5s_cubic-bezier(0.16,1,0.3,1),border-color_0.5s_ease,box-shadow_0.5s_ease] max-md:px-5',
+            'fixed inset-x-0 top-0 z-200 flex h-nav items-center justify-between border-b px-12 max-xs:px-4! [transition:background_0.5s_cubic-bezier(0.16,1,0.3,1),border-color_0.5s_ease,box-shadow_0.5s_ease] max-md:px-5',
             'border-white/6 bg-[rgba(8,8,8,0.88)] backdrop-blur-[48px] backdrop-saturate-180' => ! $transparent,
             'border-transparent bg-transparent' => $transparent,
         ])
@@ -37,10 +38,10 @@
     >
         <a href="{{ route('home') }}" class="flex shrink-0 items-center" aria-label="{{ __('Akar Town — Home') }}">
             {{-- Smaller on phones (not in the design): at 230px the menu button didn't fit on screens under ~490px. --}}
-            <x-website.logo width="230" class="max-w-full max-sm:w-[110px]" />
+            <x-website.logo width="230" class="max-w-full max-sm:w-[110px] max-xs:w-[88px]" />
         </a>
 
-        <div class="flex items-center gap-[15px] max-sm:gap-[10px]">
+        <div class="flex items-center gap-[15px] max-sm:gap-[10px] max-xs:gap-1.5">
             <ul class="flex list-none items-center gap-[15px] max-md:hidden" role="list">
                 @foreach ($links as $link)
                     <li>
@@ -48,8 +49,8 @@
                             href="{{ route($link['route']) }}"
                             @class([
                                 'relative font-sans text-[12px] font-semibold tracking-[0.18em] uppercase transition-colors duration-250 after:absolute after:-bottom-[5px] after:left-0 after:h-px after:bg-brand after:transition-[width] after:duration-380 after:ease-smooth hover:text-white/95 hover:after:w-full rtl:font-arabic rtl:tracking-[0.02em] rtl:normal-case',
-                                'text-white after:w-full' => ! $transparent && request()->routeIs($link['route']),
-                                'text-white/90 after:w-0' => $transparent || ! request()->routeIs($link['route']),
+                                'text-white after:w-full' => ! $transparent && request()->routeIs($link['active'] ?? $link['route']),
+                                'text-white/90 after:w-0' => $transparent || ! request()->routeIs($link['active'] ?? $link['route']),
                             ])
                         >{{ $link['label'] }}</a>
                     </li>
@@ -84,12 +85,31 @@
                 dir="ltr"
                 role="switch"
                 :aria-checked="arabic"
-                class="relative flex h-[31px] w-20 shrink-0 cursor-pointer items-center rounded-full border border-[rgba(160,50,72,0.45)] bg-[rgba(160,50,72,0.18)] p-[3px] outline-none backdrop-blur-[10px] transition-[box-shadow,border-color] duration-300 hover:border-[rgba(160,50,72,0.7)] rtl:mr-3"
+                class="relative flex h-[31px] w-20 shrink-0 cursor-pointer items-center rounded-full border border-[rgba(160,50,72,0.45)] bg-[rgba(160,50,72,0.18)] p-[3px] outline-none backdrop-blur-[10px] transition-[box-shadow,border-color] duration-300 hover:border-[rgba(160,50,72,0.7)] rtl:mr-3 rtl:max-xs:mr-0"
                 aria-label="{{ __('Switch language') }}"
             >
                 <span class="relative z-1 flex-1 text-center font-sans text-[11px] leading-none font-bold tracking-[0.05em] transition-colors duration-300 select-none" :class="arabic ? 'text-white/50' : 'text-white'">EN</span>
                 <span class="absolute top-[3px] left-[3px] z-0 h-[calc(100%-6px)] w-[calc(50%-3px)] rounded-full bg-brand transition-transform duration-350 ease-spring" :class="arabic && 'translate-x-full'"></span>
                 <span class="relative z-1 flex-1 text-center font-arabic text-[11px] leading-none font-bold tracking-[0.05em] transition-colors duration-300 select-none" :class="arabic ? 'text-white' : 'text-white/50'">عر</span>
+            </a>
+
+            {{-- Wishlist: the saved units and projects (browser only), with their number --}}
+            <a
+                href="{{ route('wishlist') }}"
+                @class([
+                    $iconButton.' '.$tooltip.' transition-[background,border-color,color] duration-250 hover:border-[#c8102e] hover:bg-[rgba(200,16,46,0.85)] hover:text-white',
+                    'border-[#c8102e]! bg-[rgba(200,16,46,0.85)] text-white! [&_path]:fill-current' => request()->routeIs('wishlist'),
+                ])
+                aria-label="{{ __('Wishlist') }}"
+                data-tooltip="{{ __('Wishlist') }}"
+            >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-[14px] flex-none" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>
+                <span
+                    x-show="$store.favourites.ids.length"
+                    x-text="$store.favourites.ids.length > 99 ? '99+' : $store.favourites.ids.length"
+                    style="display: none"
+                    class="pointer-events-none absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full border-[1.5px] border-black/15 bg-[#c8102e] px-[3px] font-sans text-[9px] leading-none font-bold text-white"
+                ></span>
             </a>
 
             <button
@@ -133,8 +153,10 @@
 
     {{-- Mobile drawer: slides in from the end side. --}}
     <div
-        class="pointer-events-none fixed inset-0 z-199 flex flex-col overflow-y-auto bg-[rgba(8,8,8,0.97)] px-8 pt-[calc(var(--spacing-nav)+24px)] pb-12 backdrop-blur-[20px] transition-transform duration-380 ease-drawer ltr:translate-x-full rtl:-translate-x-full"
-        :class="{ 'pointer-events-auto translate-x-0': open, 'pointer-events-none ltr:translate-x-full rtl:-translate-x-full': ! open }"
+        class="pointer-events-none fixed inset-0 z-199 flex flex-col overflow-y-auto bg-[rgba(8,8,8,0.97)] px-8 pt-[calc(var(--spacing-nav)+24px)] pb-12 backdrop-blur-[20px] transition-[translate,visibility] duration-380 ease-drawer invisible ltr:translate-x-full rtl:-translate-x-full"
+        {{-- Closed: also invisible (it stays visible while sliding out). Off-screen alone isn't enough: when the home
+             page shrinks over the footer, the closed drawer showed through the gap as a black line on the side. --}}
+        :class="{ 'pointer-events-auto visible translate-x-0': open, 'pointer-events-none invisible ltr:translate-x-full rtl:-translate-x-full': ! open }"
         :aria-hidden="! open"
     >
         <ul class="mb-8 flex list-none flex-col">
@@ -145,8 +167,8 @@
                         @click="open = false"
                         @class([
                             'block border-b border-white/7 py-4 font-sans text-[28px] font-light tracking-[-0.01em] transition-colors duration-200 hover:text-brand dark:hover:text-ink rtl:font-arabic',
-                            'text-brand dark:text-ink' => request()->routeIs($link['route']),
-                            'text-white/85 dark:text-ink-60' => ! request()->routeIs($link['route']),
+                            'text-brand dark:text-ink' => request()->routeIs($link['active'] ?? $link['route']),
+                            'text-white/85 dark:text-ink-60' => ! request()->routeIs($link['active'] ?? $link['route']),
                         ])
                     >{{ $link['label'] }}</a>
                 </li>
