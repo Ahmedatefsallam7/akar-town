@@ -53,6 +53,9 @@ class SendLeadToCrm implements ShouldQueue
             ->withUserAgent(config('app.name').'/Web')
             ->timeout(config('crm.timeout'))
             ->withoutRedirecting()
+            // A refused send keeps only the HTTP status in its error (the queue saves failed jobs' errors): the
+            // CRM's reply may repeat the lead's personal details.
+            ->truncateExceptionsAt(0)
             ->post('api/v1/lead_generation/web_form_routings/storeLead', $this->payload($record->toCrmLead(), (string) $formId))
             ->throw();
 

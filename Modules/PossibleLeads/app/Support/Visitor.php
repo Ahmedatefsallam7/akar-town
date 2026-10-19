@@ -33,6 +33,6 @@ class Visitor
 
     public static function cookie(string $id): Cookie
     {
-        return cookie(self::COOKIE, $id, self::DAYS * 24 * 60, httpOnly: false, sameSite: 'lax');
+        return cookie(self::COOKIE, $id, self::DAYS * 24 * 60, httpOnly: true, sameSite: 'lax');
     }
 }

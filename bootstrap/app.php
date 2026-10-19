@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureSiteIsLive;
+use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetLocale;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -15,6 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->append(SecurityHeaders::class);
+
         $middleware->web(append: [
             SetLocale::class,
             EnsureSiteIsLive::class,

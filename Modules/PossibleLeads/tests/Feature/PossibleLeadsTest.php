@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Livewire\Livewire;
+use Modules\GeneralSettings\Settings\SiteSettings;
 use Modules\Inquiry\Models\Inquiry;
 use Modules\Inquiry\Models\Meeting;
 use Modules\PossibleLeads\Filament\Resources\PossibleLeadResource;
@@ -28,6 +29,11 @@ class PossibleLeadsTest extends TestCase
     {
         parent::setUp();
         Queue::fake(); // leads go to the CRM in the background; not under test here
+
+        // Click tracking is closed while the website is offline.
+        $site = app(SiteSettings::class);
+        $site->is_live = true;
+        $site->save();
     }
 
     public function test_the_website_records_form_whatsapp_and_phone_clicks_with_the_page_and_listing(): void
@@ -35,7 +41,7 @@ class PossibleLeadsTest extends TestCase
         $unit = Unit::factory()->create();
         $project = Project::factory()->create();
 
-        $first = $this->postJson(route('api.possible-leads.track'), ['click_type' => 'whatsapp', 'page_url' => 'https://akartown.com/properties/garden-villa', 'unit_id' => $unit->id])
+        $first = $this->postJson(route('api.possible-leads.track'), ['click_type' => 'whatsapp', 'page_url' => url('/properties/garden-villa'), 'unit_id' => $unit->id])
             ->assertCreated()
             ->assertCookie(Visitor::COOKIE);
         $visitor = $first->getCookie(Visitor::COOKIE, false)->getValue();
@@ -44,7 +50,7 @@ class PossibleLeadsTest extends TestCase
             ->postJson(route('api.possible-leads.track'), ['click_type' => 'phone', 'project_id' => $project->id])
             ->assertCreated();
         $this->withCredentials()->withUnencryptedCookie(Visitor::COOKIE, $visitor)
-            ->postJson(route('api.possible-leads.track'), ['click_type' => 'form', 'page_url' => 'https://akartown.com/contact'])
+            ->postJson(route('api.possible-leads.track'), ['click_type' => 'form', 'page_url' => url('/contact')])
             ->assertCreated();
 
         $this->assertSame(['whatsapp', 'phone', 'form'], PossibleLead::orderBy('id')->pluck('click_type')->all());

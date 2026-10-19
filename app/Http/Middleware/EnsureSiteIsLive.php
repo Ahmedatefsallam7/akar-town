@@ -23,8 +23,9 @@ class EnsureSiteIsLive
     }
 
     /**
-     * Livewire has one update URL for the whole site, so only let through requests sent from an admin page (a public
-     * form left open in a browser can't keep submitting while the site is offline).
+     * Livewire has one update URL for the whole site, so only let through requests sent from an admin page by a
+     * logged-in admin user (a public form left open in a browser can't keep submitting while the site is offline,
+     * even with a faked Referer header).
      */
     private function isAdminLivewireRequest(Request $request): bool
     {
@@ -34,6 +35,6 @@ class EnsureSiteIsLive
 
         $from = parse_url((string) $request->headers->get('referer'), PHP_URL_PATH) ?? '';
 
-        return $from === '/admin' || str_starts_with($from, '/admin/');
+        return ($from === '/admin' || str_starts_with($from, '/admin/')) && auth('web')->check();
     }
 }
