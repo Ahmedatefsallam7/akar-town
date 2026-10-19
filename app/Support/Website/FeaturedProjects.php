@@ -41,7 +41,7 @@ class FeaturedProjects
                 'badge' => $status instanceof Lookup ? $status->getLocalized('name') : __('Featured'),
                 'location' => LocationTree::place([$project->country_id, $project->city_id, $project->region_id, $project->area_id, $project->sub_area_id]),
                 'price' => $project->price_from ? __('Starting from EGP :price', ['price' => number_format($project->price_from)]) : null,
-                'image' => Image::orPlaceholder($photos->first()),
+                'image' => Image::orPlaceholder($photos->first(), 'card'),
                 'images' => Image::photos($photos),
                 'url' => route('projects.show', $project->slug),
             ];

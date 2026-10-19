@@ -73,7 +73,7 @@
         </div>
     </main>
 
-    @if ($total > count($cards))
+    @if ($more)
         <x-website.load-more>{{ __('Load More Projects') }}</x-website.load-more>
     @endif
 </div>

@@ -40,15 +40,31 @@ export default ({ count, latitude, longitude, place }) => ({
             if (e.key === 'ArrowRight') this.go(this.current + 1)
         })
 
-        if (this.$refs.map && latitude && longitude) this.map()
+        // The second photo once the page has loaded, so a swipe shows it at once.
+        if (document.readyState === 'complete') this.photo(1)
+        else window.addEventListener('load', () => this.photo(1), { once: true })
+
         if (this.$refs.similar) this.similar()
     },
 
     go(index) {
-        if (count) this.current = (index + count) % count
+        if (!count) return
+        this.current = (index + count) % count
+        this.photo(this.current)
+        this.photo(this.current + 1)
     },
 
+    // Gives a slider photo its URL (they wait in data-src until needed).
+    photo(index) {
+        const img = this.$refs.gallery?.querySelector(`[data-photo="${index % count}"][data-src]`)
+        if (!img) return
+        img.src = img.dataset.src
+        img.removeAttribute('data-src')
+    },
+
+    // Loaded when the map comes near the screen (x-intersect in the view): Leaflet and its tiles are heavy.
     async map() {
+        if (!latitude || !longitude) return
         const { default: L } = await import('leaflet')
         await import('leaflet/dist/leaflet.css')
         const map = L.map(this.$refs.map, { zoomControl: true, scrollWheelZoom: false }).setView([latitude, longitude], 14)

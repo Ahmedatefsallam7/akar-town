@@ -82,7 +82,8 @@
                         aria-label="{{ $slide['title'] }}"
                         aria-roledescription="slide"
                     >
-                        <div data-bg class="absolute inset-x-0 -top-[5%] h-[110%] w-full bg-cover bg-center will-change-transform" style="background-image: url('{{ $slide['image'] }}')" aria-hidden="true"></div>
+                        {{-- Only the first photo loads with the page; the others once it has loaded (hero.js). --}}
+                        <div data-bg class="absolute inset-x-0 -top-[5%] h-[110%] w-full bg-cover bg-center will-change-transform" @if ($i === 0) style="background-image: url('{{ $slide['image'] }}')" @else data-bg-src="{{ $slide['image'] }}" @endif aria-hidden="true"></div>
                         <div class="absolute inset-0 bg-[linear-gradient(105deg,rgba(5,5,5,0.72)_0%,rgba(5,5,5,0.38)_44%,rgba(5,5,5,0.08)_75%,rgba(5,5,5,0)_100%),linear-gradient(rgba(5,5,5,0.45)_0%,rgba(5,5,5,0)_22%),linear-gradient(0deg,rgba(5,5,5,0.55)_0%,rgba(5,5,5,0)_40%)] rtl:bg-[linear-gradient(255deg,rgba(5,5,5,0.72)_0%,rgba(5,5,5,0.38)_44%,rgba(5,5,5,0.08)_75%,rgba(5,5,5,0)_100%),linear-gradient(rgba(5,5,5,0.45)_0%,rgba(5,5,5,0)_22%),linear-gradient(0deg,rgba(5,5,5,0.55)_0%,rgba(5,5,5,0)_40%)]" aria-hidden="true"></div>
                         <div class="absolute start-[calc(124px+48px)] end-12 top-1/2 z-5 max-w-none -translate-y-1/2 rtl:end-auto max-md:inset-x-5">
                             <div data-text class="mb-[22px] flex items-center gap-[14px] will-change-[transform,opacity,filter]">

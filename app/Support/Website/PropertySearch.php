@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Modules\Locations\Models\Location;
 use Modules\Lookups\Models\Lookup;
 use Modules\Lookups\Support\LocationTree;
+use Modules\Projects\Models\Project;
 use Modules\Units\Models\Unit;
 
 /**
@@ -36,24 +37,26 @@ class PropertySearch
                 ->orWhere(fn (Builder $query) => static::inPlaces($query, LocationTree::startingWith($q))));
         }
 
-        static::whereIn($query, 'property_type_id', $filters['type'] ?? []);
-        static::whereIn($query, 'finishing_type_id', $filters['finishing'] ?? []);
-        static::counts($query, 'bedrooms', $filters['beds'] ?? []);
-        static::counts($query, 'bathrooms', $filters['baths'] ?? []);
-        static::ranges($query, 'price', $filters['price'] ?? []);
-        static::ranges($query, 'area', $filters['area'] ?? []);
+        static::whereIn($query, 'property_type_id', SearchOptions::ids('unittype', $filters['type'] ?? []));
+        static::whereIn($query, 'finishing_type_id', SearchOptions::ids('finishingtype', $filters['finishing'] ?? []));
+        static::counts($query, 'bedrooms', static::strings($filters['beds'] ?? []));
+        static::counts($query, 'bathrooms', static::strings($filters['baths'] ?? []));
+        static::ranges($query, 'price', static::strings($filters['price'] ?? []));
+        static::ranges($query, 'area', static::strings($filters['area'] ?? []));
         static::between($query, 'area', $filters['area_min'] ?? null, $filters['area_max'] ?? null);
         static::between($query, 'floor', $filters['floor_min'] ?? null, $filters['floor_max'] ?? null);
-        static::statuses($query, (array) ($filters['status'] ?? []), $filters['intent'] ?? null, $filters['category'] ?? null);
+        static::statuses($query, static::strings($filters['status'] ?? []), $filters['intent'] ?? null, $filters['category'] ?? null);
 
-        foreach (array_filter((array) ($filters['amenities'] ?? []), 'is_numeric') as $amenity) {
-            $query->whereHas('lookups', fn (Builder $query) => $query->where('lookups.id', (int) $amenity));
+        foreach (SearchOptions::ids('amenities', $filters['amenities'] ?? []) as $amenity) {
+            $query->whereHas('lookups', fn (Builder $query) => $query->where('lookups.id', $amenity));
         }
 
         static::inLocation($query, $filters['location'] ?? null);
 
-        if (is_numeric($filters['project'] ?? null)) {
-            $query->where('project_id', (int) $filters['project']);
+        // By slug; an unknown one is ignored, like the other filters.
+        $project = $filters['project'] ?? null;
+        if (is_string($project) && $id = Project::query()->where('slug', $project)->where('is_published', true)->value('id')) {
+            $query->where('project_id', $id);
         }
 
         return match ($filters['sort'] ?? null) {
@@ -65,15 +68,23 @@ class PropertySearch
     }
 
     /**
-     * @param  array<int|string>  $ids
+     * @param  list<int>  $ids
      */
     private static function whereIn(Builder $query, string $column, array $ids): void
     {
-        $ids = array_map('intval', array_filter($ids, 'is_numeric'));
-
         if ($ids) {
             $query->whereIn($column, $ids);
         }
+    }
+
+    /**
+     * A list filter's plain values: anything else in the URL (e.g. "beds[0][]=1") is ignored.
+     *
+     * @return list<string>
+     */
+    private static function strings(mixed $values): array
+    {
+        return array_values(array_map('strval', array_filter((array) $values, 'is_scalar')));
     }
 
     /**
@@ -174,7 +185,7 @@ class PropertySearch
      */
     public static function inLocation(Builder $query, ?string $slug): void
     {
-        if (blank($slug) || ! $location = Location::query()->where('slug', $slug)->first()) {
+        if (blank($slug) || ! $location = Location::query()->where('slug', $slug)->where('is_active', true)->first()) {
             return;
         }
 

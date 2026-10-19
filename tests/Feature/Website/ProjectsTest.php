@@ -91,7 +91,10 @@ class ProjectsTest extends TestCase
         ]);
         $this->assertCount(2, $card['tags']);
         $this->assertSame(route('projects.show', $project->slug), $card['url']);
-        $this->assertSame(route('properties', ['project' => $project->id]), $card['unitsUrl']);
+        $this->assertSame(route('properties', ['project' => $project->slug]), $card['unitsUrl']);
+
+        // The card's wishlist heart saves the project as "project-<id>".
+        $this->get(route('projects'))->assertSee(["\$store.favourites.toggle('project-{$project->id}')", 'Save to Wishlist'], false);
     }
 
     public function test_search_location_type_status_developer_and_sort(): void
@@ -114,10 +117,11 @@ class ProjectsTest extends TestCase
         $this->assertSame(['Garden Villas'], $this->names(['q' => 'garden']));
         $this->assertSame(['Garden Villas'], $this->names(['q' => 'sod'])); // the developer
         $this->assertSame(['Sky Tower'], $this->names(['q' => 'north'])); // the place
-        $this->assertSame(['Garden Villas'], $this->names(['type' => (string) $types['villa']->id]));
-        $this->assertSame(['Garden Villas'], $this->names(['type' => [(string) $types['villa']->id]])); // the quick search's list
-        $this->assertSame(['Sky Tower'], $this->names(['status' => (string) $statuses['ready-to-move']->id]));
-        $this->assertSame(['Garden Villas'], $this->names(['developer' => (string) $sodic->id]));
+        $this->assertSame(['Garden Villas'], $this->names(['type' => 'villa']));
+        $this->assertSame(['Garden Villas'], $this->names(['type' => ['villa']])); // the quick search's list
+        $this->assertSame(['Sky Tower'], $this->names(['status' => 'ready-to-move']));
+        $this->assertSame(['Garden Villas'], $this->names(['developer' => $sodic->slug]));
+        $this->assertCount(2, $this->names(['developer' => (string) $sodic->id])); // ids aren't accepted
 
         Location::factory()->create(['slug' => 'north-coast-page', 'country_id' => $egypt->id, 'city_id' => $coast->id]);
         $this->assertSame(['Sky Tower'], $this->names(['location' => 'north-coast-page']));
@@ -138,7 +142,7 @@ class ProjectsTest extends TestCase
 
         Livewire::withQueryParams(['intent' => 'new', 'category' => 'off-plan', 'type' => ['']])
             ->test(Projects::class)
-            ->assertSet('status', (string) $statuses['off-plan']->id)
+            ->assertSet('status', 'off-plan')
             ->assertSee('Plan Project')
             ->assertDontSee('Ready Project');
     }
@@ -154,7 +158,7 @@ class ProjectsTest extends TestCase
             ->assertViewHas('cards', fn ($cards) => count($cards) === 6)
             ->call('loadMore')
             ->assertViewHas('cards', fn ($cards) => count($cards) === 8)
-            ->set('status', (string) $statuses['ready-to-move']->id)
+            ->set('status', 'ready-to-move')
             ->assertViewHas('total', 1)
             ->assertSee('The Ready One')
             ->call('clear')

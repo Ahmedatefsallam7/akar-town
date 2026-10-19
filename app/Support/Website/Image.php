@@ -5,8 +5,9 @@ namespace App\Support\Website;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 /**
- * Image URLs for the website: a WebP size when it has been made, otherwise the original upload. Photos that are
- * missing (a unit, project or location without any) show the placeholder: the design's villa sketch.
+ * Image URLs for the website: a WebP size when it has been made ("card" ~900px for cards, "large" 1920px for full
+ * views), otherwise the original upload. Photos that are missing (a unit, project or location without any) show the
+ * placeholder: the design's villa sketch.
  */
 class Image
 {
@@ -33,12 +34,21 @@ class Image
         return $urls ?: [static::placeholder()];
     }
 
+    /**
+     * The asked size, else the large one, else the original (sizes are made in the background after an upload).
+     */
     public static function url(?Media $media, string $conversion = 'large'): ?string
     {
         if (! $media) {
             return null;
         }
 
-        return $media->hasGeneratedConversion($conversion) ? $media->getUrl($conversion) : $media->getUrl();
+        foreach (array_unique([$conversion, 'large']) as $size) {
+            if ($media->hasGeneratedConversion($size)) {
+                return $media->getUrl($size);
+            }
+        }
+
+        return $media->getUrl();
     }
 }

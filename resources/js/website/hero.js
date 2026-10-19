@@ -36,6 +36,16 @@ export default (slides) => ({
         let swiper = null
         let previews = null
 
+        // The other slides' photos wait until the page has loaded (or the first slide change), so the first photo
+        // and the page come first.
+        const loadPhotos = () =>
+            $$('[data-bg-src]').forEach((bg) => {
+                bg.style.backgroundImage = `url('${bg.dataset.bgSrc}')`
+                bg.removeAttribute('data-bg-src')
+            })
+        if (document.readyState === 'complete') loadPhotos()
+        else window.addEventListener('load', loadPhotos, { once: true })
+
         const getSlide = (i) => $(`[data-slide="${i}"]`)
         const getThumb = (i) => $(`[data-thumb="${i}"]`)
         const pad = (n) => String(n + 1).padStart(2, '0')
@@ -106,6 +116,7 @@ export default (slides) => ({
             stage.appendChild(cnv)
             const ctx = cnv.getContext('2d')
 
+            loadPhotos()
             new Image().src = slides[(toIdx + 1) % slides.length].image
 
             const fromBg = fromSlide.querySelector('[data-bg]')

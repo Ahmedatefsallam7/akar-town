@@ -81,6 +81,8 @@ class Gallery extends Model implements HasMedia
         $crop = function () {
             $this->addMediaConversion('thumb')->fit(Fit::Crop, 160, 160)->format('webp')->nonQueued();
             $this->addMediaConversion('large')->fit(Fit::Max, 1920, 1920)->format('webp')->queued();
+            // The cards' size (a unit card's photos come from its gallery).
+            $this->addMediaConversion('card')->fit(Fit::Max, 900, 900)->format('webp')->queued();
         };
         $whole = fn () => $this->addMediaConversion('thumb')->fit(Fit::Max, 160, 160)->format('webp')->nonQueued();
 

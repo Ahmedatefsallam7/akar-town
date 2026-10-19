@@ -172,7 +172,7 @@
         </div>
     </div>
 
-    @if ($total > count($cards))
+    @if ($more)
         <x-website.load-more>{{ __('Load More Properties') }}</x-website.load-more>
     @endif
 </div>

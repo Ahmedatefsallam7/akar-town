@@ -27,7 +27,8 @@ class ProjectCards
     {
         return $query
             ->with([
-                'developer:id,name_en,name_ar',
+                // Only a published developer is named.
+                'developer' => fn ($query) => $query->where('is_published', true)->select('id', 'name_en', 'name_ar'),
                 'media' => fn ($query) => $query->where('collection_name', Project::FEATURED_IMAGE),
                 'lookups' => fn ($query) => $query->wherePivotIn('type', ['projectstatus', 'amenities'])->select('lookups.id', 'lookups.slug', 'name_en', 'name_ar')->orderBy('lookups.order'),
             ])
@@ -59,9 +60,9 @@ class ProjectCards
                 'delivery' => $delivery ? 'Q'.$delivery->quarter.' '.$delivery->year : null,
                 'tags' => $amenities->take(self::TAGS)->all(),
                 'more' => max(0, $amenities->count() - self::TAGS),
-                'image' => Image::orPlaceholder($project->getFirstMedia(Project::FEATURED_IMAGE)),
+                'image' => Image::orPlaceholder($project->getFirstMedia(Project::FEATURED_IMAGE), 'card'),
                 'url' => route('projects.show', $project->slug),
-                'unitsUrl' => route('properties', ['project' => $project->id]),
+                'unitsUrl' => route('properties', ['project' => $project->slug]),
             ];
         })->all();
     }

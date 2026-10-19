@@ -116,6 +116,11 @@ class Location extends Model implements HasMedia
                     ->fit(Fit::Max, 1920, 1920)
                     ->format('webp')
                     ->queued();
+                // The cards' size (home destinations).
+                $this->addMediaConversion('card')
+                    ->fit(Fit::Max, 900, 900)
+                    ->format('webp')
+                    ->queued();
             });
     }
 }

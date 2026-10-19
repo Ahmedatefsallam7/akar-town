@@ -12,6 +12,7 @@ use Livewire\Livewire;
 use Modules\GeneralSettings\Settings\SiteSettings;
 use Modules\Locations\Models\Location;
 use Modules\Lookups\Models\Lookup;
+use Modules\Projects\Models\Project;
 use Modules\Units\Models\Unit;
 use Tests\TestCase;
 
@@ -55,6 +56,24 @@ class PropertiesTest extends TestCase
             ->assertSee(['Discover <em>Exceptional</em> Properties', 'Available Properties', 'Apply Filters'], false);
     }
 
+    public function test_without_filters_the_count_comes_from_the_cache(): void
+    {
+        Unit::factory()->count(2)->create(['name_en' => 'Garden Villa']);
+        Unit::factory()->create(['name_en' => 'Sea Chalet']);
+        $countsUnits = fn () => collect(DB::getQueryLog())->contains(fn (array $query) => str_contains($query['query'], 'count(*)') && str_contains($query['query'], '"units"'));
+
+        $component = Livewire::test(Properties::class); // warms the footer's cached count
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+        Livewire::test(Properties::class)->assertViewHas('total', 3);
+        $this->assertFalse($countsUnits());
+
+        // A filter counts its own matches.
+        DB::flushQueryLog();
+        $component->set('q', 'Garden')->call('apply')->assertViewHas('total', 2);
+        $this->assertTrue($countsUnits());
+    }
+
     public function test_search_by_name_counts_price_and_area(): void
     {
         Unit::factory()->create(['name_en' => 'Sky Villa', 'bedrooms' => 3, 'bathrooms' => 2, 'price' => 3000000, 'area' => 200]);
@@ -95,8 +114,15 @@ class PropertiesTest extends TestCase
         $this->assertSame(['Plan Tower', 'Sale Villa'], $this->names(['intent' => 'buy']));
         $this->assertSame(['Sale Villa'], $this->names(['intent' => 'buy', 'category' => 'primary']));
         $this->assertSame(['Rent Flat'], $this->names(['intent' => 'rent']));
-        $this->assertSame(['Sale Villa'], $this->names(['type' => [(string) $types['villa']]]));
-        $this->assertSame(['Sale Villa'], $this->names(['amenities' => [$amenities['pool'], $amenities['gym']]]));
+        $this->assertSame(['Sale Villa'], $this->names(['type' => ['villa']]));
+        // A project card's "units" link filters by the project's slug (an unknown one is ignored).
+        $project = Project::factory()->create();
+        $sale->update(['project_id' => $project->id]);
+        $this->assertSame(['Sale Villa'], $this->names(['project' => $project->slug]));
+        $this->assertCount(3, $this->names(['project' => (string) $project->id]));
+        // Filters name values by slug: a database id matches nothing.
+        $this->assertCount(3, $this->names(['type' => [(string) $types['villa']]]));
+        $this->assertSame(['Sale Villa'], $this->names(['amenities' => ['pool', 'gym']]));
         // A place's name finds the properties there.
         $this->assertSame(['Rent Flat'], $this->names(['q' => 'north']));
 

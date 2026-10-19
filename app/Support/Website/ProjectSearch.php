@@ -4,6 +4,7 @@ namespace App\Support\Website;
 
 use App\Filament\Support\PrefixSearch;
 use Illuminate\Database\Eloquent\Builder;
+use Modules\Developers\Models\Developer;
 use Modules\Lookups\Support\LocationTree;
 use Modules\Projects\Models\Project;
 
@@ -37,13 +38,15 @@ class ProjectSearch
 
         // Lookups the project picked (its unit types, its status).
         foreach (['type' => 'unittype', 'status' => 'projectstatus'] as $filter => $type) {
-            if (is_numeric($id = static::first($filters[$filter] ?? null))) {
-                $query->whereHas('lookups', fn (Builder $query) => $query->where('lookups.id', (int) $id)->where('lookupables.type', $type));
+            if ($id = SearchOptions::ids($type, static::first($filters[$filter] ?? null))[0] ?? null) {
+                $query->whereHas('lookups', fn (Builder $query) => $query->where('lookups.id', $id)->where('lookupables.type', $type));
             }
         }
 
-        if (is_numeric($developer = static::first($filters['developer'] ?? null))) {
-            $query->where('developer_id', (int) $developer);
+        // By slug; an unknown one is ignored, like the other filters.
+        $developer = static::first($filters['developer'] ?? null);
+        if (is_string($developer) && $id = Developer::query()->where('slug', $developer)->where('is_published', true)->value('id')) {
+            $query->where('developer_id', $id);
         }
 
         return static::sort($query, $filters['sort'] ?? 'featured');

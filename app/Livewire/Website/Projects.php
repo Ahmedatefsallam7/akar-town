@@ -6,11 +6,9 @@ use App\Support\Website\ProjectCards;
 use App\Support\Website\ProjectSearch;
 use App\Support\Website\SearchOptions;
 use Illuminate\Contracts\View\View;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\Url;
 use Livewire\Component;
-use Modules\Developers\Models\Developer;
-use Modules\Locations\Models\Location;
-use Modules\Lookups\Models\Lookup;
 
 /**
  * The projects listing (the design's projects.html): header with the number of matching projects, filters that apply
@@ -20,6 +18,9 @@ use Modules\Lookups\Models\Lookup;
 class Projects extends Component
 {
     private const BATCH = 6;
+
+    /** Most cards one page shows ("Load More" stops here), so one request stays light. */
+    private const MAX = 96;
 
     #[Url(except: '')]
     public string $q = '';
@@ -41,16 +42,20 @@ class Projects extends Component
     #[Url(except: '')]
     public string $sort = '';
 
+    /** Changed only by the server (loadMore / filters), never by the browser. */
+    #[Locked]
     public int $shown = self::BATCH;
 
     public function mount(): void
     {
-        $this->type = (string) (is_array($this->type) ? (array_values($this->type)[0] ?? '') : $this->type);
-        $this->status = (string) (is_array($this->status) ? (array_values($this->status)[0] ?? '') : $this->status);
+        // The quick search sends lists (type[]=…): keep the first plain value.
+        $first = fn (mixed $value) => is_array($value) ? (array_values($value)[0] ?? '') : $value;
+        $this->type = is_scalar($first($this->type)) ? (string) $first($this->type) : '';
+        $this->status = is_scalar($first($this->status)) ? (string) $first($this->status) : '';
 
         // The quick search's "New Projects → Off-Plan" tab.
-        if (request()->query('category') === ProjectSearch::OFF_PLAN && $this->status === '') {
-            $this->status = (string) (array_search(ProjectSearch::OFF_PLAN, $this->statusSlugs(), true) ?: '');
+        if (request()->query('category') === ProjectSearch::OFF_PLAN && $this->status === '' && isset(SearchOptions::values('projectstatus')[ProjectSearch::OFF_PLAN])) {
+            $this->status = ProjectSearch::OFF_PLAN;
         }
 
         if (! in_array($this->sort, ProjectSearch::SORTS, true)) {
@@ -66,23 +71,12 @@ class Projects extends Component
 
     public function loadMore(): void
     {
-        $this->shown += self::BATCH;
+        $this->shown = min(self::MAX, $this->shown + self::BATCH);
     }
 
     public function clear(): void
     {
         $this->reset('q', 'location', 'type', 'status', 'developer', 'sort', 'shown');
-    }
-
-    /**
-     * @return array<int, string> status lookup id => slug
-     */
-    private function statusSlugs(): array
-    {
-        return Lookup::query()
-            ->whereIn('parent_id', Lookup::query()->select('id')->whereNull('parent_id')->where('slug', 'projectstatus'))
-            ->pluck('slug', 'id')
-            ->all();
     }
 
     public function render(): View
@@ -101,13 +95,12 @@ class Projects extends Component
 
         return view('livewire.website.projects', [
             'total' => $total,
+            'more' => $total > count($projects) && $this->shown < self::MAX,
             'cards' => ProjectCards::from($projects),
-            'locations' => Location::query()->where('is_active', true)->orderBy('order')->orderBy('name_en')->get(['id', 'slug', 'name_en', 'name_ar'])
-                ->mapWithKeys(fn (Location $location) => [$location->slug => $location->getLocalized('name')])->all(),
+            'locations' => SearchOptions::locations(),
             'types' => SearchOptions::values('unittype'),
             'statuses' => SearchOptions::values('projectstatus'),
-            'developers' => Developer::query()->where('is_published', true)->orderBy('name_en')->get(['id', 'name_en', 'name_ar'])
-                ->mapWithKeys(fn (Developer $developer) => [$developer->id => $developer->getLocalized('name')])->all(),
+            'developers' => SearchOptions::developers(),
         ]);
     }
 }

@@ -2,9 +2,12 @@
 
 namespace App\Livewire\Website;
 
+use App\Support\Website\FooterStats;
 use App\Support\Website\PropertyCards;
 use App\Support\Website\PropertySearch;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Arr;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 
@@ -17,6 +20,9 @@ class Properties extends Component
     private const FIRST_PAGE = 6;
 
     private const MORE = 6;
+
+    /** Most cards one page shows ("Load More" stops here), so one request stays light. */
+    private const MAX = 96;
 
     #[Url(except: '')]
     public string $q = '';
@@ -72,6 +78,8 @@ class Properties extends Component
     #[Url(except: '')]
     public string $sort = '';
 
+    /** Changed only by the server (loadMore / filters), never by the browser. */
+    #[Locked]
     public int $perPage = self::FIRST_PAGE;
 
     public function updatedQ(): void
@@ -99,12 +107,12 @@ class Properties extends Component
 
     public function loadMore(): void
     {
-        $this->perPage += self::MORE;
+        $this->perPage = min(self::MAX, $this->perPage + self::MORE);
     }
 
     public function render(): View
     {
-        $query = PropertySearch::query([
+        $filters = [
             'q' => $this->q,
             'type' => $this->type,
             'price' => $this->price,
@@ -123,13 +131,18 @@ class Properties extends Component
             'location' => $this->location,
             'project' => $this->project,
             'sort' => $this->sort,
-        ]);
+        ];
+        $query = PropertySearch::query($filters);
 
-        $total = (clone $query)->reorder()->count();
+        // Without filters it's every published unit: the footer's cached count (no count over the whole table).
+        $total = array_filter(Arr::except($filters, 'sort'), 'filled')
+            ? (clone $query)->reorder()->count()
+            : FooterStats::get()['listings'];
         $units = PropertyCards::eagerLoad($query)->limit($this->perPage)->get();
 
         return view('livewire.website.properties', [
             'total' => $total,
+            'more' => $total > count($units) && $this->perPage < self::MAX,
             'cards' => PropertyCards::from($units),
             'advancedCount' => count(array_filter([$this->areaMin, $this->areaMax, $this->floorMin, $this->floorMax], 'strlen')) + count($this->status) + count($this->amenities),
         ]);
