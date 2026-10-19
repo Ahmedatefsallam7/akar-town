@@ -46,7 +46,7 @@
 
         <div class="shrink-0 border-t border-black/7 bg-transparent px-4 pt-[14px] pb-4 dark:border-line dark:bg-black/25">
             <a
-                :href="@js(route('compare')) + '?ids=' + $store.compare.items.map((item) => item.id).join(',')"
+                :href="@js(route('compare')) + '?units=' + $store.compare.items.map((item) => item.slug).filter(Boolean).join(',')"
                 class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-full border border-white/12 bg-[linear-gradient(135deg,var(--color-brand)_0%,#a00d22_100%)] p-[13px] text-[13px] font-semibold tracking-[0.04em] text-white transition-all duration-300 ease-out-ex hover:-translate-y-0.5 hover:brightness-110"
             >{{ __('Compare Now') }}</a>
         </div>

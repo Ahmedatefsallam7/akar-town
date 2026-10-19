@@ -20,7 +20,7 @@ class FeaturedUnits
     private const PHOTOS = 5;
 
     /**
-     * @return list<array{id: int, title: string, description: ?string, location: string, beds: ?int, baths: ?int, area: ?string, price: ?string, badges: list<array{label: string, style: string}>, images: list<string>, thumb: ?string, url: string}>
+     * @return list<array{id: int, title: string, description: ?string, location: string, beds: ?int, baths: ?int, area: ?string, price: ?string, badges: list<array{label: string, style: string}>, images: list<string>, thumb: ?string, cover: string, slug: string, url: string}>
      */
     public static function get(): array
     {
@@ -65,6 +65,9 @@ class FeaturedUnits
                 'images' => Image::photos($photos),
                 'photos' => $photos->map(fn (Media $media) => Image::url($media))->values()->all(),
                 'thumb' => Image::orPlaceholder($photos->first(), 'thumb'),
+                // The slider's thumbnails (the card size, not the full photo).
+                'cover' => Image::orPlaceholder($photos->first(), 'card'),
+                'slug' => $unit->slug,
                 'url' => route('properties.show', $unit->slug),
             ];
         })->all();

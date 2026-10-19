@@ -40,7 +40,7 @@
                                     class="group/thumb relative aspect-[4/3] min-w-0 flex-1 basis-0 cursor-pointer overflow-hidden rounded-[7px] border-[3px] bg-none p-0 transition-[border-color] duration-300 after:pointer-events-none after:absolute after:inset-0 after:bg-[rgba(13,13,13,0.32)] after:transition-opacity after:duration-300 hover:after:opacity-0"
                                     :class="idx === {{ $i }} ? 'border-brand after:opacity-0' : 'border-white'"
                                 >
-                                    <img src="{{ $unit['images'][0] ?? '' }}" alt="" loading="{{ $i === 0 ? 'eager' : 'lazy' }}" class="block size-full object-cover transition-transform duration-500 group-hover/thumb:scale-107" />
+                                    <img src="{{ $unit['cover'] }}" alt="" loading="{{ $i === 0 ? 'eager' : 'lazy' }}" class="block size-full object-cover transition-transform duration-500 group-hover/thumb:scale-107" />
                                 </button>
                             @endforeach
                         </div>
@@ -82,7 +82,7 @@
                             </button>
                             <button
                                 type="button"
-                                @click="$store.compare.toggle({ id: current.id, title: current.title, thumb: current.images[0] })"
+                                @click="$store.compare.toggle({ id: current.id, slug: current.slug, title: current.title, thumb: current.cover })"
                                 class="{{ $action }}"
                                 :class="$store.compare.has(current.id) ? 'border-brand bg-[rgba(200,16,46,0.08)] text-brand' : 'border-ink-10 text-ink-60 hover:border-ink-30 hover:text-ink'"
                                 :aria-label="$store.compare.has(current.id) ? @js(__('Remove from Compare')) : @js(__('Add to Compare'))"

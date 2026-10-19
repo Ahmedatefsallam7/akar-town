@@ -12,7 +12,7 @@
     $idle = 'border-ink-10 bg-white text-ink-60 dark:border-line dark:bg-surface-1 dark:text-ink-60';
     $badge = 'inline-flex items-center gap-1 rounded px-[10px] py-1 text-[10px] leading-none font-bold tracking-[0.12em] uppercase rtl:font-arabic';
     $badgeStyles = ['gold' => 'bg-brand text-white', 'red' => 'bg-danger text-white', 'ink' => 'bg-[rgba(13,13,13,0.75)] text-white backdrop-blur-[8px]', 'green' => 'bg-[rgb(30,126,82)] text-white'];
-    $compare = ['id' => $card['id'], 'title' => $card['title'], 'thumb' => $card['image']];
+    $compare = ['id' => $card['id'], 'slug' => $card['slug'], 'title' => $card['title'], 'thumb' => $card['image']];
 @endphp
 
 <article

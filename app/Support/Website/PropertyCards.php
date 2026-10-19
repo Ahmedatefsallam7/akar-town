@@ -46,10 +46,11 @@ class PropertyCards
                 ->merge($unit->gallery?->media ?? [])
                 ->filter()
                 ->take(self::PHOTOS);
-            $image = Image::orPlaceholder($photos->first());
+            $image = Image::orPlaceholder($photos->first(), 'card');
 
             return [
                 'id' => $unit->id,
+                'slug' => $unit->slug,
                 'title' => $unit->getLocalized('name'),
                 'url' => route('properties.show', $unit->slug),
                 'type' => $names->get($unit->property_type_id)?->getLocalized('name'),
