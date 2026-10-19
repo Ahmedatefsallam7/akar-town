@@ -16,6 +16,7 @@ use Modules\Lookups\Models\Concerns\HasLookups;
 use Modules\Projects\Database\Factories\ProjectFactory;
 use Modules\Sliders\Models\SliderItem;
 use Modules\Units\Models\Unit;
+use Modules\Users\Models\User;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -60,6 +61,7 @@ class Project extends Model implements HasMedia
         'slug',
         'project_number',
         'developer_id',
+        'agent_id',
         'short_description_en',
         'short_description_ar',
         'description_en',
@@ -126,6 +128,14 @@ class Project extends Model implements HasMedia
         return $this->belongsTo(Developer::class);
     }
 
+    /**
+     * The admin user shown as the sales advisor on the project page (and on its units without their own agent).
+     */
+    public function agent(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'agent_id');
+    }
+
     public function galleries(): HasMany
     {
         return $this->hasMany(Gallery::class);
@@ -163,6 +173,8 @@ class Project extends Model implements HasMedia
         $crop = function () {
             $this->addMediaConversion('thumb')->fit(Fit::Crop, 160, 160)->format('webp')->nonQueued();
             $this->addMediaConversion('large')->fit(Fit::Max, 1920, 1920)->format('webp')->queued();
+            // The cards' size (lists, home grid, wishlist).
+            $this->addMediaConversion('card')->fit(Fit::Max, 900, 900)->format('webp')->queued();
         };
         // Logos and plans are shown whole, never cropped.
         $whole = fn () => $this->addMediaConversion('thumb')->fit(Fit::Max, 160, 160)->format('webp')->nonQueued();

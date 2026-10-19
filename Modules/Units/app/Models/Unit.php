@@ -15,6 +15,7 @@ use Modules\Lookups\Models\Concerns\HasLookups;
 use Modules\Lookups\Support\LocationTree;
 use Modules\Projects\Models\Project;
 use Modules\Units\Database\Factories\UnitFactory;
+use Modules\Users\Models\User;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -70,7 +71,7 @@ class Unit extends Model implements HasMedia
     ];
 
     protected $fillable = [
-        'name_en', 'name_ar', 'slug', 'project_id',
+        'name_en', 'name_ar', 'slug', 'project_id', 'agent_id',
         'offering_type_id', 'property_type_id', 'property_usage_id', 'finishing_type_id', 'furnishing_status_id', 'unit_status_id', 'ownership_type_id',
         'country_id', 'city_id', 'region_id', 'area_id', 'sub_area_id', 'neighbourhood', 'address', 'latitude', 'longitude',
         'is_published', 'is_featured', 'order',
@@ -112,6 +113,14 @@ class Unit extends Model implements HasMedia
         return $this->belongsTo(Project::class);
     }
 
+    /**
+     * The admin user shown as the agent on the property page (the project's agent when empty).
+     */
+    public function agent(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'agent_id');
+    }
+
     public function gallery(): BelongsTo
     {
         return $this->belongsTo(Gallery::class);
@@ -129,6 +138,8 @@ class Unit extends Model implements HasMedia
                 $this->addMediaConversion('thumb')->fit(Fit::Crop, 160, 160)->format('webp')->nonQueued();
                 // The website's size, made in the background (the original is used until then).
                 $this->addMediaConversion('large')->fit(Fit::Max, 1920, 1920)->format('webp')->queued();
+                // The cards' size (lists, sliders, wishlist, compare).
+                $this->addMediaConversion('card')->fit(Fit::Max, 900, 900)->format('webp')->queued();
             });
         // 360° images are kept whole (too big to resize on the server); only the website viewer uses them.
         $this->addMediaCollection(self::IMAGES_360)->useDisk('public');

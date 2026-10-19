@@ -140,6 +140,9 @@ class UserResource extends Resource implements HasPermissionModule
                                     ->maxLength(191),
                                 TextInput::make('email')
                                     ->label(__('admin.users.email'))
+                                    // Your own e-mail changes from the profile page, which asks for the current password.
+                                    ->disabled(fn (?User $record) => $record?->is(auth()->user()))
+                                    ->helperText(fn (?User $record) => $record?->is(auth()->user()) ? __('admin.users.email_from_profile') : null)
                                     ->email()
                                     ->unique(ignoreRecord: true)
                                     ->required()
@@ -165,6 +168,36 @@ class UserResource extends Resource implements HasPermissionModule
                                     ->label(__('admin.users.suspended'))
                                     // You cannot suspend yourself.
                                     ->disabled(fn (?User $record) => $record?->is(auth()->user())),
+                            ])
+                            ->columns(2),
+
+                        Tab::make(__('admin.agents.card'))
+                            ->icon('heroicon-o-identification')
+                            ->schema([
+                                TextInput::make('job_title_en')
+                                    ->label(__('admin.agents.job_title_en'))
+                                    ->helperText(__('admin.agents.card_help'))
+                                    ->maxLength(191),
+                                TextInput::make('job_title_ar')
+                                    ->label(__('admin.agents.job_title_ar'))
+                                    ->maxLength(191),
+                                TextInput::make('whatsapp')
+                                    ->label(__('admin.agents.whatsapp'))
+                                    ->tel()
+                                    ->maxLength(30)
+                                    ->regex('/^\+?[0-9]{7,15}$/')
+                                    ->helperText(__('admin.users.phone_format')),
+                                TextInput::make('rating')
+                                    ->label(__('admin.agents.rating'))
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->maxValue(5)
+                                    ->step(0.1),
+                                TextInput::make('reviews_count')
+                                    ->label(__('admin.agents.reviews_count'))
+                                    ->integer()
+                                    ->minValue(0)
+                                    ->maxValue(1000000),
                             ])
                             ->columns(2),
 

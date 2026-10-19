@@ -10,7 +10,7 @@
     $p = $property;
     $count = count($p['images']);
     $whatsapp = $business->whatsapp ? 'https://wa.me/'.preg_replace('/\D/', '', $business->whatsapp) : null;
-    $compare = ['id' => $p['id'], 'title' => $p['title'], 'thumb' => $p['images'][0] ?? null];
+    $compare = ['id' => $p['id'], 'slug' => $slug, 'title' => $p['title'], 'thumb' => $p['thumbs'][0] ?? null];
     $badge = 'inline-flex items-center gap-1 rounded px-[10px] py-1 text-[10px] leading-none font-bold tracking-[0.12em] uppercase rtl:font-arabic';
     $dark = 'bg-ink text-paper dark:border dark:border-[rgba(237,232,223,0.18)] dark:bg-paper dark:text-black';
     $outline = 'border-[1.5px] border-ink-60 text-ink';
@@ -128,11 +128,11 @@
             <div class="flex animate-slide-in flex-col py-9 pr-[52px] pl-0 rtl:pr-0 rtl:pl-[52px] max-[960px]:px-6! max-[960px]:pt-0! max-[960px]:pb-10!">
                 <div x-ref="gallery" class="relative aspect-[16/10] overflow-hidden rounded-xl bg-[rgb(17,17,17)] select-none">
                     @forelse ($p['images'] as $i => $image)
+                        {{-- Only the first photo loads with the page; the next ones as the slider reaches them (property.js). --}}
                         <img
-                            src="{{ $image }}"
+                            @if ($i === 0) src="{{ $image }}" data-pdf-hero @else data-src="{{ $image }}" @endif
+                            data-photo="{{ $i }}"
                             alt="{{ $p['title'] }}"
-                            @if ($i === 0) data-pdf-hero @endif
-                            loading="{{ $i === 0 ? 'eager' : 'lazy' }}"
                             class="pointer-events-none absolute inset-0 size-full object-cover transition-opacity duration-600 ease-out-ex"
                             :class="{ 'z-1 opacity-100': current === {{ $i }}, 'opacity-0': current !== {{ $i }} }"
                         />
@@ -346,7 +346,7 @@
                                 <svg viewBox="0 0 24 24" fill="currentColor" class="size-[13px] text-brand" aria-hidden="true">{!! $pin !!}</svg>
                                 {{ $p['place'] }}
                             </div>
-                            <div x-ref="map" class="relative z-0 h-[380px] w-full overflow-hidden rounded-xl border border-ink-10 max-[900px]:h-[260px] max-[640px]:h-[220px]"></div>
+                            <div x-ref="map" x-intersect.once.margin.300px="map()" class="relative z-0 h-[380px] w-full overflow-hidden rounded-xl border border-ink-10 max-[900px]:h-[260px] max-[640px]:h-[220px]"></div>
                         </div>
                         <div class="{{ $sep }}"></div>
                     @endif
@@ -382,11 +382,13 @@
                         @if ($business->hotline)
                             <a href="tel:{{ $business->hotline }}" @click="$track('phone', { unit_id: {{ $p['id'] }} })" class="{{ $cardButton }} border-[1.5px] border-white/30 bg-white/15 backdrop-blur-[8px] hover:border-white/50 hover:bg-white/25 dark:border-[rgba(212,20,44,0.35)] dark:bg-[rgba(212,20,44,0.2)] dark:hover:bg-[rgba(212,20,44,0.32)]">{!! $schedule !!}<span>{{ __('Schedule Viewing') }}</span></a>
                         @endif
+                        {{-- when the user fill the form it will tracked --}}
                         <a href="{{ route('contact', ['property' => $slug]) }}" @click="$track('form', { unit_id: {{ $p['id'] }} })" class="{{ $cardButton }} border-[1.5px] border-white/25 bg-white/6 hover:border-white/50 hover:bg-white/13 dark:border-[rgba(237,232,223,0.14)] dark:bg-[rgba(237,232,223,0.06)] dark:hover:bg-[rgba(237,232,223,0.1)]">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
                             <span>{{ __('Send Enquiry') }}</span>
                         </a>
                         <div class="mb-5 grid grid-cols-2 gap-2">
+                            {{-- when the user click on Call or WhatsApp it will tracked --}}
                             @if ($business->hotline)
                                 <a href="tel:{{ $business->hotline }}" @click="$track('phone', { unit_id: {{ $p['id'] }} })" class="flex items-center justify-center gap-[7px] rounded-[44px] border-[1.5px] border-white/30 bg-white/15 px-2 py-[10px] text-[11px] font-semibold tracking-[0.04em] text-white transition-[background,translate] duration-200 hover:-translate-y-px hover:bg-white/25 dark:bg-[rgba(237,232,223,0.1)] dark:hover:bg-[rgba(237,232,223,0.18)] rtl:font-arabic">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-[14px] shrink-0" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.9a16 16 0 0 0 5.92 5.92l.88-.88a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21.2 16.9z" /></svg>
@@ -401,6 +403,50 @@
                             @endif
                         </div>
                     </div>
+
+                    @if ($agent = $p['agent'])
+                        {{-- Agent card: the unit's agent (or its project's), an admin user --}}
+                        <div class="rounded-[14px] border-t-2 border-brand bg-paper p-[22px] dark:border-t-line dark:bg-surface-2">
+                            <div class="mb-[18px] flex items-center gap-[14px]">
+                                @if ($agent['photo'])
+                                    <img src="{{ $agent['photo'] }}" alt="{{ $agent['name'] }}" loading="lazy" class="size-[58px] shrink-0 rounded-full border-2 border-brand object-cover" />
+                                @else
+                                    <span class="flex size-[58px] shrink-0 items-center justify-center rounded-full border-2 border-brand bg-[rgba(200,16,46,0.08)] text-[16px] font-bold text-brand" aria-hidden="true">{{ $agent['initials'] }}</span>
+                                @endif
+                                <div class="min-w-0 flex-1">
+                                    <p class="mb-0.5 text-[14px] font-bold text-ink rtl:font-arabic">{{ $agent['name'] }}</p>
+                                    @if ($agent['role'])
+                                        <p class="mb-1.5 text-[11px] text-ink-60 rtl:font-arabic">{{ $agent['role'] }}</p>
+                                    @endif
+                                    @if ($agent['rating'] !== null)
+                                        <div class="flex items-center gap-0.5" role="img" aria-label="{{ __('Rated :rating out of 5', ['rating' => $agent['rating']]) }}">
+                                            @for ($star = 1; $star <= 5; $star++)
+                                                <svg viewBox="0 0 24 24" fill="currentColor" @class(['size-3', 'text-brand' => $star <= $agent['stars'], 'text-ink-10' => $star > $agent['stars']]) aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
+                                            @endfor
+                                            @if ($agent['reviews'] !== null)
+                                                <span class="ml-1 text-[10px] text-ink-60 rtl:mr-1 rtl:ml-0">({{ trans_choice(':count review|:count reviews', $agent['reviews'], ['count' => number_format($agent['reviews'])]) }})</span>
+                                            @endif
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                            <div @class(['grid gap-2', 'grid-cols-2' => $agent['phone'] && $agent['whatsapp']])>
+                                @php($agentButton = 'flex items-center justify-center gap-1.5 rounded-lg px-2 py-[10px] text-[11px] font-semibold tracking-[0.04em] transition-[background,translate] duration-200 hover:-translate-y-px rtl:font-arabic [&_svg]:size-[13px]')
+                                @if ($agent['phone'])
+                                    <a href="tel:{{ $agent['phone'] }}" @click="$track('phone', { unit_id: {{ $p['id'] }} })" class="{{ $agentButton }} bg-ink text-paper hover:bg-[rgb(26,26,26)] dark:border dark:border-[rgba(237,232,223,0.18)] dark:bg-[rgba(20,17,10,0.92)] dark:text-ink dark:hover:bg-surface-3">
+                                        <x-website.icons.phone />
+                                        <span>{{ __('Call Agent') }}</span>
+                                    </a>
+                                @endif
+                                @if ($agent['whatsapp'])
+                                    <a href="{{ $agent['whatsapp'] }}" target="_blank" rel="noopener noreferrer" @click="$track('whatsapp', { unit_id: {{ $p['id'] }} })" class="{{ $agentButton }} border border-[rgba(37,211,102,0.3)] bg-[rgba(37,211,102,0.12)] text-[rgb(26,158,74)] hover:bg-[rgba(37,211,102,0.2)]">
+                                        <x-website.icons.whatsapp />
+                                        <span>{{ __('Send Message') }}</span>
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
 
                     @if ($p['payment'])
                         <div class="rounded-[14px] border border-[rgba(200,16,46,0.3)] bg-paper p-[22px] dark:border-[rgba(212,20,44,0.2)] dark:bg-surface-2">

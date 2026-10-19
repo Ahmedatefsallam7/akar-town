@@ -39,6 +39,7 @@ use Modules\Lookups\Support\LookupOptions;
 use Modules\Projects\Filament\Resources\ProjectResource\Pages;
 use Modules\Projects\Filament\Resources\ProjectResource\RelationManagers;
 use Modules\Projects\Models\Project;
+use Modules\Users\Filament\Forms\AgentFields;
 
 /**
  * Projects (compounds and developments): the core catalogue. Units, galleries and homepage sliders hang off them.
@@ -134,6 +135,7 @@ class ProjectResource extends Resource implements HasPermissionModule
                                     ->searchable()
                                     ->preload()
                                     ->required(),
+                                AgentFields::select(),
                             ])
                             ->columns(2),
                         SeoFields::tab([SeoFields::slug()]),

@@ -42,6 +42,7 @@ use Modules\Projects\Models\Project;
 use Modules\Units\Filament\Resources\UnitResource\Pages;
 use Modules\Units\Filament\Resources\UnitResource\RelationManagers;
 use Modules\Units\Models\Unit;
+use Modules\Users\Filament\Forms\AgentFields;
 
 /**
  * Properties (units): individual listings for primary, resale or rent.
@@ -137,6 +138,7 @@ class UnitResource extends Resource implements HasPermissionModule
                                     ->preload()
                                     ->live()
                                     ->afterStateUpdated(fn (Set $set, Get $get, ?int $state) => static::takeProjectContext($set, $get, $state)),
+                                AgentFields::select(),
                                 LookupFields::select('offering_type_id', 'offeringtype', static::projectScope('offeringtype'))
                                     ->label(__('admin.units.offering_type'))
                                     ->helperText(__('admin.units.offering_type_help')),

@@ -26,7 +26,12 @@ class PropertyDetails
         $unit->loadMissing([
             'media',
             'gallery.media' => fn ($query) => $query->where('collection_name', Gallery::PHOTOS)->orderBy('order_column'),
-            'project.developer',
+            // Only published: a hidden project or developer isn't named on the page.
+            'project' => fn ($query) => $query->where('is_published', true),
+            'project.developer' => fn ($query) => $query->where('is_published', true),
+            // The unit's agent, or its project's.
+            'agent' => Agent::scope(),
+            'project.agent' => Agent::scope(),
             'lookups:id,name_en,name_ar',
         ]);
 
@@ -88,6 +93,7 @@ class PropertyDetails
             'images' => $photos->map(fn (Media $media) => Image::url($media))->all(),
             'thumbs' => $photos->map(fn (Media $media) => Image::url($media, 'thumb'))->all(),
             'payment' => static::paymentPlan($unit, $delivery),
+            'agent' => Agent::from($unit->agent ?? $unit->project?->agent),
         ];
     }
 

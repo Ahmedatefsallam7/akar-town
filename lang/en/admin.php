@@ -783,6 +783,18 @@ return [
         ],
     ],
 
+    'agents' => [
+        'card' => 'Agent Card',
+        'card_help' => 'Shown on the website as the agent card of the units and projects this user is picked for.',
+        'agent' => 'Agent',
+        'agent_help' => 'An admin user whose agent card (photo, name, job title, rating, call and WhatsApp) shows on the website page.',
+        'job_title_en' => 'Job Title (English)',
+        'job_title_ar' => 'Job Title (Arabic)',
+        'whatsapp' => 'WhatsApp Number',
+        'rating' => 'Rating (0–5)',
+        'reviews_count' => 'Number of Reviews',
+    ],
+
     'users' => [
         'singular' => 'User',
         'plural' => 'Users',
@@ -794,6 +806,7 @@ return [
         'email' => 'Email',
         'phone' => 'Phone',
         'phone_format' => 'Phone number format: +201XXXXXXXX or 01XXXXXXXXX',
+        'email_from_profile' => 'Change your own e-mail from your profile page (it asks for your current password).',
         'password' => 'Password',
         'password_confirmation' => 'Confirm Password',
         'password_leave_blank' => 'Leave blank to keep the current password.',

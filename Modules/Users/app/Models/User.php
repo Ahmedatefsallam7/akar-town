@@ -41,6 +41,11 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasName
         'avatar',
         'username',
         'phone',
+        'job_title_en',
+        'job_title_ar',
+        'whatsapp',
+        'rating',
+        'reviews_count',
         'email',
         'password',
         'is_suspended',
@@ -61,6 +66,8 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasName
             'is_suspended' => 'boolean',
             'password' => 'hashed',
             'custom_permissions' => 'array',
+            'rating' => 'float',
+            'reviews_count' => 'integer',
         ];
     }
 

@@ -68,8 +68,8 @@ class QueryBudgetTest extends TestCase
         'galleries.index' => 5,   // count, page, featured images, projects (column), projects (filter options)
         'galleries.edit' => 5,    // gallery, its media (read once for every upload field), projects (options + current), used by properties? (locks the project)
         'units.index' => 6,       // count, page, images, projects (column), location chain, lookup values
-        'units.edit' => 9,        // unit, picks, its media (read once for every upload field), projects (options + current), the project's choices, galleries, location chain, lookup values
-        'projects.edit' => 6,     // project, picked values, its media (read once for every image field), developers (options + current), location chain, lookup values
+        'units.edit' => 10,       // unit, picks, its media (read once for every upload field), projects (options + current), agents (options), the project's choices, galleries, location chain, lookup values
+        'projects.edit' => 7,     // project, picked values, its media (read once for every image field), developers (options + current), agents (options), location chain, lookup values
         'sliders.index' => 2,     // page (not paginated: a fixed handful of blocks), count
         'settings.home' => 1,     // the page's settings (one query per group)
         'settings.about_us' => 1, // the page's settings

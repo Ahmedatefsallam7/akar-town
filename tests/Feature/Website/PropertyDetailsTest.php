@@ -11,6 +11,7 @@ use Modules\GeneralSettings\Settings\SiteSettings;
 use Modules\Lookups\Models\Lookup;
 use Modules\Projects\Models\Project;
 use Modules\Units\Models\Unit;
+use Modules\Users\Models\User;
 use Tests\TestCase;
 
 /**
@@ -128,6 +129,26 @@ class PropertyDetailsTest extends TestCase
             ->assertSee('Similar Properties')
             ->assertSeeInOrder(['Similar Properties', 'Same Project Unit', 'Other Unit'])
             ->assertDontSee('Draft Unit');
+    }
+
+    public function test_the_agent_card_shows_the_units_agent_or_its_projects(): void
+    {
+        $agent = User::factory()->create(['first_name' => 'Ahmed', 'last_name' => 'Hassan', 'phone' => '01001234567', 'job_title_en' => 'Senior Property Consultant', 'whatsapp' => '+20 100 765 4321', 'rating' => 4.8, 'reviews_count' => 48]);
+        $advisor = User::factory()->create(['first_name' => 'Mona', 'last_name' => 'Adel']);
+        $project = Project::factory()->create(['agent_id' => $advisor->id]);
+        $own = Unit::factory()->create(['project_id' => $project->id, 'agent_id' => $agent->id]);
+        $inherits = Unit::factory()->create(['project_id' => $project->id]);
+
+        $this->get(route('properties.show', $own->slug))
+            ->assertOk()
+            ->assertSee(['Ahmed Hassan', 'Senior Property Consultant', '(48 reviews)', 'Call Agent', 'Send Message', 'Rated 4.8 out of 5'])
+            ->assertSee(['href="tel:01001234567"', 'href="https://wa.me/201007654321"'], false)
+            ->assertDontSee('Mona Adel');
+        $this->get(route('properties.show', $inherits->slug))->assertOk()->assertSee('Mona Adel');
+
+        // A suspended agent (left the company) isn't shown; no agent, no card.
+        $advisor->update(['is_suspended' => true]);
+        $this->get(route('properties.show', $inherits->slug))->assertOk()->assertDontSee(['Mona Adel', 'Call Agent']);
     }
 
     public function test_the_page_in_arabic(): void
