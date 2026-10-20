@@ -128,9 +128,15 @@
             <div class="flex animate-slide-in flex-col py-9 pr-[52px] pl-0 rtl:pr-0 rtl:pl-[52px] max-[960px]:px-6! max-[960px]:pt-0! max-[960px]:pb-10!">
                 <div x-ref="gallery" class="relative aspect-[16/10] overflow-hidden rounded-xl bg-[rgb(17,17,17)] select-none">
                     @forelse ($p['images'] as $i => $image)
-                        {{-- Only the first photo loads with the page; the next ones as the slider reaches them (property.js). --}}
+                        {{-- Only the first photo loads with the page (first, as the page's biggest thing); the next ones as
+                             the slider reaches them (property.js). Phones take the card size. --}}
                         <img
-                            @if ($i === 0) src="{{ $image }}" data-pdf-hero @else data-src="{{ $image }}" @endif
+                            @if ($i === 0)
+                                src="{{ $image }}" srcset="{{ $p['srcsets'][0] }}" fetchpriority="high" data-pdf-hero
+                            @else
+                                data-src="{{ $image }}" data-srcset="{{ $p['srcsets'][$i] }}"
+                            @endif
+                            sizes="(max-width: 960px) 100vw, 62vw"
                             data-photo="{{ $i }}"
                             alt="{{ $p['title'] }}"
                             class="pointer-events-none absolute inset-0 size-full object-cover transition-opacity duration-600 ease-out-ex"

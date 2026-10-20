@@ -92,6 +92,8 @@ class PropertyDetails
             'masterPlan' => Image::url($unit->getFirstMedia(Unit::MASTER_PLAN)),
             'images' => $photos->map(fn (Media $media) => Image::url($media))->all(),
             'thumbs' => $photos->map(fn (Media $media) => Image::url($media, 'thumb'))->all(),
+            // Each photo's sizes, so phones don't download the 1920px one.
+            'srcsets' => $photos->map(fn (Media $media) => Image::srcset($media))->all(),
             'payment' => static::paymentPlan($unit, $delivery),
             'agent' => Agent::from($unit->agent ?? $unit->project?->agent),
         ];

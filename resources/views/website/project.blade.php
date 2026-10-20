@@ -57,7 +57,12 @@
     >
         {{-- Hero --}}
         <section class="relative flex min-h-screen flex-col overflow-hidden bg-[rgb(7,6,10)]" aria-label="{{ __('Project hero') }}">
-            <div x-ref="heroBg" data-pdf-hero class="absolute inset-0 bg-[rgb(7,6,10)] bg-cover bg-center bg-no-repeat brightness-32 saturate-75 transition-transform duration-50 ease-linear will-change-transform" style="background-image: url('{{ $p['image'] }}')" aria-hidden="true"></div>
+            {{-- Phones take the card size; the photo is asked for early (it's the page's biggest thing). --}}
+            @push('head')
+                <link rel="preload" as="image" href="{{ $p['imageSmall'] }}" media="(max-width: 768px)" fetchpriority="high" />
+                <link rel="preload" as="image" href="{{ $p['image'] }}" media="(min-width: 769px)" fetchpriority="high" />
+            @endpush
+            <div x-ref="heroBg" data-pdf-hero class="absolute inset-0 bg-[rgb(7,6,10)] bg-(image:--bg-small) bg-cover bg-center bg-no-repeat brightness-32 saturate-75 transition-transform duration-50 ease-linear will-change-transform min-[769px]:bg-(image:--bg)" style="--bg: url('{{ $p['image'] }}'); --bg-small: url('{{ $p['imageSmall'] }}')" aria-hidden="true"></div>
             <div class="pointer-events-none absolute inset-0 z-1 opacity-4 {{ $grain }}" aria-hidden="true"></div>
             <div class="absolute inset-0 z-2 bg-[linear-gradient(rgba(7,6,10,0.62)_0%,rgba(7,6,10,0.12)_38%,rgba(7,6,10,0.48)_68%,rgba(7,6,10,0.92)_100%)]" aria-hidden="true"></div>
             <div class="pointer-events-none absolute bottom-[60px] left-1/2 z-2 h-[360px] w-[800px] -translate-x-1/2 bg-[radial-gradient(rgba(200,16,46,0.09)_0%,transparent_68%)]" aria-hidden="true"></div>
@@ -349,7 +354,8 @@
 
         {{-- Contact --}}
         <section id="contact" class="relative overflow-hidden bg-[rgb(7,6,10)] pt-[clamp(88px,11vw,144px)] pb-[clamp(80px,10vw,128px)]" aria-label="{{ __('Contact the sales team') }}">
-            <div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-7 grayscale" style="background-image: url('{{ $p['image'] }}')" aria-hidden="true"></div>
+            {{-- Barely visible (7%): the card size is enough. --}}
+            <div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-7 grayscale" style="background-image: url('{{ $p['imageSmall'] }}')" aria-hidden="true"></div>
             <div class="pointer-events-none absolute inset-0 z-1 opacity-4 {{ $grain }}" aria-hidden="true"></div>
             <div class="pointer-events-none absolute -bottom-[60px] left-1/2 z-1 h-[400px] w-[800px] -translate-x-1/2 bg-[radial-gradient(rgba(200,16,46,0.1)_0%,transparent_70%)]" aria-hidden="true"></div>
 

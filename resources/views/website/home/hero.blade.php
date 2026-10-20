@@ -9,6 +9,14 @@
     $navButton = 'group relative flex size-[54px] cursor-pointer items-center justify-center rounded-full border border-glass-border bg-glass text-ink outline-none backdrop-blur-[20px] backdrop-saturate-180 transition-[background,border-color] duration-350 hover:border-brand hover:bg-brand';
 @endphp
 
+@if ($first = $slides[0] ?? null)
+    @push('head')
+        {{-- The first slide's photo is the biggest thing on the screen: ask for it before the CSS finds it. --}}
+        <link rel="preload" as="image" href="{{ $first['imageSmall'] }}" media="(max-width: 768px)" fetchpriority="high" />
+        <link rel="preload" as="image" href="{{ $first['image'] }}" media="(min-width: 769px)" fetchpriority="high" />
+    @endpush
+@endif
+
 <section
     x-data="heroSlider(@js($slides))"
     class="relative h-[88vh] min-h-[580px] w-full overflow-hidden"
@@ -82,8 +90,8 @@
                         aria-label="{{ $slide['title'] }}"
                         aria-roledescription="slide"
                     >
-                        {{-- Only the first photo loads with the page; the others once it has loaded (hero.js). --}}
-                        <div data-bg class="absolute inset-x-0 -top-[5%] h-[110%] w-full bg-cover bg-center will-change-transform" @if ($i === 0) style="background-image: url('{{ $slide['image'] }}')" @else data-bg-src="{{ $slide['image'] }}" @endif aria-hidden="true"></div>
+                        {{-- Only the first photo loads with the page; the others once it has loaded (hero.js). Phones take the card size. --}}
+                        <div data-bg class="absolute inset-x-0 -top-[5%] h-[110%] w-full bg-(image:--bg-small) bg-cover bg-center will-change-transform min-[769px]:bg-(image:--bg)" @if ($i === 0) style="--bg: url('{{ $slide['image'] }}'); --bg-small: url('{{ $slide['imageSmall'] }}')" @else data-bg-src="{{ $slide['image'] }}" data-bg-src-small="{{ $slide['imageSmall'] }}" @endif aria-hidden="true"></div>
                         <div class="absolute inset-0 bg-[linear-gradient(105deg,rgba(5,5,5,0.72)_0%,rgba(5,5,5,0.38)_44%,rgba(5,5,5,0.08)_75%,rgba(5,5,5,0)_100%),linear-gradient(rgba(5,5,5,0.45)_0%,rgba(5,5,5,0)_22%),linear-gradient(0deg,rgba(5,5,5,0.55)_0%,rgba(5,5,5,0)_40%)] rtl:bg-[linear-gradient(255deg,rgba(5,5,5,0.72)_0%,rgba(5,5,5,0.38)_44%,rgba(5,5,5,0.08)_75%,rgba(5,5,5,0)_100%),linear-gradient(rgba(5,5,5,0.45)_0%,rgba(5,5,5,0)_22%),linear-gradient(0deg,rgba(5,5,5,0.55)_0%,rgba(5,5,5,0)_40%)]" aria-hidden="true"></div>
                         <div class="absolute start-[calc(124px+48px)] end-12 top-1/2 z-5 max-w-none -translate-y-1/2 rtl:end-auto max-md:inset-x-5">
                             <div data-text class="mb-[22px] flex items-center gap-[14px] will-change-[transform,opacity,filter]">

@@ -40,7 +40,8 @@ export default (slides) => ({
         // and the page come first.
         const loadPhotos = () =>
             $$('[data-bg-src]').forEach((bg) => {
-                bg.style.backgroundImage = `url('${bg.dataset.bgSrc}')`
+                bg.style.setProperty('--bg', `url('${bg.dataset.bgSrc}')`)
+                bg.style.setProperty('--bg-small', `url('${bg.dataset.bgSrcSmall}')`)
                 bg.removeAttribute('data-bg-src')
             })
         if (document.readyState === 'complete') loadPhotos()
@@ -117,7 +118,8 @@ export default (slides) => ({
             const ctx = cnv.getContext('2d')
 
             loadPhotos()
-            new Image().src = slides[(toIdx + 1) % slides.length].image
+            const nextSlide = slides[(toIdx + 1) % slides.length]
+            new Image().src = window.matchMedia('(max-width: 768px)').matches ? nextSlide.imageSmall : nextSlide.image
 
             const fromBg = fromSlide.querySelector('[data-bg]')
             const toBg = toSlide.querySelector('[data-bg]')

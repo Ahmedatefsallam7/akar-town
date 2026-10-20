@@ -68,6 +68,8 @@ class ProjectDetails
             'amenities' => $listOf('amenities'),
             'nearby' => $listOf('facility'),
             'image' => Image::orPlaceholder($photos->first()),
+            // Phones get the card size (a full-screen photo there is under 900px wide).
+            'imageSmall' => Image::orPlaceholder($photos->first(), 'card'),
             'thumb' => Image::orPlaceholder($photos->first(), 'thumb'),
             'images' => Image::photos($photos),
             'thumbs' => Image::photos($photos, 'thumb'),

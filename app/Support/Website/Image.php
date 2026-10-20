@@ -35,6 +35,21 @@ class Image
     }
 
     /**
+     * The sizes a browser can choose from for an <img srcset> (phones take the card size, big screens the large one);
+     * only the sizes already made. Null when there's nothing to choose.
+     */
+    public static function srcset(?Media $media): ?string
+    {
+        if (! $media) {
+            return null;
+        }
+
+        $sizes = array_filter(['card' => '900w', 'large' => '1920w'], fn (string $width, string $size) => $media->hasGeneratedConversion($size), ARRAY_FILTER_USE_BOTH);
+
+        return count($sizes) > 1 ? implode(', ', array_map(fn (string $size, string $width) => $media->getUrl($size).' '.$width, array_keys($sizes), $sizes)) : null;
+    }
+
+    /**
      * The asked size, else the large one, else the original (sizes are made in the background after an upload).
      */
     public static function url(?Media $media, string $conversion = 'large'): ?string

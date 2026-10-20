@@ -14,7 +14,7 @@ use Modules\Sliders\Models\Slider;
 class HomeHero
 {
     /**
-     * @return list<array{title: string, tagline: ?string, location: string, image: ?string, thumb: ?string, url: string, announce: string}>
+     * @return list<array{title: string, tagline: ?string, location: string, image: ?string, imageSmall: ?string, thumb: ?string, url: string, announce: string}>
      */
     public static function slides(): array
     {
@@ -25,6 +25,8 @@ class HomeHero
             'tagline' => $project->getLocalized('short_description'),
             'location' => LocationTree::place([$project->country_id, $project->city_id, $project->region_id, $project->area_id, $project->sub_area_id]),
             'image' => Image::orPlaceholder($project->getFirstMedia(Project::FEATURED_IMAGE)),
+            // Phones get the card size (a full-screen photo there is under 900px wide).
+            'imageSmall' => Image::orPlaceholder($project->getFirstMedia(Project::FEATURED_IMAGE), 'card'),
             'thumb' => Image::orPlaceholder($project->getFirstMedia(Project::FEATURED_IMAGE), 'thumb'),
             'url' => route('projects.show', $project->slug),
             'announce' => __('Showing :title, property :number of :total', ['title' => $project->getLocalized('title'), 'number' => $i + 1, 'total' => $projects->count()]),

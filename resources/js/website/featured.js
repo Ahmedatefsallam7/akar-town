@@ -56,6 +56,10 @@ export default (items) => ({
 
         const clone = document.createElement('img')
         clone.src = next.images[0] ?? ''
+        if (next.srcset) {
+            clone.srcset = next.srcset
+            clone.sizes = this.$refs.main.sizes
+        }
         clone.style.cssText = `position:fixed;top:${tr.top}px;left:${tr.left}px;width:${tr.width}px;height:${tr.height}px;object-fit:cover;border-radius:8px;z-index:9999;pointer-events:none;will-change:transform`
         document.body.appendChild(clone)
 

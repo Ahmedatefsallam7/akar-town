@@ -20,7 +20,7 @@ class FeaturedUnits
     private const PHOTOS = 5;
 
     /**
-     * @return list<array{id: int, title: string, description: ?string, location: string, beds: ?int, baths: ?int, area: ?string, price: ?string, badges: list<array{label: string, style: string}>, images: list<string>, thumb: ?string, cover: string, slug: string, url: string}>
+     * @return list<array{id: int, title: string, description: ?string, location: string, beds: ?int, baths: ?int, area: ?string, price: ?string, badges: list<array{label: string, style: string}>, images: list<string>, thumb: ?string, srcset: ?string, cover: string, coverSet: ?string, slug: string, url: string}>
      */
     public static function get(): array
     {
@@ -63,10 +63,13 @@ class FeaturedUnits
                     ($status = $names->get($unit->unit_status_id)) ? ['label' => $status->getLocalized('name'), 'style' => 'outline'] : null,
                 ])),
                 'images' => Image::photos($photos),
+                // The main photo's sizes, so phones don't download the 1920px one.
+                'srcset' => Image::srcset($photos->first()),
                 'photos' => $photos->map(fn (Media $media) => Image::url($media))->values()->all(),
                 'thumb' => Image::orPlaceholder($photos->first(), 'thumb'),
-                // The slider's thumbnails (the card size, not the full photo).
+                // The slider's thumbnails: the small size, the card size on sharp (retina) screens.
                 'cover' => Image::orPlaceholder($photos->first(), 'card'),
+                'coverSet' => $photos->first() ? Image::orPlaceholder($photos->first(), 'thumb').' 160w, '.Image::orPlaceholder($photos->first(), 'card').' 900w' : null,
                 'slug' => $unit->slug,
                 'url' => route('properties.show', $unit->slug),
             ];

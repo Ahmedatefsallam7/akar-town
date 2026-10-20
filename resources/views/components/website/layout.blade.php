@@ -31,6 +31,8 @@
         @fonts(['archivo', 'noto-kufi-arabic'])
         @vite(['resources/css/website.css', 'resources/js/website.js'])
         @livewireStyles
+        {{-- A page's first big photo, asked for early (e.g. the home hero). --}}
+        @stack('head')
     </head>
 
     <body class="min-h-screen overflow-x-clip bg-page font-sans leading-[1.6] text-ink selection:bg-brand selection:text-white rtl:text-right rtl:font-arabic">

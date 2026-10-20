@@ -43,10 +43,13 @@ class WebsitePerformanceTest extends TestCase
         $media->generated_conversions = ['thumb' => true, 'large' => true, 'card' => true];
         $this->assertStringEndsWith('-card.webp', Image::url($media, 'card'));
         $this->assertStringEndsWith('-large.webp', Image::url($media));
+        // Both sizes made: the browser picks (phones the card one).
+        $this->assertMatchesRegularExpression('/-card\.webp 900w, .+-large\.webp 1920w$/', Image::srcset($media));
         $media->generated_conversions = ['thumb' => true, 'large' => true, 'card' => false];
         $this->assertStringEndsWith('-large.webp', Image::url($media, 'card'));
         $media->generated_conversions = ['thumb' => true, 'large' => false, 'card' => false];
         $this->assertStringEndsWith('villa.jpg', Image::url($media, 'card'));
+        $this->assertNull(Image::srcset($media)); // nothing to choose from yet
         $this->assertNull(Image::url(null));
     }
 
@@ -82,8 +85,11 @@ class WebsitePerformanceTest extends TestCase
 
         $html = $this->get(route('home'))->assertOk()->getContent();
 
-        $this->assertSame(1, substr_count($html, 'data-bg class="absolute inset-x-0 -top-[5%] h-[110%] w-full bg-cover bg-center will-change-transform"  style="background-image'));
+        $this->assertSame(1, substr_count($html, 'style="--bg: url('));
         $this->assertSame(2, substr_count($html, 'data-bg-src="'));
+        // Phones take the card size, and the first photo is asked for early (in the <head>).
+        $this->assertSame(2, substr_count($html, 'data-bg-src-small="'));
+        $this->assertStringContainsString('<link rel="preload" as="image"', str($html)->before('</head>'));
     }
 
     public function test_only_the_first_property_photo_loads_with_the_page(): void
@@ -97,8 +103,8 @@ class WebsitePerformanceTest extends TestCase
 
         $html = $this->get(route('properties.show', $unit->slug))->assertOk()->getContent();
 
-        $this->assertMatchesRegularExpression('/src="[^"]+"\s+data-pdf-hero\s+data-photo="0"/', $html);
-        $this->assertMatchesRegularExpression('/data-src="[^"]+"\s+data-photo="1"/', $html);
+        $this->assertMatchesRegularExpression('/src="[^"]+" srcset="[^"]*" fetchpriority="high" data-pdf-hero/', $html);
+        $this->assertMatchesRegularExpression('/data-src="[^"]+" data-srcset="[^"]*"/', $html);
         // The map (Leaflet + tiles) loads when it comes near the screen.
         $this->assertStringContainsString('x-intersect.once.margin.300px="map()"', $html);
     }

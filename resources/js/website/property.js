@@ -58,6 +58,7 @@ export default ({ count, latitude, longitude, place }) => ({
     photo(index) {
         const img = this.$refs.gallery?.querySelector(`[data-photo="${index % count}"][data-src]`)
         if (!img) return
+        if (img.dataset.srcset) img.srcset = img.dataset.srcset
         img.src = img.dataset.src
         img.removeAttribute('data-src')
     },
