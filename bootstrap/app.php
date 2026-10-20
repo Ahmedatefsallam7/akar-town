@@ -8,6 +8,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Modules\PossibleLeads\Support\Visitor;
+use Modules\WebsiteUsers\Http\Middleware\EnsureWebsiteUserIsActive;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -21,6 +22,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             SetLocale::class,
             EnsureSiteIsLive::class,
+            // A website user blocked while logged in is signed out on their next page.
+            EnsureWebsiteUserIsActive::class,
         ]);
 
         // Not encrypted: the anonymous visitor id (Possible Leads) is set by a stateless API route, and the website's

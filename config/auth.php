@@ -111,6 +111,14 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
+
+        // Website accounts: their own table, so an admin and a website user with the same e-mail never clash.
+        'website_users' => [
+            'provider' => 'website_users',
+            'table' => 'website_user_password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
     ],
 
     /*

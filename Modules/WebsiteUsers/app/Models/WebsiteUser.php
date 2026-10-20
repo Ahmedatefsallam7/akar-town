@@ -2,6 +2,8 @@
 
 namespace Modules\WebsiteUsers\Models;
 
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -10,12 +12,14 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Mattiverse\Userstamps\Traits\Userstamps;
 use Modules\WebsiteUsers\Database\Factories\WebsiteUserFactory;
+use Modules\WebsiteUsers\Notifications\ResetWebsitePassword;
+use Modules\WebsiteUsers\Notifications\VerifyWebsiteEmail;
 
 /**
  * Someone who registered on the public website (login, favourites…). Logs in with the "website" guard only, never
  * the admin panel. Admins can view, correct and block an account, but never see or set its password.
  */
-class WebsiteUser extends Authenticatable
+class WebsiteUser extends Authenticatable implements HasLocalePreference, MustVerifyEmail
 {
     use HasFactory, Notifiable, SoftDeletes, Userstamps;
 
@@ -65,6 +69,24 @@ class WebsiteUser extends Authenticatable
     protected static function newFactory(): WebsiteUserFactory
     {
         return WebsiteUserFactory::new();
+    }
+
+    /**
+     * The account's e-mails (reset link, verification) are in its language.
+     */
+    public function preferredLocale(): string
+    {
+        return $this->preferred_language ?: 'en';
+    }
+
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new ResetWebsitePassword($token));
+    }
+
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new VerifyWebsiteEmail);
     }
 
     public function isBlocked(): bool

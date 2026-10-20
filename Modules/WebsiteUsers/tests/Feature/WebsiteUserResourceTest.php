@@ -5,7 +5,6 @@ namespace Modules\WebsiteUsers\Tests\Feature;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
 use Livewire\Livewire;
 use Modules\GeneralSettings\Settings\SiteSettings;
 use Modules\Inquiry\Filament\Resources\InquiryResource\Pages\ViewInquiry;
@@ -147,18 +146,19 @@ class WebsiteUserResourceTest extends TestCase
 
     public function test_a_blocked_user_cannot_log_in_and_is_signed_out_on_the_next_request(): void
     {
-        Route::middleware(['web', 'auth:website', 'website.active'])->get('/test-account', fn () => 'my account');
         $site = app(SiteSettings::class);
         $site->is_live = true;
         $site->save();
         $user = WebsiteUser::factory()->create(['email' => 'sara@example.com']);
         $rememberToken = $user->remember_token;
 
-        $this->actingAs($user, 'website')->get('/test-account')->assertOk()->assertSee('my account');
+        $this->actingAs($user, 'website')->get(route('home'))->assertOk();
+        $this->assertTrue(Auth::guard('website')->check());
 
         $user->block();
 
-        $this->get('/test-account')->assertForbidden()->assertSee(__('admin.website_users.account_unavailable'));
+        // Next page: signed out, keeps browsing as a guest, with the neutral message.
+        $this->get(route('home'))->assertOk()->assertSee(__('admin.website_users.account_unavailable'));
         $this->assertNull(Auth::guard('website')->user());
         // "Remember me" cookies stop working too.
         $this->assertNotSame($rememberToken, $user->fresh()->remember_token);

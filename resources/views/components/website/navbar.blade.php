@@ -7,6 +7,8 @@
 
 @php
     $phone = app(\Modules\GeneralSettings\Settings\BusinessInfoSettings::class)->hotline;
+    // The signed-in website account (none for guests).
+    $account = auth('website')->user();
     $links = [
         ['route' => 'home', 'label' => __('Home')],
         ['route' => 'properties', 'label' => __('Properties')],
@@ -112,14 +114,49 @@
                 ></span>
             </a>
 
-            <button
-                type="button"
-                class="{{ $iconButton }} {{ $tooltip }} font-[inherit] transition-[background,border-color,color] duration-250 hover:border-[#c8102e] hover:bg-[rgba(200,16,46,0.85)] hover:text-white"
-                aria-label="{{ __('Sign in or register') }}"
-                data-tooltip="{{ __('Sign in') }}"
-            >
-                <x-website.icons.user class="size-[14px] flex-none" />
-            </button>
+            @if ($account)
+                {{-- Signed in: the design's name pill, with a small menu to sign out. --}}
+                <div x-data="{ menu: false }" @click.outside="menu = false" @keydown.escape.window="menu = false" class="relative">
+                    <button
+                        type="button"
+                        @click="menu = ! menu"
+                        :aria-expanded="menu"
+                        class="inline-flex h-[31px] max-w-[160px] cursor-pointer items-center gap-[7px] rounded-full border border-white/20 bg-white/8 ps-1 pe-[10px] text-[11.5px] font-semibold whitespace-nowrap text-white transition-[background,border-color] duration-250 hover:border-[#c8102e] max-sm:pe-1 rtl:font-arabic"
+                        aria-label="{{ __('My account') }}"
+                    >
+                        <span class="flex size-[22px] flex-none items-center justify-center rounded-full bg-[#c8102e] text-[10px] font-bold text-white">{{ mb_strtoupper(mb_substr($account->name, 0, 1)) }}</span>
+                        <span class="truncate max-sm:hidden">{{ \Illuminate\Support\Str::of($account->name)->before(' ') }}</span>
+                    </button>
+                    <div
+                        x-show="menu"
+                        x-transition.opacity.duration.150ms
+                        x-cloak
+                        class="absolute top-[calc(100%+10px)] right-0 z-10 w-60 rounded-xl border border-white/10 bg-[rgba(16,16,16,0.97)] p-2 shadow-[0_12px_32px_rgba(0,0,0,0.45)] backdrop-blur-[20px] rtl:right-auto rtl:left-0"
+                    >
+                        <div class="border-b border-white/8 px-3 pt-2 pb-3">
+                            <p class="truncate text-[13px] font-semibold text-white rtl:font-arabic">{{ $account->name }}</p>
+                            <p class="truncate text-[11.5px] text-white/50" dir="ltr">{{ $account->email }}</p>
+                        </div>
+                        <form method="POST" action="{{ route('account.logout') }}" class="pt-1">
+                            @csrf
+                            <button type="submit" class="flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2.5 text-start text-[13px] text-white/80 transition-[background,color] duration-200 hover:bg-[rgba(200,16,46,0.15)] hover:text-white rtl:font-arabic">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="rtl:-scale-x-100" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
+                                {{ __('Sign out') }}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            @else
+                <button
+                    type="button"
+                    @click="$dispatch('open-auth')"
+                    class="{{ $iconButton }} {{ $tooltip }} font-[inherit] transition-[background,border-color,color] duration-250 hover:border-[#c8102e] hover:bg-[rgba(200,16,46,0.85)] hover:text-white"
+                    aria-label="{{ __('Sign in or register') }}"
+                    data-tooltip="{{ __('Sign in') }}"
+                >
+                    <x-website.icons.user class="size-[14px] flex-none" />
+                </button>
+            @endif
 
             <button
                 type="button"

@@ -53,6 +53,19 @@
         <x-website.gallery-lightbox />
         <x-website.project-lightbox />
         <x-website.compare-bar />
+        {{-- "Sign in or Register", opened by the navbar's account button (event open-auth). --}}
+        <livewire:website.auth-modal />
+        {{-- A one-time message from the server (e.g. a blocked account signed out), shown for a few seconds. --}}
+        @if ($notice = session(\Modules\WebsiteUsers\Http\Middleware\EnsureWebsiteUserIsActive::NOTICE))
+            <div
+                x-data="{ shown: true }"
+                x-init="setTimeout(() => (shown = false), 5000)"
+                x-show="shown"
+                x-transition.opacity.duration.300ms
+                class="fixed bottom-8 left-1/2 z-9999 max-w-[calc(100vw-32px)] -translate-x-1/2 rounded-full bg-ink px-[22px] py-3 text-center text-[13px] font-medium text-paper rtl:font-arabic"
+                role="status"
+            >{{ $notice }}</div>
+        @endif
 
         <x-website.footer :reveal="$revealFooter" />
 
