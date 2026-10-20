@@ -45,7 +45,7 @@ document.addEventListener('alpine:init', () => {
         },
     })
 
-    // Remembered in the browser (as in the design) until accounts keep them.
+    // Remembered in the browser (as in the design).
     const read = (key) => {
         try {
             return JSON.parse(localStorage.getItem(key)) || []
@@ -56,6 +56,11 @@ document.addEventListener('alpine:init', () => {
     const write = (key, value) => {
         try {
             localStorage.setItem(key, JSON.stringify(value))
+        } catch {}
+    }
+    const forget = (key) => {
+        try {
+            localStorage.removeItem(key)
         } catch {}
     }
 
@@ -84,16 +89,39 @@ document.addEventListener('alpine:init', () => {
         },
     })
 
-    // Favourite properties.
     // Favourites (the navbar's wishlist): unit ids, and projects as "project-<id>" (the design's "proj-" items).
+    // A guest's stay in the browser. Signed in, they come from the account and each click is saved there; the
+    // guest list is moved to the account once, then cleared from the browser (not left behind after signing out).
+    const account = document.querySelector('meta[name="account-favourites"]')
+    const save = (changes) =>
+        fetch(account.dataset.url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            },
+            body: JSON.stringify(changes),
+        })
     Alpine.store('favourites', {
-        ids: read('akar_favs'),
+        ids: account ? JSON.parse(account.content) : read('akar_favs'),
+        init() {
+            if (!account) return
+            const guest = read('akar_favs').filter((id) => !this.ids.includes(id))
+            if (guest.length) this.ids = [...this.ids, ...guest]
+            if (!guest.length) return forget('akar_favs')
+            save({ add: guest })
+                .then((response) => response.ok && forget('akar_favs'))
+                .catch(() => {})
+        },
         has(id) {
             return this.ids.includes(id)
         },
         toggle(id) {
-            this.ids = this.has(id) ? this.ids.filter((fav) => fav !== id) : [...this.ids, id]
-            write('akar_favs', this.ids)
+            const saved = this.has(id)
+            this.ids = saved ? this.ids.filter((fav) => fav !== id) : [...this.ids, id]
+            if (account) save(saved ? { remove: [id] } : { add: [id] }).catch(() => {})
+            else write('akar_favs', this.ids)
         },
     })
 

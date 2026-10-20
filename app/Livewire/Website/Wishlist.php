@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Website;
 
+use App\Support\Website\Favourites;
 use App\Support\Website\ProjectCards;
 use App\Support\Website\PropertyCards;
 use Illuminate\Contracts\View\View;
@@ -17,9 +18,6 @@ use Modules\Units\Models\Unit;
  */
 class Wishlist extends Component
 {
-    /** Most items read from one browser. */
-    private const MAX = 200;
-
     /** @var list<int> Set only by load() (capped), never by the browser. */
     #[Locked]
     public array $unitIds = [];
@@ -35,10 +33,7 @@ class Wishlist extends Component
      */
     public function load(array $ids): void
     {
-        $ids = array_slice(array_reverse(array_unique(array_map('strval', array_filter($ids, 'is_scalar')))), 0, self::MAX);
-
-        $this->unitIds = array_values(array_map('intval', array_filter($ids, fn (string $id) => ctype_digit($id))));
-        $this->projectIds = array_values(array_map(fn (string $id) => (int) substr($id, 8), array_filter($ids, fn (string $id) => (bool) preg_match('/^project-\d+$/', $id))));
+        ['units' => $this->unitIds, 'projects' => $this->projectIds] = Favourites::split(array_reverse($ids));
         $this->loaded = true;
     }
 

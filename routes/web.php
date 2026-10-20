@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Website\CompareController;
+use App\Http\Controllers\Website\FavouritesController;
 use App\Http\Controllers\Website\HomeController;
 use App\Http\Controllers\Website\ProjectsController;
 use App\Http\Controllers\Website\PropertiesController;
@@ -36,6 +37,9 @@ Route::post('/account/logout', function () {
 
     return redirect()->to(parse_url($previous, PHP_URL_HOST) === request()->getHost() ? $previous : url('/'));
 })->name('account.logout');
+
+// A signed-in user's heart clicks, saved to the account ($store.favourites).
+Route::post('/account/favourites', FavouritesController::class)->middleware(['auth:website', 'throttle:60,1'])->name('account.favourites');
 
 // The "reset your password" e-mail's link: a website page with the new password form (App\Livewire\Website\ResetPassword).
 Route::view('/account/reset-password/{token}', 'website.account.reset-password')->name('account.password.reset');

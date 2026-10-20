@@ -24,6 +24,10 @@
         {{--  The track URL is used by the possible leads tracking script to send the lead data to the server.--}}
         <meta name="track-url" content="{{ route('api.possible-leads.track', absolute: false) }}" />
         <meta name="compare-max" content="{{ \App\Support\Website\CompareUnits::MAX }}" />
+        {{-- Signed in: the wishlist saved to the account, and where heart clicks are saved ($store.favourites). --}}
+        @if ($account = auth('website')->user())
+            <meta name="account-favourites" content="{{ json_encode(\App\Support\Website\Favourites::of($account)) }}" data-url="{{ route('account.favourites', absolute: false) }}" />
+        @endif
         <title>{{ $title ? $title.' — '.__('Akar Town') : __('Akar Town — Exclusive Real Estate') }}</title>
         <meta name="description" content="{{ $description ?? __("Akar Town — Discover exceptional luxury properties across Egypt's finest locations.") }}" />
         <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}" />
