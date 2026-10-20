@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Website;
 
+use App\Livewire\Website\Concerns\FillsContactFromAccount;
 use App\Support\Crm\LeadContact;
 use App\Support\Website\SearchOptions;
 use Illuminate\Contracts\View\View;
@@ -21,6 +22,8 @@ use Modules\PossibleLeads\Support\Visitor;
  */
 class PropertyMatching extends Component
 {
+    use FillsContactFromAccount;
+
     /** Unit type chips shown, the first ones in the admin's Lookups order (the design shows four). */
     private const TYPES = 4;
 
@@ -98,6 +101,7 @@ class PropertyMatching extends Component
         ]);
 
         $this->reset('budgetMin', 'budgetMax', 'fullName', 'phone', 'email');
+        $this->fillContactFromAccount();
         $this->sent = true;
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Website;
 
+use App\Livewire\Website\Concerns\FillsContactFromAccount;
 use App\Support\Crm\LeadContact;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\RateLimiter;
@@ -20,6 +21,8 @@ use Modules\Projects\Models\Project;
  */
 class ProjectEnquiry extends Component
 {
+    use FillsContactFromAccount;
+
     /** The design's budget ranges: key => English label (sent to the sales team; shown translated). */
     public const BUDGETS = [
         '2-5' => '2 – 5 Million EGP',
@@ -106,6 +109,7 @@ class ProjectEnquiry extends Component
         ]);
 
         $this->reset('fullName', 'phone', 'email', 'type', 'budget', 'message');
+        $this->fillContactFromAccount();
         $this->sent = true;
     }
 
