@@ -42,6 +42,10 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->brandName(fn (): string => __(config('app.name')))
+            // The website's logo (one file for both: resources/views/components/website/logo.blade.php) and favicon.
+            ->brandLogo(fn () => view('filament.brand-logo'))
+            ->brandLogoHeight('2.5rem')
+            ->favicon(asset('favicon.svg'))
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->sidebarCollapsibleOnDesktop()
             // As in Dastan: a wider sidebar, a narrow one when collapsed, and no dark mode.

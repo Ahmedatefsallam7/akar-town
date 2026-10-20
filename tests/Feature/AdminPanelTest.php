@@ -27,6 +27,15 @@ class AdminPanelTest extends TestCase
         $this->get('/admin/login')->assertOk();
     }
 
+    public function test_the_panel_shows_the_website_logo_and_favicon(): void
+    {
+        $this->get('/admin/login')
+            ->assertOk()
+            ->assertSee(['viewBox="0 0 2185 380"', 'fill="#000000"', 'aria-label="Akar Town"', 'favicon.svg'], false);
+
+        $this->actingAs($this->createAdmin())->get('/admin')->assertOk()->assertSee('viewBox="0 0 2185 380"', false);
+    }
+
     public function test_guest_is_redirected_to_login(): void
     {
         $this->get('/admin')->assertRedirect('/admin/login');
