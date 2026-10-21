@@ -24,6 +24,7 @@ use Modules\PossibleLeads\Models\PossibleLead;
 use Modules\PossibleLeads\Support\Visitor;
 use Modules\Projects\Models\Project;
 use Modules\Units\Models\Unit;
+use Modules\Users\Filament\Auth\Login;
 use Modules\Users\Filament\Resources\UserResource\Pages\EditUser;
 use Tests\TestCase;
 
@@ -114,6 +115,21 @@ class SecurityTest extends TestCase
         $this->postJson(route('api.possible-leads.track'), ['click_type' => 'phone'])->assertStatus(503);
         // A public form can't pass as an admin page by faking the Referer header.
         $this->withHeader('Referer', url('/admin/units'))->post(route('default-livewire.update'))->assertStatus(503);
+        $this->withHeader('Referer', url('/admin/login'))->post(route('default-livewire.update'), $this->livewireCall('website.property-matching'))->assertStatus(503);
+    }
+
+    public function test_offline_site_still_lets_admins_sign_in(): void
+    {
+        $this->live(false);
+
+        // Only the panel's sign-in pages pass before signing in (Livewire then checks the snapshot's signature).
+        $response = $this->withHeader('Referer', url('/admin/login'))->post(route('default-livewire.update'), $this->livewireCall(Login::class));
+        $this->assertNotSame(503, $response->getStatusCode());
+    }
+
+    private function livewireCall(string $component): array
+    {
+        return ['components' => [['snapshot' => json_encode(['data' => [], 'memo' => ['name' => $component], 'checksum' => 'x']), 'updates' => [], 'calls' => []]]];
     }
 
     public function test_hidden_projects_and_developers_are_not_named_on_published_pages(): void
