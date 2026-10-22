@@ -9,6 +9,7 @@ use Modules\Lookups\Models\Lookup;
  * Seeds every lookup type and its values from data/lookups.php (Locations is a nested tree).
  * Safe to run again: creates what's missing and never overwrites values edited in the admin.
  * Lookup types (the top level) are protected from deletion; their values aren't.
+ * Locally it then adds the demo descriptions (LookupsDemoSeeder).
  */
 class LookupsDatabaseSeeder extends Seeder
 {
@@ -16,6 +17,10 @@ class LookupsDatabaseSeeder extends Seeder
     {
         foreach (require __DIR__.'/data/lookups.php' as $index => $type) {
             $this->seed($type, null, $index + 1);
+        }
+
+        if (app()->isLocal()) {
+            $this->call(LookupsDemoSeeder::class);
         }
     }
 

@@ -91,6 +91,13 @@ return [
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
 
     /*
+    | Local demo data (php artisan db:seed): how many extra properties to add for speed tests, the other modules in
+    | proportion (projects a fifth, leads, users…). 0 = the demo data only.
+    */
+
+    'seed_scale' => (int) env('SEED_SCALE', 0),
+
+    /*
     |--------------------------------------------------------------------------
     | Encryption Key
     |--------------------------------------------------------------------------

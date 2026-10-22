@@ -66,6 +66,20 @@
     --animate-avail-glow: avail-glow 2s ease-in-out infinite;
     --animate-card-out: card-out 0.35s var(--ease-smooth) forwards;
     --animate-heart-pulse: heart-pulse 2.4s ease-in-out infinite;
+    --animate-ring-breathe: ring-breathe 3s ease-in-out infinite;
+
+    /* The developer page's logo rings (developer-details.html). */
+    @keyframes ring-breathe {
+        0%,
+        100% {
+            opacity: 0.6;
+            transform: scale(1);
+        }
+        50% {
+            opacity: 1;
+            transform: scale(1.045);
+        }
+    }
 
     @keyframes fade-up {
         from {

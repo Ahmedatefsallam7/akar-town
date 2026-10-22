@@ -100,4 +100,12 @@ class CompareTest extends TestCase
 
         $this->assertSame($few, $many);
     }
+
+    public function test_the_page_heals_the_compare_bar(): void
+    {
+        // Opened without a list it shows what the bar holds; properties it can't show leave the bar (in the browser).
+        $this->get(route('compare'))
+            ->assertOk()
+            ->assertSee(['window.location.replace(', 'this.$store.compare.remove(item.id)'], false);
+    }
 }

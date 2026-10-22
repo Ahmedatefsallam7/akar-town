@@ -32,7 +32,8 @@
         <meta name="description" content="{{ $description ?? __("Akar Town — Discover exceptional luxury properties across Egypt's finest locations.") }}" />
         <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}" />
 
-        @fonts(['archivo', 'noto-kufi-arabic'])
+        {{-- Only the page language's fonts are fetched early (Arabic pages show English too). --}}
+        @fonts(app()->getLocale() === 'ar' ? ['archivo', 'noto-kufi-arabic'] : ['archivo'])
         @vite(['resources/css/website.css', 'resources/js/website.js'])
         @livewireStyles
         {{-- A page's first big photo, asked for early (e.g. the home hero). --}}

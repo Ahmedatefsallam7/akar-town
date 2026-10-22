@@ -2,8 +2,10 @@
 
 namespace Modules\Locations\Database\Seeders;
 
+use Database\Seeders\Concerns\SeedsDemoData;
 use Illuminate\Database\Seeder;
 use Modules\Locations\Models\Location;
+use Modules\Lookups\Database\Seeders\LookupsDatabaseSeeder;
 use Modules\Lookups\Models\Lookup;
 use Modules\Lookups\Support\LocationTree;
 
@@ -11,9 +13,12 @@ use Modules\Lookups\Support\LocationTree;
  * Location landing pages (from Dastan's seeder, only the places that exist in our Lookups locations tree), each tied
  * to the place with the same slug, with every level above it filled in. A page whose place is missing is skipped.
  * Safe to run again: creates what's missing and never overwrites pages edited in the admin. No images.
+ * Locally it then adds the demo data (LocationsDemoSeeder: photos, texts, SEO…).
  */
 class LocationsDatabaseSeeder extends Seeder
 {
+    use SeedsDemoData;
+
     private const PAGES = [
         // ─── Cities ─────────────────────────────────────────────────────
         ['slug' => 'cairo', 'name_en' => 'Cairo', 'name_ar' => 'القاهرة', 'order' => 1, 'is_featured' => true],
@@ -74,6 +79,11 @@ class LocationsDatabaseSeeder extends Seeder
 
     public function run(): void
     {
+        // Locally (demo) the places come first, so this seeder also works alone.
+        if (app()->isLocal()) {
+            $this->needs(LookupsDatabaseSeeder::class);
+        }
+
         $root = Lookup::whereNull('parent_id')->where('slug', LocationTree::ROOT_SLUG)->first();
 
         if (! $root) {
@@ -103,6 +113,10 @@ class LocationsDatabaseSeeder extends Seeder
                 'is_featured' => $page['is_featured'] ?? false,
                 'is_active' => true,
             ]);
+        }
+
+        if (app()->isLocal()) {
+            $this->call(LocationsDemoSeeder::class);
         }
     }
 

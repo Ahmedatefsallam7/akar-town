@@ -12,9 +12,9 @@
     $links = [
         ['route' => 'home', 'label' => __('Home')],
         ['route' => 'properties', 'label' => __('Properties')],
-        // The design marks Projects on a project's page too (not Properties on a property's page).
+        // The design marks Projects / Developers on their detail pages too (not Properties on a property's page).
         ['route' => 'projects', 'label' => __('Projects'), 'active' => ['projects', 'projects.show']],
-        ['route' => 'developers', 'label' => __('Developers')],
+        ['route' => 'developers', 'label' => __('Developers'), 'active' => ['developers', 'developers.show']],
     ];
     $isArabic = app()->getLocale() === 'ar';
     $tooltip = 'after:pointer-events-none after:absolute after:left-1/2 after:top-[calc(100%+8px)] after:-translate-x-1/2 after:-translate-y-1 after:rounded-md after:bg-[rgba(13,13,13,0.88)] after:px-[9px] after:py-1 after:text-[11px] after:font-medium after:whitespace-nowrap after:tracking-[0.02em] after:text-white after:opacity-0 after:transition-[opacity,transform] after:duration-180 after:content-[attr(data-tooltip)] hover:after:translate-y-0 hover:after:opacity-100';

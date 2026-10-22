@@ -114,6 +114,8 @@ class DeveloperResourceTest extends TestCase
                 'city_id' => $tree['cairo']->id,
                 'region_id' => $tree['new_cairo']->id,
                 'neighbourhood' => 'Fifth Settlement',
+                'social_instagram' => 'https://www.instagram.com/mountainview',
+                'social_youtube' => 'https://www.youtube.com/@mountainview',
                 'meta_title_en' => 'Mountain View projects',
             ]))
             ->call('create')
@@ -126,6 +128,17 @@ class DeveloperResourceTest extends TestCase
         $this->assertSame([$tree['egypt']->id, $tree['cairo']->id, $tree['new_cairo']->id, null, null], [$developer->country_id, $developer->city_id, $developer->region_id, $developer->area_id, $developer->sub_area_id]);
         $this->assertSame('Fifth Settlement', $developer->neighbourhood);
         $this->assertSame('+20 16166', $developer->phone);
+        $this->assertSame(['https://www.instagram.com/mountainview', null, 'https://www.youtube.com/@mountainview'], [$developer->social_instagram, $developer->social_facebook, $developer->social_youtube]);
+    }
+
+    public function test_social_links_must_be_web_addresses(): void
+    {
+        $this->actingAs($this->createAdmin());
+
+        Livewire::test(CreateDeveloper::class)
+            ->fillForm($this->validData(['social_facebook' => 'javascript:alert(1)', 'social_linkedin' => 'not a link']))
+            ->call('create')
+            ->assertHasFormErrors(['social_facebook', 'social_linkedin']);
     }
 
     public function test_names_are_required_and_email_and_phone_must_be_valid(): void

@@ -53,6 +53,20 @@
         x-data="{
             units: @js(array_column($units, 'slug', 'id')),
             strip: false,
+            init() {
+                const asked = new URLSearchParams(window.location.search).get('units')
+                const saved = this.$store.compare.items.map((item) => item.slug)
+                // Opened without a list (a bookmark, the address bar): show what the compare bar holds.
+                if (!asked) {
+                    if (saved.length) window.location.replace(@js(route('compare')) + '?units=' + saved.join(','))
+                    return
+                }
+                // Properties that can't be shown any more (removed, unpublished, renamed) leave the compare bar.
+                const shown = Object.values(this.units)
+                this.$store.compare.items
+                    .filter((item) => asked.split(',').includes(item.slug) && !shown.includes(item.slug))
+                    .forEach((item) => this.$store.compare.remove(item.id))
+            },
             remove(id) {
                 this.$store.compare.remove(id)
                 const rest = Object.entries(this.units).filter(([key]) => Number(key) !== id).map(([, slug]) => slug)

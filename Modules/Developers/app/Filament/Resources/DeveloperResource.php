@@ -169,6 +169,13 @@ class DeveloperResource extends Resource implements HasPermissionModule
                                     ->label(__('admin.developers.neighbourhood'))
                                     ->helperText(__('admin.developers.head_office_help'))
                                     ->maxLength(191),
+                                // The developer page's "Follow us on" links (only the filled ones are shown).
+                                ...collect(Developer::NETWORKS)->map(fn (string $network) => TextInput::make("social_{$network}")
+                                    ->label(__("admin.settings.fields.{$network}"))
+                                    ->url()
+                                    ->rules(['url:http,https'])
+                                    ->maxLength(255))
+                                    ->all(),
                             ])
                             ->columns(2),
                         Tab::make(__('admin.developers.media'))

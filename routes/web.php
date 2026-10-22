@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\Website\CompareController;
+use App\Http\Controllers\Website\DevelopersController;
 use App\Http\Controllers\Website\FavouritesController;
 use App\Http\Controllers\Website\HomeController;
+use App\Http\Controllers\Website\LocationsController;
 use App\Http\Controllers\Website\ProjectsController;
 use App\Http\Controllers\Website\PropertiesController;
 use Illuminate\Support\Facades\Route;
@@ -15,9 +17,11 @@ Route::get('/properties', [PropertiesController::class, 'index'])->name('propert
 Route::get('/properties/{slug}', [PropertiesController::class, 'show'])->name('properties.show');
 Route::view('/projects', 'website.projects')->name('projects');
 Route::get('/projects/{slug}', [ProjectsController::class, 'show'])->name('projects.show');
-Route::view('/locations', 'website.placeholder')->name('locations');
+Route::view('/locations', 'website.locations')->name('locations');
+Route::get('/locations/{slug}', [LocationsController::class, 'show'])->name('locations.show');
 Route::view('/wishlist', 'website.wishlist')->name('wishlist');
-Route::view('/developers', 'website.placeholder')->name('developers');
+Route::view('/developers', 'website.developers')->name('developers');
+Route::get('/developers/{slug}', [DevelopersController::class, 'show'])->name('developers.show');
 Route::view('/about', 'website.placeholder')->name('about');
 Route::view('/contact', 'website.placeholder')->name('contact');
 Route::view('/careers', 'website.placeholder')->name('careers');

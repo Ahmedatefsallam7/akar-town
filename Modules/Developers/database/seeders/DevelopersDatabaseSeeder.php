@@ -9,6 +9,7 @@ use Modules\Developers\Models\Developer;
 /**
  * Well-known Egyptian developers (names from Dastan), names only: logos, descriptions and contacts are added in the
  * admin. Safe to run again: creates what's missing and never overwrites developers edited in the admin.
+ * Locally it then adds the demo data (DevelopersDemoSeeder: logos, texts, contacts…).
  */
 class DevelopersDatabaseSeeder extends Seeder
 {
@@ -41,6 +42,10 @@ class DevelopersDatabaseSeeder extends Seeder
                 'name_ar' => $nameAr,
                 'is_published' => true,
             ]);
+        }
+
+        if (app()->isLocal()) {
+            $this->call(DevelopersDemoSeeder::class);
         }
     }
 }

@@ -27,7 +27,7 @@
                 {{-- Photo + the properties' thumbnails --}}
                 <div class="relative pb-14 max-lg:pb-0!">
                     <div x-ref="mainWrap" class="group/img relative h-[515px] w-full overflow-hidden rounded-[20px] bg-ink-10 max-lg:h-[380px]! max-md:h-[280px]!">
-                        <img x-ref="main" :src="current.images[0]" :srcset="current.srcset" :alt="current.title" src="{{ $featured[0]['images'][0] ?? '' }}" srcset="{{ $featured[0]['srcset'] ?? '' }}" sizes="(max-width: 1024px) 100vw, 60vw" alt="{{ $featured[0]['title'] }}" loading="eager" class="size-full object-cover transition-transform duration-700 ease-smooth will-change-[transform,opacity] group-hover/img:scale-103" />
+                        <img x-ref="main" loading="lazy" :src="current.images[0]" :srcset="current.srcset" :alt="current.title" src="{{ $featured[0]['images'][0] ?? '' }}" srcset="{{ $featured[0]['srcset'] ?? '' }}" sizes="(max-width: 1024px) 100vw, 60vw" alt="{{ $featured[0]['title'] }}" loading="eager" class="size-full object-cover transition-transform duration-700 ease-smooth will-change-[transform,opacity] group-hover/img:scale-103" />
                     </div>
                     <div class="absolute bottom-[75px] left-[26%] z-10 flex w-[calc(100%+280px)] items-center gap-3 rtl:right-[26%] rtl:left-auto max-lg:relative! max-lg:inset-auto! max-lg:mt-[10px]! max-lg:w-full! max-lg:p-0!">
                         <div class="flex min-w-0 flex-1 flex-nowrap gap-2">

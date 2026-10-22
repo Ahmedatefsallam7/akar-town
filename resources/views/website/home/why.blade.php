@@ -22,7 +22,7 @@
     $reveal = 'opacity-0 [transform:translateY(24px)]';
 @endphp
 
-<section id="why-us" x-data="whyChoose" class="relative overflow-hidden bg-page bg-cover bg-top bg-no-repeat pt-20 pb-[100px] before:pointer-events-none before:absolute before:inset-0 before:bg-[rgba(250,248,245,0.82)] dark:bg-[rgb(12,10,7)] dark:bg-none! dark:before:bg-transparent dark:before:bg-[radial-gradient(80%_60%_at_50%_40%,rgba(212,20,44,0.06)_0%,transparent_70%)]" style="background-image: url('{{ asset('images/website/why-bg.webp') }}')">
+<section id="why-us" x-data="whyChoose" class="relative overflow-hidden bg-page bg-cover bg-top bg-no-repeat pt-20 pb-[100px] before:pointer-events-none before:absolute before:inset-0 before:bg-[rgba(250,248,245,0.82)] dark:bg-[rgb(12,10,7)] dark:bg-none! dark:before:bg-transparent dark:before:bg-[radial-gradient(80%_60%_at_50%_40%,rgba(212,20,44,0.06)_0%,transparent_70%)]" data-bg="{{ asset('images/website/why-bg.webp') }}" x-intersect.once.margin.600px="$el.style.backgroundImage = `url('${$el.dataset.bg}')`">
     <div class="relative mx-auto max-w-[1340px] px-[60px] max-[900px]:px-6 max-md:px-5">
         <header class="mb-16 text-center">
             <p data-why-reveal class="{{ $reveal }} mb-[22px] inline-flex items-center rounded-[20px] border border-white/65 bg-white/52 px-[18px] py-1.5 font-sans text-[9.5px] font-bold tracking-[0.3em] text-brand-dk uppercase shadow-[0_2px_16px_rgba(0,0,0,0.08),0_1px_4px_rgba(0,0,0,0.05)] backdrop-blur-[20px] backdrop-saturate-180 dark:border-[rgba(237,232,223,0.12)] dark:bg-[rgba(14,12,9,0.82)] dark:shadow-[0_2px_24px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(237,232,223,0.06)] rtl:font-arabic rtl:tracking-[0.08em]">{{ $home->{"why_choose_subtitle_{$locale}"} }}</p>
@@ -56,7 +56,7 @@
                         ])
                     >
                         @if ($card['icon'] ?? null)
-                            <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($card['icon']) }}" alt="" class="mb-5 h-[100px] w-[120px] shrink-0 object-contain max-[480px]:mb-[14px] max-[480px]:h-[66px] max-[480px]:w-20" />
+                            <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($card['icon']) }}" alt="" loading="lazy" class="mb-5 h-[100px] w-[120px] shrink-0 object-contain max-[480px]:mb-[14px] max-[480px]:h-[66px] max-[480px]:w-20" />
                         @else
                             <x-dynamic-component :component="'website.illustrations.'.$illustrations[$i]" class="mb-5 h-[100px] w-[120px] shrink-0 max-[480px]:mb-[14px] max-[480px]:h-[66px] max-[480px]:w-20" />
                         @endif

@@ -45,7 +45,9 @@ class AdminPanelProvider extends PanelProvider
             // The website's logo (one file for both: resources/views/components/website/logo.blade.php) and favicon.
             ->brandLogo(fn () => view('filament.brand-logo'))
             ->brandLogoHeight('2.5rem')
-            ->favicon(asset('favicon.svg'))
+            // A relative link: asset() here runs before the request is known, so behind HTTPS (a proxy) it gave an
+            // http:// link the browser blocks.
+            ->favicon('/favicon.svg')
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->sidebarCollapsibleOnDesktop()
             // As in Dastan: a wider sidebar, a narrow one when collapsed, and no dark mode.

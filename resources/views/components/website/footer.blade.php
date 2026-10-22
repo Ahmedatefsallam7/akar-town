@@ -35,7 +35,10 @@
         @else
             class="absolute inset-0 bg-cover bg-center [filter:grayscale(0.35)_brightness(0.42)_contrast(1.1)]"
         @endif
-        style="background-image: url('{{ asset('images/website/footer-bg.webp') }}')"
+        {{-- Set when the visitor nears the footer (footerReveal.lazyBackground): it isn't fetched with the page. Phones
+             take the 900 px copy. --}}
+        data-bg="{{ asset('images/website/footer-bg.webp') }}"
+        data-bg-small="{{ asset('images/website/footer-bg-small.webp') }}"
         aria-hidden="true"
     ></div>
     <div class="pointer-events-none absolute inset-0 bg-[linear-gradient(0deg,#080808_12%,rgba(8,8,8,0.05)_72%)]" aria-hidden="true"></div>

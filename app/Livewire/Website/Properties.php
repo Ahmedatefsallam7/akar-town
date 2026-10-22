@@ -75,6 +75,10 @@ class Properties extends Component
     #[Url(except: '')]
     public string $project = '';
 
+    /** A location's page (/locations/{slug}): the listing stays in that location. Set by the page only. */
+    #[Locked]
+    public string $place = '';
+
     #[Url(except: '')]
     public string $sort = '';
 
@@ -102,7 +106,7 @@ class Properties extends Component
 
     public function clear(): void
     {
-        $this->reset();
+        $this->resetExcept('place');
     }
 
     public function loadMore(): void
@@ -128,7 +132,7 @@ class Properties extends Component
             'finishing' => $this->finishing,
             'intent' => $this->intent,
             'category' => $this->category,
-            'location' => $this->location,
+            'location' => $this->place ?: $this->location,
             'project' => $this->project,
             'sort' => $this->sort,
         ];

@@ -28,6 +28,9 @@ class Developer extends Model implements HasMedia
 
     public const FEATURED_IMAGE = 'featured_image';
 
+    /** The developer page's social links (social_<network> columns), in the design's order. */
+    public const NETWORKS = ['instagram', 'facebook', 'linkedin', 'youtube'];
+
     protected $fillable = [
         'name_en',
         'name_ar',
@@ -48,6 +51,10 @@ class Developer extends Model implements HasMedia
         'area_id',
         'sub_area_id',
         'neighbourhood',
+        'social_facebook',
+        'social_instagram',
+        'social_linkedin',
+        'social_youtube',
         'meta_title_en',
         'meta_title_ar',
         'meta_description_en',
@@ -93,7 +100,7 @@ class Developer extends Model implements HasMedia
             ->useDisk('public')
             ->singleFile()
             ->registerMediaConversions(function () {
-                // Whole logo, never cropped, for the admin list. Website sizes are added with the frontend.
+                // Whole logo, never cropped: the admin list and the developer page's round logo (100 px).
                 $this->addMediaConversion('thumb')
                     ->fit(Fit::Max, 160, 160)
                     ->format('webp')
@@ -108,6 +115,9 @@ class Developer extends Model implements HasMedia
                     ->fit(Fit::Crop, 160, 160)
                     ->format('webp')
                     ->nonQueued();
+                // The website's sizes: the developers page cards, the developer page's story photo.
+                $this->addMediaConversion('card')->fit(Fit::Max, 900, 900)->format('webp')->queued();
+                $this->addMediaConversion('large')->fit(Fit::Max, 1920, 1920)->format('webp')->queued();
             });
     }
 }

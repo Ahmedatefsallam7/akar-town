@@ -67,7 +67,8 @@ document.addEventListener('alpine:init', () => {
     // Compare list, shown in the compare bar on every page. Its size comes from the server (CompareUnits::MAX).
     Alpine.store('compare', {
         max: Number(document.querySelector('meta[name="compare-max"]')?.content) || 4,
-        items: read('akar_cmp'),
+        // Items saved before properties had slugs can't be compared: dropped.
+        items: read('akar_cmp').filter((item) => item && item.slug),
         open: false,
         has(id) {
             return this.items.some((item) => item.id === id)
@@ -188,6 +189,8 @@ document.addEventListener('alpine:init', () => {
         },
 
         init() {
+            this.lazyBackground()
+
             if (!reveal) {
                 // A normal footer (every page but home): only the wordmark is fitted.
                 this.fitMark()
@@ -205,6 +208,23 @@ document.addEventListener('alpine:init', () => {
                 cancelAnimationFrame(frame)
                 frame = requestAnimationFrame(() => this.relayout())
             })
+        },
+
+        // The footer photo is fetched when the visitor is about a screen away from the footer, not with the page. On
+        // home the footer sits fixed behind the page from the start, so the spacer that reveals it is watched instead.
+        lazyBackground() {
+            const bg = this.$refs.bg
+            const target = (reveal && document.getElementById('footer-spacer')) || this.$el
+            const observer = new IntersectionObserver(
+                (entries) => {
+                    if (!entries.some((entry) => entry.isIntersecting)) return
+                    const small = window.matchMedia('(max-width: 768px)').matches
+                    bg.style.backgroundImage = `url('${small ? bg.dataset.bgSmall : bg.dataset.bg}')`
+                    observer.disconnect()
+                },
+                { rootMargin: '0px 0px 100% 0px' },
+            )
+            observer.observe(target)
         },
 
         // Fit the "AKAR TOWN" wordmark to the full width (the design also capped it at a third of the screen height; the user
