@@ -1,7 +1,7 @@
 {{--
     Contact page (the design's contact.html): hero, the "Send Us a Message" form beside the office map and contact
-    cards, then the CTA banner. Phone, e-mail, WhatsApp, hours and the office address come from Settings → Business Info;
-    a card whose setting is empty is left out.
+    cards, then the CTA banner. Phones (hotline + the three numbers), e-mail, WhatsApp, hours, the office and the branches
+    come from Settings → Business Info (Dastan's contact page shows them too); a card whose setting is empty is left out.
 --}}
 @php
     use Illuminate\Support\Carbon;
@@ -12,11 +12,14 @@
     $office = $business->{'headquarters_'.app()->getLocale()};
     $time = fn (string $time) => Carbon::createFromFormat('H:i', $time)->locale(app()->getLocale())->translatedFormat('g A');
     $hours = __('Available :open – :close', ['open' => $time($business->working_hours_from), 'close' => $time($business->working_hours_to)]);
+    $phones = array_values(array_unique(array_filter([$business->hotline, $business->phone_primary, $business->phone_secondary, $business->phone_tertiary])));
+    $branches = array_values(array_filter(array_map(fn (int $i) => $business->{"branch_{$i}_".app()->getLocale()}, [1, 2, 3, 4])));
     $cards = array_filter([
-        $business->hotline ? ['href' => 'tel:'.preg_replace('/[^\d+]/', '', $business->hotline), 'track' => 'phone', 'label' => __('Phone'), 'value' => $business->hotline, 'ltr' => true, 'icon' => '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13 19.79 19.79 0 0 1 1.61 4.35 2 2 0 0 1 3.6 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.29 6.29l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />'] : null,
+        $phones ? ['href' => count($phones) === 1 ? 'tel:'.preg_replace('/[^\d+]/', '', $phones[0]) : null, 'track' => 'phone', 'label' => __('Phone'), 'value' => $phones[0], 'lines' => count($phones) > 1 ? array_map(fn (string $phone) => [$phone, 'tel:'.preg_replace('/[^\d+]/', '', $phone)], $phones) : null, 'ltr' => true, 'icon' => '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13 19.79 19.79 0 0 1 1.61 4.35 2 2 0 0 1 3.6 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.29 6.29l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />'] : null,
         $business->email ? ['href' => 'mailto:'.$business->email, 'track' => null, 'label' => __('Email'), 'value' => $business->email, 'ltr' => true, 'icon' => '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" />'] : null,
         $business->whatsapp ? ['href' => 'https://wa.me/'.preg_replace('/\D/', '', $business->whatsapp), 'track' => 'whatsapp', 'label' => __('WhatsApp'), 'value' => $hours, 'ltr' => false, 'icon' => '<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />'] : null,
         $office ? ['href' => null, 'track' => null, 'label' => __('Office'), 'value' => $office, 'ltr' => false, 'icon' => '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" />'] : null,
+        $branches ? ['href' => null, 'track' => null, 'label' => __('Branches'), 'value' => $branches[0], 'lines' => array_map(fn (string $branch) => [$branch, null], $branches), 'ltr' => false, 'wide' => true, 'icon' => '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" />'] : null,
     ]);
     $card = 'flex items-start gap-[14px] rounded-[14px] border border-ink-10 bg-white p-5 dark:border-white/8 dark:bg-[#1a1916]';
     $hover = 'group/card [transition:border-color_0.25s,box-shadow_0.25s,translate_0.25s_var(--ease-out-ex)] hover:-translate-y-0.5 hover:border-[rgba(200,16,46,0.25)] hover:shadow-[0_8px_32px_rgba(200,16,46,0.08)]';
@@ -67,14 +70,25 @@
                                 @if ($item['href']) href="{{ $item['href'] }}" @endif
                                 @if ($item['href'] && str_starts_with($item['href'], 'https://')) target="_blank" rel="noopener noreferrer" @endif
                                 @if ($item['track']) @click="$track(@js($item['track']))" @endif
-                                class="{{ $card }} {{ $item['href'] ? $hover : '' }}"
+                                class="{{ $card }} {{ $item['href'] ? $hover : '' }} {{ ($item['wide'] ?? false) ? 'col-span-full' : '' }}"
                             >
                                 <span class="grid size-[38px] shrink-0 place-items-center rounded-[10px] bg-[rgba(200,16,46,0.08)] text-brand transition-[background] duration-250 group-hover/card:bg-[rgba(200,16,46,0.16)]" aria-hidden="true">
                                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">{!! $item['icon'] !!}</svg>
                                 </span>
                                 <span class="min-w-0">
                                     <span class="mb-1 block text-[9px] font-bold tracking-[0.2em] text-ink-30 uppercase rtl:font-arabic rtl:tracking-normal">{{ $item['label'] }}</span>
-                                    <span class="block text-[13px] leading-[1.4] font-semibold break-words text-ink rtl:font-arabic" @if ($item['ltr']) dir="ltr" @endif>{{ $item['value'] }}</span>
+                                    @if ($item['lines'] ?? null)
+                                        {{-- Several numbers / branches: one line each (numbers can be called one by one). --}}
+                                        @foreach ($item['lines'] as [$text, $href])
+                                            @if ($href)
+                                                <a href="{{ $href }}" @click="$track(@js($item['track']))" class="block text-[13px] leading-[1.6] font-semibold text-ink transition-colors duration-200 hover:text-brand rtl:text-right" dir="ltr">{{ $text }}</a>
+                                            @else
+                                                <span class="block text-[13px] leading-[1.6] font-semibold break-words text-ink rtl:font-arabic">{{ $text }}</span>
+                                            @endif
+                                        @endforeach
+                                    @else
+                                        <span class="block text-[13px] leading-[1.4] font-semibold break-words text-ink rtl:font-arabic" @if ($item['ltr']) dir="ltr" @endif>{{ $item['value'] }}</span>
+                                    @endif
                                 </span>
                             </{{ $item['href'] ? 'a' : 'div' }}>
                         @endforeach

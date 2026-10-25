@@ -58,6 +58,16 @@ class ContactTest extends TestCase
             ->assertSee(['Call Us Directly', '19000 · Available 9 AM – 9 PM', 'Browse All Properties', 'href="'.route('properties').'"'], false);
     }
 
+    public function test_every_phone_and_branch_is_listed(): void
+    {
+        $this->business(['hotline' => '19000', 'phone_primary' => '01001234567', 'phone_secondary' => '01112345678', 'phone_tertiary' => null, 'branch_1_en' => 'Mall of Arabia', 'branch_2_en' => null, 'branch_3_en' => 'Marassi']);
+
+        $this->get(route('contact'))
+            ->assertOk()
+            ->assertSee(['href="tel:19000"', 'href="tel:01001234567"', 'href="tel:01112345678"'], false)
+            ->assertSee(['Branches', 'Mall of Arabia', 'Marassi']);
+    }
+
     public function test_empty_settings_hide_their_cards_and_the_map(): void
     {
         $this->business(['hotline' => null, 'email' => null, 'whatsapp' => null, 'headquarters_en' => '']);
