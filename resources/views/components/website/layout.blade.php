@@ -61,6 +61,7 @@
         <x-website.compare-bar />
         {{-- "Sign in or Register", opened by the navbar's account button (event open-auth). --}}
         <livewire:website.auth-modal />
+        <livewire:website.submit-property />
         {{-- A one-time message from the server (e.g. a blocked account signed out), shown for a few seconds. --}}
         @if ($notice = session(\Modules\WebsiteUsers\Http\Middleware\EnsureWebsiteUserIsActive::NOTICE))
             <div

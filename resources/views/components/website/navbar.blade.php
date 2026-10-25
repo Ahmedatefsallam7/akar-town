@@ -77,6 +77,7 @@
             <div class="flex items-center max-md:hidden">
                 <button
                     type="button"
+                    @click="$dispatch('open-submit-property')"
                     class="inline-flex cursor-pointer items-center gap-2 rounded-full border border-white/20 bg-[linear-gradient(135deg,rgba(215,20,52,0.96)_0%,rgb(185,10,36)_100%)] px-5 py-[9px] font-sans text-[11px] leading-none font-[650] tracking-[0.06em] whitespace-nowrap text-white backdrop-blur-[20px] transition-all duration-300 ease-out-ex hover:-translate-y-0.5 hover:bg-[linear-gradient(135deg,rgba(225,25,58,0.98)_0%,rgb(200,16,46)_100%)] rtl:font-arabic"
                 >{{ __('Submit Property') }}</button>
             </div>
@@ -267,8 +268,10 @@
             </a>
         @endif
         <div>
+            {{-- The drawer closes first (it unlocks the page scroll), then the window opens. --}}
             <button
                 type="button"
+                @click="open = false; $nextTick(() => $dispatch('open-submit-property'))"
                 class="w-full cursor-pointer rounded-full bg-brand px-6 py-[15px] text-[13px] font-semibold tracking-[0.1em] text-white uppercase transition-opacity duration-200 hover:opacity-85"
             >{{ __('Submit Property') }}</button>
             @if ($phone)
