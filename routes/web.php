@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Website\CareersController;
 use App\Http\Controllers\Website\CompareController;
 use App\Http\Controllers\Website\DevelopersController;
 use App\Http\Controllers\Website\FavouritesController;
@@ -24,7 +25,8 @@ Route::view('/developers', 'website.developers')->name('developers');
 Route::get('/developers/{slug}', [DevelopersController::class, 'show'])->name('developers.show');
 Route::view('/about', 'website.placeholder')->name('about');
 Route::view('/contact', 'website.contact')->name('contact');
-Route::view('/careers', 'website.placeholder')->name('careers');
+Route::view('/careers', 'website.careers')->name('careers');
+Route::get('/careers/{slug}', [CareersController::class, 'show'])->name('careers.show');
 Route::get('/compare', CompareController::class)->name('compare');
 Route::view('/privacy-policy', 'website.placeholder')->name('privacy');
 Route::view('/terms', 'website.placeholder')->name('terms');

@@ -23,30 +23,15 @@
 @endphp
 
 <x-website.layout :title="__('Contact Us')">
-    {{-- Hero --}}
-    @push('head')
-        <link rel="preload" as="image" href="{{ asset('images/website/contact-hero-small.webp') }}" media="(max-width: 768px)" fetchpriority="high" />
-        <link rel="preload" as="image" href="{{ asset('images/website/contact-hero.webp') }}" media="(min-width: 769px)" fetchpriority="high" />
-    @endpush
-    <section
-        x-data
-        x-init="const bg = $refs.bg; const move = () => window.scrollY < window.innerHeight && (bg.style.transform = `translateY(${window.scrollY * 0.35}px)`); window.addEventListener('scroll', move, { passive: true }); move()"
-        class="relative flex h-screen min-h-[680px] flex-col overflow-hidden bg-[#07060a] max-md:h-auto max-md:min-h-0"
-        aria-label="{{ __('Contact Akar Town') }}"
-    >
-        <div x-ref="bg" class="absolute inset-0 bg-[#07060a] bg-(image:--bg-small) bg-cover bg-center bg-no-repeat brightness-50 grayscale-25 transition-transform duration-50 ease-linear will-change-transform min-[769px]:bg-(image:--bg)" style="--bg: url('{{ asset('images/website/contact-hero.webp') }}'); --bg-small: url('{{ asset('images/website/contact-hero-small.webp') }}')" aria-hidden="true"></div>
-        <div class="pointer-events-none absolute inset-0 z-1 bg-(image:--grain) bg-size-[200px_auto] opacity-4" aria-hidden="true"></div>
-        <div class="pointer-events-none absolute inset-0 z-2 bg-[radial-gradient(ellipse_75%_75%_at_50%_45%,rgba(7,6,10,0.35)_0%,rgba(7,6,10,0.72)_100%),linear-gradient(to_bottom,rgba(7,6,10,0.65)_0%,rgba(7,6,10,0.22)_40%,rgba(7,6,10,0.68)_100%)]" aria-hidden="true"></div>
-
-        <div {!! $intersect !!} class="{{ $reveal }} relative z-5 flex flex-1 flex-col items-center justify-center px-12 pt-nav pb-5 text-center max-[1100px]:px-6 max-md:px-5 max-md:pt-[calc(var(--spacing-nav)+48px)] max-md:pb-16">
-            <span class="mb-7 text-[9px] font-bold tracking-[0.35em] text-brand uppercase rtl:font-arabic rtl:tracking-normal">{{ __("We'd Love to Hear From You") }}</span>
-            @php($rule = 'mb-8 flex w-full max-w-[700px] items-center gap-[18px] before:h-px before:flex-1 before:bg-[linear-gradient(to_right,transparent,rgba(255,255,255,0.18),transparent)] after:h-px after:flex-1 after:bg-[linear-gradient(to_right,transparent,rgba(255,255,255,0.18),transparent)]')
-            <div class="{{ $rule }}" aria-hidden="true"><div class="size-[7px] shrink-0 rotate-45 border border-[rgba(200,16,46,0.7)] bg-[rgba(200,16,46,0.15)]"></div></div>
-            <h1 class="mb-8 font-sans text-[clamp(62px,8.5vw,128px)] leading-[0.96] font-light tracking-[-0.028em] text-white rtl:font-arabic rtl:leading-[1.25] rtl:tracking-normal max-md:text-[clamp(46px,10vw,72px)] [&_em]:block [&_em]:text-white/58 [&_em]:not-italic">{!! __("Let's Start a <em>Conversation</em>") !!}</h1>
-            <div class="{{ $rule }}" aria-hidden="true"><div class="size-[7px] shrink-0 rotate-45 border border-[rgba(200,16,46,0.7)] bg-[rgba(200,16,46,0.15)]"></div></div>
-            <p class="max-w-[50ch] text-[clamp(14px,1.1vw,16px)] leading-[1.85] font-light text-white/48 rtl:font-arabic">{{ __("Whether you're searching for your first home or expanding your investment portfolio — our experts are here to guide every step.") }}</p>
-        </div>
-    </section>
+    <x-website.statement-hero
+        :eyebrow="__('We\'d Love to Hear From You')"
+        :title="__('Let\'s Start a <em>Conversation</em>')"
+        :description="__('Whether you\'re searching for your first home or expanding your investment portfolio — our experts are here to guide every step.')"
+        :image="asset('images/website/contact-hero.webp')"
+        :image-small="asset('images/website/contact-hero-small.webp')"
+        :label="__('Contact Akar Town')"
+        em-block
+    />
 
     {{-- Form + map --}}
     <section id="contact" x-data class="relative overflow-hidden bg-page py-[clamp(80px,10vw,130px)] before:absolute before:inset-x-12 before:top-0 before:h-px before:bg-[linear-gradient(to_right,var(--color-brand)_0%,rgba(200,16,46,0.18)_45%,transparent_100%)] max-[1100px]:before:inset-x-6 rtl:before:bg-[linear-gradient(to_left,var(--color-brand)_0%,rgba(200,16,46,0.18)_45%,transparent_100%)] dark:bg-[#100f0d]" aria-label="{{ __('Contact Akar Town') }}">
@@ -103,12 +88,6 @@
         :eyebrow="__('Begin Your Journey')"
         :title="__('Can’t Find Your<br><em>Dream</em> Property?')"
         :description="__('Our expert consultants are ready to guide you through Egypt’s finest developments — personally, and at your pace.')"
-        :call-label="__('Call Us Directly')"
-        call-with-number
-        :whatsapp-sub="__('Instant replies · Send photos & requirements')"
-        :search-url="route('properties')"
-        :search-label="__('Browse All Properties')"
-        :search-sub="__('Explore curated listings across Egypt')"
-        search-icon="grid"
+        variant="contact"
     />
 </x-website.layout>

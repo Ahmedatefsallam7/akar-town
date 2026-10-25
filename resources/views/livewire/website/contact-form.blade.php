@@ -5,17 +5,17 @@
 @php
     use App\Livewire\Website\ContactForm;
 
-    $label = 'mb-2 text-[9px] font-bold tracking-[0.22em] text-ink-30 uppercase transition-colors duration-200 group-focus-within/field:text-brand rtl:font-arabic rtl:tracking-[0.04em]';
-    $box = 'w-full rounded-[14px] border-[1.5px] border-[rgba(13,13,13,0.1)] bg-white px-4 py-[13px] font-sans text-[14px] leading-[normal] text-ink outline-none [transition:border-color_0.25s_var(--ease-out-ex),box-shadow_0.25s_var(--ease-out-ex),background_0.25s] hover:border-[rgba(13,13,13,0.22)] rtl:font-arabic dark:border-white/10 dark:bg-white/5 dark:hover:border-white/22';
+    $label = 'mb-2 text-[9px] font-bold tracking-[0.22em] text-ink-60 uppercase transition-colors duration-200 group-focus-within/field:text-brand rtl:font-arabic rtl:tracking-[0.04em]';
+    $box = 'w-full rounded-[14px] border-[1.5px] border-[rgba(13,13,13,0.16)] bg-white px-4 py-[13px] font-sans text-[14px] leading-[normal] text-ink outline-none [transition:border-color_0.25s_var(--ease-out-ex),box-shadow_0.25s_var(--ease-out-ex),background_0.25s] hover:border-[rgba(13,13,13,0.3)] rtl:font-arabic dark:border-white/16 dark:bg-white/5 dark:hover:border-white/22';
     $focus = 'focus:border-brand focus:shadow-[0_0_0_4px_rgba(200,16,46,0.09)] dark:focus:bg-white/7 dark:focus:shadow-[0_0_0_4px_rgba(200,16,46,0.12)]';
-    $field = $box.' '.$focus.' appearance-none placeholder:font-light placeholder:text-ink-30';
+    $field = $box.' '.$focus.' appearance-none placeholder:font-light placeholder:text-[rgba(13,13,13,0.42)] dark:placeholder:text-white/38';
     $error = 'mt-1.5 block text-[12px] text-danger rtl:font-arabic';
     $interests = collect(ContactForm::INTERESTS)->map(fn (string $interest) => __($interest))->all();
 @endphp
 
 <div>
     @if ($sent)
-        <p class="rounded-[14px] border-[1.5px] border-[rgba(13,13,13,0.1)] bg-white px-4 py-[13px] text-[14px] leading-[1.6] text-ink rtl:font-arabic dark:border-white/10 dark:bg-white/5" role="status">
+        <p class="rounded-[14px] border-[1.5px] border-[rgba(13,13,13,0.16)] bg-white px-4 py-[13px] text-[14px] leading-[1.6] text-ink rtl:font-arabic dark:border-white/16 dark:bg-white/5" role="status">
             {{ __("Message sent — we'll be in touch within one business day.") }}
         </p>
     @else
@@ -56,7 +56,7 @@
                         class="{{ $box }} flex cursor-pointer items-center justify-between gap-[10px] text-start"
                         :class="{
                             'text-ink': $wire.interest,
-                            'text-ink-30': ! $wire.interest,
+                            'text-[rgba(13,13,13,0.42)] dark:text-white/38': ! $wire.interest,
                             'border-brand! shadow-[0_0_0_4px_rgba(200,16,46,0.09)] dark:bg-white/7 dark:shadow-[0_0_0_4px_rgba(200,16,46,0.12)]': open,
                         }"
                     >
@@ -98,7 +98,7 @@
                     <svg width="14" height="10" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="rtl:-scale-x-100"><path d="M1 6h14M9 1l6 5-6 5" /></svg>
                 </button>
             </div>
-            <p class="mt-[14px] text-[11px] leading-[1.6] text-ink-30 rtl:font-arabic">{{ __('By submitting this form, you agree to be contacted by Akar Town regarding your inquiry. We respect your privacy.') }}</p>
+            <p class="mt-[14px] text-[11px] leading-[1.6] text-ink-60 rtl:font-arabic">{{ __('By submitting this form, you agree to be contacted by Akar Town regarding your inquiry. We respect your privacy.') }}</p>
         </form>
     @endif
 </div>
