@@ -1,6 +1,9 @@
 {
     "$schema": "https://openapi.vercel.sh/vercel.json",
     "version": 2,
+    "regions": [
+        "fra1"
+    ],
     "builds": [
         {
             "src": "server.php",
@@ -24,7 +27,7 @@
     "env": {
         "ASSET_URL": "/",
         "SESSION_DRIVER": "cookie",
-        "CACHE_STORE": "array",
+        "CACHE_STORE": "database",
         "QUEUE_CONNECTION": "sync",
         "LOG_CHANNEL": "stderr",
         "TRUSTED_PROXIES": "*",

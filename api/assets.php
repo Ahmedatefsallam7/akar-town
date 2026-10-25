@@ -49,10 +49,11 @@ header('Content-Type: '.$mimeTypes[$extension]);
 header('Content-Length: '.(string) filesize($filePath));
 header('X-Content-Type-Options: nosniff');
 
+// s-maxage: Vercel's CDN keeps the file too, so PHP runs once per file instead of on every visit.
 if (str_starts_with($requestedFile, 'public/build/assets/')) {
-    header('Cache-Control: public, max-age=31536000, immutable');
+    header('Cache-Control: public, max-age=31536000, s-maxage=31536000, immutable');
 } else {
-    header('Cache-Control: public, max-age=3600');
+    header('Cache-Control: public, max-age=3600, s-maxage=86400');
 }
 
 readfile($filePath);

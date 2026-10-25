@@ -60,8 +60,9 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                Mysql::ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA')
-                    ? base_path(env('MYSQL_ATTR_SSL_CA'))
+                // A path inside the project (e.g. database/aiven-ca.pem) or a full path on the server.
+                Mysql::ATTR_SSL_CA => ($ca = env('MYSQL_ATTR_SSL_CA'))
+                    ? (str_starts_with($ca, '/') ? $ca : base_path($ca))
                     : null,
             ]) : [],
         ],
