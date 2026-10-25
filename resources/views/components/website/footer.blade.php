@@ -13,6 +13,8 @@
         'facebook' => $business->social_facebook,
         'linkedin' => $business->social_linkedin,
         'youtube' => $business->social_youtube,
+        // Not in the design (it shows four): Business Info has it, so it is shown too.
+        'tiktok' => $business->social_tiktok,
     ]);
     $label = 'mb-[0.9rem] block text-[0.68rem] font-semibold tracking-[0.16em] text-cream/55 uppercase rtl:tracking-[0.04em]';
     $link = 'text-[0.92rem] font-medium text-cream/85 transition-colors duration-300 hover:text-cream focus-visible:text-cream';
@@ -77,7 +79,7 @@
                             <a
                                 href="{{ $url }}"
                                 class="flex size-9 items-center justify-center rounded-full border border-cream/35 text-cream/80 transition-[border-color,color] duration-300 hover:border-cream hover:text-cream focus-visible:border-cream focus-visible:text-cream"
-                                aria-label="{{ ucfirst($network) }}"
+                                aria-label="{{ $network === 'tiktok' ? 'TikTok' : ucfirst($network) }}"
                                 target="_blank"
                                 rel="noopener noreferrer"
                             >

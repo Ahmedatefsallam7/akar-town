@@ -34,6 +34,7 @@ class LayoutTest extends TestCase
         $business->hotline = '01150000727';
         $business->social_instagram = 'https://www.instagram.com/akar.town.real.estate/';
         $business->social_facebook = null;
+        $business->social_tiktok = 'https://www.tiktok.com/@akartown';
         $business->save();
 
         foreach (['home', 'properties', 'projects', 'developers', 'about', 'contact', 'careers'] as $page) {
@@ -46,6 +47,7 @@ class LayoutTest extends TestCase
                 ->assertSee('href="tel:01150000727"', false)
                 ->assertSee('https://www.instagram.com/akar.town.real.estate/', false)
                 ->assertDontSee('aria-label="Facebook"', false)
+                ->assertSee(['aria-label="TikTok"', 'href="https://www.tiktok.com/@akartown"'], false)
                 ->assertSee($business->mini_description_en)
                 ->assertSee(['Property Matching', 'Privacy Policy'])
                 ->assertSee('href="'.route('locations').'"', false)
