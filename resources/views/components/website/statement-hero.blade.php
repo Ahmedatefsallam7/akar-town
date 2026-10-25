@@ -1,7 +1,8 @@
 {{--
-    The design's full-screen centred hero of the contact and careers pages (.contact-hero / .career-hero): photo with
-    parallax, grain and shade, eyebrow, two diamond rules around the title (may hold <em>, shown on its own line when
-    emBlock) and a short text. Phones take the 900 px copy of the photo; the height follows the content there.
+    The design's full-screen centred hero of the contact, careers and about pages (.contact-hero / .career-hero /
+    .about-hero): photo with parallax, grain and shade, eyebrow, two diamond rules around the title (may hold <em>, shown
+    on its own line when emBlock) and a short text. Phones take the 900 px copy of the photo. At least the screen's
+    height (the design's 100vh), taller when an admin text is long so nothing is cut; on phones it follows the content.
 --}}
 @props(['eyebrow', 'title', 'description', 'image', 'imageSmall', 'label', 'brightness' => 'brightness-50 grayscale-25', 'emBlock' => false])
 
@@ -18,7 +19,7 @@
 <section
     x-data
     x-init="const bg = $refs.bg; const move = () => window.scrollY < window.innerHeight && (bg.style.transform = `translateY(${window.scrollY * 0.35}px)`); window.addEventListener('scroll', move, { passive: true }); move()"
-    class="relative flex h-screen min-h-[680px] flex-col overflow-hidden bg-[#07060a] max-md:h-auto max-md:min-h-0"
+    class="relative flex min-h-[max(100vh,680px)] flex-col overflow-hidden bg-[#07060a] max-md:min-h-0"
     aria-label="{{ $label }}"
 >
     <div x-ref="bg" class="absolute inset-0 bg-[#07060a] bg-(image:--bg-small) bg-cover bg-center bg-no-repeat {{ $brightness }} transition-transform duration-50 ease-linear will-change-transform min-[769px]:bg-(image:--bg)" style="--bg: url('{{ $image }}'); --bg-small: url('{{ $imageSmall }}')" aria-hidden="true"></div>
