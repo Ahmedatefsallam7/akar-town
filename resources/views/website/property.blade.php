@@ -115,13 +115,12 @@
                         <svg x-show="! pdfLoading" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{!! $pdfIcon !!}</svg>
                         <span>{{ __('Download PDF') }}</span>
                     </button>
-                    @if ($business->hotline)
-                        <a
-                            href="tel:{{ $business->hotline }}"
-                            @click="$track('phone', { unit_id: {{ $p['id'] }} })"
-                            class="inline-flex cursor-pointer items-center gap-2 rounded-full border-[1.5px] border-white/65 bg-white/48 px-[26px] py-[13px] font-sans text-[13px] leading-none font-[650] tracking-[0.055em] whitespace-nowrap text-brand-dk shadow-[0_2px_16px_rgba(0,0,0,0.08),0_1px_4px_rgba(0,0,0,0.05)] backdrop-blur-[20px] backdrop-saturate-200 transition-all duration-350 ease-out-ex hover:-translate-y-0.5 dark:border-white/28 dark:bg-transparent dark:text-white dark:shadow-none dark:backdrop-blur-none dark:hover:border-white/48 dark:hover:bg-white/8 rtl:font-arabic [&_svg]:rtl:-scale-x-100"
-                        >{!! $schedule !!}<span>{{ __('Schedule a Visit') }}</span></a>
-                    @endif
+                    {{-- Opens the booking window (ScheduleViewing). --}}
+                    <button
+                        type="button"
+                        @click="$track('form', { unit_id: {{ $p['id'] }} }); $dispatch('schedule-viewing')"
+                        class="inline-flex cursor-pointer items-center gap-2 rounded-full border-[1.5px] border-white/65 bg-white/48 px-[26px] py-[13px] font-sans text-[13px] leading-none font-[650] tracking-[0.055em] whitespace-nowrap text-brand-dk shadow-[0_2px_16px_rgba(0,0,0,0.08),0_1px_4px_rgba(0,0,0,0.05)] backdrop-blur-[20px] backdrop-saturate-200 transition-all duration-350 ease-out-ex hover:-translate-y-0.5 dark:border-white/28 dark:bg-transparent dark:text-white dark:shadow-none dark:backdrop-blur-none dark:hover:border-white/48 dark:hover:bg-white/8 rtl:font-arabic [&_svg]:rtl:-scale-x-100"
+                    >{!! $schedule !!}<span>{{ __('Schedule a Visit') }}</span></button>
                 </div>
             </div>
 
@@ -211,9 +210,7 @@
                 @endif
             </div>
             <div class="flex items-center gap-[10px]">
-                @if ($business->hotline)
-                    <a href="tel:{{ $business->hotline }}" @click="$track('phone', { unit_id: {{ $p['id'] }} })" class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-[linear-gradient(135deg,rgba(215,20,52,0.96)_0%,rgb(185,10,36)_100%)] px-[18px] py-2 font-sans text-[11px] leading-none font-[650] tracking-[0.06em] whitespace-nowrap text-white backdrop-blur-[20px] transition-all duration-350 ease-out-ex hover:-translate-y-0.5 hover:bg-[linear-gradient(135deg,rgba(225,25,58,0.98)_0%,rgb(200,16,46)_100%)] rtl:font-arabic">{{ __('Schedule Visit') }}</a>
-                @endif
+                <button type="button" @click="$track('form', { unit_id: {{ $p['id'] }} }); $dispatch('schedule-viewing')" class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-[linear-gradient(135deg,rgba(215,20,52,0.96)_0%,rgb(185,10,36)_100%)] px-[18px] py-2 font-sans text-[11px] leading-none font-[650] tracking-[0.06em] whitespace-nowrap text-white backdrop-blur-[20px] transition-all duration-350 ease-out-ex hover:-translate-y-0.5 hover:bg-[linear-gradient(135deg,rgba(225,25,58,0.98)_0%,rgb(200,16,46)_100%)] rtl:font-arabic">{{ __('Schedule Visit') }}</button>
                 <button type="button" @click="$store.compare.toggle(@js($compare))" class="{{ $stickyButton }}" :class="$store.compare.has({{ $p['id'] }}) ? 'border-brand! bg-[rgba(200,16,46,0.15)]! text-brand!' : 'hover:text-brand'" title="{{ __('Compare') }}" aria-label="{{ __('Compare property') }}">
                     <x-website.icons.compare width="15" height="15" />
                 </button>
@@ -385,9 +382,7 @@
                         </p>
                         <div class="mb-5 h-px bg-white/8 dark:bg-[rgba(237,232,223,0.08)]"></div>
                         @php($cardButton = 'mb-[10px] inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-full px-[26px] py-[13px] font-sans text-[13px] leading-none font-[650] tracking-[0.055em] whitespace-nowrap text-white transition-all duration-350 ease-out-ex hover:-translate-y-0.5 rtl:font-arabic')
-                        @if ($business->hotline)
-                            <a href="tel:{{ $business->hotline }}" @click="$track('phone', { unit_id: {{ $p['id'] }} })" class="{{ $cardButton }} border-[1.5px] border-white/30 bg-white/15 backdrop-blur-[8px] hover:border-white/50 hover:bg-white/25 dark:border-[rgba(212,20,44,0.35)] dark:bg-[rgba(212,20,44,0.2)] dark:hover:bg-[rgba(212,20,44,0.32)]">{!! $schedule !!}<span>{{ __('Schedule Viewing') }}</span></a>
-                        @endif
+                        <button type="button" @click="$track('form', { unit_id: {{ $p['id'] }} }); $dispatch('schedule-viewing')" class="{{ $cardButton }} border-[1.5px] border-white/30 bg-white/15 backdrop-blur-[8px] hover:border-white/50 hover:bg-white/25 dark:border-[rgba(212,20,44,0.35)] dark:bg-[rgba(212,20,44,0.2)] dark:hover:bg-[rgba(212,20,44,0.32)]">{!! $schedule !!}<span>{{ __('Schedule Viewing') }}</span></button>
                         {{-- when the user fill the form it will tracked --}}
                         <a href="{{ route('contact', ['property' => $slug]) }}" @click="$track('form', { unit_id: {{ $p['id'] }} })" class="{{ $cardButton }} border-[1.5px] border-white/25 bg-white/6 hover:border-white/50 hover:bg-white/13 dark:border-[rgba(237,232,223,0.14)] dark:bg-[rgba(237,232,223,0.06)] dark:hover:bg-[rgba(237,232,223,0.1)]">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
@@ -517,4 +512,5 @@
             </section>
         @endif
     </div>
+    <livewire:website.schedule-viewing :unit-id="$p['id']" />
 </x-website.layout>

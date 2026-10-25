@@ -789,5 +789,17 @@
     "My area isn’t listed — type my address": "منطقتي مش موجودة — اكتب عنواني",
     ":type for Sale": ":type للبيع",
     ":type for Rent": ":type للإيجار",
-    "Neighbourhood": "الحي"
+    "Neighbourhood": "الحي",
+    "Schedule a Viewing": "احجز معاينة",
+    "Pick a time that suits you and our team will confirm it.": "اختر الوقت المناسب لك وسيؤكده فريقنا.",
+    "Viewing Requested!": "تم طلب المعاينة!",
+    "Our team will contact you shortly to confirm the details.": "سيتواصل معك فريقنا قريباً لتأكيد التفاصيل.",
+    "Book Another Time": "احجز موعداً آخر",
+    "Meeting Type": "نوع الموعد",
+    "Site Visit": "زيارة الموقع",
+    "Online": "أونلاين",
+    "Preferred Date & Time": "التاريخ والوقت المفضل",
+    "Any specific questions or requirements…": "أي أسئلة أو متطلبات خاصة…",
+    "Confirm Viewing Request": "تأكيد طلب المعاينة",
+    "optional": "اختياري"
 }
