@@ -11,6 +11,7 @@ use App\Support\Website\Image;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Modules\GeneralSettings\Settings\CtaRibbonSettings;
+use Modules\GeneralSettings\Settings\HomeSettings;
 use Modules\GeneralSettings\Settings\SiteSettings;
 use Modules\Locations\Models\Location;
 use Modules\Lookups\Models\Lookup;
@@ -95,6 +96,23 @@ class HomeTest extends TestCase
         Slider::query()->where('content_type', 'cta_ribbon')->update(['is_active' => false]);
 
         $this->get(route('home'))->assertOk()->assertDontSee('Talk to our experts.');
+    }
+
+    public function test_why_choose_us_has_the_home_settings_button_and_only_a_safe_link(): void
+    {
+        Slider::factory()->create(['content_type' => 'properties', 'title_en' => 'Featured Properties', 'order' => 1, 'is_active' => true]);
+        Unit::factory()->create(['is_featured' => true]);
+        $home = app(HomeSettings::class);
+        $home->why_choose_cta_text_en = 'Discover Our Story';
+        $home->why_choose_cta_url = 'https://akartown.test/story';
+        $home->save();
+
+        $this->get(route('home'))->assertOk()->assertSee(['Discover Our Story', 'href="https://akartown.test/story"'], false);
+
+        $home->why_choose_cta_url = 'javascript:alert(1)';
+        $home->save();
+
+        $this->get(route('home'))->assertOk()->assertDontSee('javascript:alert(1)', false)->assertSee('href="'.route('about').'"', false);
     }
 
     public function test_missing_photos_show_the_placeholder_instead_of_a_broken_image(): void
