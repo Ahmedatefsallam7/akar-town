@@ -7,6 +7,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
+use Modules\Galleries\Models\Gallery;
 use Modules\Lookups\Models\Lookup;
 use Modules\Lookups\Support\LookupUsage;
 use Modules\UnitRequests\Actions\ConvertUnitRequestToUnit;
@@ -169,6 +170,28 @@ class UnitRequestResourceTest extends TestCase
         Livewire::test(ViewUnitRequest::class, ['record' => $request->getRouteKey()])
             ->assertActionHidden('convertToUnit')
             ->assertActionVisible('viewUnit');
+    }
+
+    public function test_converting_turns_the_photos_into_the_propertys_gallery(): void
+    {
+        $request = UnitRequest::factory()->create(['name_en' => 'Garden Villa', 'name_ar' => 'فيلا بحديقة']);
+        foreach (['a.jpg', 'b.jpg'] as $name) {
+            $request->addMedia(UploadedFile::fake()->image($name, 400, 300))->toMediaCollection(UnitRequest::PHOTOS);
+        }
+
+        $unit = app(ConvertUnitRequestToUnit::class)($request);
+
+        $this->assertSame('Garden Villa', $unit->gallery->name_en);
+        $this->assertCount(2, $unit->gallery->getMedia(Gallery::PHOTOS));
+        $this->assertCount(2, $request->fresh()->getMedia(UnitRequest::PHOTOS)); // the request keeps its own
+    }
+
+    public function test_without_photos_no_gallery_is_made(): void
+    {
+        $unit = app(ConvertUnitRequestToUnit::class)(UnitRequest::factory()->create());
+
+        $this->assertNull($unit->gallery_id);
+        $this->assertSame(0, Gallery::count());
     }
 
     public function test_a_request_is_converted_only_once(): void

@@ -28,6 +28,11 @@ class UnitRequest extends Model implements CrmLead, HasMedia
 
     public const FEATURED_IMAGE = 'featured_image';
 
+    /** More photos of the unit (the website form takes up to MAX_PHOTOS; the first one is also the featured image). */
+    public const PHOTOS = 'photos';
+
+    public const MAX_PHOTOS = 10;
+
     public const PENDING = 'pending';
 
     public const REVIEWED = 'reviewed';
@@ -107,6 +112,8 @@ class UnitRequest extends Model implements CrmLead, HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection(self::FEATURED_IMAGE)->useDisk('public')->singleFile()
+            ->registerMediaConversions(fn () => $this->addMediaConversion('thumb')->fit(Fit::Crop, 160, 160)->format('webp')->nonQueued());
+        $this->addMediaCollection(self::PHOTOS)->useDisk('public')
             ->registerMediaConversions(fn () => $this->addMediaConversion('thumb')->fit(Fit::Crop, 160, 160)->format('webp')->nonQueued());
     }
 

@@ -742,6 +742,8 @@ return [
     ],
 
     'unit_requests' => [
+        'photos' => 'Photos',
+        'photos_help' => 'PNG, JPG or WebP, up to :count photos, max :size MB each. Drag to re-order. Converting the request makes them the property\'s gallery.',
         'singular' => 'Sell Request',
         'plural' => 'Sell Property Requests',
         'title' => 'Sell Property Requests',
