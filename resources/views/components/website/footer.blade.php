@@ -53,8 +53,8 @@
         @endif
     >
         <div class="mx-auto grid w-full max-w-[1320px] grid-cols-[1.4fr_1fr_1fr_1.6fr] gap-[clamp(1.5rem,3vw,2.5rem)] px-12 max-[620px]:px-5 max-lg:grid-cols-2 max-lg:gap-y-[clamp(1.75rem,5vh,2.5rem)] max-sm:gap-x-5 max-sm:gap-y-7">
-            {{-- Brand --}}
-            <div class="max-sm:order-1 max-sm:col-span-full" data-reveal>
+            {{-- Brand: its own row on tablets (the design's developer-details.html), so Explore and Company sit side by side. --}}
+            <div class="max-[960px]:col-span-full max-sm:order-1" data-reveal>
                 <a href="{{ route('home') }}" class="mb-4 block" aria-label="{{ __('Akar Town — Home') }}">
                     <x-website.logo class="block h-[26px] w-auto" />
                 </a>
@@ -66,7 +66,7 @@
                         [$stats['years'].'+', __('Years')],
                     ] as [$value, $statLabel])
                         <div>
-                            <span class="mb-[0.28rem] block text-[clamp(1.4rem,2.5vw,1.9rem)] leading-none font-bold text-[#c8102e]">{{ $value }}</span>
+                            <span dir="ltr" class="mb-[0.28rem] block text-[clamp(1.4rem,2.5vw,1.9rem)] leading-none font-bold text-[#c8102e] rtl:text-right">{{ $value }}</span>
                             <span class="block text-[0.6rem] font-bold tracking-[0.1em] text-cream/60 uppercase">{{ $statLabel }}</span>
                         </div>
                     @endforeach

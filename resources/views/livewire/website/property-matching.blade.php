@@ -7,7 +7,7 @@
 @php
     $label = 'mb-[0.9rem] block text-[0.68rem] font-semibold tracking-[0.16em] text-cream/55 uppercase rtl:tracking-[0.04em]';
     $fieldLabel = 'mb-[0.45rem] block text-[0.6rem] font-bold tracking-[0.1em] text-cream/60 uppercase';
-    $input = 'min-w-0 flex-1 rounded-[10px] border-[1.5px] border-cream/14 bg-cream/5 px-3 py-[10px] text-[0.8rem] text-cream placeholder:text-cream/42 dark:border-line-md dark:bg-surface-2 dark:text-ink dark:placeholder:text-ink-30';
+    $input = 'w-full min-w-0 flex-1 rounded-[10px] border-[1.5px] border-cream/14 bg-cream/5 px-3 py-[10px] text-[0.8rem] text-cream placeholder:text-cream/42 dark:border-line-md dark:bg-surface-2 dark:text-ink dark:placeholder:text-ink-30';
     $error = 'mt-1 block text-[0.7rem] text-[#ff8a8a]';
 @endphp
 
@@ -53,7 +53,7 @@
             </div>
 
             <span class="{{ $fieldLabel }} [@media(max-height:720px)]:hidden">{{ __('Your Details') }}</span>
-            <div class="mb-[0.85rem] grid grid-cols-2 gap-[0.4rem] max-xs:grid-cols-1">
+            <div class="mb-[0.85rem] grid grid-cols-[repeat(2,minmax(0,1fr))] gap-[0.4rem] max-xs:grid-cols-1">
                 <div class="flex flex-col">
                     <input type="text" wire:model="fullName" autocomplete="name" class="{{ $input }}" placeholder="{{ __('Full name') }}" aria-label="{{ __('Full name') }}" />
                     @error('fullName') <span class="{{ $error }}">{{ $message }}</span> @enderror
