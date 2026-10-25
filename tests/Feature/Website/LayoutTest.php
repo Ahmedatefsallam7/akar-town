@@ -127,4 +127,17 @@ class LayoutTest extends TestCase
 
         $this->assertLessThanOrEqual(4, count(DB::getQueryLog()), json_encode(array_column(DB::getQueryLog(), 'query')));
     }
+
+    public function test_both_fonts_are_declared_but_only_arabic_pages_preload_the_arabic_one(): void
+    {
+        $head = fn (string $html) => (string) str($html)->before('</head>');
+
+        $english = $head($this->get(route('about'))->assertOk()->getContent());
+        $this->assertStringContainsString('Noto Kufi Arabic', $english); // the language switch's "عر"
+        $this->assertMatchesRegularExpression('/rel="preload" as="font" href="[^"]*archivo/', $english);
+        $this->assertDoesNotMatchRegularExpression('/rel="preload" as="font" href="[^"]*noto-kufi-arabic/', $english);
+
+        $arabic = $head($this->withCookie('locale', 'ar')->get(route('about'))->assertOk()->getContent());
+        $this->assertMatchesRegularExpression('/rel="preload" as="font" href="[^"]*noto-kufi-arabic/', $arabic);
+    }
 }

@@ -352,7 +352,7 @@
                                 <svg viewBox="0 0 24 24" fill="currentColor" class="size-[13px] text-brand" aria-hidden="true">{!! $pin !!}</svg>
                                 {{ $p['place'] }}
                             </div>
-                            <div x-ref="map" x-intersect.once.margin.300px="map()" class="relative z-0 h-[380px] w-full overflow-hidden rounded-xl border border-ink-10 max-[900px]:h-[260px] max-[640px]:h-[220px]"></div>
+                            <div x-ref="map" x-intersect.once.margin.300px="map()" class="relative z-0 h-[380px] w-full overflow-hidden rounded-xl border border-ink-10 font-[inherit]! [&_.leaflet-bar_a]:font-[inherit]! [&_.leaflet-popup-close-button]:font-[inherit]! max-[900px]:h-[260px] max-[640px]:h-[220px]"></div>
                         </div>
                         <div class="{{ $sep }}"></div>
                     @endif

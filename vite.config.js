@@ -11,7 +11,8 @@ export default defineConfig({
             fonts: [
                 // Public website: the same Google Fonts and weights as the design, self-hosted.
                 google('Archivo', { weights: [300, 400, 500, 600, 700], styles: ['normal'], preload: [{ weight: 400 }] }),
-                google('Noto Kufi Arabic', { weights: [300, 400, 500, 600], subsets: ['arabic', 'latin'] }),
+                // Arabic letters only: English words and numbers on Arabic pages fall back to Archivo (as on English pages).
+                google('Noto Kufi Arabic', { weights: [300, 400, 500, 600], subsets: ['arabic'] }),
             ],
         }),
         tailwindcss(),

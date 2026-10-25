@@ -15,7 +15,7 @@
     aria-label="{{ __('Property gallery') }}"
 >
     <div class="relative flex h-[min(80vh,700px)] w-[min(90vw,1100px)] items-center justify-center">
-        <button type="button" @click="$store.projectLightbox.close()" class="absolute -top-11 right-0 cursor-pointer border-none bg-none text-[28px] leading-none text-white/70 transition-colors duration-200 hover:text-white" aria-label="{{ __('Close') }}">&#x2715;</button>
+        <button type="button" @click="$store.projectLightbox.close()" class="absolute -top-11 right-0 cursor-pointer border-none bg-none leading-none text-white/70 transition-colors duration-200 hover:text-white" aria-label="{{ __('Close') }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg></button>
         <img
             :src="$store.projectLightbox.images[$store.projectLightbox.index]"
             x-on:load="$el.style.opacity = 1"

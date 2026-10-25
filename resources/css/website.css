@@ -22,8 +22,10 @@
     --breakpoint-lg: 1025px;
     --breakpoint-xl: 1101px;
 
-    --font-sans: var(--font-archivo), system-ui, sans-serif;
-    --font-arabic: var(--font-noto-kufi-arabic), system-ui, sans-serif;
+    /* Each font falls back to the other: Arabic words inside English text (prices "ج.م", "م²") and symbols the
+       Arabic font lacks ("²") keep the site's fonts instead of the system's Arial / Noto Sans. */
+    --font-sans: var(--font-archivo), var(--font-noto-kufi-arabic), system-ui, sans-serif;
+    --font-arabic: var(--font-noto-kufi-arabic), var(--font-archivo), system-ui, sans-serif;
 
     /* Light theme (the design's :root) */
     --color-page: #faf8f5;
