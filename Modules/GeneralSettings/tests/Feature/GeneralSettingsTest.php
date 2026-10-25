@@ -2,6 +2,7 @@
 
 namespace Modules\GeneralSettings\Tests\Feature;
 
+use App\Support\Website\SiteImages;
 use Filament\Forms\Components\Repeater;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -16,12 +17,14 @@ use Modules\GeneralSettings\Filament\Clusters\GeneralSettings\Pages\HomeSettings
 use Modules\GeneralSettings\Filament\Clusters\GeneralSettings\Pages\PrivacyPolicySettingsPage;
 use Modules\GeneralSettings\Filament\Clusters\GeneralSettings\Pages\SubmitPropertySettingsPage;
 use Modules\GeneralSettings\Filament\Clusters\GeneralSettings\Pages\TermsOfUseSettingsPage;
+use Modules\GeneralSettings\Filament\Clusters\GeneralSettings\Pages\WebsiteImagesSettingsPage;
 use Modules\GeneralSettings\Filament\Clusters\GeneralSettingsCluster;
 use Modules\GeneralSettings\Settings\AboutUsSettings;
 use Modules\GeneralSettings\Settings\BusinessInfoSettings;
 use Modules\GeneralSettings\Settings\CtaRibbonSettings;
 use Modules\GeneralSettings\Settings\HomeSettings;
 use Modules\GeneralSettings\Settings\TermsOfUseSettings;
+use Modules\GeneralSettings\Settings\WebsiteImagesSettings;
 use Modules\Users\Support\PermissionModules;
 use Tests\TestCase;
 
@@ -38,6 +41,7 @@ class GeneralSettingsTest extends TestCase
         DeveloperDetailsSettingsPage::class,
         PrivacyPolicySettingsPage::class,
         TermsOfUseSettingsPage::class,
+        WebsiteImagesSettingsPage::class,
     ];
 
     public function test_users_without_the_permission_are_forbidden(): void
@@ -205,6 +209,65 @@ class GeneralSettingsTest extends TestCase
             ->assertHasNoFormErrors();
         $this->assertNull(app(AboutUsSettings::class)->refresh()->story_image);
         Storage::disk('public')->assertMissing($second);
+    }
+
+    public function test_a_website_photo_gets_a_phone_copy_and_a_replaced_one_is_deleted_with_it(): void
+    {
+        Storage::fake('public');
+        $this->actingAs($this->createAdmin());
+
+        Livewire::test(WebsiteImagesSettingsPage::class)
+            ->fillForm(['contact_hero' => [UploadedFile::fake()->image('hero.jpg', 1600, 900)]])
+            ->call('save')
+            ->assertHasNoFormErrors();
+        $first = app(WebsiteImagesSettings::class)->refresh()->contact_hero;
+        Storage::disk('public')->assertExists([$first, SiteImages::smallPath($first)]);
+        $this->assertSame(900, getimagesize(Storage::disk('public')->path(SiteImages::smallPath($first)))[0]);
+
+        Livewire::test(WebsiteImagesSettingsPage::class)
+            ->fillForm(['contact_hero' => [UploadedFile::fake()->image('new.webp', 1600, 900)]])
+            ->call('save')
+            ->assertHasNoFormErrors();
+        $second = app(WebsiteImagesSettings::class)->refresh()->contact_hero;
+        Storage::disk('public')->assertExists([$second, SiteImages::smallPath($second)]);
+        Storage::disk('public')->assertMissing([$first, SiteImages::smallPath($first)]);
+
+        Livewire::test(WebsiteImagesSettingsPage::class)->fillForm(['contact_hero' => null])->call('save')->assertHasNoFormErrors();
+        Storage::disk('public')->assertMissing([$second, SiteImages::smallPath($second)]);
+    }
+
+    public function test_a_website_photo_must_have_its_places_shape_and_be_wide_enough(): void
+    {
+        Storage::fake('public');
+        $this->actingAs($this->createAdmin());
+        $save = fn (int $width, int $height) => Livewire::test(WebsiteImagesSettingsPage::class)
+            ->fillForm(['page_header' => [UploadedFile::fake()->image('header.jpg', $width, $height)]])
+            ->call('save');
+
+        // The browser crops it to the wide 3:1 strip before uploading; another shape is refused.
+        $save(1500, 1500)->assertHasFormErrors(['page_header']);
+        // Too small: it would be stretched across the screen.
+        $save(900, 300)->assertHasFormErrors(['page_header']);
+        $save(1500, 500)->assertHasNoFormErrors();
+
+        $this->assertNotNull(app(WebsiteImagesSettings::class)->refresh()->page_header);
+    }
+
+    public function test_the_logo_is_a_png_or_webp_without_svg(): void
+    {
+        Storage::fake('public');
+        $this->actingAs($this->createAdmin());
+
+        Livewire::test(WebsiteImagesSettingsPage::class)
+            ->fillForm(['logo' => [UploadedFile::fake()->create('logo.svg', 5, 'image/svg+xml')]])
+            ->call('save')
+            ->assertHasFormErrors(['logo']);
+
+        Livewire::test(WebsiteImagesSettingsPage::class)
+            ->fillForm(['logo' => [UploadedFile::fake()->image('logo.png', 400, 80)]])
+            ->call('save')
+            ->assertHasNoFormErrors();
+        $this->assertNotNull(app(WebsiteImagesSettings::class)->refresh()->logo);
     }
 
     public function test_why_akar_town_cards_cannot_be_added(): void

@@ -8,6 +8,7 @@
 @php
     $business = app(\Modules\GeneralSettings\Settings\BusinessInfoSettings::class);
     $stats = \App\Support\Website\FooterStats::get();
+    [$footerBg, $footerBgSmall] = \App\Support\Website\SiteImages::get('footer_background');
     $socials = array_filter([
         'instagram' => $business->social_instagram,
         'facebook' => $business->social_facebook,
@@ -39,8 +40,8 @@
         @endif
         {{-- Set when the visitor nears the footer (footerReveal.lazyBackground): it isn't fetched with the page. Phones
              take the 900 px copy. --}}
-        data-bg="{{ asset('images/website/footer-bg.webp') }}"
-        data-bg-small="{{ asset('images/website/footer-bg-small.webp') }}"
+        data-bg="{{ $footerBg }}"
+        data-bg-small="{{ $footerBgSmall }}"
         aria-hidden="true"
     ></div>
     <div class="pointer-events-none absolute inset-0 bg-[linear-gradient(0deg,#080808_12%,rgba(8,8,8,0.05)_72%)]" aria-hidden="true"></div>

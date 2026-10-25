@@ -24,7 +24,7 @@
         :title="e($title)"
         :count="$vacancies"
         :count-label="trans_choice('Open Position|Open Positions', $vacancies)"
-        :image="asset('images/website/careers-hero.webp')"
+        :image="\App\Support\Website\SiteImages::get('careers_hero')[0]"
         :animate="false"
     />
 

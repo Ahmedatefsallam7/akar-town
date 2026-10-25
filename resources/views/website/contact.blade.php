@@ -30,8 +30,8 @@
         :eyebrow="__('We\'d Love to Hear From You')"
         :title="__('Let\'s Start a <em>Conversation</em>')"
         :description="__('Whether you\'re searching for your first home or expanding your investment portfolio — our experts are here to guide every step.')"
-        :image="asset('images/website/contact-hero.webp')"
-        :image-small="asset('images/website/contact-hero-small.webp')"
+        :image="\App\Support\Website\SiteImages::get('contact_hero')[0]"
+        :image-small="\App\Support\Website\SiteImages::get('contact_hero')[1]"
         :label="__('Contact Akar Town')"
         em-block
     />

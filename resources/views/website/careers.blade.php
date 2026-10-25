@@ -14,8 +14,8 @@
         :eyebrow="__('Shape the Future of Real Estate')"
         :title="__('Build Something<br><em>Remarkable</em>')"
         :description="__('Join a team of passionate professionals redefining luxury real estate across Egypt’s most prestigious destinations.')"
-        :image="asset('images/website/careers-hero.webp')"
-        :image-small="asset('images/website/careers-hero-small.webp')"
+        :image="\App\Support\Website\SiteImages::get('careers_hero')[0]"
+        :image-small="\App\Support\Website\SiteImages::get('careers_hero')[1]"
         :label="__('Careers at Akar Town')"
         brightness="brightness-48 grayscale-20"
     />

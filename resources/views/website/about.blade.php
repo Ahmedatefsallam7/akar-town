@@ -34,8 +34,8 @@
         :eyebrow="__('Egypt’s Premier Luxury Real Estate')"
         :title="$emphasise($about->{'hero_header_'.$locale}, 2)"
         :description="$about->{'hero_body_'.$locale}"
-        :image="asset('images/website/about-hero.webp')"
-        :image-small="asset('images/website/about-hero-small.webp')"
+        :image="\App\Support\Website\SiteImages::get('about_hero')[0]"
+        :image-small="\App\Support\Website\SiteImages::get('about_hero')[1]"
         :label="__('About Akar Town')"
         brightness="brightness-52 grayscale-20"
         em-block

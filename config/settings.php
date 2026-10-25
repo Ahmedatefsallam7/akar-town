@@ -9,6 +9,7 @@ use Modules\GeneralSettings\Settings\PrivacyPolicySettings;
 use Modules\GeneralSettings\Settings\SiteSettings;
 use Modules\GeneralSettings\Settings\SubmitPropertySettings;
 use Modules\GeneralSettings\Settings\TermsOfUseSettings;
+use Modules\GeneralSettings\Settings\WebsiteImagesSettings;
 
 /*
  * spatie/laravel-settings: only what differs from the package defaults (merged with them).
@@ -25,6 +26,7 @@ return [
         PrivacyPolicySettings::class,
         TermsOfUseSettings::class,
         SiteSettings::class,
+        WebsiteImagesSettings::class,
     ],
 
     'auto_discover_settings' => [],
