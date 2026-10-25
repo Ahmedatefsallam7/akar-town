@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException;
 use Livewire\Livewire;
 use Modules\Developers\Models\Developer;
+use Modules\GeneralSettings\Settings\DeveloperDetailsSettings;
 use Modules\GeneralSettings\Settings\SiteSettings;
 use Modules\Projects\Models\Project;
 use Tests\TestCase;
@@ -147,6 +148,28 @@ class DevelopersTest extends TestCase
         $this->get(route('developers.show', 'mountain-view'))
             ->assertOk()
             ->assertDontSee(['Follow us on', 'Projects by']);
+    }
+
+    public function test_what_to_expect_shows_the_developer_details_cards(): void
+    {
+        $settings = app(DeveloperDetailsSettings::class);
+        $settings->what_to_expect_cards = [
+            ['icon' => null, 'header_en' => 'Clear Terms', 'header_ar' => 'شروط واضحة', 'body_en' => 'Transparent payment plans.', 'body_ar' => 'خطط سداد شفافة.'],
+            ['icon' => null, 'header_en' => '', 'header_ar' => '', 'body_en' => 'Empty card', 'body_ar' => ''],
+        ];
+        $settings->save();
+        $this->developer();
+
+        $this->get(route('developers.show', 'mountain-view'))
+            ->assertOk()
+            ->assertSee(['What to <em>Expect</em>'], false)
+            ->assertSee(['Clear Terms', 'Transparent payment plans.'])
+            ->assertDontSee('Empty card');
+
+        $settings->what_to_expect_cards = [];
+        $settings->save();
+
+        $this->get(route('developers.show', 'mountain-view'))->assertOk()->assertDontSee('What to');
     }
 
     public function test_unpublished_or_unknown_developers_are_not_found(): void

@@ -1,7 +1,8 @@
 {{--
     One developer (the design's developer-details.html): hero (its photo with parallax, logo in breathing rings, name,
     tagline, phone / e-mail / address), then its story (a project photo, "Follow us on" links, "About <name>" and the
-    description), then its projects (not in the design; user asked) with "View All" to the filtered projects listing.
+    description), then its projects (not in the design; user asked) with "View All" to the filtered projects listing,
+    then "What to Expect" (Settings → Developer Details cards, as in Dastan; not in the design).
 --}}
 @php
     $reveal = 'opacity-0 [transform:translateY(32px)] transition-[opacity,transform] duration-900 ease-out-ex [&.is-in]:opacity-100 [&.is-in]:[transform:none]';
@@ -15,6 +16,11 @@
         'youtube' => '<svg width="14" height="10" viewBox="0 0 24 17" fill="currentColor" aria-hidden="true"><path d="M22.54 2.42A2.78 2.78 0 0 0 20.59.46C18.88 0 12 0 12 0S5.12 0 3.41.46A2.78 2.78 0 0 0 1.46 2.42 29 29 0 0 0 1 8.5a29 29 0 0 0 .46 6.08 2.78 2.78 0 0 0 1.95 1.96C5.12 17 12 17 12 17s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 8.5a29 29 0 0 0-.46-6.08zM9.75 12.02V4.98L15.5 8.5l-5.75 3.52z"/></svg>',
     ];
     $networks = ['instagram' => 'Instagram', 'facebook' => 'Facebook', 'linkedin' => 'LinkedIn', 'youtube' => 'YouTube'];
+    $locale = app()->getLocale();
+    $expect = array_values(array_filter(
+        app(\Modules\GeneralSettings\Settings\DeveloperDetailsSettings::class)->what_to_expect_cards,
+        fn (array $card) => filled($card["header_{$locale}"] ?? null),
+    ));
 @endphp
 
 <x-website.layout :title="$metaTitle" :description="$metaDescription">
@@ -147,6 +153,32 @@
                 <div class="grid grid-cols-3 gap-7 max-xl:grid-cols-2 max-md:grid-cols-1">
                     @foreach ($projects as $i => $card)
                         <x-website.project-card :card="$card" :index="$i" />
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
+    {{-- What to Expect (the about page's values cards' look) --}}
+    @if ($expect)
+        <section x-data class="border-t border-ink-10 bg-page pt-20 pb-[100px] max-md:pt-[60px] max-md:pb-20 dark:border-white/8" aria-labelledby="expect-title">
+            <div class="mx-auto max-w-[1320px] px-12 max-[1100px]:px-6 max-md:px-5">
+                <div {!! $intersect !!} class="{{ $reveal }} mb-10 text-center">
+                    <p class="mb-4 text-[10px] font-bold tracking-[0.26em] text-brand uppercase rtl:font-arabic rtl:tracking-normal">{{ __('The Akar Town Standard') }}</p>
+                    <h2 id="expect-title" class="font-sans text-[clamp(32px,3.6vw,52px)] leading-[1.1] font-light tracking-[-0.02em] text-ink rtl:font-arabic rtl:leading-[1.3] rtl:tracking-normal [&_em]:text-brand [&_em]:not-italic">{!! __('What to <em>Expect</em>') !!}</h2>
+                </div>
+                <div class="grid grid-cols-4 gap-5 max-[1100px]:grid-cols-2 max-[600px]:grid-cols-1">
+                    @foreach ($expect as $card)
+                        <div {!! $intersect !!} class="{{ $reveal }} rounded-2xl border border-ink-10 bg-white p-7 text-center [transition:opacity_0.9s,transform_0.9s,border-color_0.25s,box-shadow_0.25s] hover:border-[rgba(200,16,46,0.25)] hover:shadow-[0_8px_32px_rgba(200,16,46,0.08)] dark:border-white/8 dark:bg-[#1a1916]" style="transition-delay: {{ $loop->index * 0.12 }}s">
+                            <span class="mx-auto mb-5 grid size-14 place-items-center overflow-hidden rounded-xl bg-[rgba(200,16,46,0.08)]" aria-hidden="true">
+                                @if ($card['icon'] ?? null)
+                                    <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($card['icon']) }}" alt="" loading="lazy" class="size-9 object-contain" />
+                                @else
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="text-brand"><polyline points="20 6 9 17 4 12" /></svg>
+                                @endif
+                            </span>
+                            <h3 class="mb-2.5 text-[17px] font-semibold tracking-[-0.01em] text-ink rtl:font-arabic rtl:tracking-normal">{{ $card["header_{$locale}"] }}</h3>
+                            <p class="text-[14px] leading-[1.7] text-ink-60 rtl:font-arabic">{{ $card["body_{$locale}"] ?? '' }}</p>
+                        </div>
                     @endforeach
                 </div>
             </div>
