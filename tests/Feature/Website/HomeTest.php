@@ -10,6 +10,7 @@ use App\Support\Website\HomeSections;
 use App\Support\Website\Image;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Modules\GeneralSettings\Settings\CtaRibbonSettings;
 use Modules\GeneralSettings\Settings\SiteSettings;
 use Modules\Locations\Models\Location;
 use Modules\Lookups\Models\Lookup;
@@ -75,6 +76,25 @@ class HomeTest extends TestCase
             ->assertOk()
             ->assertSeeInOrder(['Featured <em>Properties</em>', 'Sky Penthouse', 'id="why-us"', 'Our <em>Projects</em>', 'Crown Tower'], false)
             ->assertDontSee('Hidden Coast');
+    }
+
+    public function test_the_cta_ribbon_block_shows_the_cta_ribbon_settings_in_its_place(): void
+    {
+        $ribbon = app(CtaRibbonSettings::class);
+        $ribbon->header_en = 'Your Dream Property Awaits';
+        $ribbon->body_en = 'Talk to our experts.';
+        $ribbon->save();
+        Slider::factory()->create(['content_type' => 'properties', 'title_en' => 'Featured Properties', 'order' => 1, 'is_active' => true]);
+        Slider::factory()->create(['content_type' => 'cta_ribbon', 'title_en' => 'CTA Ribbon', 'order' => 2, 'is_active' => true]);
+        Unit::factory()->create(['name_en' => 'Sky Penthouse', 'is_featured' => true]);
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSeeInOrder(['Sky Penthouse', 'Your Dream Property <em>Awaits</em>', 'Talk to our experts.', 'Browse All Properties'], false);
+
+        Slider::query()->where('content_type', 'cta_ribbon')->update(['is_active' => false]);
+
+        $this->get(route('home'))->assertOk()->assertDontSee('Talk to our experts.');
     }
 
     public function test_missing_photos_show_the_placeholder_instead_of_a_broken_image(): void
