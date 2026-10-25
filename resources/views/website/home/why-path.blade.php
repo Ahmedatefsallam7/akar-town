@@ -1,6 +1,7 @@
-{{-- The design's dotted path joining the four stages; it is drawn left to right when it scrolls into view. --}}
+{{-- The design's dotted path joining the four stages; it is drawn left to right when it scrolls into view. Arabic
+     mirrors it (the stages run right to left there), so it is drawn right to left. --}}
 <svg
-  class="pointer-events-none absolute top-1/2 left-0 h-[260px] w-full -translate-y-1/2 overflow-visible max-[900px]:hidden"
+  class="pointer-events-none absolute top-1/2 left-0 h-[260px] w-full -translate-y-1/2 overflow-visible max-[900px]:hidden rtl:-scale-x-100"
   viewBox="0 0 1000 260"
   preserveAspectRatio="none"
   aria-hidden="true"
