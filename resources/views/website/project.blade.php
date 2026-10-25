@@ -56,7 +56,7 @@
         class="leading-[normal]"
     >
         {{-- Hero --}}
-        <section class="relative flex min-h-screen flex-col overflow-hidden bg-[rgb(7,6,10)]" aria-label="{{ __('Project hero') }}">
+        <section class="relative flex min-h-screen flex-col overflow-hidden max-[768px]:min-h-0 bg-[rgb(7,6,10)]" aria-label="{{ __('Project hero') }}">
             {{-- Phones take the card size; the photo is asked for early (it's the page's biggest thing). --}}
             @push('head')
                 <link rel="preload" as="image" href="{{ $p['imageSmall'] }}" media="(max-width: 768px)" fetchpriority="high" />
@@ -75,7 +75,7 @@
                 <span class="text-white/68">{{ $p['title'] }}</span>
             </nav>
 
-            <div class="relative z-10 flex flex-1 flex-col items-center justify-center px-[clamp(24px,7vw,96px)] pt-[calc(var(--spacing-nav)+90px)] pb-[90px] text-center">
+            <div class="relative z-10 flex flex-1 flex-col items-center justify-center px-[clamp(24px,7vw,96px)] pt-[calc(var(--spacing-nav)+90px)] pb-[90px] text-center max-[768px]:justify-start max-[768px]:pt-[calc(var(--spacing-nav)+80px)] max-[768px]:pb-14">
                 @if ($p['status'] || $p['usage'])
                     <div class="mb-6 flex items-center justify-center gap-[10px] max-[480px]:flex-wrap">
                         @if ($p['status'])
@@ -289,7 +289,7 @@
                         </div>
                         <div {!! $intersect !!} class="{{ $reveal }} mb-[clamp(64px,9vw,100px)] grid grid-cols-3 gap-[10px] max-[960px]:grid-cols-2 max-[600px]:grid-cols-1">
                             @foreach ($p['amenities'] as $amenity)
-                                <div class="flex items-center gap-[10px] rounded-lg border border-ink-10 bg-paper p-3 transition-[border-color] duration-200 hover:border-brand-lt dark:border-white/8 dark:bg-white/4">
+                                <div class="flex items-center gap-[10px] rounded-lg border border-ink-10 bg-paper p-3 dark:border-white/8 dark:bg-white/4">
                                     <div class="flex size-9 shrink-0 items-center justify-center rounded-md bg-white/12 text-brand backdrop-blur-[8px]" aria-hidden="true">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="size-[17px]"><polyline points="20 6 9 17 4 12" /></svg>
                                     </div>

@@ -465,7 +465,6 @@
     "Ownership": "الملكية",
     "Parking": "مواقف السيارات",
     "Explore Projects": "استكشف المشاريع",
-    "View Project Details": "عرض تفاصيل المشروع",
     "View All Locations": "عرض كل المناطق",
     "Thank you! We've got your request and our team will contact you soon.": "شكراً لك! استلمنا طلبك وسيتواصل معك فريقنا قريباً.",
     "Your Details": "بياناتك",
@@ -679,5 +678,6 @@
     "About <em>:name</em>": "عن <em>:name</em>",
     "Projects by :name": "مشاريع :name",
     "Projects by <em>:name</em>": "مشاريع <em>:name</em>",
-    "View All Projects (:count)": "عرض كل المشاريع (:count)"
+    "View All Projects (:count)": "عرض كل المشاريع (:count)",
+    "Language": "اللغة"
 }

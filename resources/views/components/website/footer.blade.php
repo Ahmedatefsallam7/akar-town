@@ -24,7 +24,7 @@
         class="fixed inset-x-0 bottom-0 z-1 h-dvh overflow-hidden bg-night text-white"
         :class="{ 'fixed inset-x-0 bottom-0 h-dvh': ! static, 'relative h-auto': static }"
     @else
-        class="relative min-h-dvh w-full overflow-hidden bg-night text-white"
+        class="relative w-full overflow-hidden bg-night text-white"
     @endif
 >
     <div
@@ -49,10 +49,10 @@
             class="relative z-1 flex h-full flex-col justify-between pt-[clamp(1.5rem,3.5vh,2.5rem)] pb-[clamp(1rem,2vh,1.5rem)] *:shrink-0"
             :class="{ 'h-full pb-[clamp(1rem,2vh,1.5rem)]': ! static, 'h-auto gap-[clamp(1.5rem,4vh,2.5rem)] pb-[clamp(1.25rem,3vh,1.75rem)]': static }"
         @else
-            class="relative z-1 flex min-h-dvh flex-col justify-between pt-[clamp(1.5rem,3.5vh,2.5rem)] pb-[clamp(1rem,2vh,1.5rem)] *:shrink-0"
+            class="relative z-1 flex flex-col justify-between gap-[clamp(1.5rem,4vh,2.5rem)] pt-[clamp(1.5rem,3.5vh,2.5rem)] pb-[clamp(1rem,2vh,1.5rem)] *:shrink-0"
         @endif
     >
-        <div class="mx-auto grid w-full max-w-[1320px] grid-cols-[1.4fr_1fr_1fr_1.6fr] gap-[clamp(1.5rem,3vw,2.5rem)] px-12 max-lg:grid-cols-2 max-lg:gap-y-[clamp(1.75rem,5vh,2.5rem)] max-sm:gap-x-5 max-sm:gap-y-7">
+        <div class="mx-auto grid w-full max-w-[1320px] grid-cols-[1.4fr_1fr_1fr_1.6fr] gap-[clamp(1.5rem,3vw,2.5rem)] px-12 max-[620px]:px-5 max-lg:grid-cols-2 max-lg:gap-y-[clamp(1.75rem,5vh,2.5rem)] max-sm:gap-x-5 max-sm:gap-y-7">
             {{-- Brand --}}
             <div class="max-sm:order-1 max-sm:col-span-full" data-reveal>
                 <a href="{{ route('home') }}" class="mb-4 block" aria-label="{{ __('Akar Town — Home') }}">
@@ -121,7 +121,7 @@
         </div>
 
         {{-- Bottom bar --}}
-        <div class="mx-auto flex w-full max-w-[1320px] flex-wrap items-center justify-between gap-3 border-t border-cream/12 px-12 pt-[clamp(1rem,2.5vh,1.5rem)] text-[0.75rem] text-cream/60 max-sm:justify-start" data-reveal>
+        <div class="mx-auto flex w-full max-w-[1320px] flex-wrap items-center justify-between gap-3 border-t border-cream/12 px-12 max-[620px]:px-5 pt-[clamp(1rem,2.5vh,1.5rem)] text-[0.75rem] text-cream/60 max-sm:justify-start" data-reveal>
             <span>
                 &copy; {{ __('Copyright :year. All Rights Reserved To', ['year' => now()->year]) }}
                 <a

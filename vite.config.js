@@ -10,8 +10,7 @@ export default defineConfig({
             refresh: true,
             fonts: [
                 // Public website: the same Google Fonts and weights as the design, self-hosted.
-                // Only the normal style is preloaded: the italic is used once (the home hero's tagline).
-                google('Archivo', { weights: [300, 400, 500, 600, 700], styles: ['normal', 'italic'], preload: [{ weight: 400 }] }),
+                google('Archivo', { weights: [300, 400, 500, 600, 700], styles: ['normal'], preload: [{ weight: 400 }] }),
                 google('Noto Kufi Arabic', { weights: [300, 400, 500, 600], subsets: ['arabic', 'latin'] }),
             ],
         }),

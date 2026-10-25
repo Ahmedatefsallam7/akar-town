@@ -48,8 +48,8 @@ class HomeTest extends TestCase
         $this->assertSame(['First Villas', 'Second Tower'], array_column(HomeHero::slides(), 'title'));
 
         $this->get(route('home'))->assertOk()->assertSeeInOrder(['First Villas', 'Second Tower'])->assertDontSee('Draft Project')
-            // "Explore Projects" opens the projects list, "View Project Details" the slide's own project.
-            ->assertSee(['href="'.route('projects').'"', 'href="'.route('projects.show', $first->slug).'"', 'Explore Projects', 'View Project Details'], false);
+            // "Explore Projects" opens the projects list, "View Details" the slide's own project.
+            ->assertSee(['href="'.route('projects').'"', 'href="'.route('projects.show', $first->slug).'"', 'Explore Projects', 'View Details'], false);
     }
 
     public function test_without_hero_slides_the_featured_projects_are_shown(): void

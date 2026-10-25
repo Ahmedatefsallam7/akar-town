@@ -189,7 +189,7 @@
                             <span class="text-[9px] font-medium tracking-[0.16em] text-ink-60 uppercase rtl:font-arabic">{{ __('Photos') }}</span>
                         </button>
                         @foreach (array_slice($p['thumbs'], 0, 4) as $i => $thumb)
-                            <button type="button" @click="go({{ $i }})" class="group/thumb relative h-[90px] flex-1 cursor-pointer overflow-hidden rounded-xl border-[3px] transition-[border-color] duration-250 max-[900px]:min-w-[100px]" :class="current === {{ $i }} ? 'border-brand' : 'border-white dark:border-surface-2'">
+                            <button type="button" @click="go({{ $i }})" class="group/thumb relative h-[90px] flex-1 cursor-pointer overflow-hidden rounded-xl border-[3px] transition-[border-color] duration-250" :class="current === {{ $i }} ? 'border-brand' : 'border-white dark:border-surface-2'">
                                 <img src="{{ $thumb }}" alt="" loading="lazy" class="size-full object-cover transition-transform duration-400 ease-out-ex group-hover/thumb:scale-106" />
                             </button>
                         @endforeach
@@ -495,7 +495,7 @@
                     <div x-ref="similar" class="swiper overflow-hidden">
                         <div class="swiper-wrapper">
                             @foreach ($similar as $card)
-                                <div class="swiper-slide h-auto! max-[640px]:w-[82vw]!">
+                                <div class="swiper-slide h-auto!">
                                     <x-website.property-card :card="$card" />
                                 </div>
                             @endforeach

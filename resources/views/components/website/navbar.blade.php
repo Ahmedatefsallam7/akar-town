@@ -18,6 +18,8 @@
     ];
     $isArabic = app()->getLocale() === 'ar';
     $tooltip = 'after:pointer-events-none after:absolute after:left-1/2 after:top-[calc(100%+8px)] after:-translate-x-1/2 after:-translate-y-1 after:rounded-md after:bg-[rgba(13,13,13,0.88)] after:px-[9px] after:py-1 after:text-[11px] after:font-medium after:whitespace-nowrap after:tracking-[0.02em] after:text-white after:opacity-0 after:transition-[opacity,transform] after:duration-180 after:content-[attr(data-tooltip)] hover:after:translate-y-0 hover:after:opacity-100';
+    // The drawer's utility tiles (the design's .mobile-nav__util-btn).
+    $tile = 'flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-white/8 bg-white/5 px-1.5 py-3.5 font-sans text-[10px] font-semibold tracking-[0.06em] text-white/75 uppercase no-underline transition-[background,border-color,color] duration-200 hover:border-white/18 hover:bg-white/10 hover:text-white rtl:font-arabic rtl:tracking-normal';
     $iconButton = 'relative inline-flex size-[31px] shrink-0 cursor-pointer items-center justify-center rounded-full border border-white/18 bg-transparent text-white/88';
 @endphp
 
@@ -39,8 +41,8 @@
         aria-label="{{ __('Main navigation') }}"
     >
         <a href="{{ route('home') }}" class="flex shrink-0 items-center" aria-label="{{ __('Akar Town — Home') }}">
-            {{-- Smaller on phones (not in the design): at 230px the menu button didn't fit on screens under ~490px. --}}
-            <x-website.logo width="230" class="max-w-full max-sm:w-[110px] max-xs:w-[88px]" />
+            {{-- The design's size on every screen: on phones the bar holds only the logo and the menu button. --}}
+            <x-website.logo width="230" class="max-w-full max-xs:w-[180px]" />
         </a>
 
         <div class="flex items-center gap-[15px] max-sm:gap-[10px] max-xs:gap-1.5">
@@ -79,6 +81,8 @@
                 >{{ __('Submit Property') }}</button>
             </div>
 
+            {{-- Phones: language, wishlist, account and theme move into the drawer (the design's .navbar__right). --}}
+            <div class="flex items-center gap-[15px] max-md:hidden">
             {{-- Language switch: the knob slides to the chosen language, then the page reloads in it. --}}
             <a
                 href="{{ route('locale.switch', $isArabic ? 'en' : 'ar') }}"
@@ -173,6 +177,7 @@
                     <x-website.icons.moon />
                 </span>
             </button>
+            </div>
         </div>
 
         <button
@@ -211,7 +216,57 @@
                 </li>
             @endforeach
         </ul>
-        <div class="mt-auto">
+        {{-- Account · wishlist · theme · language (the design's .mobile-nav__utils). --}}
+        <div class="mb-7 grid grid-cols-4 gap-2.5 border-y border-white/7 py-5">
+            @if ($account)
+                <form method="POST" action="{{ route('account.logout') }}" class="contents">
+                    @csrf
+                    <button type="submit" class="{{ $tile }}" aria-label="{{ __('Sign out') }}">
+                        <span class="flex size-5 items-center justify-center rounded-full bg-[#c8102e] text-[10px] font-bold text-white">{{ mb_strtoupper(mb_substr($account->name, 0, 1)) }}</span>
+                        <span>{{ __('Sign out') }}</span>
+                    </button>
+                </form>
+            @else
+                <button type="button" @click="open = false; $dispatch('open-auth')" class="{{ $tile }}" aria-label="{{ __('Sign in or register') }}">
+                    <x-website.icons.user class="size-5" />
+                    <span>{{ __('Sign In') }}</span>
+                </button>
+            @endif
+            <a href="{{ route('wishlist') }}" class="{{ $tile }}" aria-label="{{ __('Wishlist') }}">
+                <span class="relative flex size-5 items-center justify-center">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>
+                    <span
+                        x-show="$store.favourites.ids.length"
+                        x-text="$store.favourites.ids.length > 99 ? '99+' : $store.favourites.ids.length"
+                        style="display: none"
+                        class="pointer-events-none absolute -top-[5px] -right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#c8102e] px-[3px] font-sans text-[9px] leading-none font-bold text-white"
+                    ></span>
+                </span>
+                <span>{{ __('Wishlist') }}</span>
+            </a>
+            <button type="button" @click="$store.theme.toggle()" class="{{ $tile }} dark:border-[rgba(201,168,76,0.32)]" :aria-label="$store.theme.dark ? @js(__('Switch to light mode')) : @js(__('Switch to dark mode'))">
+                <span class="relative flex size-5 items-center justify-center">
+                    <span class="absolute hidden dark:flex" aria-hidden="true"><x-website.icons.sun /></span>
+                    <span class="absolute flex dark:hidden" aria-hidden="true"><x-website.icons.moon /></span>
+                </span>
+                <span>{{ __('Theme') }}</span>
+            </button>
+            <a href="{{ route('locale.switch', $isArabic ? 'en' : 'ar') }}" class="{{ $tile }}" aria-label="{{ __('Switch language') }}">
+                <span dir="ltr" class="relative flex h-[22px] w-[58px] items-center rounded-full border border-[rgba(160,50,72,0.45)] bg-[rgba(160,50,72,0.18)] p-0.5" aria-hidden="true">
+                    <span class="relative z-1 flex-1 text-center font-sans text-[8px] leading-none font-bold {{ $isArabic ? 'text-white/50' : 'text-white' }}">EN</span>
+                    <span class="absolute top-0.5 left-0.5 z-0 h-[calc(100%-4px)] w-[calc(50%-2px)] rounded-full bg-brand {{ $isArabic ? 'translate-x-full' : '' }}"></span>
+                    <span class="relative z-1 flex-1 text-center font-arabic text-[8px] leading-none font-bold {{ $isArabic ? 'text-white' : 'text-white/50' }}">عر</span>
+                </span>
+                <span>{{ __('Language') }}</span>
+            </a>
+        </div>
+        @if ($phone)
+            <a href="tel:{{ $phone }}" @click="open = false" class="mt-5 flex items-center gap-2.5 border-y border-white/8 py-3.5 text-[15px] font-semibold tracking-[0.04em] text-white/85 transition-colors duration-200 hover:text-white [&_svg]:shrink-0 [&_svg]:opacity-70" aria-label="{{ __('Call :phone', ['phone' => $phone]) }}">
+                <x-website.icons.phone />
+                {{ $phone }}
+            </a>
+        @endif
+        <div>
             <button
                 type="button"
                 class="w-full cursor-pointer rounded-full bg-brand px-6 py-[15px] text-[13px] font-semibold tracking-[0.1em] text-white uppercase transition-opacity duration-200 hover:opacity-85"

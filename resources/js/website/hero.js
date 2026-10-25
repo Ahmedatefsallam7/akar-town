@@ -58,10 +58,14 @@ export default (slides) => ({
 
         /* Progress bar + autoplay. The design animated scaleX on a 0px-high fill (never visible): here the fill
            grows down the 1px track over each slide. */
+        // Phones: the track is a short horizontal line (the design's ≤768px row), so the fill grows sideways.
         const startProgBar = () => {
             progTween?.kill()
-            gsap.set(progFill, { scaleY: 0, transformOrigin: 'top' })
-            progTween = gsap.to(progFill, { scaleY: 1, duration: AUTOPLAY_MS / 1000, ease: 'none' })
+            const row = window.matchMedia('(max-width: 768px)').matches
+            const axis = row ? 'scaleX' : 'scaleY'
+            gsap.set(progFill, { scaleX: 1, scaleY: 1 })
+            gsap.set(progFill, { [axis]: 0, transformOrigin: row ? (document.dir === 'rtl' ? 'right' : 'left') : 'top' })
+            progTween = gsap.to(progFill, { [axis]: 1, duration: AUTOPLAY_MS / 1000, ease: 'none' })
         }
         const pauseProgBar = () => progTween?.pause()
         const clearAutoplay = () => {

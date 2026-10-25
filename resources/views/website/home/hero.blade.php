@@ -6,7 +6,7 @@
 @php
     $thumbs = array_slice($slides, 0, 6);
     $more = count($slides) - count($thumbs);
-    $navButton = 'group relative flex size-[54px] cursor-pointer items-center justify-center rounded-full border border-glass-border bg-glass text-ink outline-none backdrop-blur-[20px] backdrop-saturate-180 transition-[background,border-color] duration-350 hover:border-brand hover:bg-brand';
+    $navButton = 'group relative flex size-[54px] max-[768px]:size-[42px] max-[430px]:size-[38px] max-[768px]:[&_svg]:size-[15px] cursor-pointer items-center justify-center rounded-full border border-glass-border bg-glass text-ink outline-none backdrop-blur-[20px] backdrop-saturate-180 transition-[background,border-color] duration-350 hover:border-brand hover:bg-brand';
 @endphp
 
 @if ($first = $slides[0] ?? null)
@@ -19,7 +19,7 @@
 
 <section
     x-data="heroSlider(@js($slides))"
-    class="relative h-[88vh] min-h-[580px] w-full overflow-hidden"
+    class="relative h-[88vh] min-h-[580px] w-full overflow-hidden max-[768px]:h-auto max-[768px]:min-h-0"
     aria-label="{{ __('Featured luxury properties') }}"
     aria-roledescription="carousel"
 >
@@ -35,7 +35,7 @@
     {{-- Thumbnails rail (a bottom strip on small screens) --}}
     <aside
         data-thumbs
-        class="absolute inset-y-0 start-0 z-30 flex w-[124px] flex-col items-start justify-center gap-2 bg-[linear-gradient(170deg,rgb(0_0_0/0.18)_0%,rgb(0_0_0/0.1)_55%,rgb(0_0_0/0.15)_100%)] ps-12 pe-3 pt-[calc(var(--spacing-nav)+5px)] pb-5 shadow-[inset_-1px_0_0_rgb(255_255_255/0.1),4px_0_24px_rgba(0,0,0,0.1)] backdrop-blur-[24px] backdrop-brightness-82 backdrop-saturate-120 before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:z-1 before:h-[72px] before:bg-[linear-gradient(rgb(0_0_0/0.38)_0%,transparent_100%)] after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:z-1 after:h-[72px] after:bg-[linear-gradient(to_top,rgb(0_0_0/0.38)_0%,transparent_100%)] rtl:shadow-[inset_1px_0_0_rgb(255_255_255/0.1),-4px_0_24px_rgba(0,0,0,0.1)] max-md:inset-x-0 max-md:top-auto max-md:bottom-0 max-md:h-[90px] max-md:w-full max-md:flex-row max-md:justify-start max-md:gap-[10px] max-md:overflow-x-auto max-md:overflow-y-hidden max-md:px-4 max-md:py-[10px] max-md:[scrollbar-width:none] max-md:before:inset-y-0 max-md:before:right-auto max-md:before:left-0 max-md:before:h-full max-md:before:w-12 max-md:before:bg-[linear-gradient(to_right,rgb(0_0_0/0.38)_0%,transparent_100%)] max-md:after:inset-y-0 max-md:after:right-0 max-md:after:left-auto max-md:after:h-full max-md:after:w-12 max-md:after:bg-[linear-gradient(to_left,rgb(0_0_0/0.38)_0%,transparent_100%)]"
+        class="absolute inset-y-0 start-0 z-30 flex w-[124px] flex-col items-start justify-center gap-2 bg-[linear-gradient(170deg,rgb(0_0_0/0.18)_0%,rgb(0_0_0/0.1)_55%,rgb(0_0_0/0.15)_100%)] ps-12 pe-3 pt-[calc(var(--spacing-nav)+5px)] pb-5 shadow-[inset_-1px_0_0_rgb(255_255_255/0.1),4px_0_24px_rgba(0,0,0,0.1)] backdrop-blur-[24px] backdrop-brightness-82 backdrop-saturate-120 before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:z-1 before:h-[72px] before:bg-[linear-gradient(rgb(0_0_0/0.38)_0%,transparent_100%)] after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:z-1 after:h-[72px] after:bg-[linear-gradient(to_top,rgb(0_0_0/0.38)_0%,transparent_100%)] rtl:shadow-[inset_1px_0_0_rgb(255_255_255/0.1),-4px_0_24px_rgba(0,0,0,0.1)] max-[768px]:inset-x-0 max-[768px]:top-auto max-[768px]:bottom-0 max-[768px]:h-[88px] max-[768px]:w-full max-[768px]:flex-row max-[768px]:items-center max-[768px]:justify-start max-[768px]:gap-2 max-[768px]:overflow-x-auto max-[768px]:overflow-y-hidden max-[768px]:px-4 max-[768px]:py-2 max-[768px]:[scrollbar-width:none] max-[768px]:before:inset-y-0 max-[768px]:before:right-auto max-[768px]:before:left-0 max-[768px]:before:h-full max-[768px]:before:w-7 max-[768px]:before:bg-[linear-gradient(to_right,color-mix(in_oklab,#000_55%,transparent)_0%,transparent_100%)] max-[768px]:after:inset-y-0 max-[768px]:after:right-0 max-[768px]:after:left-auto max-[768px]:after:h-full max-[768px]:after:w-7 max-[768px]:after:bg-[linear-gradient(to_left,color-mix(in_oklab,#000_55%,transparent)_0%,transparent_100%)]"
         role="tablist"
         aria-label="{{ __('Project thumbnails') }}"
     >
@@ -48,17 +48,17 @@
                 :aria-selected="active === {{ $i }}"
                 :tabindex="active === {{ $i }} ? 0 : -1"
                 aria-label="{{ __('View :title', ['title' => $slide['title']]) }}"
-                class="group relative z-2 flex w-16 cursor-pointer items-center justify-center gap-0 rounded-xl border p-[5px] outline-none transition-all duration-400 ease-out-ex before:absolute before:inset-0 before:rounded-[11px] before:bg-transparent before:transition-[background] before:duration-400 hover:before:bg-white/8 max-md:w-auto max-md:min-w-[130px] max-md:shrink-0 max-md:flex-row max-md:gap-[10px] max-md:rounded-[10px] max-md:px-[10px] max-md:py-[7px]"
-                :class="active === {{ $i }} ? 'border-brand/55 bg-brand/14' : 'border-transparent'"
+                class="group relative z-2 flex w-16 cursor-pointer items-center justify-center gap-0 rounded-xl border p-[5px] outline-none transition-all duration-400 ease-out-ex before:absolute before:inset-0 before:rounded-[11px] before:bg-transparent before:transition-[background] before:duration-400 hover:before:bg-white/8 max-[768px]:w-auto max-[768px]:min-w-0 max-[768px]:shrink-0 max-[768px]:flex-col max-[768px]:gap-0 max-[768px]:rounded-xl max-[768px]:p-[5px]"
+                :class="active === {{ $i }} ? 'border-brand/55 bg-brand/14 max-[768px]:shadow-[0_4px_18px_color-mix(in_oklab,var(--color-brand)_20%,transparent)]' : 'border-transparent'"
             >
                 <span
-                    class="size-[54px] shrink-0 overflow-hidden rounded-[10px] transition-all duration-400 ease-out-ex max-md:size-10"
+                    class="size-[54px] shrink-0 overflow-hidden rounded-[10px] transition-all duration-400 ease-out-ex max-[768px]:size-[62px]"
                     :class="active === {{ $i }} && 'shadow-[0_4px_16px_rgba(0,0,0,0.55),0_0_0_2px_var(--color-brand)]'"
                 >
                     <img src="{{ $slide['thumb'] }}" alt="{{ $slide['title'] }}" loading="{{ $i === 0 ? 'eager' : 'lazy' }}" class="block size-full object-cover transition-transform duration-600 will-change-transform group-hover:scale-108" />
                 </span>
                 <span
-                    class="absolute top-[10px] right-0 w-[2.5px] rounded-l-[2px] bg-[linear-gradient(to_bottom,var(--color-brand-lt),var(--color-brand))] transition-[height] duration-400 ease-out-ex max-md:hidden"
+                    class="absolute top-[10px] right-0 w-[2.5px] rounded-l-[2px] bg-[linear-gradient(to_bottom,var(--color-brand-lt),var(--color-brand))] transition-[height] duration-400 ease-out-ex max-[768px]:hidden"
                     :class="active === {{ $i }} ? 'h-[calc(100%-20px)]' : 'h-0'"
                 ></span>
             </button>
@@ -67,10 +67,10 @@
         @if ($more > 0)
             <a
                 href="#projects"
-                class="group relative flex w-16 cursor-pointer flex-col items-center justify-center gap-0 rounded-xl border border-white/10 bg-transparent p-[5px] outline-none transition-all duration-400 ease-out-ex before:absolute before:inset-0 before:rounded-[11px] before:bg-transparent before:transition-[background] before:duration-400 hover:border-brand/40 hover:before:bg-white/8 max-md:w-auto max-md:shrink-0 max-md:flex-row max-md:rounded-[10px] max-md:px-[10px] max-md:py-[7px]"
+                class="group relative flex w-16 cursor-pointer flex-col items-center justify-center gap-0 rounded-xl border border-white/10 bg-transparent p-[5px] outline-none transition-all duration-400 ease-out-ex before:absolute before:inset-0 before:rounded-[11px] before:bg-transparent before:transition-[background] before:duration-400 hover:border-brand/40 hover:before:bg-white/8 max-[768px]:w-auto max-[768px]:shrink-0 max-[768px]:flex-col max-[768px]:rounded-xl max-[768px]:p-[5px]"
                 aria-label="{{ __('Explore :count more projects', ['count' => $more]) }}"
             >
-                <span class="relative z-1 flex size-[54px] shrink-0 flex-col items-center justify-center gap-1 overflow-hidden rounded-[10px] border border-dashed border-brand/45 bg-[color-mix(in_oklab,var(--color-brand)_12%,rgba(10,8,6,0.85))] transition-all duration-400 ease-out-ex group-hover:bg-[color-mix(in_oklab,var(--color-brand)_18%,rgba(10,8,6,0.85))] group-hover:shadow-[0_4px_16px_rgba(0,0,0,0.55),0_0_0_2px_color-mix(in_oklab,var(--color-brand)_60%,transparent)] max-md:size-10">
+                <span class="relative z-1 flex size-[54px] shrink-0 flex-col items-center justify-center gap-1 overflow-hidden rounded-[10px] border border-dashed border-brand/45 bg-[color-mix(in_oklab,var(--color-brand)_12%,rgba(10,8,6,0.85))] transition-all duration-400 ease-out-ex group-hover:bg-[color-mix(in_oklab,var(--color-brand)_18%,rgba(10,8,6,0.85))] group-hover:shadow-[0_4px_16px_rgba(0,0,0,0.55),0_0_0_2px_color-mix(in_oklab,var(--color-brand)_60%,transparent)] max-[768px]:size-[62px]">
                     <span class="font-sans text-[16px] leading-none font-bold tracking-[0.02em] text-brand">+{{ $more }}</span>
                     <span class="font-sans text-[9px] leading-none font-normal tracking-[0.05em] text-white/60 uppercase rtl:font-arabic">{{ __('more') }}</span>
                 </span>
@@ -79,7 +79,7 @@
     </aside>
 
     {{-- Stage --}}
-    <div data-stage class="absolute inset-0 overflow-hidden">
+    <div data-stage class="absolute inset-0 overflow-hidden max-[768px]:relative max-[768px]:inset-auto max-[768px]:pb-[122%] max-[430px]:pb-[132%]">
         <div data-swiper class="swiper absolute! inset-0 overflow-hidden" aria-live="off">
             <div class="swiper-wrapper relative block! h-full w-full transform-none!">
                 @foreach ($slides as $i => $slide)
@@ -93,23 +93,23 @@
                         {{-- Only the first photo loads with the page; the others once it has loaded (hero.js). Phones take the card size. --}}
                         <div data-bg class="absolute inset-x-0 -top-[5%] h-[110%] w-full bg-(image:--bg-small) bg-cover bg-center will-change-transform min-[769px]:bg-(image:--bg)" @if ($i === 0) style="--bg: url('{{ $slide['image'] }}'); --bg-small: url('{{ $slide['imageSmall'] }}')" @else data-bg-src="{{ $slide['image'] }}" data-bg-src-small="{{ $slide['imageSmall'] }}" @endif aria-hidden="true"></div>
                         <div class="absolute inset-0 bg-[linear-gradient(105deg,rgba(5,5,5,0.72)_0%,rgba(5,5,5,0.38)_44%,rgba(5,5,5,0.08)_75%,rgba(5,5,5,0)_100%),linear-gradient(rgba(5,5,5,0.45)_0%,rgba(5,5,5,0)_22%),linear-gradient(0deg,rgba(5,5,5,0.55)_0%,rgba(5,5,5,0)_40%)] rtl:bg-[linear-gradient(255deg,rgba(5,5,5,0.72)_0%,rgba(5,5,5,0.38)_44%,rgba(5,5,5,0.08)_75%,rgba(5,5,5,0)_100%),linear-gradient(rgba(5,5,5,0.45)_0%,rgba(5,5,5,0)_22%),linear-gradient(0deg,rgba(5,5,5,0.55)_0%,rgba(5,5,5,0)_40%)]" aria-hidden="true"></div>
-                        <div class="absolute start-[calc(124px+48px)] end-12 top-1/2 z-5 max-w-none -translate-y-1/2 rtl:end-auto max-md:inset-x-5">
-                            <div data-text class="mb-[22px] flex items-center gap-[14px] will-change-[transform,opacity,filter]">
+                        <div class="absolute start-[calc(124px+48px)] end-12 top-1/2 z-5 max-w-none -translate-y-1/2 rtl:end-auto max-[768px]:inset-x-5 max-[768px]:top-[38%]">
+                            <div data-text class="mb-[22px] flex items-center gap-[14px] max-[430px]:mb-[14px] will-change-[transform,opacity,filter]">
                                 <span class="font-sans text-[10px] font-medium tracking-[0.26em] text-brand-lt uppercase rtl:font-arabic">{{ __('Exclusive Property') }}</span>
                             </div>
-                            <h2 data-text class="mb-[14px] font-sans text-[clamp(40px,5.2vw,76px)] leading-[1.02] font-light tracking-[-0.02em] text-paper will-change-[transform,opacity,filter] rtl:font-arabic max-md:text-[34px]">{{ $slide['title'] }}</h2>
+                            <h2 data-text class="mb-[14px] font-sans text-[clamp(40px,5.2vw,76px)] leading-[1.02] font-light tracking-[-0.02em] text-paper will-change-[transform,opacity,filter] rtl:font-arabic max-[768px]:text-[clamp(28px,7.5vw,36px)] max-[430px]:text-[clamp(26px,8vw,32px)]">{{ $slide['title'] }}</h2>
                             @if ($slide['tagline'])
-                                <p data-text class="mb-[14px] font-sans text-[clamp(17px,1.7vw,22px)] font-light tracking-[0.01em] text-white/68 italic will-change-[transform,opacity,filter] rtl:font-arabic">{{ $slide['tagline'] }}</p>
+                                <p data-text class="mb-[14px] font-sans text-[clamp(17px,1.7vw,22px)] font-light tracking-[0.01em] text-white/68 will-change-[transform,opacity,filter] rtl:font-arabic max-[768px]:mb-[10px] max-[768px]:text-[15px]">{{ $slide['tagline'] }}</p>
                             @endif
                             @if ($slide['location'])
-                                <div data-text class="mb-[38px] inline-flex items-center gap-[7px] will-change-[transform,opacity,filter]">
+                                <div data-text class="mb-[38px] inline-flex items-center gap-[7px] max-[768px]:mb-[22px] will-change-[transform,opacity,filter]">
                                     <x-website.icons.pin class="size-[13px] shrink-0 text-paper opacity-55" />
                                     <span class="font-sans text-[10px] font-medium tracking-[0.18em] text-white/55 uppercase rtl:font-arabic">{{ $slide['location'] }}</span>
                                 </div>
                             @endif
-                            <div data-text data-ctas class="flex items-center gap-[14px] will-change-[transform,opacity,filter]">
+                            <div data-text data-ctas class="flex flex-nowrap items-center gap-[14px] will-change-[transform,opacity,filter] max-[768px]:gap-[10px] max-[768px]:[&>a]:px-[18px] max-[768px]:[&>a]:py-3 max-[768px]:[&>a]:text-[12px] max-[430px]:[&>a]:gap-1.5 max-[430px]:[&>a]:px-[14px] max-[430px]:[&>a]:py-[11px] max-[430px]:[&>a]:text-[11.5px]">
                                 <x-website.button :href="route('projects')" arrow>{{ __('Explore Projects') }}</x-website.button>
-                                <x-website.button :href="$slide['url']" variant="ghost" aria-label="{{ __('View details of :title', ['title' => $slide['title']]) }}">{{ __('View Project Details') }}</x-website.button>
+                                <x-website.button :href="$slide['url']" variant="ghost" aria-label="{{ __('View details of :title', ['title' => $slide['title']]) }}">{{ __('View Details') }}</x-website.button>
                             </div>
                         </div>
                     </div>
@@ -120,13 +120,13 @@
         <div data-announcer class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
         {{-- Glass badge --}}
-        <div data-glass-tag class="absolute top-[calc(var(--spacing-nav)+20px)] right-11 z-40 flex items-center gap-2 rounded-full border border-glass-border bg-glass px-4 py-2 backdrop-blur-[20px] backdrop-saturate-180 rtl:right-auto rtl:left-11 max-md:top-[calc(var(--spacing-nav)+12px)] max-md:ltr:right-4" aria-hidden="true">
+        <div data-glass-tag class="absolute top-[calc(var(--spacing-nav)+20px)] right-11 z-40 flex items-center gap-2 rounded-full border border-glass-border bg-glass px-4 py-2 backdrop-blur-[20px] backdrop-saturate-180 rtl:right-auto rtl:left-11 max-[768px]:top-[calc(var(--spacing-nav)+10px)] max-[768px]:right-4 max-[768px]:px-3 max-[768px]:py-1.5 max-[768px]:rtl:right-auto max-[768px]:rtl:left-4 max-[430px]:hidden" aria-hidden="true">
             <div class="size-1.5 animate-pulse-dot rounded-full bg-brand"></div>
-            <span class="font-sans text-[9.5px] font-medium tracking-[0.16em] text-ink-60 uppercase rtl:font-arabic">{{ __('Exclusive Collection :year', ['year' => now()->year]) }}</span>
+            <span class="font-sans text-[9.5px] font-medium tracking-[0.16em] text-ink-60 uppercase rtl:font-arabic max-[768px]:text-[8.5px]">{{ __('Exclusive Collection :year', ['year' => now()->year]) }}</span>
         </div>
 
         {{-- Prev → progress → next --}}
-        <div class="absolute top-1/2 right-11 z-40 flex -translate-y-1/2 flex-col items-center gap-5 rtl:right-auto rtl:left-11">
+        <div class="absolute top-1/2 right-11 z-40 flex -translate-y-1/2 flex-col items-center gap-5 rtl:right-auto rtl:left-11 max-[768px]:top-auto max-[768px]:right-4 max-[768px]:bottom-[calc(88px+18px)] max-[768px]:translate-y-0 max-[768px]:flex-row max-[768px]:gap-[10px] max-[768px]:rtl:right-auto max-[768px]:rtl:left-4 max-[430px]:right-3 max-[430px]:bottom-[calc(88px+14px)] max-[430px]:gap-2 max-[430px]:rtl:left-3">
             <button type="button" data-nav-btn @click="prev()" class="{{ $navButton }}" aria-label="{{ __('Previous property') }}">
                 <span class="absolute -inset-[14px]"></span>
                 <svg width="16" height="14" viewBox="0 0 16 14" fill="none" aria-hidden="true" class="size-[18px] transition-[translate,color] duration-250 group-hover:-translate-x-0.5 rtl:-scale-x-100">
@@ -136,9 +136,9 @@
                 </svg>
             </button>
 
-            <div class="flex flex-col items-center gap-[10px] select-none" role="status" aria-label="{{ __('Slide progress') }}">
+            <div class="flex flex-col items-center gap-[10px] select-none max-[768px]:flex-row max-[768px]:gap-2" role="status" aria-label="{{ __('Slide progress') }}">
                 <span data-prog data-prog-current class="font-sans text-[13px] leading-none font-light tracking-[0.06em] text-paper tabular-nums">01</span>
-                <div data-prog class="relative h-[110px] w-px overflow-hidden bg-white/20">
+                <div data-prog class="relative h-[110px] w-px overflow-hidden bg-white/20 max-[768px]:h-px max-[768px]:w-[44px] max-[430px]:w-9">
                     <div data-prog-fill class="absolute inset-0 origin-top bg-brand will-change-transform [transform:scaleY(0)]"></div>
                 </div>
                 <span data-prog class="font-sans text-[11px] leading-none font-light tracking-[0.06em] text-white/35 tabular-nums">{{ str_pad((string) count($slides), 2, '0', STR_PAD_LEFT) }}</span>
