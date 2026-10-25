@@ -23,7 +23,7 @@ Route::get('/locations/{slug}', [LocationsController::class, 'show'])->name('loc
 Route::view('/wishlist', 'website.wishlist')->name('wishlist');
 Route::view('/developers', 'website.developers')->name('developers');
 Route::get('/developers/{slug}', [DevelopersController::class, 'show'])->name('developers.show');
-Route::view('/about', 'website.placeholder')->name('about');
+Route::view('/about', 'website.about')->name('about');
 Route::view('/contact', 'website.contact')->name('contact');
 Route::view('/careers', 'website.careers')->name('careers');
 Route::get('/careers/{slug}', [CareersController::class, 'show'])->name('careers.show');

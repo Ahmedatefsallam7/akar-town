@@ -173,6 +173,40 @@ class GeneralSettingsTest extends TestCase
         $this->assertSame([12, 4500, 100], [$settings->years_of_excellence, $settings->stats_happy_clients, $settings->stats_commitment]);
     }
 
+    public function test_the_about_us_story_photo_is_an_uploaded_image_and_a_replaced_or_removed_one_is_deleted(): void
+    {
+        Storage::fake('public');
+        $this->actingAs($this->createAdmin());
+
+        Livewire::test(AboutUsSettingsPage::class)
+            ->fillForm(['story_image' => [UploadedFile::fake()->create('story.svg', 5, 'image/svg+xml')]])
+            ->call('save')
+            ->assertHasFormErrors(['story_image']);
+
+        Livewire::test(AboutUsSettingsPage::class)
+            ->fillForm(['story_image' => [UploadedFile::fake()->image('first.jpg', 400, 400)]])
+            ->call('save')
+            ->assertHasNoFormErrors();
+        $first = app(AboutUsSettings::class)->refresh()->story_image;
+        $this->assertStringStartsWith('settings/images/', $first);
+        Storage::disk('public')->assertExists($first);
+
+        Livewire::test(AboutUsSettingsPage::class)
+            ->fillForm(['story_image' => [UploadedFile::fake()->image('second.webp', 400, 400)]])
+            ->call('save')
+            ->assertHasNoFormErrors();
+        $second = app(AboutUsSettings::class)->refresh()->story_image;
+        Storage::disk('public')->assertExists($second);
+        Storage::disk('public')->assertMissing($first);
+
+        Livewire::test(AboutUsSettingsPage::class)
+            ->fillForm(['story_image' => null])
+            ->call('save')
+            ->assertHasNoFormErrors();
+        $this->assertNull(app(AboutUsSettings::class)->refresh()->story_image);
+        Storage::disk('public')->assertMissing($second);
+    }
+
     public function test_why_akar_town_cards_cannot_be_added(): void
     {
         $this->actingAs($this->createAdmin());

@@ -67,6 +67,7 @@
     --animate-card-out: card-out 0.35s var(--ease-smooth) forwards;
     --animate-heart-pulse: heart-pulse 2.4s ease-in-out infinite;
     --animate-ring-breathe: ring-breathe 3s ease-in-out infinite;
+    --animate-ring-pulse: ring-pulse 4s ease-in-out infinite;
 
     /* The developer page's logo rings (developer-details.html). */
     @keyframes ring-breathe {
@@ -78,6 +79,19 @@
         50% {
             opacity: 1;
             transform: scale(1.045);
+        }
+    }
+
+    /* The about page's ring around the story photo (about.html). */
+    @keyframes ring-pulse {
+        0%,
+        100% {
+            opacity: 0.5;
+            transform: scale(1);
+        }
+        50% {
+            opacity: 1;
+            transform: scale(1.015);
         }
     }
 

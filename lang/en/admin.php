@@ -1033,6 +1033,8 @@ return [
             'cta_url' => 'CTA Button URL',
             'icon' => 'Icon',
             'icon_help' => 'PNG, JPG or WebP, max 1 MB.',
+            'story_image' => 'Story photo',
+            'story_image_help' => 'Shown in a circle beside the story — a square photo works best. PNG, JPG or WebP, max 2 MB. Empty: the default photo.',
             'mini_description_en' => 'Mini Description (English)',
             'mini_description_ar' => 'Mini Description (Arabic)',
             'facebook' => 'Facebook URL',

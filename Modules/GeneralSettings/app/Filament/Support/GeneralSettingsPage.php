@@ -24,6 +24,9 @@ abstract class GeneralSettingsPage extends SettingsPage implements HasPermission
 
     public const ICONS_DIRECTORY = 'settings/icons';
 
+    /** Photos uploaded on their own (not in a repeater), e.g. the about page's story photo. */
+    public const IMAGES_DIRECTORY = 'settings/images';
+
     protected static ?string $cluster = GeneralSettingsCluster::class;
 
     protected static ?string $permissionKey = 'general_settings';
@@ -33,7 +36,7 @@ abstract class GeneralSettingsPage extends SettingsPage implements HasPermission
     /** @var array<PermissionAction> */
     protected static array $permissionActions = [PermissionAction::View, PermissionAction::Edit];
 
-    /** Icon files in use before the save, to delete the ones the admin removed or replaced. */
+    /** Uploaded files in use before the save, to delete the ones the admin removed or replaced. */
     private array $iconsBeforeSave = [];
 
     abstract protected static function getTranslationKey(): string;
@@ -76,18 +79,19 @@ abstract class GeneralSettingsPage extends SettingsPage implements HasPermission
     }
 
     /**
-     * Uploaded icon paths in the settings' repeaters.
+     * Uploaded file paths: the icons in the settings' repeaters and the photos set on their own.
      *
      * @return array<string>
      */
     protected static function iconPaths(array $settings): array
     {
-        return collect($settings)
+        $icons = collect($settings)
             ->filter(fn ($value) => is_array($value))
             ->flatMap(fn (array $items) => Arr::pluck($items, 'icon'))
-            ->filter(fn ($path) => is_string($path) && str_starts_with($path, self::ICONS_DIRECTORY.'/'))
-            ->values()
-            ->all();
+            ->filter(fn ($path) => is_string($path) && str_starts_with($path, self::ICONS_DIRECTORY.'/'));
+        $images = collect($settings)->filter(fn ($value) => is_string($value) && str_starts_with($value, self::IMAGES_DIRECTORY.'/'));
+
+        return $icons->merge($images)->values()->all();
     }
 
     protected static function textEn(string $name, string $label): TextInput

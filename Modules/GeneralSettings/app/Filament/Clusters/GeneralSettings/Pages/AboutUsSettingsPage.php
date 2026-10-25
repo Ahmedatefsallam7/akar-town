@@ -2,6 +2,7 @@
 
 namespace Modules\GeneralSettings\Filament\Clusters\GeneralSettings\Pages;
 
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -39,6 +40,17 @@ class AboutUsSettingsPage extends GeneralSettingsPage
                     static::textAr('story_header', 'header'),
                     static::textareaEn('story_body', 'story', 10000)->rows(8),
                     static::textareaAr('story_body', 'story', 10000)->rows(8),
+                    FileUpload::make('story_image')
+                        ->label(__('admin.settings.fields.story_image'))
+                        ->helperText(__('admin.settings.fields.story_image_help'))
+                        ->image()
+                        ->disk('public')
+                        ->directory(self::IMAGES_DIRECTORY)
+                        ->visibility('public')
+                        // No SVG: an uploaded SVG can carry scripts.
+                        ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/webp'])
+                        ->maxSize(2048)
+                        ->columnSpanFull(),
                 ])
                 ->columns(2)
                 ->columnSpanFull(),
