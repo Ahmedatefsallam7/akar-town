@@ -23,7 +23,7 @@ Route::view('/wishlist', 'website.wishlist')->name('wishlist');
 Route::view('/developers', 'website.developers')->name('developers');
 Route::get('/developers/{slug}', [DevelopersController::class, 'show'])->name('developers.show');
 Route::view('/about', 'website.placeholder')->name('about');
-Route::view('/contact', 'website.placeholder')->name('contact');
+Route::view('/contact', 'website.contact')->name('contact');
 Route::view('/careers', 'website.placeholder')->name('careers');
 Route::get('/compare', CompareController::class)->name('compare');
 Route::view('/privacy-policy', 'website.placeholder')->name('privacy');
