@@ -25,9 +25,9 @@
     x-data="footerReveal(@js($reveal))"
     @if ($reveal)
         class="fixed inset-x-0 bottom-0 z-1 h-dvh overflow-hidden bg-night text-white"
-        :class="{ 'fixed inset-x-0 bottom-0 h-dvh': ! static, 'relative h-auto': static }"
+        :class="{ 'fixed inset-x-0 bottom-0 z-1 h-dvh': ! static, 'relative z-[901] h-auto': static }"
     @else
-        class="relative w-full overflow-hidden bg-night text-white"
+        class="relative z-[901] w-full overflow-hidden bg-night text-white"
     @endif
 >
     <div
@@ -135,8 +135,8 @@
                 >8WORX</a>
             </span>
             <div class="flex gap-5">
-                <a href="{{ route('privacy') }}" class="text-cream/60 transition-colors duration-300 hover:text-cream focus-visible:text-cream">{{ __('Privacy Policy') }}</a>
-                <a href="{{ route('terms') }}" class="text-cream/60 transition-colors duration-300 hover:text-cream focus-visible:text-cream">{{ __('Terms') }}</a>
+                <a href="{{ route('privacy', absolute: false) }}" class="text-cream/60 transition-colors duration-300 hover:text-cream focus-visible:text-cream">{{ __('Privacy Policy') }}</a>
+                <a href="{{ route('terms', absolute: false) }}" class="text-cream/60 transition-colors duration-300 hover:text-cream focus-visible:text-cream">{{ __('Terms') }}</a>
             </div>
         </div>
     </div>

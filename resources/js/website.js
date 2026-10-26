@@ -172,7 +172,7 @@ document.addEventListener('alpine:init', () => {
     })
 
     // Shared with the footer spacer in the layout (no scroll range when the footer is static).
-    Alpine.store('footer', { static: false })
+    Alpine.store('footer', { static: false, atEnd: false })
 
     // The footer sits fixed behind the page and is revealed as the last screen scrolls away (the design's GSAP
     // ScrollTrigger timeline). When its content is taller than the screen it falls back to a normal static footer.
@@ -199,6 +199,7 @@ document.addEventListener('alpine:init', () => {
                 return
             }
 
+            this.watchEnd()
             this.layout()
             this.setupScroll()
             document.fonts?.ready.then(() => this.relayout())
@@ -225,6 +226,16 @@ document.addEventListener('alpine:init', () => {
                 { rootMargin: '0px 0px 100% 0px' },
             )
             observer.observe(target)
+        },
+
+        watchEnd() {
+            const spacer = document.getElementById('footer-spacer')
+            if (!spacer) return
+
+            const observer = new IntersectionObserver(([entry]) => {
+                Alpine.store('footer').atEnd = entry.isIntersecting
+            })
+            observer.observe(spacer)
         },
 
         // Fit the "AKAR TOWN" wordmark to the full width (the design also capped it at a third of the screen height; the user

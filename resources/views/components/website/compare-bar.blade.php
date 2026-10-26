@@ -5,6 +5,8 @@
 <div
     x-data="{ shake(offset) { $el.style.transform = offset ? `translateX(${offset}px)` : '' } }"
     @compare-full.window="shake(6); setTimeout(() => shake(-6), 80); setTimeout(() => shake(0), 160)"
+    x-show="$store.compare.items.length && ! $store.footer.atEnd"
+    x-cloak
     class="pointer-events-none fixed right-8 bottom-8 z-900 flex translate-y-4 flex-col items-end gap-[10px] opacity-0 transition-[opacity,translate,transform] duration-250 rtl:right-auto rtl:left-8"
     :class="{ 'translate-y-4 opacity-0': ! $store.compare.items.length, 'translate-y-0 opacity-100': $store.compare.items.length }"
 >
