@@ -28,8 +28,8 @@ Route::view('/contact', 'website.contact')->name('contact');
 Route::view('/careers', 'website.careers')->name('careers');
 Route::get('/careers/{slug}', [CareersController::class, 'show'])->name('careers.show');
 Route::get('/compare', CompareController::class)->name('compare');
-Route::view('/privacy-policy', 'website.placeholder')->name('privacy');
-Route::view('/terms', 'website.placeholder')->name('terms');
+Route::view('/privacy-policy', 'website.privacy')->name('privacy');
+Route::view('/terms', 'website.terms')->name('terms');
 
 // Website sign out (the window signs in, see App\Livewire\Website\AuthModal). Only the website account: an admin
 // signed in on the same browser stays signed in; the session id and the form token are renewed.
@@ -43,6 +43,11 @@ Route::post('/account/logout', function () {
 
     return redirect()->to(parse_url($previous, PHP_URL_HOST) === request()->getHost() ? $previous : url('/'));
 })->name('account.logout');
+
+// The signed-in visitor's account page; a guest goes home with a note to sign in (the website has no sign-in page).
+Route::get('/account', fn () => auth('website')->check()
+    ? view('website.account')
+    : redirect()->route('home')->with(EnsureWebsiteUserIsActive::NOTICE, __('Please sign in to see your account.')))->name('account');
 
 // A signed-in user's heart clicks, saved to the account ($store.favourites).
 Route::post('/account/favourites', FavouritesController::class)->middleware(['auth:website', 'throttle:60,1'])->name('account.favourites');

@@ -142,7 +142,11 @@
                             <p class="truncate text-[13px] font-semibold text-white rtl:font-arabic">{{ $account->name }}</p>
                             <p class="truncate text-[11.5px] text-white/50" dir="ltr">{{ $account->email }}</p>
                         </div>
-                        <form method="POST" action="{{ route('account.logout') }}" class="pt-1">
+                        <a href="{{ route('account') }}" class="mt-1 flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-[13px] text-white/80 transition-[background,color] duration-200 hover:bg-[rgba(200,16,46,0.15)] hover:text-white rtl:font-arabic">
+                            <x-website.icons.user class="size-[15px]" />
+                            {{ __('My Account') }}
+                        </a>
+                        <form method="POST" action="{{ route('account.logout') }}">
                             @csrf
                             <button type="submit" class="flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2.5 text-start text-[13px] text-white/80 transition-[background,color] duration-200 hover:bg-[rgba(200,16,46,0.15)] hover:text-white rtl:font-arabic">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="rtl:-scale-x-100" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
@@ -220,13 +224,11 @@
         {{-- Account · wishlist · theme · language (the design's .mobile-nav__utils). --}}
         <div class="mb-7 grid grid-cols-4 gap-2.5 border-y border-white/7 py-5">
             @if ($account)
-                <form method="POST" action="{{ route('account.logout') }}" class="contents">
-                    @csrf
-                    <button type="submit" class="{{ $tile }}" aria-label="{{ __('Sign out') }}">
-                        <span class="flex size-5 items-center justify-center rounded-full bg-[#c8102e] text-[10px] font-bold text-white">{{ mb_strtoupper(mb_substr($account->name, 0, 1)) }}</span>
-                        <span>{{ __('Sign out') }}</span>
-                    </button>
-                </form>
+                {{-- Signed in: the account page (sign out is there). --}}
+                <a href="{{ route('account') }}" class="{{ $tile }}" aria-label="{{ __('My Account') }}">
+                    <span class="flex size-5 items-center justify-center rounded-full bg-[#c8102e] text-[10px] font-bold text-white">{{ mb_strtoupper(mb_substr($account->name, 0, 1)) }}</span>
+                    <span>{{ __('My Account') }}</span>
+                </a>
             @else
                 <button type="button" @click="open = false; $dispatch('open-auth')" class="{{ $tile }}" aria-label="{{ __('Sign in or register') }}">
                     <x-website.icons.user class="size-5" />

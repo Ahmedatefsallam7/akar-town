@@ -18,10 +18,10 @@
     $labels = collect(range(0, count($unitKeys)))->map(fn (int $u) => collect(range(0, count($projectKeys)))->map(fn (int $p) => $saved($u, $p))->all())->all();
     $groupTitle = 'font-sans text-[16px] font-semibold tracking-[0.12em] text-ink uppercase rtl:font-arabic rtl:tracking-normal';
     $groupCount = 'flex size-[25px] items-center justify-center rounded-full bg-brand font-sans text-[11px] leading-[1.6] font-medium text-white';
-    $grid = 'grid grid-cols-3 gap-7 max-[1100px]:grid-cols-2 max-[720px]:grid-cols-1 max-[720px]:gap-5';
+    $grid = $compact ? 'grid grid-cols-2 gap-5 max-[720px]:grid-cols-1' : 'grid grid-cols-3 gap-7 max-[1100px]:grid-cols-2 max-[720px]:grid-cols-1 max-[720px]:gap-5';
 @endphp
 
-<div x-data x-init="$wire.load([...$store.favourites.ids])" class="bg-page">
+<div x-data x-init="$wire.load([...$store.favourites.ids])" @class(['bg-page' => ! $compact])>
     <div
         wire:key="wishlist-{{ $loaded ? 'loaded' : 'loading' }}"
         x-data="{
@@ -45,6 +45,7 @@
             },
         }"
     >
+        @unless ($compact)
         <section class="px-12 pt-[calc(var(--spacing-nav)+64px)] max-[720px]:px-6 max-[720px]:pt-[calc(var(--spacing-nav)+40px)] max-[720px]:pb-9">
             <div class="mb-[18px] inline-flex items-center gap-[10px] text-[10px] font-bold tracking-[0.22em] text-brand uppercase before:inline-block before:h-px before:w-7 before:bg-brand before:opacity-60 rtl:font-arabic rtl:tracking-normal">{{ __('Wishlist') }}</div>
             <div class="flex flex-wrap items-end justify-between gap-6">
@@ -57,8 +58,9 @@
                 @endif
             </div>
         </section>
+        @endunless
 
-        <section class="p-12 max-[720px]:px-6 max-[720px]:pt-9 max-[720px]:pb-[60px]">
+        <section @class(['p-12 max-[720px]:px-6 max-[720px]:pt-9 max-[720px]:pb-[60px]' => ! $compact, 'py-2' => $compact])>
             <div class="flex flex-col gap-14 max-[720px]:gap-10">
                 @if ($units)
                     <div x-show="unitCount">
@@ -90,7 +92,7 @@
             </div>
 
             @if ($loaded)
-                <div x-show="! unitCount && ! projectCount" @if ($units || $projects) style="display: none" @endif class="flex flex-col items-center px-8 pt-[100px] pb-[120px] text-center">
+                <div x-show="! unitCount && ! projectCount" @if ($units || $projects) style="display: none" @endif @class(['flex flex-col items-center px-8 pt-[100px] pb-[120px] text-center' => ! $compact, 'flex flex-col items-center px-5 py-10 text-center' => $compact])>
                     <div class="mb-7 flex size-[72px] animate-heart-pulse items-center justify-center rounded-full border-2 border-ink-30">
                         <svg viewBox="0 0 24 24" aria-hidden="true" class="size-[30px] fill-none stroke-ink-30 stroke-[1.5]"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>
                     </div>
