@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\URL;
 use Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException;
 use Livewire\Livewire;
 use Modules\GeneralSettings\Settings\SiteSettings;
+use Modules\WebsiteUsers\Http\Middleware\EnsureWebsiteUserIsActive;
 use Modules\WebsiteUsers\Models\WebsiteUser;
 use Modules\WebsiteUsers\Notifications\ResetWebsitePassword;
 use Modules\WebsiteUsers\Notifications\VerifyWebsiteEmail;
@@ -168,20 +169,22 @@ class AuthTest extends TestCase
             ->assertDontSee('aria-label="Sign in or register"', false);
     }
 
-    public function test_sign_out_ends_the_website_account_only_and_stays_on_this_site(): void
+    public function test_sign_out_ends_the_website_account_only_and_goes_home_with_a_notice(): void
     {
         $admin = $this->createAdmin();
         $this->actingAs($admin, 'web')->actingAs($this->user(), 'website');
 
-        $this->from(route('properties'))->post(route('account.logout'))->assertRedirect(route('properties'));
+        $this->from(route('properties'))->post(route('account.logout'))
+            ->assertRedirect(url('/'))
+            ->assertSessionHas(EnsureWebsiteUserIsActive::NOTICE, 'You are signed out.');
         $this->assertFalse(Auth::guard('website')->check());
         $this->assertTrue(Auth::guard('web')->check()); // the admin stays signed in
 
-        // Never back to another site.
+        // Arabic visitors read it in Arabic.
         $this->actingAs($this->user(['email' => 'omar@example.com']), 'website')
-            ->withHeader('Referer', 'https://evil.example/page')
+            ->withCookie('locale', 'ar')
             ->post(route('account.logout'))
-            ->assertRedirect(url('/'));
+            ->assertSessionHas(EnsureWebsiteUserIsActive::NOTICE, 'تم تسجيل خروجك.');
     }
 
     public function test_a_blocked_account_sees_the_notice_once(): void

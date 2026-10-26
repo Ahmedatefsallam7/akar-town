@@ -827,5 +827,6 @@
     "Received": "تم الاستلام",
     "Sent :date": "أُرسل :date",
     "You haven’t sent anything yet. Book a viewing, send a message or submit your property and follow it here.": "لم ترسل أي طلب بعد. احجز معاينة أو أرسل رسالة أو اعرض عقارك وتابعه من هنا.",
-    "Please sign in to see your account.": "سجّل الدخول لترى حسابك."
+    "Please sign in to see your account.": "سجّل الدخول لترى حسابك.",
+    "You are signed out.": "تم تسجيل خروجك."
 }
