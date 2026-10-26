@@ -59,7 +59,7 @@
     </div>
 
     {{-- Cards --}}
-    <main class="{{ $pad }} mx-auto max-w-[1320px] pt-9 pb-20 max-md:pt-6 max-md:pb-[60px]" aria-label="{{ __('Project listings') }}">
+    <main class="{{ $pad }} mx-auto max-w-[1320px] pt-9 max-md:pt-6 {{ $more ? 'pb-0' : 'pb-20 max-md:pb-[60px]' }}" aria-label="{{ __('Project listings') }}">
         <div class="grid grid-cols-3 gap-7 max-xl:grid-cols-2 max-md:grid-cols-1">
             @forelse ($cards as $i => $card)
                 <x-website.project-card :card="$card" :index="$i" wire:key="project-{{ $card['id'] }}" />

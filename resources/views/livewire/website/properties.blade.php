@@ -164,7 +164,7 @@
     </div>
 
     {{-- Cards --}}
-    <div class="{{ $pad }} mx-auto max-w-[1320px] pt-7 pb-20">
+    <div class="{{ $pad }} mx-auto max-w-[1320px] pt-7 {{ $more ? 'pb-0' : 'pb-20' }}">
         <div :data-view="view" class="group/grid grid grid-cols-3 gap-7 max-xl:grid-cols-2 max-md:grid-cols-1 data-[view=list]:grid-cols-1!">
             @foreach ($cards as $i => $card)
                 <x-website.property-card :card="$card" :index="$i" wire:key="unit-{{ $card['id'] }}" />
