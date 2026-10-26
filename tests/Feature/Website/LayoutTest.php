@@ -94,7 +94,8 @@ class LayoutTest extends TestCase
 
         $this->assertStringNotContainsString('href="#"', $footer);
         foreach (['properties', 'projects', 'developers', 'locations', 'about', 'careers', 'contact', 'privacy', 'terms'] as $route) {
-            $this->assertStringContainsString('href="'.route($route).'"', $footer);
+            // The bottom bar's Privacy / Terms links are relative (cd243f1), the others full.
+            $this->assertStringContainsString('href="'.route($route, absolute: ! in_array($route, ['privacy', 'terms'], true)).'"', $footer);
             $this->get(route($route))->assertOk();
         }
     }

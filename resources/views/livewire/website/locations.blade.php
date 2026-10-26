@@ -5,7 +5,7 @@
 <div>
     <x-website.page-hero :crumb="__('Locations')" :title="__('Explore <em>Prime</em> Locations')" :count="$total" :count-label="__('Locations')" :animate="false" start-on-phone />
 
-    <main class="mx-auto max-w-[1320px] px-12 pt-12 {{ $more ? 'pb-2' : 'pb-12' }} max-[1100px]:px-7 max-[700px]:px-5" aria-label="{{ __('Locations listing') }}">
+    <main class="mx-auto max-w-[1320px] px-12 pt-12 {{ $more ? 'pb-0' : 'pb-12' }} max-[1100px]:px-7 max-[700px]:px-5" aria-label="{{ __('Locations listing') }}">
         <div class="grid grid-cols-3 gap-[18px] max-[1100px]:grid-cols-2 max-[1100px]:gap-[14px] max-[700px]:grid-cols-1 max-[700px]:gap-3">
             @forelse ($cards as $i => $card)
                 {{-- The outer block scrolls in; the card itself lifts on hover (as in the design). --}}

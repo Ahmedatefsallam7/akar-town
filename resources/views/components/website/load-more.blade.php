@@ -1,8 +1,9 @@
 {{--
     The listings' "Load More" glass pill (the design's .btn-load-more): calls the Livewire component's loadMore(),
-    with a spinner while it loads. Used on the properties and projects listings.
+    with a spinner while it loads. Used on the properties, projects, developers and locations listings.
 --}}
-<div class="flex justify-center pt-10 pb-[60px]">
+{{-- 28 px above (the cards' gap; the list adds no bottom space while it shows), 48 px below (the design). --}}
+<div class="flex justify-center pt-7 pb-12">
     <button
         type="button"
         wire:click="loadMore"

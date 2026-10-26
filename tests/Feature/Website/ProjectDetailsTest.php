@@ -152,4 +152,13 @@ class ProjectDetailsTest extends TestCase
 
         $this->assertSame($few, $count(), json_encode(array_count_values(array_column(DB::getQueryLog(), 'query'))));
     }
+
+    public function test_the_contact_section_keeps_a_background_without_a_project_photo(): void
+    {
+        $project = Project::factory()->create(['slug' => 'no-photo']);
+
+        $this->get(route('projects.show', 'no-photo'))
+            ->assertOk()
+            ->assertSee('data-bg="" data-bg-fallback="'.asset('images/website/contact-section-bg.webp').'"', false);
+    }
 }

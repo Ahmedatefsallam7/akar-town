@@ -354,8 +354,9 @@
 
         {{-- Contact --}}
         <section id="contact" class="relative overflow-hidden bg-[rgb(7,6,10)] pt-[clamp(88px,11vw,144px)] pb-[clamp(80px,10vw,128px)]" aria-label="{{ __('Contact the sales team') }}">
-            {{-- Barely visible (7%): the card size is enough, fetched when the visitor nears it. --}}
-            <div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-7 grayscale" data-bg="{{ $p['imageSmall'] }}" x-intersect.once.margin.600px="$el.style.backgroundImage = `url('${$el.dataset.bg}')`" aria-hidden="true"></div>
+            {{-- Barely visible (7%): the card size is enough, fetched when the visitor nears it. The design's photo sits
+                 under the project's, so the section keeps its background when the project has none (or it fails). --}}
+            <div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-7 grayscale" data-bg="{{ $p['imageSmall'] === \App\Support\Website\Image::placeholder() ? '' : $p['imageSmall'] }}" data-bg-fallback="{{ asset('images/website/contact-section-bg.webp') }}" x-intersect.once.margin.600px="$el.style.backgroundImage = ($el.dataset.bg ? `url('${$el.dataset.bg}'), ` : '') + `url('${$el.dataset.bgFallback}')`" aria-hidden="true"></div>
             <div class="pointer-events-none absolute inset-0 z-1 opacity-4 {{ $grain }}" aria-hidden="true"></div>
             <div class="pointer-events-none absolute -bottom-[60px] left-1/2 z-1 h-[400px] w-[800px] -translate-x-1/2 bg-[radial-gradient(rgba(200,16,46,0.1)_0%,transparent_70%)]" aria-hidden="true"></div>
 

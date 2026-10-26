@@ -16,7 +16,7 @@
     $outline = 'border-[1.5px] border-ink-60 text-ink';
     $sectionTitle = 'mb-5 border-l-[3px] border-brand pl-[14px] font-sans text-[11px] leading-[1.2] font-bold tracking-[0.14em] text-ink uppercase rtl:border-r-[3px] rtl:border-l-0 rtl:pr-[14px] rtl:pl-0 rtl:font-arabic';
     $sep = 'mb-10 h-px bg-[rgba(200,16,46,0.2)] dark:bg-line';
-    $tile = 'flex items-center gap-[10px] rounded-lg border border-ink-10 bg-paper p-3 transition-[border-color] duration-200 hover:border-brand-lt dark:border-line dark:bg-surface-2 dark:hover:border-[rgba(212,20,44,0.35)] dark:hover:bg-surface-3';
+    $tile = 'flex items-center gap-[10px] rounded-lg border border-ink-10 bg-paper p-3 dark:border-line dark:bg-surface-2';
     $stickyButton = 'relative flex size-[34px] cursor-pointer items-center justify-center rounded-full border border-white/20 bg-white/6 text-white/70 transition-[background,border-color,color] duration-200 hover:border-brand hover:bg-[rgba(200,16,46,0.15)]';
     $schedule = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
     $pdfIcon = '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>';
