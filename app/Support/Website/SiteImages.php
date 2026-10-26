@@ -27,7 +27,7 @@ class SiteImages
      */
     public static function get(string $key): array
     {
-        $path = self::settings()?->{$key};
+        $path = self::setting($key);
 
         if (! $path) {
             [$full, $small] = self::DEFAULTS[$key];
@@ -44,15 +44,15 @@ class SiteImages
     /** The uploaded logo's URL (empty: the built-in SVG logo is used). */
     public static function logo(): ?string
     {
-        $path = self::settings()?->logo;
+        $path = self::setting('logo');
 
         return $path ? Storage::disk('public')->url($path) : null;
     }
 
-    private static function settings(): ?WebsiteImagesSettings
+    private static function setting(string $key): ?string
     {
         try {
-            return app(WebsiteImagesSettings::class);
+            return app(WebsiteImagesSettings::class)->{$key};
         } catch (MissingSettings) {
             return null;
         }
