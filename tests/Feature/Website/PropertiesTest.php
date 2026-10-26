@@ -92,6 +92,21 @@ class PropertiesTest extends TestCase
         $this->assertCount(3, $this->names(['beds' => ['abc'], 'price' => ['1;drop'], 'type' => ['x']]));
     }
 
+    public function test_the_price_filter_is_the_designs_range_slider(): void
+    {
+        Unit::factory()->create(['name_en' => 'Sky Villa', 'price' => 6000000]);
+        Unit::factory()->create(['name_en' => 'Big House', 'price' => 60000000]);
+
+        $this->get(route('properties'))
+            ->assertOk()
+            ->assertSee(['type="range"', 'Any price', '50M+'], false)
+            ->assertDontSee('Under 2M EGP');
+
+        // What the slider sends: 5M–20M, and 50M+ open-ended.
+        $this->assertSame(['Sky Villa'], $this->names(['price' => ['5000000-20000000']]));
+        $this->assertSame(['Big House'], $this->names(['price' => ['50000000-']]));
+    }
+
     public function test_status_intent_type_amenities_location_and_sort(): void
     {
         $offering = $this->lookups('offeringtype', ['primary', 'resale', 'rent']);

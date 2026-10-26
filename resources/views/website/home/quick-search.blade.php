@@ -2,7 +2,8 @@
     Quick property search (the design's .qf): Buy / Rent / New Projects with their sub-tabs, a text search and
     filter chips whose panels open below them (teleported to <body> as in the design; unlike the design they stay
     open while the page scrolls, following their chip, and long lists scroll). Sends a GET search to the
-    properties (or projects) page.
+    properties (or projects) page. Lists are sent with numbered names (type[0]=…): Livewire rewrites a bare "type[]"
+    into "type." in the address, which a reload or a shared link then loses.
 --}}
 @php
     use App\Support\Website\SearchOptions;
@@ -15,7 +16,8 @@
     $filters = [
         ['name' => 'type', 'label' => __('Property Type'), 'options' => SearchOptions::values('unittype')],
         ['name' => 'beds', 'label' => __('Beds & Baths'), 'options' => ['0' => __('Studio'), '1' => __('1 Bedroom'), '2' => __('2 Bedrooms'), '3' => __('3 Bedrooms'), '4' => __('4 Bedrooms'), '5+' => __('5+ Bedrooms')]],
-        ['name' => 'price', 'label' => __('Price (EGP)'), 'options' => ['0-1000000' => __('Under 1M'), '1000000-3000000' => __('1M – 3M'), '3000000-7000000' => __('3M – 7M'), '7000000-15000000' => __('7M – 15M'), '15000000-' => __('15M+')]],
+        // The design's range slider (0 → 50M+ EGP), not a list.
+        ['name' => 'price', 'label' => __('Price (EGP)'), 'range' => true],
         ['name' => 'area', 'label' => __('Area (sqm)'), 'options' => ['0-80' => __('Under 80'), '80-120' => __('80 – 120'), '120-200' => __('120 – 200'), '200-300' => __('200 – 300'), '300-' => __('300+')]],
         ['name' => 'finishing', 'label' => __('Finishing'), 'options' => SearchOptions::values('finishingtype')],
     ];
@@ -29,6 +31,19 @@
         sub: { buy: 'all', rent: 'all', new: 'all' },
         open: null,
         anchor: null,
+        // Price slider, in millions (50 = 50M+).
+        priceLo: 0,
+        priceHi: 50,
+        get priceAny() { return this.priceLo === 0 && this.priceHi >= 50 },
+        priceAmount(n) { return (n >= 50 ? @js(__(':countM+ EGP')) : @js(__(':countM EGP'))).replace(':count', n) },
+        get priceText() { return this.priceAny ? @js(__('Any price')) : this.priceAmount(this.priceLo) + ' – ' + this.priceAmount(this.priceHi) },
+        // What the properties page's price filter reads: one EGP range, e.g. 5000000-20000000, or 50000000- for 50M+.
+        get priceValue() { return this.priceLo * 1e6 + '-' + (this.priceHi >= 50 ? '' : this.priceHi * 1e6) },
+        priceMove(handle) {
+            this.priceLo = Number(this.priceLo)
+            this.priceHi = Number(this.priceHi)
+            if (this.priceLo >= this.priceHi) handle === 'lo' ? (this.priceLo = this.priceHi - 1) : (this.priceHi = this.priceLo + 1)
+        },
         pos: { top: 0, left: 0 },
         // The open list follows its chip while the page scrolls; it closes once the chip leaves the screen.
         place() {
@@ -126,7 +141,11 @@
                                 ? 'border-ink-30 text-ink dark:border-[rgba(237,232,223,0.45)] dark:bg-surface-3 dark:text-ink'
                                 : 'border-ink-10 text-ink-60 hover:border-ink-30 hover:text-ink dark:border-[rgba(237,232,223,0.22)] dark:bg-surface-2 dark:text-[rgba(237,232,223,0.75)] dark:hover:border-[rgba(237,232,223,0.45)] dark:hover:bg-surface-3 dark:hover:text-ink'"
                         >
-                            {{ $filter['label'] }}
+                            @if ($filter['range'] ?? false)
+                                <span x-text="priceAny ? @js($filter['label']) : priceText">{{ $filter['label'] }}</span>
+                            @else
+                                {{ $filter['label'] }}
+                            @endif
                             <svg class="block shrink-0 transition-[rotate] duration-220" :class="open === {{ $i }} ? 'rotate-180 text-ink' : 'text-ink-30 dark:text-[rgba(237,232,223,0.45)]'" width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
                                 <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
@@ -140,12 +159,28 @@
                                 class="fixed top-0 left-0 z-9999 max-h-[min(320px,calc(100dvh-24px))] min-w-[190px] overflow-y-auto overscroll-contain rounded-[14px] border border-ink-10 bg-page p-2 shadow-[0_10px_36px_rgba(0,0,0,0.1),0_2px_8px_rgba(0,0,0,0.06)] transition-[opacity,translate,scale] duration-180"
                                 :class="open === {{ $i }} ? 'pointer-events-auto translate-y-0 scale-100 opacity-100' : 'pointer-events-none -translate-y-1.5 scale-98 opacity-0'"
                             >
+                                @if ($filter['range'] ?? false)
+                                    {{-- The design's price slider (index.html .qf__price-panel); sent only when narrowed. --}}
+                                    <div class="w-[280px] px-[10px] pt-2 pb-[6px]">
+                                        <div class="mb-[18px] text-center font-sans text-[13px] font-semibold text-brand rtl:font-arabic" x-text="priceText">{{ __('Any price') }}</div>
+                                        <div dir="ltr" class="relative mt-2 mb-1 h-1 rounded bg-ink-10">
+                                            <div class="pointer-events-none absolute top-0 h-full rounded bg-brand" :style="`left: ${priceLo / 50 * 100}%; width: ${(priceHi - priceLo) / 50 * 100}%`"></div>
+                                            <input type="range" min="0" max="50" step="1" x-model.number="priceLo" @input="priceMove('lo')" class="pointer-events-none absolute top-1/2 left-0 m-0 h-1 w-full -translate-y-1/2 appearance-none bg-transparent outline-none [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:size-[18px] [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-brand [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:shadow-[0_1px_6px_rgba(0,0,0,0.18)] [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:size-[18px] [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-brand [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-[0_1px_6px_rgba(0,0,0,0.18)] [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:hover:scale-118" aria-label="{{ __('Minimum price') }}" />
+                                            <input type="range" min="0" max="50" step="1" x-model.number="priceHi" @input="priceMove('hi')" class="pointer-events-none absolute top-1/2 left-0 m-0 h-1 w-full -translate-y-1/2 appearance-none bg-transparent outline-none [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:size-[18px] [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-brand [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:shadow-[0_1px_6px_rgba(0,0,0,0.18)] [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:size-[18px] [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-brand [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-[0_1px_6px_rgba(0,0,0,0.18)] [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:hover:scale-118" aria-label="{{ __('Maximum price') }}" />
+                                        </div>
+                                        <div dir="ltr" class="mt-3 flex justify-between font-sans text-[10px] text-ink-30 select-none">
+                                            <span>0</span><span>10{{ __('M') }}</span><span>25{{ __('M') }}</span><span>50{{ __('M') }}+</span>
+                                        </div>
+                                        <input type="hidden" form="quick-search" name="price[0]" :value="priceValue" :disabled="priceAny" />
+                                    </div>
+                                @else
                                 @foreach ($filter['options'] as $value => $optionLabel)
-                                    <label class="flex w-full cursor-pointer items-center gap-[10px] rounded-[9px] px-3 py-[9px] text-start font-sans text-[13px] font-normal whitespace-nowrap text-ink-60 transition-[background,color] duration-140 hover:bg-ink-10 hover:text-ink rtl:font-arabic">
-                                        <input type="checkbox" form="quick-search" name="{{ $filter['name'] }}[]" value="{{ $value }}" class="size-[15px] shrink-0 cursor-pointer accent-brand" />
-                                        {{ $optionLabel }}
-                                    </label>
-                                @endforeach
+                                        <label class="flex w-full cursor-pointer items-center gap-[10px] rounded-[9px] px-3 py-[9px] text-start font-sans text-[13px] font-normal whitespace-nowrap text-ink-60 transition-[background,color] duration-140 hover:bg-ink-10 hover:text-ink rtl:font-arabic">
+                                            <input type="checkbox" form="quick-search" name="{{ $filter['name'] }}[{{ $loop->index }}]" value="{{ $value }}" class="size-[15px] shrink-0 cursor-pointer accent-brand" />
+                                            {{ $optionLabel }}
+                                        </label>
+                                    @endforeach
+                                @endif
                             </div>
                         </template>
                     </div>

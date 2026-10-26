@@ -187,7 +187,15 @@ class HomeTest extends TestCase
             ->assertOk()
             ->assertSee(['Buy', 'Rent', 'New Projects', 'Find Properties', 'Villa'])
             ->assertDontSee('Old Bank Type')
-            ->assertSee(route('properties'), false);
+            ->assertSee(route('properties'), false)
+            // The price is the design's range slider; lists go with numbered names (a bare "type[]" is lost on reload).
+            ->assertSee(['name="price[0]"', 'type="range"', 'name="type[0]"'], false)
+            ->assertDontSee(['Under 1M', 'name="type[]"'], false);
+
+        // What the slider sends filters the properties page, and the address keeps it.
+        Unit::factory()->create(['name_en' => 'Mid Villa', 'price' => 6000000, 'is_published' => true]);
+        Unit::factory()->create(['name_en' => 'Cheap Studio', 'price' => 900000, 'is_published' => true]);
+        $this->get(route('properties', ['price' => ['3000000-12000000']]))->assertSee('Mid Villa')->assertDontSee('Cheap Studio');
     }
 
     public function test_the_home_page_in_arabic(): void

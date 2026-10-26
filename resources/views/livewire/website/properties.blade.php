@@ -8,7 +8,6 @@
     $count = fn (int $n, string $one, string $many) => trans_choice($one.'|'.$many, $n, ['count' => $n]);
     $beds = collect(range(1, 5))->mapWithKeys(fn ($n) => [(string) $n => $count($n, ':count Bed', ':count Beds')])->put('6+', __('6+ Beds'))->all();
     $baths = collect(range(1, 4))->mapWithKeys(fn ($n) => [(string) $n => $count($n, ':count Bath', ':count Baths')])->put('5+', __('5+ Baths'))->all();
-    $prices = ['0-2000000' => __('Under 2M EGP'), '2000000-5000000' => __('2M – 5M EGP'), '5000000-10000000' => __('5M – 10M EGP'), '10000000-20000000' => __('10M – 20M EGP'), '20000000-' => __('20M+ EGP')];
     $statuses = ['for-sale' => __('For Sale'), 'for-rent' => __('For Rent'), 'off-plan' => __('Off Plan')];
     $pad = 'px-12 max-xl:px-7 max-md:px-5';
     $clear = 'rounded-full border leading-[normal] border-transparent px-[14px] py-[7px] text-[11px] font-medium tracking-[0.1em] text-ink-30 uppercase transition-[color,border-color] duration-200 hover:border-[rgba(200,16,46,0.2)] hover:text-danger rtl:font-arabic';
@@ -37,9 +36,9 @@
             <x-website.filter-select model="type" :label="__('Type')" :placeholder="__('All Types')" :options="SearchOptions::values('unittype')">
                 <x-slot:icon><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg></x-slot:icon>
             </x-website.filter-select>
-            <x-website.filter-select model="price" :label="__('Price')" :placeholder="__('Any Price')" :options="$prices">
+            <x-website.price-range model="price" :label="__('Price')" :placeholder="__('Any Price')">
                 <x-slot:icon><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg></x-slot:icon>
-            </x-website.filter-select>
+            </x-website.price-range>
             <x-website.filter-select model="beds" :label="__('Beds')" :placeholder="__('Any Beds')" :options="$beds">
                 <x-slot:icon><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M2 9V4a1 1 0 0 1 1-1h18a1 1 0 0 1 1 1v5" /><path d="M2 20v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5" /><path d="M2 20h20" /><path d="M2 9h20" /><rect x="7" y="9" width="4" height="4" rx="1" /></svg></x-slot:icon>
             </x-website.filter-select>
