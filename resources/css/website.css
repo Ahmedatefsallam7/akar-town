@@ -22,8 +22,10 @@
     --breakpoint-lg: 1025px;
     --breakpoint-xl: 1101px;
 
-    --font-sans: var(--font-archivo), system-ui, sans-serif;
-    --font-arabic: var(--font-noto-kufi-arabic), system-ui, sans-serif;
+    /* Each font falls back to the other: Arabic words inside English text (prices "ج.م", "م²") and symbols the
+       Arabic font lacks ("²") keep the site's fonts instead of the system's Arial / Noto Sans. */
+    --font-sans: var(--font-archivo), var(--font-noto-kufi-arabic), system-ui, sans-serif;
+    --font-arabic: var(--font-noto-kufi-arabic), var(--font-archivo), system-ui, sans-serif;
 
     /* Light theme (the design's :root) */
     --color-page: #faf8f5;
@@ -67,6 +69,8 @@
     --animate-card-out: card-out 0.35s var(--ease-smooth) forwards;
     --animate-heart-pulse: heart-pulse 2.4s ease-in-out infinite;
     --animate-ring-breathe: ring-breathe 3s ease-in-out infinite;
+    --animate-ring-pulse: ring-pulse 4s ease-in-out infinite;
+    --animate-pop: pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 
     /* The developer page's logo rings (developer-details.html). */
     @keyframes ring-breathe {
@@ -78,6 +82,31 @@
         50% {
             opacity: 1;
             transform: scale(1.045);
+        }
+    }
+
+    /* The about page's ring around the story photo (about.html). */
+    @keyframes ring-pulse {
+        0%,
+        100% {
+            opacity: 0.5;
+            transform: scale(1);
+        }
+        50% {
+            opacity: 1;
+            transform: scale(1.015);
+        }
+    }
+
+    /* The submit-property window's "Submitted!" tick (submit-modal.css). */
+    @keyframes pop {
+        from {
+            transform: scale(0.4);
+            opacity: 0;
+        }
+        to {
+            transform: scale(1);
+            opacity: 1;
         }
     }
 

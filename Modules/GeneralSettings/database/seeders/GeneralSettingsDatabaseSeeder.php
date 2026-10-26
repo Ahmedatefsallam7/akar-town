@@ -13,7 +13,7 @@ use Modules\GeneralSettings\Settings\HomeSettings;
 use Modules\GeneralSettings\Settings\SubmitPropertySettings;
 
 /**
- * Demo: the settings' empty fields (contacts, social links, branches, numbers, the cards' icons). The texts come with
+ * Demo: the settings' empty fields (contacts, social links, branches, numbers, the cards' icons, the empty "What to Expect" texts). The texts come with
  * the settings migrations. Local only, see SeedsDemoData. The site's Online / Offline switch is left as it is.
  */
 class GeneralSettingsDatabaseSeeder extends Seeder
@@ -65,7 +65,20 @@ class GeneralSettingsDatabaseSeeder extends Seeder
         $home->save();
 
         $developer = app(DeveloperDetailsSettings::class);
-        $developer->what_to_expect_cards = $this->withIcons($developer->what_to_expect_cards);
+        // The migration leaves the four cards' texts empty: Dastan's ones.
+        $texts = [
+            ['Landmark Locations', 'مواقع مميزة', "Carefully curated developments anchored in the area's most sought-after addresses.", 'مشروعات منتقاة بعناية في أكثر العناوين طلباً في المنطقة.'],
+            ['Clear Terms', 'شروط واضحة', 'Transparent payment plans and verified delivery timelines on every unit.', 'خطط سداد شفافة ومواعيد تسليم موثقة لكل وحدة.'],
+            ['End-to-End Support', 'دعم متكامل', 'A dedicated advisor with you from first inquiry through to handover.', 'مستشار مخصص معك من أول استفسار حتى الاستلام.'],
+            ['Early Access', 'أولوية الوصول', 'First look at exclusive launches and pre-market investment opportunities.', 'اطّلع أولاً على الإطلاقات الحصرية وفرص الاستثمار قبل طرحها في السوق.'],
+        ];
+        $developer->what_to_expect_cards = $this->withIcons(array_map(
+            fn (array $card, int $i) => blank($card['header_en'] ?? null) && isset($texts[$i])
+                ? [...$card, 'header_en' => $texts[$i][0], 'header_ar' => $texts[$i][1], 'body_en' => $texts[$i][2], 'body_ar' => $texts[$i][3]]
+                : $card,
+            $developer->what_to_expect_cards,
+            array_keys($developer->what_to_expect_cards),
+        ));
         $developer->save();
 
         $submit = app(SubmitPropertySettings::class);
@@ -81,7 +94,10 @@ class GeneralSettingsDatabaseSeeder extends Seeder
      */
     private function withIcons(array $cards): array
     {
-        return array_map(fn (array $card, int $i) => [...$card, 'icon' => $card['icon'] ?? $this->icon($i)], $cards, array_keys($cards));
+        // A demo icon is shared by several settings pages: replacing it on one page deletes the file, so it is made again.
+        $demo = fn (?string $icon) => $icon === null || str_starts_with($icon, GeneralSettingsPage::ICONS_DIRECTORY.'/demo-icon-');
+
+        return array_map(fn (array $card, int $i) => [...$card, 'icon' => $demo($card['icon'] ?? null) ? $this->icon($i) : $card['icon']], $cards, array_keys($cards));
     }
 
     /**

@@ -10,6 +10,8 @@ use App\Support\Website\HomeSections;
 use App\Support\Website\Image;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Modules\GeneralSettings\Settings\CtaRibbonSettings;
+use Modules\GeneralSettings\Settings\HomeSettings;
 use Modules\GeneralSettings\Settings\SiteSettings;
 use Modules\Locations\Models\Location;
 use Modules\Lookups\Models\Lookup;
@@ -48,8 +50,8 @@ class HomeTest extends TestCase
         $this->assertSame(['First Villas', 'Second Tower'], array_column(HomeHero::slides(), 'title'));
 
         $this->get(route('home'))->assertOk()->assertSeeInOrder(['First Villas', 'Second Tower'])->assertDontSee('Draft Project')
-            // "Explore Projects" opens the projects list, "View Project Details" the slide's own project.
-            ->assertSee(['href="'.route('projects').'"', 'href="'.route('projects.show', $first->slug).'"', 'Explore Projects', 'View Project Details'], false);
+            // "Explore Projects" opens the projects list, "View Details" the slide's own project.
+            ->assertSee(['href="'.route('projects').'"', 'href="'.route('projects.show', $first->slug).'"', 'Explore Projects', 'View Details'], false);
     }
 
     public function test_without_hero_slides_the_featured_projects_are_shown(): void
@@ -75,6 +77,42 @@ class HomeTest extends TestCase
             ->assertOk()
             ->assertSeeInOrder(['Featured <em>Properties</em>', 'Sky Penthouse', 'id="why-us"', 'Our <em>Projects</em>', 'Crown Tower'], false)
             ->assertDontSee('Hidden Coast');
+    }
+
+    public function test_the_cta_ribbon_block_shows_the_cta_ribbon_settings_in_its_place(): void
+    {
+        $ribbon = app(CtaRibbonSettings::class);
+        $ribbon->header_en = 'Your Dream Property Awaits';
+        $ribbon->body_en = 'Talk to our experts.';
+        $ribbon->save();
+        Slider::factory()->create(['content_type' => 'properties', 'title_en' => 'Featured Properties', 'order' => 1, 'is_active' => true]);
+        Slider::factory()->create(['content_type' => 'cta_ribbon', 'title_en' => 'CTA Ribbon', 'order' => 2, 'is_active' => true]);
+        Unit::factory()->create(['name_en' => 'Sky Penthouse', 'is_featured' => true]);
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSeeInOrder(['Sky Penthouse', 'Your Dream Property <em>Awaits</em>', 'Talk to our experts.', 'Browse All Properties'], false);
+
+        Slider::query()->where('content_type', 'cta_ribbon')->update(['is_active' => false]);
+
+        $this->get(route('home'))->assertOk()->assertDontSee('Talk to our experts.');
+    }
+
+    public function test_why_choose_us_has_the_home_settings_button_and_only_a_safe_link(): void
+    {
+        Slider::factory()->create(['content_type' => 'properties', 'title_en' => 'Featured Properties', 'order' => 1, 'is_active' => true]);
+        Unit::factory()->create(['is_featured' => true]);
+        $home = app(HomeSettings::class);
+        $home->why_choose_cta_text_en = 'Discover Our Story';
+        $home->why_choose_cta_url = 'https://akartown.test/story';
+        $home->save();
+
+        $this->get(route('home'))->assertOk()->assertSee(['Discover Our Story', 'href="https://akartown.test/story"'], false);
+
+        $home->why_choose_cta_url = 'javascript:alert(1)';
+        $home->save();
+
+        $this->get(route('home'))->assertOk()->assertDontSee('javascript:alert(1)', false)->assertSee('href="'.route('about').'"', false);
     }
 
     public function test_missing_photos_show_the_placeholder_instead_of_a_broken_image(): void

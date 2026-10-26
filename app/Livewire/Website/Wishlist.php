@@ -28,6 +28,8 @@ class Wishlist extends Component
 
     public bool $loaded = false;
 
+    public bool $compact = false;
+
     /**
      * @param  array<int, mixed>  $ids  the browser's saved ids
      */

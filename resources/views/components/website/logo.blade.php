@@ -1,5 +1,12 @@
-{{-- Akar Town logo (the design's SVG): white letters, brand-red mark. --}}
+{{--
+    Akar Town logo (the design's SVG): white letters, brand-red mark. On the website (white letters) an uploaded logo
+    from Settings → Website Images replaces it; the admin's dark version stays the SVG.
+--}}
 @props(['color' => 'white'])
+
+@if ($color === 'white' && ($uploaded = \App\Support\Website\SiteImages::logo()))
+    <img src="{{ $uploaded }}" alt="{{ __('Akar Town') }}" {{ $attributes->class('object-contain') }} />
+@else
 
 <svg viewBox="0 0 2185 380" fill="none" xmlns="http://www.w3.org/2000/svg" {{ $attributes }}>
     <path d="M90.97 258.84H160.93L236.12 169.2V379.42H296.66V5.21997L90.97 258.84Z" fill="{{ $color }}" />
@@ -13,3 +20,4 @@
     <path d="M1953.67 256.841H1925.97L1823.48 146.726V256.841H1801.22V122.579H1828.86L1931.43 232.75V122.579H1953.69V256.841H1953.67Z" fill="{{ $color }}" />
     <path d="M2192.83 122.579L2119.39 203.807V256.841H2097.13V203.807L2023.69 122.579H2051.44L2108.39 185.288L2165.08 122.579H2192.83Z" fill="{{ $color }}" />
 </svg>
+@endif

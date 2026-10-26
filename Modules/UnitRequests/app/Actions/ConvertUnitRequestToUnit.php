@@ -4,13 +4,14 @@ namespace Modules\UnitRequests\Actions;
 
 use Illuminate\Support\Facades\DB;
 use LogicException;
+use Modules\Galleries\Models\Gallery;
 use Modules\Lookups\Models\Lookup;
 use Modules\UnitRequests\Models\UnitRequest;
 use Modules\Units\Models\Unit;
 
 /**
  * Turns a sell request into a property (as Dastan's ConvertUnitRequestToIUnitAction): its details, location, picked
- * values and featured image, unpublished so staff can check it first. The request is then closed and points at the
+ * values, featured image and photos (as the property's gallery), unpublished so staff can check it first. The request is then closed and points at the
  * new property. All or nothing, and only once per request.
  */
 class ConvertUnitRequestToUnit
@@ -64,6 +65,13 @@ class ConvertUnitRequestToUnit
             }
 
             $request->getFirstMedia(UnitRequest::FEATURED_IMAGE)?->copy($unit, Unit::FEATURED_IMAGE);
+
+            // The request's photos become the property's gallery.
+            if (($photos = $request->getMedia(UnitRequest::PHOTOS))->isNotEmpty()) {
+                $gallery = Gallery::create(['name_en' => $unit->name_en, 'name_ar' => $unit->name_ar]);
+                $photos->each(fn ($photo) => $photo->copy($gallery, Gallery::PHOTOS));
+                $unit->forceFill(['gallery_id' => $gallery->getKey()])->save();
+            }
 
             $request->forceFill(['unit_id' => $unit->getKey(), 'status' => UnitRequest::CLOSED])->save();
 

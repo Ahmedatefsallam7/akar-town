@@ -122,6 +122,9 @@ class ProjectsTest extends TestCase
         $this->assertSame(['Sky Tower'], $this->names(['status' => 'ready-to-move']));
         $this->assertSame(['Garden Villas'], $this->names(['developer' => $sodic->slug]));
         $this->assertCount(2, $this->names(['developer' => (string) $sodic->id])); // ids aren't accepted
+        $sodic->update(['is_published' => false]);
+        $this->assertSame([], $this->names(['q' => 'sod'])); // a hidden developer's name finds nothing
+        $sodic->update(['is_published' => true]);
 
         Location::factory()->create(['slug' => 'north-coast-page', 'country_id' => $egypt->id, 'city_id' => $coast->id]);
         $this->assertSame(['Sky Tower'], $this->names(['location' => 'north-coast-page']));

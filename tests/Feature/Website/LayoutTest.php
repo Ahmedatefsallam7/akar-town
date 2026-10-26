@@ -34,6 +34,7 @@ class LayoutTest extends TestCase
         $business->hotline = '01150000727';
         $business->social_instagram = 'https://www.instagram.com/akar.town.real.estate/';
         $business->social_facebook = null;
+        $business->social_tiktok = 'https://www.tiktok.com/@akartown';
         $business->save();
 
         foreach (['home', 'properties', 'projects', 'developers', 'about', 'contact', 'careers'] as $page) {
@@ -46,6 +47,7 @@ class LayoutTest extends TestCase
                 ->assertSee('href="tel:01150000727"', false)
                 ->assertSee('https://www.instagram.com/akar.town.real.estate/', false)
                 ->assertDontSee('aria-label="Facebook"', false)
+                ->assertSee(['aria-label="TikTok"', 'href="https://www.tiktok.com/@akartown"'], false)
                 ->assertSee($business->mini_description_en)
                 ->assertSee(['Property Matching', 'Privacy Policy'])
                 ->assertSee('href="'.route('locations').'"', false)
@@ -126,5 +128,18 @@ class LayoutTest extends TestCase
         $this->get(route('about'))->assertOk();
 
         $this->assertLessThanOrEqual(4, count(DB::getQueryLog()), json_encode(array_column(DB::getQueryLog(), 'query')));
+    }
+
+    public function test_both_fonts_are_declared_but_only_arabic_pages_preload_the_arabic_one(): void
+    {
+        $head = fn (string $html) => (string) str($html)->before('</head>');
+
+        $english = $head($this->get(route('about'))->assertOk()->getContent());
+        $this->assertStringContainsString('Noto Kufi Arabic', $english); // the language switch's "عر"
+        $this->assertMatchesRegularExpression('/rel="preload" as="font" href="[^"]*archivo/', $english);
+        $this->assertDoesNotMatchRegularExpression('/rel="preload" as="font" href="[^"]*noto-kufi-arabic/', $english);
+
+        $arabic = $head($this->withCookie('locale', 'ar')->get(route('about'))->assertOk()->getContent());
+        $this->assertMatchesRegularExpression('/rel="preload" as="font" href="[^"]*noto-kufi-arabic/', $arabic);
     }
 }

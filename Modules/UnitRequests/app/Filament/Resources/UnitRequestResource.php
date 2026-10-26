@@ -243,6 +243,20 @@ class UnitRequestResource extends Resource implements HasPermissionModule
                                     ->imageResizeTargetWidth('1920')
                                     ->imageResizeTargetHeight('1920')
                                     ->imageResizeUpscale(false),
+                                SpatieMediaLibraryFileUpload::make('photos')
+                                    ->label(__('admin.unit_requests.photos'))
+                                    ->collection(UnitRequest::PHOTOS)
+                                    ->multiple()
+                                    ->reorderable()
+                                    ->maxFiles(UnitRequest::MAX_PHOTOS)
+                                    ->image()
+                                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                                    ->maxSize(5120)
+                                    ->helperText(__('admin.unit_requests.photos_help', ['count' => UnitRequest::MAX_PHOTOS, 'size' => 5]))
+                                    ->imageResizeMode('contain')
+                                    ->imageResizeTargetWidth('1920')
+                                    ->imageResizeTargetHeight('1920')
+                                    ->imageResizeUpscale(false),
                             ]),
                         Tab::make(__('admin.tabs.admin'))
                             ->icon('heroicon-o-lock-closed')

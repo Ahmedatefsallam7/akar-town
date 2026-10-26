@@ -30,7 +30,7 @@ class ProjectSearch
         if (filled($q = trim((string) ($filters['q'] ?? '')))) {
             $query->where(fn (Builder $query) => $query
                 ->where(fn (Builder $query) => PrefixSearch::apply($query, $q, ['title_en', 'title_ar']))
-                ->orWhereHas('developer', fn (Builder $query) => PrefixSearch::apply($query, $q, ['name_en', 'name_ar']))
+                ->orWhereHas('developer', fn (Builder $query) => PrefixSearch::apply($query->where('is_published', true), $q, ['name_en', 'name_ar']))
                 ->orWhere(fn (Builder $query) => PropertySearch::inPlaces($query, LocationTree::startingWith($q))));
         }
 

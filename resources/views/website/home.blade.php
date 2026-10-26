@@ -30,6 +30,16 @@
                     @include('website.home.projects', ['title' => $section['title']])
                 @endif
                 @break
+            @case('cta_ribbon')
+                {{-- Settings → CTA Ribbon, shown as the design's CTA banner. --}}
+                @php($ribbon = app(\Modules\GeneralSettings\Settings\CtaRibbonSettings::class))
+                <x-website.cta-banner
+                    :eyebrow="__('Begin Your Journey')"
+                    :title="\App\Support\Website\HomeSections::accent($ribbon->{'header_'.app()->getLocale()})"
+                    :description="$ribbon->{'body_'.app()->getLocale()}"
+                    variant="contact"
+                />
+                @break
         @endswitch
 
         {{-- As in the design, "Why Choose Us" follows the first block. --}}

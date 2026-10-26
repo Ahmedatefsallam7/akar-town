@@ -6,6 +6,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
@@ -37,6 +38,10 @@ class AppServiceProvider extends ServiceProvider
         FileUpload::configureUsing(fn (FileUpload $field) => $field->getUploadedFileNameForStorageUsing(
             fn (TemporaryUploadedFile $file) => Str::ulid().'.'.($file->guessExtension() ?? 'bin'),
         ), isImportant: true);
+
+        // The website declares both fonts on every page (English pages show "عر"), but only Arabic pages preload the
+        // Arabic one: an English page downloads it only when it needs those few letters.
+        Vite::usePreloadTagAttributes(fn (?string $src, ?string $url) => $src === 'fonts' && str_contains((string) $url, 'noto-kufi-arabic') && app()->getLocale() !== 'ar' ? false : []);
 
         // Filament's media upload field reloads the record's media for every field (one query each). Read them once
         // per record instead: the first field loads them, the others reuse them (same files, same order).

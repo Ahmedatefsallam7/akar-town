@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Website\CareersController;
 use App\Http\Controllers\Website\CompareController;
 use App\Http\Controllers\Website\DevelopersController;
 use App\Http\Controllers\Website\FavouritesController;
@@ -22,25 +23,27 @@ Route::get('/locations/{slug}', [LocationsController::class, 'show'])->name('loc
 Route::view('/wishlist', 'website.wishlist')->name('wishlist');
 Route::view('/developers', 'website.developers')->name('developers');
 Route::get('/developers/{slug}', [DevelopersController::class, 'show'])->name('developers.show');
-Route::view('/about', 'website.placeholder')->name('about');
-Route::view('/contact', 'website.placeholder')->name('contact');
-Route::view('/careers', 'website.placeholder')->name('careers');
+Route::view('/about', 'website.about')->name('about');
+Route::view('/contact', 'website.contact')->name('contact');
+Route::view('/careers', 'website.careers')->name('careers');
+Route::get('/careers/{slug}', [CareersController::class, 'show'])->name('careers.show');
 Route::get('/compare', CompareController::class)->name('compare');
-Route::view('/privacy-policy', 'website.placeholder')->name('privacy');
-Route::view('/terms', 'website.placeholder')->name('terms');
+Route::view('/privacy-policy', 'website.privacy')->name('privacy');
+Route::view('/terms', 'website.terms')->name('terms');
 
-// Website sign out (the window signs in, see App\Livewire\Website\AuthModal). Only the website account: an admin
-// signed in on the same browser stays signed in; the session id and the form token are renewed.
+// Website sign out
 Route::post('/account/logout', function () {
     auth('website')->logout();
     session()->regenerate(true);
     session()->regenerateToken();
 
-    // Back to the same page, only within this site (as the language switch).
-    $previous = url()->previous();
-
-    return redirect()->to(parse_url($previous, PHP_URL_HOST) === request()->getHost() ? $previous : url('/'));
+    return redirect()->to(url('/'))->with(EnsureWebsiteUserIsActive::NOTICE, __('You are signed out.'));
 })->name('account.logout');
+
+// The signed-in visitor's account page; a guest goes home with a note to sign in (the website has no sign-in page).
+Route::get('/account', fn () => auth('website')->check()
+    ? view('website.account')
+    : redirect()->route('home')->with(EnsureWebsiteUserIsActive::NOTICE, __('Please sign in to see your account.')))->name('account');
 
 // A signed-in user's heart clicks, saved to the account ($store.favourites).
 Route::post('/account/favourites', FavouritesController::class)->middleware(['auth:website', 'throttle:60,1'])->name('account.favourites');
@@ -48,8 +51,7 @@ Route::post('/account/favourites', FavouritesController::class)->middleware(['au
 // The "reset your password" e-mail's link: a website page with the new password form (App\Livewire\Website\ResetPassword).
 Route::view('/account/reset-password/{token}', 'website.account.reset-password')->name('account.password.reset');
 
-// The "verify your e-mail" link: signed (can't be changed or made up) and valid 60 minutes. No database id in the
-// URL: the account is found by its e-mail (as the reset link), so a changed e-mail also ends an old link.
+// The "verify your e-mail" link: signed (can't be changed or made up) and valid 60 minutes
 Route::get('/account/verify', function () {
     $user = request()->hasValidSignature() ? WebsiteUser::query()->where('email', (string) request()->query('email'))->first() : null;
 

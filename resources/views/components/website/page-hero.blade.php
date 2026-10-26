@@ -7,7 +7,7 @@
 --}}
 @props(['crumb', 'title', 'count', 'countLabel', 'animate' => true, 'image' => null, 'parent' => null, 'description' => null, 'startOnPhone' => false])
 
-<div class="relative flex min-h-[360px] flex-col justify-end overflow-hidden bg-[rgb(6,6,10)] bg-cover bg-no-repeat bg-[position:center_38%] pt-nav before:pointer-events-none before:absolute before:inset-0 before:z-0 before:bg-[linear-gradient(108deg,rgba(6,6,10,0.96)_0%,rgba(6,6,10,0.75)_32%,rgba(6,6,10,0.28)_58%,transparent_100%),linear-gradient(to_top,rgba(6,6,10,0.88)_0%,rgba(6,6,10,0.2)_45%,transparent_70%)]" style="background-image: url('{{ $image ?? asset('images/website/why-bg.webp') }}')">
+<div class="relative flex min-h-[360px] flex-col justify-end overflow-hidden bg-[rgb(6,6,10)] bg-cover bg-no-repeat bg-[position:center_38%] pt-nav before:pointer-events-none before:absolute before:inset-0 before:z-0 before:bg-[linear-gradient(108deg,rgba(6,6,10,0.96)_0%,rgba(6,6,10,0.75)_32%,rgba(6,6,10,0.28)_58%,transparent_100%),linear-gradient(to_top,rgba(6,6,10,0.88)_0%,rgba(6,6,10,0.2)_45%,transparent_70%)]" style="background-image: url('{{ $image ?? \App\Support\Website\SiteImages::get('page_header')[0] }}')">
     <div class="relative z-1 mx-auto flex w-full max-w-[1320px] items-end justify-between gap-10 px-12 pt-14 pb-[52px] max-xl:px-7 max-md:flex-col max-md:gap-4 max-md:px-5 max-md:pt-10 max-md:pb-9 {{ $startOnPhone ? 'max-[700px]:items-start max-[700px]:gap-5' : '' }}">
         <div>
             <nav class="mb-4 flex items-center gap-2 text-[10px] tracking-[0.2em] text-white/55 uppercase rtl:font-arabic" aria-label="{{ __('Breadcrumb') }}">

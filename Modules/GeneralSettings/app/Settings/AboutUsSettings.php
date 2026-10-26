@@ -25,6 +25,9 @@ class AboutUsSettings extends Settings
 
     public string $story_body_ar;
 
+    // The round photo beside the story (public disk path); empty: the design's photo.
+    public ?string $story_image;
+
     public int $years_of_excellence;
 
     public int $stats_happy_clients;

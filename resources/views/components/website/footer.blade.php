@@ -8,11 +8,14 @@
 @php
     $business = app(\Modules\GeneralSettings\Settings\BusinessInfoSettings::class);
     $stats = \App\Support\Website\FooterStats::get();
+    [$footerBg, $footerBgSmall] = \App\Support\Website\SiteImages::get('footer_background');
     $socials = array_filter([
         'instagram' => $business->social_instagram,
         'facebook' => $business->social_facebook,
         'linkedin' => $business->social_linkedin,
         'youtube' => $business->social_youtube,
+        // Not in the design (it shows four): Business Info has it, so it is shown too.
+        'tiktok' => $business->social_tiktok,
     ]);
     $label = 'mb-[0.9rem] block text-[0.68rem] font-semibold tracking-[0.16em] text-cream/55 uppercase rtl:tracking-[0.04em]';
     $link = 'text-[0.92rem] font-medium text-cream/85 transition-colors duration-300 hover:text-cream focus-visible:text-cream';
@@ -22,9 +25,9 @@
     x-data="footerReveal(@js($reveal))"
     @if ($reveal)
         class="fixed inset-x-0 bottom-0 z-1 h-dvh overflow-hidden bg-night text-white"
-        :class="{ 'fixed inset-x-0 bottom-0 h-dvh': ! static, 'relative h-auto': static }"
+        :class="{ 'fixed inset-x-0 bottom-0 z-1 h-dvh': ! static, 'relative z-[901] h-auto': static }"
     @else
-        class="relative min-h-dvh w-full overflow-hidden bg-night text-white"
+        class="relative z-[901] w-full overflow-hidden bg-night text-white"
     @endif
 >
     <div
@@ -37,8 +40,8 @@
         @endif
         {{-- Set when the visitor nears the footer (footerReveal.lazyBackground): it isn't fetched with the page. Phones
              take the 900 px copy. --}}
-        data-bg="{{ asset('images/website/footer-bg.webp') }}"
-        data-bg-small="{{ asset('images/website/footer-bg-small.webp') }}"
+        data-bg="{{ $footerBg }}"
+        data-bg-small="{{ $footerBgSmall }}"
         aria-hidden="true"
     ></div>
     <div class="pointer-events-none absolute inset-0 bg-[linear-gradient(0deg,#080808_12%,rgba(8,8,8,0.05)_72%)]" aria-hidden="true"></div>
@@ -49,12 +52,12 @@
             class="relative z-1 flex h-full flex-col justify-between pt-[clamp(1.5rem,3.5vh,2.5rem)] pb-[clamp(1rem,2vh,1.5rem)] *:shrink-0"
             :class="{ 'h-full pb-[clamp(1rem,2vh,1.5rem)]': ! static, 'h-auto gap-[clamp(1.5rem,4vh,2.5rem)] pb-[clamp(1.25rem,3vh,1.75rem)]': static }"
         @else
-            class="relative z-1 flex min-h-dvh flex-col justify-between pt-[clamp(1.5rem,3.5vh,2.5rem)] pb-[clamp(1rem,2vh,1.5rem)] *:shrink-0"
+            class="relative z-1 flex flex-col justify-between gap-[clamp(1.5rem,4vh,2.5rem)] pt-[clamp(1.5rem,3.5vh,2.5rem)] pb-[clamp(1rem,2vh,1.5rem)] *:shrink-0"
         @endif
     >
-        <div class="mx-auto grid w-full max-w-[1320px] grid-cols-[1.4fr_1fr_1fr_1.6fr] gap-[clamp(1.5rem,3vw,2.5rem)] px-12 max-lg:grid-cols-2 max-lg:gap-y-[clamp(1.75rem,5vh,2.5rem)] max-sm:gap-x-5 max-sm:gap-y-7">
-            {{-- Brand --}}
-            <div class="max-sm:order-1 max-sm:col-span-full" data-reveal>
+        <div class="mx-auto grid w-full max-w-[1320px] grid-cols-[1.4fr_1fr_1fr_1.6fr] gap-[clamp(1.5rem,3vw,2.5rem)] px-12 max-[620px]:px-5 max-lg:grid-cols-2 max-lg:gap-y-[clamp(1.75rem,5vh,2.5rem)] max-sm:gap-x-5 max-sm:gap-y-7">
+            {{-- Brand: its own row on tablets (the design's developer-details.html), so Explore and Company sit side by side. --}}
+            <div class="max-[960px]:col-span-full max-sm:order-1" data-reveal>
                 <a href="{{ route('home') }}" class="mb-4 block" aria-label="{{ __('Akar Town — Home') }}">
                     <x-website.logo class="block h-[26px] w-auto" />
                 </a>
@@ -66,7 +69,7 @@
                         [$stats['years'].'+', __('Years')],
                     ] as [$value, $statLabel])
                         <div>
-                            <span class="mb-[0.28rem] block text-[clamp(1.4rem,2.5vw,1.9rem)] leading-none font-bold text-[#c8102e]">{{ $value }}</span>
+                            <span dir="ltr" class="mb-[0.28rem] block text-[clamp(1.4rem,2.5vw,1.9rem)] leading-none font-bold text-[#c8102e] rtl:text-right">{{ $value }}</span>
                             <span class="block text-[0.6rem] font-bold tracking-[0.1em] text-cream/60 uppercase">{{ $statLabel }}</span>
                         </div>
                     @endforeach
@@ -77,7 +80,7 @@
                             <a
                                 href="{{ $url }}"
                                 class="flex size-9 items-center justify-center rounded-full border border-cream/35 text-cream/80 transition-[border-color,color] duration-300 hover:border-cream hover:text-cream focus-visible:border-cream focus-visible:text-cream"
-                                aria-label="{{ ucfirst($network) }}"
+                                aria-label="{{ $network === 'tiktok' ? 'TikTok' : ucfirst($network) }}"
                                 target="_blank"
                                 rel="noopener noreferrer"
                             >
@@ -121,7 +124,7 @@
         </div>
 
         {{-- Bottom bar --}}
-        <div class="mx-auto flex w-full max-w-[1320px] flex-wrap items-center justify-between gap-3 border-t border-cream/12 px-12 pt-[clamp(1rem,2.5vh,1.5rem)] text-[0.75rem] text-cream/60 max-sm:justify-start" data-reveal>
+        <div class="mx-auto flex w-full max-w-[1320px] flex-wrap items-center justify-between gap-3 border-t border-cream/12 px-12 max-[620px]:px-5 pt-[clamp(1rem,2.5vh,1.5rem)] text-[0.75rem] text-cream/60 max-sm:justify-start" data-reveal>
             <span>
                 &copy; {{ __('Copyright :year. All Rights Reserved To', ['year' => now()->year]) }}
                 <a
@@ -132,8 +135,8 @@
                 >8WORX</a>
             </span>
             <div class="flex gap-5">
-                <a href="{{ route('privacy') }}" class="text-cream/60 transition-colors duration-300 hover:text-cream focus-visible:text-cream">{{ __('Privacy Policy') }}</a>
-                <a href="{{ route('terms') }}" class="text-cream/60 transition-colors duration-300 hover:text-cream focus-visible:text-cream">{{ __('Terms') }}</a>
+                <a href="{{ route('privacy', absolute: false) }}" class="text-cream/60 transition-colors duration-300 hover:text-cream focus-visible:text-cream">{{ __('Privacy Policy') }}</a>
+                <a href="{{ route('terms', absolute: false) }}" class="text-cream/60 transition-colors duration-300 hover:text-cream focus-visible:text-cream">{{ __('Terms') }}</a>
             </div>
         </div>
     </div>
