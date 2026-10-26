@@ -4,6 +4,7 @@ namespace App\Support\Website;
 
 use Illuminate\Support\Facades\Storage;
 use Modules\GeneralSettings\Settings\WebsiteImagesSettings;
+use Spatie\LaravelSettings\Exceptions\MissingSettings;
 
 /**
  * The website's own photos: the one uploaded in Settings → Website Images, else the design's (in public/images/website).
@@ -26,7 +27,7 @@ class SiteImages
      */
     public static function get(string $key): array
     {
-        $path = app(WebsiteImagesSettings::class)->{$key};
+        $path = self::settings()?->{$key};
 
         if (! $path) {
             [$full, $small] = self::DEFAULTS[$key];
@@ -43,9 +44,18 @@ class SiteImages
     /** The uploaded logo's URL (empty: the built-in SVG logo is used). */
     public static function logo(): ?string
     {
-        $path = app(WebsiteImagesSettings::class)->logo;
+        $path = self::settings()?->logo;
 
         return $path ? Storage::disk('public')->url($path) : null;
+    }
+
+    private static function settings(): ?WebsiteImagesSettings
+    {
+        try {
+            return app(WebsiteImagesSettings::class);
+        } catch (MissingSettings) {
+            return null;
+        }
     }
 
     /** "settings/images/x.jpg" → "settings/images/x-small.webp". */
