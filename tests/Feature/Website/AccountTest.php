@@ -3,6 +3,7 @@
 namespace Tests\Feature\Website;
 
 use App\Livewire\Website\AccountSettings;
+use App\Livewire\Website\Wishlist;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
@@ -12,6 +13,7 @@ use Modules\GeneralSettings\Settings\SiteSettings;
 use Modules\Inquiry\Models\Inquiry;
 use Modules\Inquiry\Models\Meeting;
 use Modules\UnitRequests\Models\UnitRequest;
+use Modules\Units\Models\Unit;
 use Modules\WebsiteUsers\Models\WebsiteUser;
 use Modules\WebsiteUsers\Notifications\VerifyWebsiteEmail;
 use Tests\TestCase;
@@ -153,6 +155,21 @@ class AccountTest extends TestCase
             ->assertOk()
             ->assertSee(['Sky Penthouse', 'Confirmed', 'Villa for Sale in New Cairo', 'Contacted', 'Project Enquiry', 'Project: Azure Heights', 'Received'])
             ->assertDontSee('Someone else');
+    }
+
+    public function test_the_wishlist_tab_shows_the_saved_cards_without_the_wishlist_pages_header(): void
+    {
+        $unit = Unit::factory()->create(['name_en' => 'Garden Villa', 'is_published' => true]);
+        $this->actingAs($this->user, 'website');
+
+        $this->get(route('account'))->assertOk()->assertSee('Wishlist')->assertSeeLivewire(Wishlist::class);
+
+        Livewire::test(Wishlist::class, ['compact' => true])
+            ->call('load', [$unit->id])
+            ->assertSee('Garden Villa')
+            ->assertDontSee('<h1', false);
+        // The wishlist page itself keeps its header.
+        Livewire::test(Wishlist::class)->call('load', [$unit->id])->assertSee('<h1', false);
     }
 
     public function test_arabic(): void
