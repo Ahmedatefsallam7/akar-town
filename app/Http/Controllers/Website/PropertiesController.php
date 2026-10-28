@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Support\Website\FooterStats;
 use App\Support\Website\PropertyCards;
 use App\Support\Website\PropertyDetails;
+use App\Support\Website\PropertyPdf;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\Response;
 use Modules\Units\Models\Unit;
 
 class PropertiesController extends Controller
@@ -27,6 +29,20 @@ class PropertiesController extends Controller
     /**
      * One published property, with up to six similar ones (same project or type first, then the latest).
      */
+    /**
+     * The property's datasheet as a PDF download, in English or Arabic (the visitor picks; see PropertyPdf).
+     */
+    public function pdf(string $slug, string $locale): Response
+    {
+        $unit = Unit::query()->where('slug', $slug)->where('is_published', true)->firstOrFail();
+        ['name' => $name, 'content' => $content] = PropertyPdf::make($unit, $locale);
+
+        return response($content, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="'.$name.'"',
+        ]);
+    }
+
     public function show(string $slug): View
     {
         $unit = Unit::query()->where('slug', $slug)->where('is_published', true)->firstOrFail();

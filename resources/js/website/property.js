@@ -1,6 +1,4 @@
-// Property details page (the design's property-details.html scripts): photo slider (arrows, dots, thumbnails,
-// swipe, arrow keys), the sticky bar with the reading progress once the hero is passed, "Read More", the location
-// map (Leaflet, loaded when needed), the similar properties slider (Swiper) and the PDF datasheet.
+// Property details page: photo slider, sticky bar, "Read More", location map, similar properties and PDF language choice.
 import Swiper from 'swiper'
 import { Navigation } from 'swiper/modules'
 
@@ -9,7 +7,7 @@ export default ({ count, latitude, longitude, place }) => ({
     sticky: false,
     progress: 0,
     more: false,
-    pdfLoading: false,
+    pdfOpen: false,
 
     init() {
         const onScroll = () => {
@@ -97,14 +95,7 @@ export default ({ count, latitude, longitude, place }) => ({
         })
     },
 
-    async pdf() {
-        if (this.pdfLoading) return
-        this.pdfLoading = true
-        try {
-            const { default: buildPDF } = await import('./property-pdf')
-            await buildPDF(this.$root)
-        } finally {
-            this.pdfLoading = false
-        }
+    pdf() {
+        this.pdfOpen = true
     },
 })

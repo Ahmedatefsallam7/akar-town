@@ -8,6 +8,7 @@ use App\Http\Controllers\Website\HomeController;
 use App\Http\Controllers\Website\LocationsController;
 use App\Http\Controllers\Website\ProjectsController;
 use App\Http\Controllers\Website\PropertiesController;
+use App\Support\Website\PropertyPdf;
 use Illuminate\Support\Facades\Route;
 use Modules\WebsiteUsers\Http\Middleware\EnsureWebsiteUserIsActive;
 use Modules\WebsiteUsers\Models\WebsiteUser;
@@ -16,6 +17,11 @@ use Modules\WebsiteUsers\Models\WebsiteUser;
 Route::get('/', HomeController::class)->name('home');
 Route::get('/properties', [PropertiesController::class, 'index'])->name('properties');
 Route::get('/properties/{slug}', [PropertiesController::class, 'show'])->name('properties.show');
+// Built on the server (mPDF, a few hundred ms): limited per visitor.
+Route::get('/properties/{slug}/pdf/{locale}', [PropertiesController::class, 'pdf'])
+    ->whereIn('locale', PropertyPdf::LOCALES)
+    ->middleware('throttle:20,1')
+    ->name('properties.pdf');
 Route::view('/projects', 'website.projects')->name('projects');
 Route::get('/projects/{slug}', [ProjectsController::class, 'show'])->name('projects.show');
 Route::view('/locations', 'website.locations')->name('locations');

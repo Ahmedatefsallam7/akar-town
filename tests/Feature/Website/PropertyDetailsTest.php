@@ -77,6 +77,17 @@ class PropertyDetailsTest extends TestCase
             ->assertDontSee('<script>alert(1)</script>', false);
     }
 
+    public function test_the_pdf_language_picker_links_to_both_download_versions(): void
+    {
+        $unit = Unit::factory()->create();
+
+        $this->get(route('properties.show', $unit->slug))
+            ->assertOk()
+            ->assertSee(__('Choose PDF language'))
+            ->assertSee(route('properties.pdf', ['slug' => $unit->slug, 'locale' => 'en']), false)
+            ->assertSee(route('properties.pdf', ['slug' => $unit->slug, 'locale' => 'ar']), false);
+    }
+
     public function test_the_units_own_floor_plan_and_master_plan_show_only_when_it_has_them(): void
     {
         Storage::fake('public');

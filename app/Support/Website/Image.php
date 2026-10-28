@@ -66,4 +66,22 @@ class Image
 
         return $media->getUrl();
     }
+
+    /**
+     * The file on disk of the same image Image::url() would show (for server-side PDFs).
+     */
+    public static function path(?Media $media, string $conversion = 'large'): ?string
+    {
+        if (! $media) {
+            return null;
+        }
+
+        foreach (array_unique([$conversion, 'large']) as $size) {
+            if ($media->hasGeneratedConversion($size)) {
+                return $media->getPath($size);
+            }
+        }
+
+        return $media->getPath();
+    }
 }
