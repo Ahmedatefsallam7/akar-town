@@ -84,19 +84,24 @@ class ScheduleViewingTest extends TestCase
         $this->assertSame($meeting->id, PossibleLead::sole()->converted_lead_id);
     }
 
-    public function test_name_phone_a_known_type_and_a_future_time_are_required(): void
+    public function test_name_phone_a_known_type_and_a_time_an_hour_ahead_are_required(): void
     {
         $this->form()
             ->set(['phone' => '0100', 'email' => 'x@y', 'type' => 'dinner', 'meetingAt' => now()->subDay()->format('Y-m-d\TH:i')])
             ->call('send')
-            ->assertHasErrors(['fullName' => 'required', 'phone', 'email', 'type', 'meetingAt' => 'after']);
+            ->assertHasErrors(['fullName' => 'required', 'phone', 'email', 'type', 'meetingAt' => 'after'])
+            ->assertSee('Please pick a time at least one hour from now.');
+
+        // Later today, an hour or more from now, is accepted; sooner isn't.
+        $this->form()->set(['fullName' => 'Sara', 'phone' => '01001234567', 'meetingAt' => now()->addMinutes(30)->format('Y-m-d\TH:i')])->call('send')->assertHasErrors(['meetingAt' => 'after']);
+        $this->form()->set(['fullName' => 'Sara', 'phone' => '01001234567', 'meetingAt' => now()->addMinutes(90)->format('Y-m-d\TH:i')])->call('send')->assertHasNoErrors();
 
         $this->form()
             ->set(['fullName' => 'Sara', 'phone' => '01001234567', 'meetingAt' => now()->addYears(2)->format('Y-m-d\TH:i')])
             ->call('send')
             ->assertHasErrors(['meetingAt' => 'before']);
 
-        $this->assertSame(0, Meeting::count());
+        $this->assertSame(1, Meeting::count()); // only the one an hour and a half ahead
     }
 
     public function test_book_another_keeps_the_contact(): void

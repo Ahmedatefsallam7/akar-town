@@ -826,5 +826,7 @@
     "M": " مليون",
     "New to Akar Town?": "جديد في عقار تاون؟",
     "Create an account": "أنشئ حساباً",
-    "Already have an account?": "لديك حساب بالفعل؟"
+    "Already have an account?": "لديك حساب بالفعل؟",
+    "Please pick a time at least one hour from now.": "اختر موعداً بعد ساعة على الأقل من الآن.",
+    "Please pick a date within the next year.": "اختر موعداً خلال السنة القادمة."
 }

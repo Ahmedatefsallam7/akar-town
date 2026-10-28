@@ -1,7 +1,7 @@
 {{--
     The property page's booking window (App\Livewire\Website\ScheduleViewing), in the Submit Property window's look:
     name, phone, e-mail (optional), meeting type, preferred date & time and a message. Opened by the window event
-    "schedule-viewing"; Escape, the × and a click outside close it.
+    "schedule-viewing"; Escape, the × and a click outside close it. The time is at least an hour from now (today included).
 --}}
 @php
     $label = 'text-[11px] font-semibold tracking-[0.08em] text-black/50 uppercase rtl:font-arabic rtl:tracking-normal dark:text-[rgba(237,232,223,0.4)]';

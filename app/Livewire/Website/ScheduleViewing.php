@@ -71,9 +71,12 @@ class ScheduleViewing extends Component
             'phone' => ['required', 'string', 'max:30', ...LeadContact::phoneRules()],
             'email' => ['nullable', 'max:191', ...LeadContact::emailRules()],
             'type' => ['required', Rule::in(Meeting::TYPES)],
-            // From an hour from now, up to a year ahead.
+            // At least an hour from now (today included), up to a year ahead.
             'meetingAt' => ['required', 'date', 'after:'.now()->addHour()->toDateTimeString(), 'before:'.now()->addYear()->toDateTimeString()],
             'notes' => ['nullable', 'string', 'max:2000'],
+        ], messages: [
+            'meetingAt.after' => __('Please pick a time at least one hour from now.'),
+            'meetingAt.before' => __('Please pick a date within the next year.'),
         ], attributes: [
             'fullName' => __('Full name'),
             'phone' => __('Phone'),
