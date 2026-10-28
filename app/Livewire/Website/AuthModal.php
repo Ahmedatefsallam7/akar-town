@@ -55,6 +55,9 @@ class AuthModal extends Component
     #[Locked]
     public bool $registering = false;
 
+    /** Registering because the e-mail typed to sign in has no account (not from "Create an account"). */
+    public bool $newEmail = false;
+
     /** "Forgot password": the link was asked for (the same message whether the e-mail has an account or not). */
     #[Locked]
     public bool $resetSent = false;
@@ -79,6 +82,7 @@ class AuthModal extends Component
 
         if (! $user) {
             $this->registering = true;
+            $this->newEmail = true;
             $this->resetErrorBag();
 
             return;
@@ -168,11 +172,22 @@ class AuthModal extends Component
     }
 
     /**
-     * Back to e-mail and password only (the "Back" link or another e-mail).
+     * "Create an account": the e-mail step with the name and the password twice (register() checks the e-mail is new).
+     */
+    public function startRegistration(): void
+    {
+        $this->registering = true;
+        $this->newEmail = false;
+        $this->resetErrorBag();
+    }
+
+    /**
+     * Back to e-mail and password only (the "Back" link, "Sign in" or another e-mail).
      */
     public function cancelRegistration(): void
     {
         $this->registering = false;
+        $this->newEmail = false;
         $this->reset('name', 'passwordConfirmation');
         $this->resetErrorBag();
     }

@@ -6,14 +6,14 @@
 --}}
 @php
     $countries = \App\Livewire\Website\AuthModal::COUNTRIES;
-    $label = 'mb-2 block text-[12.5px] font-semibold tracking-[0.01em] text-[#0d0d0d] dark:text-[#d8d4ce] rtl:font-arabic';
-    $input = 'h-12 min-w-0 flex-1 rounded-[10px] border-[1.5px] border-[#e0ddd8] bg-white px-[14px] font-[inherit] text-[14px] text-[#0d0d0d] outline-none transition-[border-color] duration-200 placeholder:text-black/28 focus:border-brand dark:border-white/10 dark:bg-[#1f1f1f] dark:text-[#f0ede8] dark:placeholder:text-white/20';
-    $goButton = 'h-12 flex-none cursor-pointer rounded-[10px] border-none bg-brand px-[22px] text-[14px] font-bold tracking-[0.02em] whitespace-nowrap text-white transition-[background,translate] duration-200 hover:-translate-y-px hover:bg-[#a50d26] active:translate-y-0 max-[420px]:px-4 rtl:font-arabic';
-    $back = 'mb-[18px] inline-flex cursor-pointer items-center gap-1.5 self-start border-none bg-none p-0 text-[12px] text-black/45 transition-colors duration-200 hover:text-brand dark:text-white/35 dark:hover:text-brand rtl:font-arabic';
-    $or = 'my-[22px] flex items-center gap-3 text-[12px] font-semibold tracking-[0.06em] text-black/30 uppercase before:h-px before:flex-1 before:bg-black/10 after:h-px after:flex-1 after:bg-black/10 dark:text-white/25 dark:before:bg-white/8 dark:after:bg-white/8 rtl:font-arabic';
-    $social = 'flex h-[46px] flex-1 cursor-pointer items-center justify-center rounded-[10px] border-[1.5px] border-[#e0ddd8] bg-white transition-[border-color,background,translate] duration-200 hover:-translate-y-0.5 hover:border-brand hover:bg-[rgba(200,16,46,0.04)] dark:border-white/10 dark:bg-[#1f1f1f] dark:hover:border-brand dark:hover:bg-[rgba(200,16,46,0.08)] [&_svg]:size-5';
+    $label = 'mb-1.5 block [@media(max-height:780px)]:mb-1 text-[12.5px] font-semibold tracking-[0.01em] text-[#0d0d0d] dark:text-[#d8d4ce] rtl:font-arabic';
+    $input = 'h-11 [@media(max-height:780px)]:h-10 min-w-0 flex-1 rounded-[10px] border-[1.5px] border-[#e0ddd8] bg-white px-[14px] font-[inherit] text-[14px] text-[#0d0d0d] outline-none transition-[border-color] duration-200 placeholder:text-black/28 focus:border-brand dark:border-white/10 dark:bg-[#1f1f1f] dark:text-[#f0ede8] dark:placeholder:text-white/20';
+    $goButton = 'h-11 [@media(max-height:780px)]:h-10 flex-none cursor-pointer rounded-[10px] border-none bg-brand px-[22px] text-[14px] font-bold tracking-[0.02em] whitespace-nowrap text-white transition-[background,translate] duration-200 hover:-translate-y-px hover:bg-[#a50d26] active:translate-y-0 max-[420px]:px-4 rtl:font-arabic';
+    $back = 'mb-[18px] [@media(max-height:780px)]:mb-2.5 inline-flex cursor-pointer items-center gap-1.5 self-start border-none bg-none p-0 text-[12px] text-black/45 transition-colors duration-200 hover:text-brand dark:text-white/35 dark:hover:text-brand rtl:font-arabic';
+    $or = 'my-4 [@media(max-height:780px)]:my-2 flex items-center gap-3 text-[12px] font-semibold tracking-[0.06em] text-black/30 uppercase before:h-px before:flex-1 before:bg-black/10 after:h-px after:flex-1 after:bg-black/10 dark:text-white/25 dark:before:bg-white/8 dark:after:bg-white/8 rtl:font-arabic';
+    $social = 'flex h-[46px] [@media(max-height:780px)]:h-10 flex-1 cursor-pointer items-center justify-center rounded-[10px] border-[1.5px] border-[#e0ddd8] bg-white transition-[border-color,background,translate] duration-200 hover:-translate-y-0.5 hover:border-brand hover:bg-[rgba(200,16,46,0.04)] dark:border-white/10 dark:bg-[#1f1f1f] dark:hover:border-brand dark:hover:bg-[rgba(200,16,46,0.08)] [&_svg]:size-5';
     $error = 'mt-1.5 block text-[12px] text-danger rtl:font-arabic';
-    $terms = 'mt-[18px] text-center text-[11px] leading-[1.6] text-black/38 dark:text-white/28 rtl:font-arabic [&_a]:text-brand [&_a]:underline [&_a]:underline-offset-2';
+    $terms = 'mt-[18px] [@media(max-height:780px)]:mt-2.5 text-center text-[11px] leading-[1.6] text-black/38 dark:text-white/28 rtl:font-arabic [&_a]:text-brand [&_a]:underline [&_a]:underline-offset-2';
     $backIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-[14px] rtl:-scale-x-100" aria-hidden="true"><polyline points="15 18 9 12 15 6" /></svg>';
     $google = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>';
     $facebook = '<svg viewBox="0 0 24 24" fill="#1877F2" aria-hidden="true"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>';
@@ -82,7 +82,7 @@
         x-transition:enter="transition-transform duration-320 ease-out-ex"
         x-transition:enter-start="translate-y-[18px] scale-97"
         x-transition:enter-end="translate-y-0 scale-100"
-        class="relative flex w-full max-w-[750px] rounded-[18px] border border-[#4d4d4d] dark:border-white/10 max-[620px]:m-auto max-[620px]:max-h-[calc(100dvh-32px)] max-[620px]:overflow-x-hidden max-[620px]:overflow-y-auto max-[620px]:rounded-[14px]"
+        class="relative flex max-h-[calc(100dvh-32px)] w-full max-w-[750px] rounded-[18px] border border-[#4d4d4d] dark:border-white/10 max-[620px]:m-auto max-[620px]:overflow-x-hidden max-[620px]:overflow-y-auto max-[620px]:rounded-[14px]"
     >
         <button type="button" @click="close()" class="absolute top-4 right-4 z-2 flex size-8 cursor-pointer items-center justify-center rounded-full border-none bg-black/7 text-[18px] leading-none text-[#555] transition-[background,color] duration-200 hover:bg-[rgba(200,16,46,0.1)] hover:text-brand dark:bg-white/7 dark:text-white/60 dark:hover:bg-[rgba(200,16,46,0.15)] dark:hover:text-brand rtl:right-auto rtl:left-4" aria-label="{{ __('Close') }}">&times;</button>
 
@@ -105,15 +105,15 @@
         </div>
 
         {{-- Right: the steps --}}
-        <div class="flex flex-1 flex-col rounded-e-[18px] bg-white px-10 pt-11 pb-9 dark:bg-[#161616] max-[620px]:rounded-[14px] max-[620px]:px-6 max-[620px]:pt-10 max-[620px]:pb-7 max-[420px]:px-[18px] max-[420px]:pt-9 max-[420px]:pb-6">
-            <h2 id="auth-title" x-show="step !== 'success'" class="mb-7 text-[20px] font-bold tracking-[-0.02em] text-[#0d0d0d] dark:text-[#f0ede8] rtl:font-arabic">{{ __('Sign in or Register') }}</h2>
+        <div class="flex min-h-0 flex-1 flex-col overflow-y-auto rounded-e-[18px] bg-white px-10 pt-9 pb-8 [@media(max-height:780px)]:pt-6 [@media(max-height:780px)]:pb-5 [scrollbar-width:thin] dark:bg-[#161616] max-[620px]:rounded-[14px] max-[620px]:px-6 max-[620px]:pt-10 max-[620px]:pb-7 max-[420px]:px-[18px] max-[420px]:pt-9 max-[420px]:pb-6">
+            <h2 id="auth-title" x-show="step !== 'success'" class="mb-5 [@media(max-height:780px)]:mb-3 text-[20px] font-bold tracking-[-0.02em] text-[#0d0d0d] dark:text-[#f0ede8] rtl:font-arabic">{{ __('Sign in or Register') }}</h2>
 
             {{-- Step: WhatsApp number --}}
             <div x-show="step === 'phone'" class="flex flex-1 flex-col">
                 <label for="auth-phone" class="{{ $label }}">{{ __('WhatsApp number') }}</label>
                 <div class="flex items-stretch gap-2 max-[420px]:flex-wrap">
                     <div class="relative" @click.outside="dial = false">
-                        <button type="button" @click="dial = ! dial" :aria-expanded="dial" aria-haspopup="listbox" class="flex h-12 flex-none cursor-pointer items-center gap-[5px] rounded-[10px] border-[1.5px] border-[#e0ddd8] bg-white px-[10px] text-[13px] whitespace-nowrap text-[#0d0d0d] transition-[border-color] duration-200 hover:border-brand dark:border-white/10 dark:bg-[#1f1f1f] dark:text-[#f0ede8]" aria-label="{{ __('Select country code') }}">
+                        <button type="button" @click="dial = ! dial" :aria-expanded="dial" aria-haspopup="listbox" class="flex h-11 flex-none cursor-pointer items-center gap-[5px] rounded-[10px] border-[1.5px] border-[#e0ddd8] bg-white px-[10px] text-[13px] whitespace-nowrap text-[#0d0d0d] transition-[border-color] duration-200 hover:border-brand dark:border-white/10 dark:bg-[#1f1f1f] dark:text-[#f0ede8]" aria-label="{{ __('Select country code') }}">
                             <span class="text-[16px] leading-none" x-text="countries[country][1]"></span>
                             <span class="text-[13px] font-semibold" dir="ltr" x-text="countries[country][2]"></span>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="size-3 text-black/40 dark:text-white/40" aria-hidden="true"><polyline points="6 9 12 15 18 9" /></svg>
@@ -139,6 +139,8 @@
                     <button type="button" @click="comingSoon('Google')" class="{{ $social }}" title="{{ __('Continue with Google') }}" aria-label="{{ __('Continue with Google') }}">{!! $google !!}</button>
                     <button type="button" @click="comingSoon('Facebook')" class="{{ $social }}" title="{{ __('Continue with Facebook') }}" aria-label="{{ __('Continue with Facebook') }}">{!! $facebook !!}</button>
                 </div>
+                {{-- Registering is easy to find (user: a visitor didn't know a new e-mail creates an account). --}}
+                <p class="mt-3 text-center text-[12.5px] text-black/55 dark:text-white/50 rtl:font-arabic [@media(max-height:780px)]:mt-2">{{ __('New to Akar Town?') }} <button type="button" @click="go('email'); $wire.startRegistration()" class="cursor-pointer border-none bg-none p-0 font-semibold text-brand underline-offset-2 hover:underline">{{ __('Create an account') }}</button></p>
                 <p x-show="soon" x-cloak class="mt-3 text-center text-[12px] text-black/50 dark:text-white/45 rtl:font-arabic" role="status" x-text="@js(__(':provider sign-in is coming soon.', ['provider' => '__P__'])).replace('__P__', soon)"></p>
                 <p class="{{ $terms }}">{!! __('By registering you accept our <a href=":terms">Terms & Conditions</a> and <a href=":privacy">our privacy policy</a>.', ['terms' => route('terms'), 'privacy' => route('privacy')]) !!}</p>
             </div>
@@ -198,20 +200,24 @@
                 <button type="button" @click="go('phone'); $wire.registering && $wire.cancelRegistration()" class="{{ $back }}">{!! $backIcon !!}{{ __('Back') }}</button>
                 @if ($registering)
                     {{-- A new e-mail: the same step creates the account. --}}
-                    <p class="mb-4 text-[13px] leading-[1.5] text-black/55 dark:text-white/50 rtl:font-arabic">{{ __("No account with this e-mail yet: add your name to create one.") }}</p>
+                    @if ($newEmail)
+                    <p class="mb-4 [@media(max-height:780px)]:mb-2.5 text-[13px] leading-[1.5] text-black/55 dark:text-white/50 rtl:font-arabic">{{ __("No account with this e-mail yet: add your name to create one.") }}</p>
+                    @else
+                        <p class="mb-4 [@media(max-height:780px)]:mb-2.5 text-[13px] leading-[1.5] text-black/55 dark:text-white/50 rtl:font-arabic">{{ __('Already have an account?') }} <button type="button" wire:click="cancelRegistration" class="cursor-pointer border-none bg-none p-0 font-semibold text-brand underline-offset-2 hover:underline">{{ __('Sign in') }}</button></p>
+                    @endif
                     <label for="auth-name" class="{{ $label }}">{{ __('Full name') }}</label>
-                    <div class="mb-3 flex flex-col">
+                    <div class="mb-3 [@media(max-height:780px)]:mb-2 flex flex-col">
                         <input id="auth-name" type="text" wire:model="name" autocomplete="name" class="{{ $input }} w-full flex-none" />
                         @error('name') <span class="{{ $error }}">{{ $message }}</span> @enderror
                     </div>
                 @endif
                 <label for="auth-email" class="{{ $label }}">{{ __('Email') }}</label>
-                <div class="mb-3 flex flex-col">
-                    <input id="auth-email" type="email" wire:model="email" @input="$wire.registering && $wire.cancelRegistration()" autocomplete="email" placeholder="you@example.com" class="{{ $input }} w-full flex-none" />
+                <div class="mb-3 [@media(max-height:780px)]:mb-2 flex flex-col">
+                    <input id="auth-email" type="email" wire:model="email" @input="$wire.newEmail && $wire.cancelRegistration()" autocomplete="email" placeholder="you@example.com" class="{{ $input }} w-full flex-none" />
                     @error('email') <span class="{{ $error }}">{{ $message }}</span> @enderror
                 </div>
                 <label for="auth-password" class="{{ $label }}">{{ __('Password') }}</label>
-                <div class="mb-3 flex gap-2">
+                <div class="mb-3 [@media(max-height:780px)]:mb-2 flex gap-2">
                     <div class="relative flex flex-1">
                         <input id="auth-password" :type="showPassword ? 'text' : 'password'" wire:model="password" @keydown.enter="$wire.{{ $registering ? 'register' : 'signIn' }}()" autocomplete="{{ $registering ? 'new-password' : 'current-password' }}" placeholder="{{ __('Enter password') }}" class="{{ $input }} w-full pe-10" />
                         <button type="button" @click="showPassword = ! showPassword" class="absolute top-1/2 right-3 flex -translate-y-1/2 cursor-pointer border-none bg-none p-1 text-black/35 hover:text-brand dark:text-white/30 rtl:right-auto rtl:left-3" :aria-label="showPassword ? @js(__('Hide password')) : @js(__('Show password'))">
@@ -229,7 +235,7 @@
                 @endunless
                 @if ($registering)
                     <label for="auth-password-confirmation" class="{{ $label }}">{{ __('Confirm password') }}</label>
-                    <div class="mb-3 flex flex-col">
+                    <div class="mb-3 [@media(max-height:780px)]:mb-2 flex flex-col">
                         <input id="auth-password-confirmation" :type="showPassword ? 'text' : 'password'" wire:model="passwordConfirmation" @keydown.enter="$wire.register()" autocomplete="new-password" class="{{ $input }} w-full flex-none" />
                         @error('passwordConfirmation') <span class="{{ $error }}">{{ $message }}</span> @enderror
                     </div>
@@ -242,6 +248,9 @@
                     <button type="button" @click="comingSoon('Facebook')" class="{{ $social }}" title="{{ __('Continue with Facebook') }}" aria-label="{{ __('Continue with Facebook') }}">{!! $facebook !!}</button>
                 </div>
                 <p x-show="soon" x-cloak class="mt-3 text-center text-[12px] text-black/50 dark:text-white/45 rtl:font-arabic" role="status" x-text="@js(__(':provider sign-in is coming soon.', ['provider' => '__P__'])).replace('__P__', soon)"></p>
+                @unless ($registering)
+                    <p class="mt-3 text-center text-[12.5px] text-black/55 dark:text-white/50 rtl:font-arabic [@media(max-height:780px)]:mt-2">{{ __('New to Akar Town?') }} <button type="button" wire:click="startRegistration" class="cursor-pointer border-none bg-none p-0 font-semibold text-brand underline-offset-2 hover:underline">{{ __('Create an account') }}</button></p>
+                @endunless
                 <p class="{{ $terms }}">{!! __('By registering you accept our <a href=":terms">Terms & Conditions</a> and <a href=":privacy">our privacy policy</a>.', ['terms' => route('terms'), 'privacy' => route('privacy')]) !!}</p>
             </form>
 
@@ -256,9 +265,9 @@
                         <p class="text-[13.5px] leading-[1.6] text-black/60 dark:text-white/55 rtl:font-arabic">{{ __('If this e-mail has an account, a link to choose a new password is on its way. It works for 60 minutes.') }}</p>
                     </div>
                 @else
-                    <p class="mb-4 text-[13px] leading-[1.5] text-black/55 dark:text-white/50 rtl:font-arabic">{{ __("Enter your e-mail and we'll send you a link to choose a new password.") }}</p>
+                    <p class="mb-4 [@media(max-height:780px)]:mb-2.5 text-[13px] leading-[1.5] text-black/55 dark:text-white/50 rtl:font-arabic">{{ __("Enter your e-mail and we'll send you a link to choose a new password.") }}</p>
                     <label for="auth-reset-email" class="{{ $label }}">{{ __('Email') }}</label>
-                    <div class="mb-3 flex flex-col">
+                    <div class="mb-3 [@media(max-height:780px)]:mb-2 flex flex-col">
                         <input id="auth-reset-email" type="email" wire:model="email" @keydown.enter="$wire.sendResetLink()" autocomplete="email" placeholder="you@example.com" class="{{ $input }} w-full flex-none" />
                         @error('email') <span class="{{ $error }}">{{ $message }}</span> @enderror
                     </div>

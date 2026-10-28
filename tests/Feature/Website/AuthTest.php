@@ -187,6 +187,31 @@ class AuthTest extends TestCase
             ->assertSessionHas(EnsureWebsiteUserIsActive::NOTICE, 'تم تسجيل خروجك.');
     }
 
+    public function test_a_visitor_can_choose_to_create_an_account_without_signing_in_first(): void
+    {
+        $this->get(route('home'))->assertSee(['New to Akar Town?', 'Create an account', 'startRegistration']);
+
+        Livewire::test(AuthModal::class)
+            ->call('startRegistration')
+            ->assertSet('registering', true)
+            ->assertSet('newEmail', false)
+            ->assertSee(['Already have an account?', 'Confirm password'])
+            ->assertDontSee('No account with this e-mail yet')
+            ->set(['name' => 'Mona Ali', 'email' => 'mona@example.com', 'password' => 'secret-pass-1', 'passwordConfirmation' => 'secret-pass-1'])
+            ->call('register')
+            ->assertHasNoErrors();
+
+        $this->assertTrue(Auth::guard('website')->check());
+
+        // "Sign in" goes back; an existing e-mail can't register again.
+        Auth::guard('website')->logout();
+        Livewire::test(AuthModal::class)->call('startRegistration')->call('cancelRegistration')->assertSet('registering', false);
+        Livewire::test(AuthModal::class)->call('startRegistration')
+            ->set(['name' => 'Mona', 'email' => 'mona@example.com', 'password' => 'secret-pass-1', 'passwordConfirmation' => 'secret-pass-1'])
+            ->call('register')
+            ->assertHasErrors('email');
+    }
+
     public function test_a_blocked_account_sees_the_notice_once(): void
     {
         $user = $this->user();
