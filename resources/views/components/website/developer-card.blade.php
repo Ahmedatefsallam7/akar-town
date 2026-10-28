@@ -36,7 +36,7 @@
             @if ($card['phone'])
                 <a
                     href="tel:{{ preg_replace('/[^\d+]/', '', $card['phone']) }}"
-                    @click.stop
+                    @click.stop="$track('phone')"
                     data-tip="{{ __('Call') }}"
                     aria-label="{{ __('Call :name', ['name' => $card['name']]) }}"
                     class="relative flex size-[34px] items-center justify-center rounded-lg border border-ink-10 bg-white text-ink-60 transition-all duration-220 ease-out-ex after:pointer-events-none after:absolute after:bottom-[calc(100%+7px)] after:left-1/2 after:-translate-x-1/2 after:rounded after:bg-ink after:px-2 after:py-1 after:text-[10px] after:tracking-[0.08em] after:whitespace-nowrap after:text-white after:opacity-0 after:transition-opacity after:duration-180 after:content-[attr(data-tip)] hover:border-[#1a8a3a] hover:bg-[rgba(26,138,58,0.08)] hover:text-[#1a8a3a] hover:after:opacity-100 dark:border-[rgba(237,232,223,0.13)] dark:bg-[rgba(28,25,18,0.8)]"

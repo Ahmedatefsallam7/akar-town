@@ -64,6 +64,7 @@
             @if ($phone)
                 <a
                     href="tel:{{ $phone }}"
+                    @click="$track('phone')"
                     class="inline-flex shrink-0 items-center gap-[7px] text-[12px] font-semibold tracking-[0.06em] whitespace-nowrap text-white/90 transition-colors duration-250 hover:text-white max-md:hidden"
                     aria-label="{{ __('Call :phone', ['phone' => $phone]) }}"
                 >
@@ -264,7 +265,7 @@
             </a>
         </div>
         @if ($phone)
-            <a href="tel:{{ $phone }}" @click="open = false" class="mt-5 flex items-center gap-2.5 border-y border-white/8 py-3.5 text-[15px] font-semibold tracking-[0.04em] text-white/85 transition-colors duration-200 hover:text-white [&_svg]:shrink-0 [&_svg]:opacity-70" aria-label="{{ __('Call :phone', ['phone' => $phone]) }}">
+            <a href="tel:{{ $phone }}" @click="$track('phone'); open = false" class="mt-5 flex items-center gap-2.5 border-y border-white/8 py-3.5 text-[15px] font-semibold tracking-[0.04em] text-white/85 transition-colors duration-200 hover:text-white [&_svg]:shrink-0 [&_svg]:opacity-70" aria-label="{{ __('Call :phone', ['phone' => $phone]) }}">
                 <x-website.icons.phone />
                 {{ $phone }}
             </a>
@@ -279,7 +280,7 @@
             @if ($phone)
                 <a
                     href="tel:{{ $phone }}"
-                    @click="open = false"
+                    @click="$track('phone'); open = false"
                     class="mt-4 inline-flex items-center gap-2 text-[13px] font-semibold tracking-[0.06em] text-white/75 transition-colors duration-200 hover:text-white"
                     aria-label="{{ __('Call :phone', ['phone' => $phone]) }}"
                 >

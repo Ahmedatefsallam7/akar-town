@@ -51,6 +51,7 @@ class DevelopersTest extends TestCase
             ->assertSee(['Explore <em>Trusted</em> Developers', '>3</div>', 'Trusted Partners'], false)
             ->assertSeeInOrder(['Star Developer', 'Many Projects', '3 Projects', 'Few Projects', '1 Project', 'Coastal homes.'])
             ->assertSee(['href="tel:+2016166"', 'href="'.route('developers.show', 'few').'"'], false)
+            ->assertSee('@click.stop="$track(\'phone\')"', false) // a card's phone is a possible lead
             ->assertDontSee('Hidden Developer');
     }
 
@@ -120,6 +121,7 @@ class DevelopersTest extends TestCase
         $html = $this->get(route('developers.show', 'mountain-view'))
             ->assertOk()
             ->assertSee(['<title>Mountain View Projects', 'content="Homes by Mountain View."', 'Building happiness', 'href="tel:+2016166"', 'mailto:info@mountainview.test', 'Fifth Settlement'], false)
+            ->assertSee('href="tel:+2016166" @click="$track(\'phone\')"', false)
             ->assertSee(['Follow us on', 'href="https://www.instagram.com/mountainview"', 'About <em>Mountain View</em>', '<p>Founded in 2005.</p>'], false)
             ->assertDontSee('<script>alert(1)</script>', false)
             ->assertSee(['Projects by <em>Mountain View</em>', 'iCity'], false)

@@ -45,6 +45,8 @@ class LayoutTest extends TestCase
                 ->assertSee('data-theme="light"', false)
                 ->assertSee(['Home', 'Properties', 'Projects', 'Developers', 'Submit Property'])
                 ->assertSee('href="tel:01150000727"', false)
+                // The navbar's numbers count as possible leads (phone clicks).
+                ->assertSee('@click="$track(\'phone\')"', false)
                 ->assertSee('https://www.instagram.com/akar.town.real.estate/', false)
                 ->assertDontSee('aria-label="Facebook"', false)
                 ->assertSee(['aria-label="TikTok"', 'href="https://www.tiktok.com/@akartown"'], false)
