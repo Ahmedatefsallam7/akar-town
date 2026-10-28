@@ -92,6 +92,24 @@ class WebsiteLeadsToCrmTest extends TestCase
             && ! str_contains($request['description'], 'difficult'));
     }
 
+    public function test_a_long_description_is_cut_to_the_crms_191_characters_with_its_start_kept(): void
+    {
+        $this->configureCrm();
+
+        $meeting = Meeting::factory()->create([
+            'type' => 'site_visit',
+            'notes_en' => str_repeat('A long question about the unit. ', 8),
+            'source' => 'Property page: Aqua Terrace Studio C-30',
+            'url' => 'http://localhost:8090/properties/aqua-terrace-studio-c-30',
+        ]);
+
+        $this->assertGreaterThan(191, mb_strlen($meeting->toCrmLead()['description']));
+        Http::assertSent(fn (Request $request) => mb_strlen($request['description']) <= 191
+            && str_starts_with($request['description'], 'Requested ')
+            && str_ends_with($request['description'], '…'));
+        $this->assertNotNull($meeting->fresh()->crm_lead_id);
+    }
+
     public function test_a_web_page_answer_is_not_taken_as_sent(): void
     {
         // A wrong address (e.g. the CRM's website instead of its API) answers 200 with an HTML page.

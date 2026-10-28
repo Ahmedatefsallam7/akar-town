@@ -10,6 +10,7 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use RuntimeException;
 use Throwable;
 
@@ -28,6 +29,9 @@ class SendLeadToCrm implements ShouldQueue
 
     /** @var array<int> Seconds between attempts. */
     public array $backoff = [60, 300, 1800];
+
+    /** The longest description the CRM accepts. */
+    private const DESCRIPTION_MAX = 191;
 
     public function __construct(public Model&CrmLead $record) {}
 
@@ -140,7 +144,9 @@ class SendLeadToCrm implements ShouldQueue
             'middle_name' => '',
             'last_name' => $parts[1] ?? '',
             'full_name' => $fullName,
-            'description' => $lead['description'],
+            // The CRM refuses a description over 191 characters (HTTP 422): the important part comes first, the rest
+            // (source, page link) is cut. The full text stays on the record in the admin.
+            'description' => Str::limit((string) $lead['description'], self::DESCRIPTION_MAX - 1, '…'),
             'company' => '',
             'address' => '',
             'zip_code' => '',
