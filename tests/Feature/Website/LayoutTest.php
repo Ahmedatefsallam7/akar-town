@@ -145,4 +145,22 @@ class LayoutTest extends TestCase
         $arabic = $head($this->withCookie('locale', 'ar')->get(route('about'))->assertOk()->getContent());
         $this->assertMatchesRegularExpression('/rel="preload" as="font" href="[^"]*noto-kufi-arabic/', $arabic);
     }
+
+    public function test_the_navbar_lists_every_business_phone_and_each_one_calls(): void
+    {
+        $business = app(BusinessInfoSettings::class);
+        $business->hotline = '19000';
+        $business->phone_primary = '0100 123 4567';
+        $business->phone_secondary = '19000'; // a repeat is shown once
+        $business->phone_tertiary = null;
+        $business->save();
+
+        $html = $this->get(route('home'))->assertOk()->getContent();
+
+        $this->assertStringContainsString('aria-label="Phone numbers"', $html);
+        $this->assertSame(1, substr_count($html, 'href="tel:01001234567" @click="$track(\'phone\'); list = false"'));
+        $this->assertSame(1, substr_count($html, 'href="tel:19000" @click="$track(\'phone\'); list = false"'));
+        // The phone menu lists them too.
+        $this->assertStringContainsString('href="tel:01001234567" @click="$track(\'phone\'); open = false"', $html);
+    }
 }

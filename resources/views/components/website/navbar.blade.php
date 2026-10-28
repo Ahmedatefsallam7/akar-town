@@ -6,7 +6,11 @@
 @props(['transparent' => false, 'scrollThreshold' => 40])
 
 @php
-    $phone = app(\Modules\GeneralSettings\Settings\BusinessInfoSettings::class)->hotline;
+    $business = app(\Modules\GeneralSettings\Settings\BusinessInfoSettings::class);
+    // Every number from Business Info (hotline first, no repeats); the bar shows the first, the others open below it.
+    $phones = array_values(array_unique(array_filter([$business->hotline, $business->phone_primary, $business->phone_secondary, $business->phone_tertiary])));
+    $phone = $phones[0] ?? null;
+    $tel = fn (string $number) => 'tel:'.preg_replace('/[^\d+]/', '', $number);
     // The signed-in website account (none for guests).
     $account = auth('website')->user();
     $links = [
@@ -61,15 +65,47 @@
                 @endforeach
             </ul>
 
-            @if ($phone)
+            @if (count($phones) > 1)
+                {{-- Several numbers: the first one opens a list of all, each one callable. --}}
+                <div x-data="{ list: false }" @click.outside="list = false" @keydown.escape.window="list = false" class="relative shrink-0 max-md:hidden">
+                    <button
+                        type="button"
+                        @click="list = ! list"
+                        :aria-expanded="list"
+                        aria-haspopup="true"
+                        class="inline-flex cursor-pointer items-center gap-[7px] text-[12px] font-semibold tracking-[0.06em] whitespace-nowrap text-white/90 transition-colors duration-250 hover:text-white"
+                        aria-label="{{ __('Phone numbers') }}"
+                    >
+                        <x-website.icons.phone class="shrink-0 opacity-75" />
+                        <span dir="ltr">{{ $phone }}</span>
+                        <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" class="shrink-0 opacity-60 transition-transform duration-200" :class="list && 'rotate-180'" aria-hidden="true"><polyline points="6,9 12,15 18,9" /></svg>
+                    </button>
+                    <div
+                        x-show="list"
+                        x-transition.opacity.duration.150ms
+                        x-cloak
+                        class="absolute top-[calc(100%+12px)] left-0 z-10 min-w-48 rounded-xl border border-white/10 bg-[rgba(16,16,16,0.97)] p-1.5 shadow-[0_12px_32px_rgba(0,0,0,0.45)] backdrop-blur-[20px] rtl:right-0 rtl:left-auto"
+                    >
+                        @foreach ($phones as $number)
+                            <a href="{{ $tel($number) }}" @click="$track('phone'); list = false" class="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13px] font-semibold text-white/85 transition-[background,color] duration-200 hover:bg-[rgba(200,16,46,0.15)] hover:text-white" aria-label="{{ __('Call :phone', ['phone' => $number]) }}">
+                                <x-website.icons.phone class="shrink-0 opacity-60" />
+                                <span dir="ltr">{{ $number }}</span>
+                                @if ($loop->first && $number === $business->hotline)
+                                    <span class="ms-auto ps-3 text-[10px] font-medium tracking-[0.08em] text-white/45 uppercase rtl:font-arabic rtl:tracking-normal">{{ __('Hotline') }}</span>
+                                @endif
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            @elseif ($phone)
                 <a
-                    href="tel:{{ $phone }}"
+                    href="{{ $tel($phone) }}"
                     @click="$track('phone')"
                     class="inline-flex shrink-0 items-center gap-[7px] text-[12px] font-semibold tracking-[0.06em] whitespace-nowrap text-white/90 transition-colors duration-250 hover:text-white max-md:hidden"
                     aria-label="{{ __('Call :phone', ['phone' => $phone]) }}"
                 >
                     <x-website.icons.phone class="shrink-0 opacity-75" />
-                    <span>{{ $phone }}</span>
+                    <span dir="ltr">{{ $phone }}</span>
                 </a>
             @endif
 
@@ -264,11 +300,16 @@
                 <span>{{ __('Language') }}</span>
             </a>
         </div>
-        @if ($phone)
-            <a href="tel:{{ $phone }}" @click="$track('phone'); open = false" class="mt-5 flex items-center gap-2.5 border-y border-white/8 py-3.5 text-[15px] font-semibold tracking-[0.04em] text-white/85 transition-colors duration-200 hover:text-white [&_svg]:shrink-0 [&_svg]:opacity-70" aria-label="{{ __('Call :phone', ['phone' => $phone]) }}">
-                <x-website.icons.phone />
-                {{ $phone }}
-            </a>
+        @if ($phones)
+            {{-- Every number, one per line, each callable. --}}
+            <div class="mt-5 flex flex-col border-y border-white/8 py-1.5">
+                @foreach ($phones as $number)
+                    <a href="{{ $tel($number) }}" @click="$track('phone'); open = false" class="flex items-center gap-2.5 py-2.5 text-[15px] font-semibold tracking-[0.04em] text-white/85 transition-colors duration-200 hover:text-white [&_svg]:shrink-0 [&_svg]:opacity-70" aria-label="{{ __('Call :phone', ['phone' => $number]) }}">
+                        <x-website.icons.phone />
+                        <span dir="ltr">{{ $number }}</span>
+                    </a>
+                @endforeach
+            </div>
         @endif
         <div>
             {{-- The drawer closes first (it unlocks the page scroll), then the window opens. --}}
@@ -279,7 +320,7 @@
             >{{ __('Submit Property') }}</button>
             @if ($phone)
                 <a
-                    href="tel:{{ $phone }}"
+                    href="{{ $tel($phone) }}"
                     @click="$track('phone'); open = false"
                     class="mt-4 inline-flex items-center gap-2 text-[13px] font-semibold tracking-[0.06em] text-white/75 transition-colors duration-200 hover:text-white"
                     aria-label="{{ __('Call :phone', ['phone' => $phone]) }}"
