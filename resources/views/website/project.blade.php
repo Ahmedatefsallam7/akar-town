@@ -51,8 +51,6 @@
     <div
         x-data="projectPage(@js(['count' => $count]))"
         @keydown.window="key($event)"
-        data-pdf-phone="{{ $business->hotline }}"
-        data-pdf-email="{{ $business->email }}"
         class="leading-[normal]"
     >
         {{-- Hero --}}
@@ -62,7 +60,7 @@
                 <link rel="preload" as="image" href="{{ $p['imageSmall'] }}" media="(max-width: 768px)" fetchpriority="high" />
                 <link rel="preload" as="image" href="{{ $p['image'] }}" media="(min-width: 769px)" fetchpriority="high" />
             @endpush
-            <div x-ref="heroBg" data-pdf-hero class="absolute inset-0 bg-[rgb(7,6,10)] bg-(image:--bg-small) bg-cover bg-center bg-no-repeat brightness-32 saturate-75 transition-transform duration-50 ease-linear will-change-transform min-[769px]:bg-(image:--bg)" style="--bg: url('{{ $p['image'] }}'); --bg-small: url('{{ $p['imageSmall'] }}')" aria-hidden="true"></div>
+            <div x-ref="heroBg" class="absolute inset-0 bg-[rgb(7,6,10)] bg-(image:--bg-small) bg-cover bg-center bg-no-repeat brightness-32 saturate-75 transition-transform duration-50 ease-linear will-change-transform min-[769px]:bg-(image:--bg)" style="--bg: url('{{ $p['image'] }}'); --bg-small: url('{{ $p['imageSmall'] }}')" aria-hidden="true"></div>
             <div class="pointer-events-none absolute inset-0 z-1 opacity-4 {{ $grain }}" aria-hidden="true"></div>
             <div class="absolute inset-0 z-2 bg-[linear-gradient(rgba(7,6,10,0.62)_0%,rgba(7,6,10,0.12)_38%,rgba(7,6,10,0.48)_68%,rgba(7,6,10,0.92)_100%)]" aria-hidden="true"></div>
             <div class="pointer-events-none absolute bottom-[60px] left-1/2 z-2 h-[360px] w-[800px] -translate-x-1/2 bg-[radial-gradient(rgba(200,16,46,0.09)_0%,transparent_68%)]" aria-hidden="true"></div>
@@ -79,24 +77,24 @@
                 @if ($p['status'] || $p['usage'])
                     <div class="mb-6 flex items-center justify-center gap-[10px] max-[480px]:flex-wrap">
                         @if ($p['status'])
-                            <span data-pdf-status class="inline-flex items-center gap-[7px] rounded-full border border-[rgba(200,16,46,0.42)] bg-[rgba(200,16,46,0.1)] px-[15px] py-1.5 font-sans text-[9.5px] font-bold tracking-[0.22em] text-white/82 uppercase backdrop-blur-[12px] rtl:font-arabic rtl:tracking-normal">
+                            <span class="inline-flex items-center gap-[7px] rounded-full border border-[rgba(200,16,46,0.42)] bg-[rgba(200,16,46,0.1)] px-[15px] py-1.5 font-sans text-[9.5px] font-bold tracking-[0.22em] text-white/82 uppercase backdrop-blur-[12px] rtl:font-arabic rtl:tracking-normal">
                                 <span class="size-[5px] shrink-0 animate-status-pulse rounded-full bg-brand" aria-hidden="true"></span>
                                 {{ $p['status'] }}
                             </span>
                         @endif
                         @if ($p['usage'])
-                            <span data-pdf-type class="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/6 px-[14px] py-1.5 font-sans text-[9.5px] font-semibold tracking-[0.18em] text-white/55 uppercase backdrop-blur-[12px] rtl:font-arabic rtl:tracking-normal">{{ $p['usage'] }}</span>
+                            <span class="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/6 px-[14px] py-1.5 font-sans text-[9.5px] font-semibold tracking-[0.18em] text-white/55 uppercase backdrop-blur-[12px] rtl:font-arabic rtl:tracking-normal">{{ $p['usage'] }}</span>
                         @endif
                     </div>
                 @endif
 
-                <h1 data-pdf-name class="mb-6 font-sans text-[clamp(42px,6.5vw,90px)] leading-[1.04] font-light tracking-[-0.015em] text-white rtl:font-arabic rtl:leading-[1.3]">{{ $p['title'] }}</h1>
+                <h1 class="mb-6 font-sans text-[clamp(42px,6.5vw,90px)] leading-[1.04] font-light tracking-[-0.015em] text-white rtl:font-arabic rtl:leading-[1.3]">{{ $p['title'] }}</h1>
 
                 @if ($p['developer'] || $p['place'])
                     <div class="mb-[18px] flex flex-wrap items-center justify-center gap-x-[18px] gap-y-1.5 max-[480px]:gap-2">
                         @if ($p['developer'])
-                            <span data-pdf-dev class="inline-flex items-center gap-[9px] font-sans text-[11px] font-semibold tracking-[0.1em] text-white/50 uppercase rtl:font-arabic rtl:tracking-normal">
-                                <span data-pdf-dev-logo class="flex size-[26px] shrink-0 items-center justify-center rounded-full border border-white/16 bg-white/7 font-sans text-[8px] font-bold text-white/65" aria-hidden="true">{{ $p['initials'] }}</span>
+                            <span class="inline-flex items-center gap-[9px] font-sans text-[11px] font-semibold tracking-[0.1em] text-white/50 uppercase rtl:font-arabic rtl:tracking-normal">
+                                <span class="flex size-[26px] shrink-0 items-center justify-center rounded-full border border-white/16 bg-white/7 font-sans text-[8px] font-bold text-white/65" aria-hidden="true">{{ $p['initials'] }}</span>
                                 {{ __('By :developer', ['developer' => $p['developer']]) }}
                             </span>
                         @endif
@@ -104,7 +102,7 @@
                             <span class="size-[3px] shrink-0 rounded-full bg-white/18" aria-hidden="true"></span>
                         @endif
                         @if ($p['place'])
-                            <span data-pdf-location class="inline-flex items-center gap-1.5 font-sans text-[11px] tracking-[0.04em] text-white/40 rtl:font-arabic rtl:tracking-normal">
+                            <span class="inline-flex items-center gap-1.5 font-sans text-[11px] tracking-[0.04em] text-white/40 rtl:font-arabic rtl:tracking-normal">
                                 <svg width="11" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 opacity-55" aria-hidden="true">{!! $pin !!}</svg>
                                 {{ $p['place'] }}
                             </span>
@@ -131,9 +129,9 @@
             @if ($stats)
                 <div class="relative z-10 grid {{ $statCols }} border-t border-white/7 bg-[rgba(7,6,10,0.8)] backdrop-blur-[36px] backdrop-saturate-140 max-md:grid-cols-2" role="list" aria-label="{{ __('Project key figures') }}">
                     @foreach ($stats as [$value, $label])
-                        <div data-pdf-stat class="relative flex flex-col items-center justify-center gap-1.5 px-3 py-[22px] not-first:before:absolute not-first:before:top-[24%] not-first:before:bottom-[24%] not-first:before:left-0 not-first:before:w-px not-first:before:bg-white/7 rtl:not-first:before:right-0 rtl:not-first:before:left-auto max-md:nth-[n+3]:border-t max-md:nth-[n+3]:border-white/7 max-md:nth-3:before:hidden" role="listitem">
-                            <span data-pdf-val class="font-sans text-[clamp(19px,2.2vw,28px)] leading-none font-light tracking-[-0.01em] text-white [&_em]:text-brand [&_em]:not-italic">{!! $value !!}</span>
-                            <span data-pdf-label class="font-sans text-[9px] font-bold tracking-[0.18em] text-white/36 uppercase rtl:font-arabic rtl:tracking-normal">{{ $label }}</span>
+                        <div class="relative flex flex-col items-center justify-center gap-1.5 px-3 py-[22px] not-first:before:absolute not-first:before:top-[24%] not-first:before:bottom-[24%] not-first:before:left-0 not-first:before:w-px not-first:before:bg-white/7 rtl:not-first:before:right-0 rtl:not-first:before:left-auto max-md:nth-[n+3]:border-t max-md:nth-[n+3]:border-white/7 max-md:nth-3:before:hidden" role="listitem">
+                            <span class="font-sans text-[clamp(19px,2.2vw,28px)] leading-none font-light tracking-[-0.01em] text-white [&_em]:text-brand [&_em]:not-italic">{!! $value !!}</span>
+                            <span class="font-sans text-[9px] font-bold tracking-[0.18em] text-white/36 uppercase rtl:font-arabic rtl:tracking-normal">{{ $label }}</span>
                         </div>
                     @endforeach
                 </div>
@@ -150,7 +148,7 @@
                     <p {!! $intersect !!} class="{{ $reveal }} {{ $eyebrow }} mb-5">{{ __('Project Overview') }}</p>
                     <h2 {!! $intersect !!} class="{{ $reveal }} delay-120 {{ $title }} mb-6 text-[clamp(34px,4vw,54px)] text-ink">{!! __('About <em>:project</em>', ['project' => e($p['title'])]) !!}</h2>
                     @if ($p['description'])
-                        <div data-pdf-desc {!! $intersect !!} class="{{ $reveal }} delay-240 [&_p]:mb-[18px] [&_p]:font-sans [&_p]:text-[15px] [&_p]:leading-[1.9] [&_p]:font-light [&_p]:text-ink-60 rtl:[&_p]:font-arabic">{!! $p['description'] !!}</div>
+                        <div {!! $intersect !!} class="{{ $reveal }} delay-240 [&_p]:mb-[18px] [&_p]:font-sans [&_p]:text-[15px] [&_p]:leading-[1.9] [&_p]:font-light [&_p]:text-ink-60 rtl:[&_p]:font-arabic">{!! $p['description'] !!}</div>
                     @endif
                     <div {!! $intersect !!} class="{{ $reveal }} delay-360 mt-[10px] flex flex-wrap items-center gap-4 max-[560px]:flex-col max-[560px]:items-stretch">
                         <a href="#contact" class="inline-flex items-center gap-[9px] rounded-full border border-white/18 bg-[linear-gradient(135deg,rgba(215,20,52,0.96)_0%,rgb(185,10,36)_100%)] px-[26px] py-[13px] font-sans text-[11.5px] font-bold tracking-[0.1em] text-white uppercase transition-transform duration-250 ease-out-ex hover:-translate-y-0.5 rtl:font-arabic rtl:tracking-normal max-[560px]:justify-center">
@@ -158,13 +156,11 @@
                         </a>
                         <button
                             type="button"
-                            @click="pdf()"
-                            :disabled="pdfLoading"
+                            @click="pdfOpen = true"
                             class="inline-flex cursor-pointer items-center gap-2 rounded-full border border-[rgba(13,13,13,0.18)] bg-transparent px-[26px] py-[15px] font-sans text-[11.5px] leading-none font-bold tracking-[0.1em] whitespace-nowrap text-ink uppercase transition-[border-color,color,translate] duration-250 ease-out-ex hover:-translate-y-0.5 hover:border-brand hover:text-brand dark:border-[rgba(237,232,223,0.18)] dark:text-[rgba(237,232,223,0.75)] dark:hover:border-brand dark:hover:text-brand rtl:font-arabic rtl:tracking-normal max-[560px]:justify-center"
                             aria-label="{{ __('Download project PDF') }}"
                         >
-                            <span x-show="pdfLoading" x-cloak class="size-[13px] animate-spin rounded-full border-2 border-[rgba(13,13,13,0.15)] border-t-brand [animation-duration:0.7s] dark:border-[rgba(237,232,223,0.15)] dark:border-t-brand" aria-hidden="true"></span>
-                            <svg x-show="! pdfLoading" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="12" y1="18" x2="12" y2="12" /><line x1="9" y1="15" x2="15" y2="15" /></svg>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="12" y1="18" x2="12" y2="12" /><line x1="9" y1="15" x2="15" y2="15" /></svg>
                             {{ __('Download PDF') }}
                         </button>
                     </div>
@@ -173,9 +169,9 @@
                 @if ($metrics)
                     <div {!! $intersect !!} class="{{ $reveal }} grid grid-cols-2 gap-[14px]">
                         @foreach ($metrics as [$value, $label, $desc])
-                            <div data-pdf-metric class="group relative overflow-hidden rounded-2xl border border-ink-10 bg-page px-[22px] py-[26px] transition-[border-color,box-shadow,background] duration-300 before:absolute before:inset-x-0 before:top-0 before:h-0.5 before:bg-[linear-gradient(to_right,var(--color-brand),transparent)] before:opacity-0 before:transition-opacity before:duration-300 dark:border-white/8 dark:bg-white/3 dark:hover:border-[rgba(200,16,46,0.25)] dark:hover:bg-white/5">
-                                <span data-pdf-val class="mb-2 block font-sans text-[clamp(28px,3.2vw,44px)] leading-none font-light tracking-[-0.02em] text-ink [&_em]:text-brand [&_em]:not-italic">{!! $value !!}</span>
-                                <span data-pdf-label class="mb-[7px] block font-sans text-[9.5px] font-bold tracking-[0.2em] text-ink-60 uppercase rtl:font-arabic rtl:tracking-normal">{{ $label }}</span>
+                            <div class="group relative overflow-hidden rounded-2xl border border-ink-10 bg-page px-[22px] py-[26px] transition-[border-color,box-shadow,background] duration-300 before:absolute before:inset-x-0 before:top-0 before:h-0.5 before:bg-[linear-gradient(to_right,var(--color-brand),transparent)] before:opacity-0 before:transition-opacity before:duration-300 dark:border-white/8 dark:bg-white/3 dark:hover:border-[rgba(200,16,46,0.25)] dark:hover:bg-white/5">
+                                <span class="mb-2 block font-sans text-[clamp(28px,3.2vw,44px)] leading-none font-light tracking-[-0.02em] text-ink [&_em]:text-brand [&_em]:not-italic">{!! $value !!}</span>
+                                <span class="mb-[7px] block font-sans text-[9.5px] font-bold tracking-[0.2em] text-ink-60 uppercase rtl:font-arabic rtl:tracking-normal">{{ $label }}</span>
                                 <span class="block font-sans text-[12px] leading-[1.55] font-light text-ink-30 rtl:font-arabic">{{ $desc }}</span>
                             </div>
                         @endforeach
@@ -293,7 +289,7 @@
                                     <div class="flex size-9 shrink-0 items-center justify-center rounded-md bg-white/12 text-brand backdrop-blur-[8px]" aria-hidden="true">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="size-[17px]"><polyline points="20 6 9 17 4 12" /></svg>
                                     </div>
-                                    <span data-pdf-amenity class="font-sans text-[12px] leading-[1.3] font-medium text-ink rtl:font-arabic">{{ $amenity }}</span>
+                                    <span class="font-sans text-[12px] leading-[1.3] font-medium text-ink rtl:font-arabic">{{ $amenity }}</span>
                                 </div>
                             @endforeach
                         </div>
@@ -482,5 +478,6 @@
                 @endforeach
             </div>
         </div>
+        <x-website.pdf-picker :title="$p['title']" :label="__('Project Datasheet')" :en="route('projects.pdf', ['slug' => $p['slug'], 'locale' => 'en'])" :ar="route('projects.pdf', ['slug' => $p['slug'], 'locale' => 'ar'])" />
     </div>
 </x-website.layout>

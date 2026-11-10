@@ -439,7 +439,7 @@
     "Installments": "الأقساط",
     "Master Plan": "المخطط العام",
     "Plans": "المخططات",
-    "Open in Google Maps": "افتح الموقع على خرائط Google",
+    "Open in Google Maps": "فتح في خرائط جوجل",
     "Scan to open map": "امسح الرمز لفتح الموقع على الخريطة",
     "Nearby Facilities": "خدمات قريبة",
     "Open gallery fullscreen": "فتح الصور بملء الشاشة",
@@ -505,7 +505,6 @@
     "WhatsApp Us": "تواصل عبر واتساب",
     "+:count more": "+:count أخرى",
     ":from – :to, :open – :close": "من :from إلى :to، :open – :close",
-    "Get in touch": "تواصل معنا",
     "No projects found": "لا توجد مشاريع",
     "Project listings": "قائمة المشاريع",
     "Starting from": "تبدأ من",
@@ -540,7 +539,6 @@
     "Message": "الرسالة",
     "Minimum booking percentage with flexible payment plans available on request": "أقل نسبة للحجز، مع خطط سداد مرنة عند الطلب",
     "Nearby landmarks": "معالم قريبة",
-    "Open in Google Maps": "فتح في خرائط جوجل",
     "Open in Maps": "فتح في الخرائط",
     "Our dedicated sales advisors are on hand to guide you through every step — from choosing your ideal unit to finalising your payment plan.": "مستشارو المبيعات لدينا جاهزون لمساعدتك في كل خطوة — من اختيار الوحدة المناسبة حتى الاتفاق على خطة السداد.",
     "Phone Number": "رقم الهاتف",
@@ -848,5 +846,10 @@
     "Please pick a time at least one hour from now.": "اختر موعداً بعد ساعة على الأقل من الآن.",
     "Please pick a date within the next year.": "اختر موعداً خلال السنة القادمة.",
     "Phone numbers": "أرقام التليفون",
-    "Hotline": "الخط الساخن"
+    "Hotline": "الخط الساخن",
+    "Project Datasheet": "بيانات المشروع",
+    "Interested in this project?": "مهتم بهذا المشروع؟",
+    "About This Project": "عن المشروع",
+    ":count year|:count years": "{1} سنة واحدة|{2} سنتان|[3,10] :count سنوات|[11,*] :count سنة",
+    "Usage": "الاستخدام"
 }

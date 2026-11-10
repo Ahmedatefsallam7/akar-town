@@ -38,6 +38,33 @@ class ProjectDetailsTest extends TestCase
         return $root->children()->create(['slug' => str($name)->slug(), 'name_en' => $name, 'order' => $order]);
     }
 
+    public function test_the_pdf_downloads_in_english_and_arabic_only_for_a_published_project(): void
+    {
+        $project = Project::factory()->create(['title_en' => 'Pinnacle Residences', 'slug' => 'pinnacle', 'is_published' => true]);
+        Unit::factory()->create(['project_id' => $project->id, 'is_published' => true]);
+
+        // The page's button opens the language window with both downloads.
+        $this->get(route('projects.show', 'pinnacle'))
+            ->assertOk()
+            ->assertSee('Choose PDF language')
+            ->assertSee(route('projects.pdf', ['slug' => 'pinnacle', 'locale' => 'en']), false)
+            ->assertSee(route('projects.pdf', ['slug' => 'pinnacle', 'locale' => 'ar']), false);
+
+        foreach (['en', 'ar'] as $locale) {
+            $response = $this->get(route('projects.pdf', ['slug' => 'pinnacle', 'locale' => $locale]))
+                ->assertOk()
+                ->assertHeader('Content-Type', 'application/pdf')
+                ->assertHeader('Content-Disposition', 'attachment; filename="pinnacle-residences-'.$locale.'.pdf"');
+            $this->assertStringStartsWith('%PDF-', $response->getContent());
+        }
+
+        $this->assertSame('en', app()->getLocale());
+        $this->get('/projects/pinnacle/pdf/fr')->assertNotFound();
+
+        $project->update(['is_published' => false]);
+        $this->get(route('projects.pdf', ['slug' => 'pinnacle', 'locale' => 'en']))->assertNotFound();
+    }
+
     public function test_a_published_project_shows_its_details(): void
     {
         $project = Project::factory()->create([

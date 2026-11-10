@@ -24,6 +24,10 @@ Route::get('/properties/{slug}/pdf/{locale}', [PropertiesController::class, 'pdf
     ->name('properties.pdf');
 Route::view('/projects', 'website.projects')->name('projects');
 Route::get('/projects/{slug}', [ProjectsController::class, 'show'])->name('projects.show');
+Route::get('/projects/{slug}/pdf/{locale}', [ProjectsController::class, 'pdf'])
+    ->whereIn('locale', Datasheet::LOCALES)
+    ->middleware('throttle:20,1')
+    ->name('projects.pdf');
 Route::view('/locations', 'website.locations')->name('locations');
 Route::get('/locations/{slug}', [LocationsController::class, 'show'])->name('locations.show');
 Route::view('/wishlist', 'website.wishlist')->name('wishlist');

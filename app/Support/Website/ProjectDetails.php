@@ -44,6 +44,7 @@ class ProjectDetails
 
         return [
             'id' => $project->id,
+            'slug' => $project->slug,
             'title' => $project->getLocalized('title'),
             'short' => $project->getLocalized('short_description'),
             'description' => (string) str((string) $project->getLocalized('description'))->sanitizeHtml(),

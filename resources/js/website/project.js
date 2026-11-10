@@ -5,7 +5,7 @@ export default ({ count }) => ({
     gallery: false,
     index: 0,
     loaded: false,
-    pdfLoading: false,
+    pdfOpen: false,
 
     init() {
         const bg = this.$refs.heroBg
@@ -41,16 +41,5 @@ export default ({ count }) => ({
         if (e.key === 'Escape') this.close()
         if (e.key === 'ArrowLeft') this.go(this.index - 1)
         if (e.key === 'ArrowRight') this.go(this.index + 1)
-    },
-
-    async pdf() {
-        if (this.pdfLoading) return
-        this.pdfLoading = true
-        try {
-            const { default: buildPDF } = await import('./project-pdf')
-            await buildPDF(this.$root)
-        } finally {
-            this.pdfLoading = false
-        }
     },
 })
