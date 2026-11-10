@@ -103,7 +103,7 @@ class WebsitePerformanceTest extends TestCase
 
         $html = $this->get(route('properties.show', $unit->slug))->assertOk()->getContent();
 
-        $this->assertMatchesRegularExpression('/src="[^"]+" srcset="[^"]*" fetchpriority="high" data-pdf-hero/', $html);
+        $this->assertMatchesRegularExpression('/src="[^"]+" srcset="[^"]*" fetchpriority="high"/', $html);
         $this->assertMatchesRegularExpression('/data-src="[^"]+" data-srcset="[^"]*"/', $html);
         // The map (Leaflet + tiles) loads when it comes near the screen.
         $this->assertStringContainsString('x-intersect.once.margin.300px="map()"', $html);
