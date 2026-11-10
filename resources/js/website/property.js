@@ -42,7 +42,6 @@ export default ({ count, latitude, longitude, place }) => ({
         if (document.readyState === 'complete') this.photo(1)
         else window.addEventListener('load', () => this.photo(1), { once: true })
 
-        if (this.$refs.similar) this.similar()
     },
 
     go(index) {

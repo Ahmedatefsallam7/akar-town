@@ -108,4 +108,78 @@ class WebsitePerformanceTest extends TestCase
         // The map (Leaflet + tiles) loads when it comes near the screen.
         $this->assertStringContainsString('x-intersect.once.margin.300px="map()"', $html);
     }
+
+    public function test_livewire_comes_in_the_site_bundle_instead_of_its_blocking_script(): void
+    {
+        $html = $this->get(route('about'))->assertOk()->getContent();
+
+        $this->assertStringContainsString('window.livewireScriptConfig', $html);
+        $this->assertDoesNotMatchRegularExpression('/<script src="[^"]*livewire[^"]*\.js/', $html);
+    }
+
+    public function test_english_pages_draw_the_language_switch_letters_without_the_whole_arabic_font(): void
+    {
+        $this->get(route('about'))->assertOk()
+            ->assertSee('font-label-ar text-[11px]', false)
+            ->assertDontSee('font-arabic text-[11px]', false);
+
+        $this->withCookie('locale', 'ar')->get(route('about'))->assertOk()
+            ->assertSee('font-arabic text-[11px]', false);
+    }
+
+    public function test_the_listing_header_photo_is_asked_for_early_and_phones_take_the_small_copy(): void
+    {
+        $html = $this->get(route('properties'))->assertOk()->getContent();
+        $this->assertMatchesRegularExpression('/<link rel="preload" as="image" href="[^"]+" media="\(max-width: 768px\)" fetchpriority="high"/', $html);
+        $this->assertStringContainsString('bg-(image:--bg-small) min-[769px]:bg-(image:--bg)', $html);
+
+        Storage::fake('public');
+        $location = Location::factory()->create(['slug' => 'new-cairo', 'is_active' => true]);
+        $location->addMedia(UploadedFile::fake()->image('cairo.jpg', 1600, 900))->toMediaCollection(Location::FEATURED_IMAGE);
+
+        $html = $this->get(route('locations.show', 'new-cairo'))->assertOk()->getContent();
+        $small = Image::url($location->getFirstMedia(Location::FEATURED_IMAGE), 'card');
+        $this->assertStringContainsString('href="'.$small.'" media="(max-width: 768px)"', $html);
+    }
+
+    public function test_the_wishlist_keeps_a_screen_of_room_so_the_footer_does_not_jump(): void
+    {
+        $this->get(route('wishlist'))->assertOk()->assertSee('min-h-dvh bg-page', false);
+    }
+
+    public function test_the_home_splash_is_css_only_and_short(): void
+    {
+        $this->get(route('home'))->assertOk()
+            ->assertSee(['animate-splash-out', 'animate-splash-column', 'animate-splash-logo', 'motion-reduce:hidden'], false)
+            ->assertDontSee('x-data="splashScreen"', false);
+    }
+
+    public function test_the_hero_entry_is_played_by_css_and_hidden_parts_are_set_up_later(): void
+    {
+        $home = $this->get(route('home'))->assertOk();
+        // The navbar and the first slide come in as the splash parts, without waiting for the scripts.
+        $home->assertSee(['motion-safe:animate-hero-nav', 'motion-safe:animate-hero-text motion-safe:[animation-delay:1.05s]', 'motion-safe:animate-hero-zoom'], false);
+
+        // Windows, lightboxes and the footer are set up by Alpine after the start (website/boot.js).
+        $this->get(route('about'))->assertOk()
+            ->assertSee(['x-data x-ignore data-alpine-later="touch"', 'x-data x-ignore data-alpine-later="near"', 'x-data x-ignore data-alpine-later="soon"'], false)
+            ->assertDontSee('motion-safe:animate-hero-nav', false);
+    }
+
+    public function test_parts_under_the_first_screen_are_set_up_when_they_come_near(): void
+    {
+        // The phone menu waits for the first touch; it's closed in the markup until then.
+        $this->get(route('about'))->assertOk()
+            ->assertSee('<div x-ignore data-alpine-later="touch" class="contents">', false);
+
+        $unit = Unit::factory()->create(['slug' => 'garden-villa']);
+        $this->get(route('properties.show', 'garden-villa'))->assertOk()
+            ->assertSee(['<div x-ignore data-alpine-later="near" class="contents">', 'class="bg-page px-12 pt-12'], false);
+
+        // The splash's sketches are drawn once and reused.
+        $html = $this->get(route('home'))->assertOk()->getContent();
+        $this->assertSame(10, substr_count($html, '<symbol id="splash-sketch-'));
+        $this->assertGreaterThan(10, substr_count($html, '<use href="#splash-sketch-'));
+    }
 }
+

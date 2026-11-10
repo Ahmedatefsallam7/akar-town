@@ -1,7 +1,9 @@
 {{--
-    Splash screen (the design's #splash, home page only): columns of property sketches racing upward, the logo fades
-    in at 1.2s, and two white panels slide apart to reveal the page at 2.2s (or on click / Escape).
-    Behaviour: splashScreen in resources/js/website/splash.js.
+    Splash screen (home page only; the design's #splash, shortened to about a second for speed, user 2026-11-10):
+    columns of property sketches race upward (faster than the design), the logo fades in, then the two white halves
+    slide apart to show the page. CSS only (the animate-splash-* keyframes in website.css), so it moves from the first
+    paint without waiting for the scripts; a click or Escape skips it, and it isn't shown to visitors who turned motion
+    off.
 --}}
 @php
     $sketches = [
@@ -28,60 +30,53 @@
     ];
     $columns = [[0,1,2,3,4,5,6,7],[5,6,7,8,9,0,1,2],[3,4,5,6,7,8,9,0],[7,8,9,0,1,2,3,4],[2,3,4,5,6,7,8,9]];
     $hideAt = ['max-xl:hidden', 'max-[700px]:hidden', '', 'max-[700px]:hidden', 'max-xl:hidden'];
+    // Each column's loop time (the design's speeds, 1.5x faster).
+    $loopTime = ['[animation-duration:0.77s]', '[animation-duration:0.96s]', '[animation-duration:0.66s]', '[animation-duration:0.89s]', '[animation-duration:0.72s]'];
 @endphp
 
+{{-- Removed once its animation is over (about 1.35 s after the page started), so its many sketch elements don't stay in the page. --}}
 <div
-    x-data="splashScreen"
-    x-show="! gone"
-    @click="exit()"
-    @keydown.escape.window="exit()"
-    class="fixed inset-0 z-9999 flex cursor-pointer items-center justify-center overflow-hidden"
-    :class="state === 'exit' ? 'pointer-events-none bg-transparent' : 'bg-[#f7f7f7]'"
+    x-data
+    x-init="setTimeout(() => $el.remove(), Math.max(0, 1400 - performance.now()))"
+    @click="$el.remove()"
+    @keydown.escape.window="$el.remove()"
+    class="pointer-events-auto fixed inset-0 z-9999 flex animate-splash-out cursor-pointer items-center justify-center overflow-hidden motion-reduce:hidden"
     role="presentation"
     aria-hidden="true"
 >
-    <div class="absolute inset-0 flex items-start justify-center gap-[14px] px-4 opacity-30">
+    {{-- Each sketch is drawn once (a symbol) and reused by the columns: a much smaller page than 80 full copies. --}}
+    <svg class="hidden" aria-hidden="true">
+        @foreach ($sketches as $id => $sketch)
+            {!! str_replace(['<svg viewBox="0 0 176 220" fill="none" xmlns="http://www.w3.org/2000/svg">', '</svg>'], ['<symbol id="splash-sketch-'.$id.'" viewBox="0 0 176 220" fill="none">', '</symbol>'], $sketch) !!}
+        @endforeach
+    </svg>
+    {{-- x-ignore: Alpine doesn't walk the sketches (hundreds of SVG elements) when it starts. --}}
+    <div x-ignore class="absolute inset-0 flex animate-splash-columns items-start justify-center gap-[14px] bg-[#f7f7f7] px-4">
         @foreach ($columns as $c => $ids)
-            <div data-column class="{{ $hideAt[$c] }} flex flex-[0_0_176px] flex-col gap-[14px] will-change-transform max-[700px]:basis-[148px]" :class="state === 'exit' && 'opacity-0 transition-opacity duration-300'">
+            {{-- Each column holds its sketches twice and moves up by one set per loop, so it never runs out. --}}
+            <div class="{{ $hideAt[$c] }} flex flex-[0_0_176px] animate-splash-column {{ $loopTime[$c] }} flex-col gap-[14px] opacity-30 will-change-transform max-[700px]:basis-[148px]">
                 @foreach ([...$ids, ...$ids] as $id)
-                    <div class="shrink-0 overflow-hidden leading-[0] [&_svg]:block [&_svg]:h-auto [&_svg]:w-[176px] max-[700px]:[&_svg]:w-[148px]">{!! $sketches[$id] !!}</div>
+                    <div class="shrink-0 overflow-hidden leading-[0] [&_svg]:block [&_svg]:h-auto [&_svg]:w-[176px] max-[700px]:[&_svg]:w-[148px]"><svg viewBox="0 0 176 220" aria-hidden="true"><use href="#splash-sketch-{{ $id }}" /></svg></div>
                 @endforeach
             </div>
         @endforeach
     </div>
 
-    @foreach (['left-0' => '-translate-x-full', 'right-0' => 'translate-x-full'] as $side => $slide)
-        <div
-            class="{{ $side }} pointer-events-none absolute inset-y-0 z-1 w-1/2 bg-white"
-            :class="{
-                'opacity-0 transition-opacity duration-400': state === 'start',
-                'opacity-100 transition-opacity duration-400': state === 'ready',
-                'opacity-100 {{ $slide }} [transition:translate_0.45s_var(--ease-smooth)]': state === 'exit',
-            }"
-        ></div>
-    @endforeach
+    <div class="absolute inset-y-0 left-0 w-1/2 animate-splash-left bg-white"></div>
+    <div class="absolute inset-y-0 right-0 w-1/2 animate-splash-right bg-white"></div>
 
-    <div class="pointer-events-none relative z-2 flex items-center justify-center">
-        <div
-            class="flex flex-col items-center gap-5"
-            :class="{
-                'opacity-0 [transform:translateY(16px)_scale(0.97)] [transition:opacity_0.3s_cubic-bezier(0.16,1,0.3,1)_0.05s,transform_0.35s_cubic-bezier(0.16,1,0.3,1)_0.05s]': state === 'start',
-                'opacity-100 [transform:translateY(0)_scale(1)] [transition:opacity_0.3s_cubic-bezier(0.16,1,0.3,1)_0.05s,transform_0.35s_cubic-bezier(0.16,1,0.3,1)_0.05s]': state === 'ready',
-                'opacity-0 [transform:scale(1.03)_translateY(-6px)] [transition:opacity_0.4s_ease,transform_0.5s_cubic-bezier(0.4,0,1,1)]': state === 'exit',
-            }"
-        >
-            <svg class="block w-[clamp(280px,50vw,560px)]" viewBox="0 0 2185 380" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M90.97 258.84H160.93L236.12 169.2V379.42H296.66V5.21997L90.97 258.84Z" fill="#231F20"/>
-                <path d="M64.78 291.12L0 371H66.84L133.85 291.12H64.78Z" fill="#FF0000"/>
-                <path d="M390.87 186.6L544.58 373.2H472.34L339.38 212.73L317.86 187.07L339.38 160.95L472.34 0.00999451H544.58L390.87 186.61V186.6Z" fill="#231F20"/>
-                <path d="M772.951 153.462L752.741 160.698C739.129 146.227 720.111 138.991 695.632 138.991C677.085 138.991 661.976 143.759 650.277 153.268C638.606 162.805 632.756 174.92 632.756 189.613C632.756 204.306 638.55 217.086 650.111 226.429C661.671 235.772 677.279 240.429 696.935 240.429C720.665 240.429 739.351 233.082 752.935 218.362L772.036 228.924C762.388 240.179 751.465 248.302 739.295 253.32C727.125 258.338 712.57 260.833 695.632 260.833C671.901 260.833 652.162 254.9 636.471 243.035C618.534 229.423 609.58 211.625 609.58 189.613C609.58 167.601 618.673 150.302 636.831 136.579C652.661 124.575 672.261 118.587 695.632 118.587C729.259 118.587 755.042 130.203 772.978 153.462H772.951Z" fill="#231F20"/>
-                <path d="M1015.47 189.71C1015.47 211.722 1006.43 229.52 988.385 243.132C972.555 254.997 952.899 260.93 929.418 260.93C905.937 260.93 885.893 254.942 870.064 242.938C852.016 229.326 842.978 211.611 842.978 189.71C842.978 167.809 852.127 150.51 870.424 136.676C886.503 124.561 906.159 118.49 929.391 118.49C952.622 118.49 972.361 124.561 988.191 136.676C1006.38 150.538 1015.44 168.197 1015.44 189.71H1015.47ZM992.294 189.71C992.294 174.019 985.612 161.266 972.278 151.508C960.773 143.108 946.495 138.894 929.446 138.894C910.761 138.894 895.569 143.69 883.814 153.255C872.06 162.847 866.21 174.989 866.21 189.71C866.21 204.431 871.949 217.183 883.454 226.526C894.959 235.869 910.289 240.526 929.446 240.526C948.602 240.526 963.711 235.841 975.161 226.443C986.583 217.045 992.321 204.791 992.321 189.71H992.294Z" fill="#231F20"/>
-                <path d="M1269.99 256.841H1247.73V147.058H1247.18L1177.45 234.607L1108.29 147.058H1107.73V256.841H1085.47V122.579H1113.28L1177.62 203.724L1242.24 122.579H1269.97V256.841H1269.99Z" fill="#231F20"/>
-                <path d="M1446.45 122.607C1460.17 122.607 1471.04 126.405 1479.11 134.001C1487.15 141.597 1491.17 151.771 1491.17 164.496C1491.17 177.858 1486.98 188.06 1478.64 195.102C1470.29 202.144 1458.15 205.664 1442.18 205.664H1362.25V256.841H1339.99V122.579H1446.45V122.607ZM1442.57 185.676C1459.76 185.676 1468.35 178.746 1468.35 164.912C1468.35 150.08 1459.26 142.65 1441.1 142.65H1362.28V185.676H1442.6H1442.57Z" fill="#231F20"/>
-                <path d="M1731.22 256.841H1706.88L1691.41 226.789H1600.98L1585.51 256.841H1561.17L1632.19 122.579H1660.19L1731.22 256.841ZM1680.6 206.773L1646.39 141.708L1611.76 206.773H1680.6Z" fill="#231F20"/>
-                <path d="M1953.67 256.841H1925.97L1823.48 146.726V256.841H1801.22V122.579H1828.86L1931.43 232.75V122.579H1953.69V256.841H1953.67Z" fill="#231F20"/>
-                <path d="M2192.83 122.579L2119.39 203.807V256.841H2097.13V203.807L2023.69 122.579H2051.44L2108.39 185.288L2165.08 122.579H2192.83Z" fill="#231F20"/>
-            </svg>
-        </div>
+    <div class="pointer-events-none relative z-2 flex animate-splash-logo flex-col items-center gap-5">
+        <svg class="block w-[clamp(280px,50vw,560px)]" viewBox="0 0 2185 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M90.97 258.84H160.93L236.12 169.2V379.42H296.66V5.21997L90.97 258.84Z" fill="#231F20"/>
+            <path d="M64.78 291.12L0 371H66.84L133.85 291.12H64.78Z" fill="#FF0000"/>
+            <path d="M390.87 186.6L544.58 373.2H472.34L339.38 212.73L317.86 187.07L339.38 160.95L472.34 0.00999451H544.58L390.87 186.61V186.6Z" fill="#231F20"/>
+            <path d="M772.951 153.462L752.741 160.698C739.129 146.227 720.111 138.991 695.632 138.991C677.085 138.991 661.976 143.759 650.277 153.268C638.606 162.805 632.756 174.92 632.756 189.613C632.756 204.306 638.55 217.086 650.111 226.429C661.671 235.772 677.279 240.429 696.935 240.429C720.665 240.429 739.351 233.082 752.935 218.362L772.036 228.924C762.388 240.179 751.465 248.302 739.295 253.32C727.125 258.338 712.57 260.833 695.632 260.833C671.901 260.833 652.162 254.9 636.471 243.035C618.534 229.423 609.58 211.625 609.58 189.613C609.58 167.601 618.673 150.302 636.831 136.579C652.661 124.575 672.261 118.587 695.632 118.587C729.259 118.587 755.042 130.203 772.978 153.462H772.951Z" fill="#231F20"/>
+            <path d="M1015.47 189.71C1015.47 211.722 1006.43 229.52 988.385 243.132C972.555 254.997 952.899 260.93 929.418 260.93C905.937 260.93 885.893 254.942 870.064 242.938C852.016 229.326 842.978 211.611 842.978 189.71C842.978 167.809 852.127 150.51 870.424 136.676C886.503 124.561 906.159 118.49 929.391 118.49C952.622 118.49 972.361 124.561 988.191 136.676C1006.38 150.538 1015.44 168.197 1015.44 189.71H1015.47ZM992.294 189.71C992.294 174.019 985.612 161.266 972.278 151.508C960.773 143.108 946.495 138.894 929.446 138.894C910.761 138.894 895.569 143.69 883.814 153.255C872.06 162.847 866.21 174.989 866.21 189.71C866.21 204.431 871.949 217.183 883.454 226.526C894.959 235.869 910.289 240.526 929.446 240.526C948.602 240.526 963.711 235.841 975.161 226.443C986.583 217.045 992.321 204.791 992.321 189.71H992.294Z" fill="#231F20"/>
+            <path d="M1269.99 256.841H1247.73V147.058H1247.18L1177.45 234.607L1108.29 147.058H1107.73V256.841H1085.47V122.579H1113.28L1177.62 203.724L1242.24 122.579H1269.97V256.841H1269.99Z" fill="#231F20"/>
+            <path d="M1446.45 122.607C1460.17 122.607 1471.04 126.405 1479.11 134.001C1487.15 141.597 1491.17 151.771 1491.17 164.496C1491.17 177.858 1486.98 188.06 1478.64 195.102C1470.29 202.144 1458.15 205.664 1442.18 205.664H1362.25V256.841H1339.99V122.579H1446.45V122.607ZM1442.57 185.676C1459.76 185.676 1468.35 178.746 1468.35 164.912C1468.35 150.08 1459.26 142.65 1441.1 142.65H1362.28V185.676H1442.6H1442.57Z" fill="#231F20"/>
+            <path d="M1731.22 256.841H1706.88L1691.41 226.789H1600.98L1585.51 256.841H1561.17L1632.19 122.579H1660.19L1731.22 256.841ZM1680.6 206.773L1646.39 141.708L1611.76 206.773H1680.6Z" fill="#231F20"/>
+            <path d="M1953.67 256.841H1925.97L1823.48 146.726V256.841H1801.22V122.579H1828.86L1931.43 232.75V122.579H1953.69V256.841H1953.67Z" fill="#231F20"/>
+            <path d="M2192.83 122.579L2119.39 203.807V256.841H2097.13V203.807L2023.69 122.579H2051.44L2108.39 185.288L2165.08 122.579H2192.83Z" fill="#231F20"/>
+        </svg>
     </div>
 </div>

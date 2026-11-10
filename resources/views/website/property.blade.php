@@ -135,7 +135,8 @@
                             sizes="(max-width: 960px) 100vw, 62vw"
                             data-photo="{{ $i }}"
                             alt="{{ $p['title'] }}"
-                            class="pointer-events-none absolute inset-0 size-full object-cover transition-opacity duration-600 ease-out-ex"
+                            {{-- The first photo shows and the others are hidden from the first paint (not only once Alpine runs). --}}
+                            @class(['pointer-events-none absolute inset-0 size-full object-cover transition-opacity duration-600 ease-out-ex', 'z-1 opacity-100' => $i === 0, 'opacity-0' => $i !== 0])
                             :class="{ 'z-1 opacity-100': current === {{ $i }}, 'opacity-0': current !== {{ $i }} }"
                         />
                     @empty
@@ -221,7 +222,8 @@
             <div class="absolute bottom-0 left-0 h-0.5 bg-brand transition-[width] duration-100 ease-linear" :style="`width: ${progress}%`"></div>
         </div>
 
-        {{-- Content + sidebar --}}
+        {{-- Content + sidebar: under the first screen, so set up by Alpine as it comes near (data-alpine-later). --}}
+        <div x-ignore data-alpine-later="near" class="contents">
         <main class="bg-page px-12 pt-12 pb-20 max-[900px]:px-6 max-[900px]:pt-8 max-[900px]:pb-[60px]">
             <div class="mx-auto grid max-w-[1280px] grid-cols-[1fr_340px] items-start gap-10 max-[900px]:grid-cols-1">
                 <div class="min-w-0">
@@ -474,10 +476,13 @@
                 </aside>
             </div>
         </main>
+        </div>
 
-        {{-- Similar properties --}}
+        {{-- Similar properties: set up by Alpine (cards + slider) as they come near the screen (data-alpine-later,
+             website/boot.js). Inside the page's x-data, so no x-data of its own: its refs stay the page's. --}}
         @if ($similar)
-            <section class="bg-page px-12 pb-20 max-[900px]:px-6 max-[900px]:py-12">
+            <div x-ignore data-alpine-later="near" class="contents">
+            <section x-init="$nextTick(() => similar())" class="bg-page px-12 pb-20 max-[900px]:px-6 max-[900px]:py-12">
                 <div class="mx-auto mb-9 max-w-[1280px]">
                     <p class="mb-2 text-[11px] font-bold tracking-[0.14em] text-brand uppercase dark:text-ink-60 rtl:font-arabic">{{ __('You May Also Like') }}</p>
                     <h2 class="text-[32px] leading-[1.1] font-semibold text-ink rtl:font-arabic max-[900px]:text-[24px]">{{ __('Similar Properties') }}</h2>
@@ -506,6 +511,7 @@
                     </button>
                 </div>
             </section>
+            </div>
         @endif
         <x-website.pdf-picker :title="$p['title']" :label="__('Property Datasheet')" :en="route('properties.pdf', ['slug' => $slug, 'locale' => 'en'])" :ar="route('properties.pdf', ['slug' => $slug, 'locale' => 'ar'])" />
     </div>

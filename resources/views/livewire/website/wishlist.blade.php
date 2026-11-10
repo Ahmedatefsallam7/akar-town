@@ -21,7 +21,8 @@
     $grid = $compact ? 'grid grid-cols-2 gap-5 max-[720px]:grid-cols-1' : 'grid grid-cols-3 gap-7 max-[1100px]:grid-cols-2 max-[720px]:grid-cols-1 max-[720px]:gap-5';
 @endphp
 
-<div x-data x-init="$wire.load([...$store.favourites.ids])" @class(['bg-page' => ! $compact])>
+{{-- At least a screen tall: the saved cards arrive after the page shows, and the footer below mustn't jump. --}}
+<div x-data x-init="$wire.load([...$store.favourites.ids])" @class(['min-h-dvh bg-page' => ! $compact])>
     <div
         wire:key="wishlist-{{ $loaded ? 'loaded' : 'loading' }}"
         x-data="{

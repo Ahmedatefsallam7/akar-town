@@ -24,7 +24,9 @@
 <footer
     x-data="footerReveal(@js($reveal))"
     @if ($reveal)
-        class="fixed inset-x-0 bottom-0 z-1 h-dvh overflow-hidden bg-night text-white"
+        {{-- Phones get the normal footer from the first paint (it's taller than their screen), so nothing jumps
+             when the script decides. --}}
+        class="fixed inset-x-0 bottom-0 z-1 h-dvh overflow-hidden bg-night text-white max-md:relative max-md:z-[901] max-md:h-auto"
         :class="{ 'fixed inset-x-0 bottom-0 z-1 h-dvh': ! static, 'relative z-[901] h-auto': static }"
     @else
         class="relative z-[901] w-full overflow-hidden bg-night text-white"
@@ -33,7 +35,7 @@
     <div
         x-ref="bg"
         @if ($reveal)
-            class="absolute inset-0 bg-cover bg-center will-change-transform [filter:grayscale(0.35)_brightness(0.42)_contrast(1.1)] [transform:scale(1.18)]"
+            class="absolute inset-0 bg-cover bg-center will-change-transform [filter:grayscale(0.35)_brightness(0.42)_contrast(1.1)] [transform:scale(1.18)] max-md:[transform:scale(1)]"
             :class="{ '[transform:scale(1.18)]': ! static, '[transform:scale(1)]': static }"
         @else
             class="absolute inset-0 bg-cover bg-center [filter:grayscale(0.35)_brightness(0.42)_contrast(1.1)]"

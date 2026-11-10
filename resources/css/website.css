@@ -26,6 +26,72 @@
        Arabic font lacks ("²") keep the site's fonts instead of the system's Arial / Noto Sans. */
     --font-sans: var(--font-archivo), var(--font-noto-kufi-arabic), system-ui, sans-serif;
     --font-arabic: var(--font-noto-kufi-arabic), var(--font-archivo), system-ui, sans-serif;
+    --font-label-ar: var(--font-kufi-label), var(--font-noto-kufi-arabic), system-ui, sans-serif;
+
+    /* Home splash (about 1.3 s, user 2026-11-10): the sketch columns race up, the white halves fade in under the logo
+       at 0.5 s and part at 0.9 s, then it's gone (see website/home/splash.blade.php). */
+    --animate-splash-column: splash-column 1s linear infinite;
+    --animate-splash-columns: splash-columns 0.9s step-end both;
+    --animate-splash-logo: splash-logo 1.3s both;
+    --animate-splash-left: splash-left 1.3s both;
+    --animate-splash-right: splash-right 1.3s both;
+    --animate-splash-out: splash-out 1.35s step-end both;
+    --animate-hero-text: hero-text 0.78s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+    --animate-hero-nav: hero-drop 0.7s var(--ease-smooth) 0.9s backwards;
+    --animate-hero-zoom: hero-zoom 1.6s var(--ease-smooth) 0.95s backwards;
+    --animate-hero-thumb: hero-slide 0.6s var(--ease-smooth) backwards;
+    --animate-hero-tag: hero-drop-sm 0.6s var(--ease-smooth) 1.45s backwards;
+    --animate-hero-fade: hero-fade 0.5s ease backwards;
+    --animate-hero-pop: hero-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+
+    @keyframes splash-column {
+        to { translate: 0 -50%; }
+    }
+    @keyframes splash-columns {
+        to { visibility: hidden; }
+    }
+    @keyframes splash-logo {
+        0%, 38% { opacity: 0; transform: translateY(16px) scale(0.97); animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
+        55%, 75% { opacity: 1; transform: none; animation-timing-function: ease; }
+        100% { opacity: 0; transform: translateY(-6px) scale(1.03); }
+    }
+    @keyframes splash-left {
+        0%, 38% { opacity: 0; }
+        52%, 69% { opacity: 1; translate: 0 0; animation-timing-function: var(--ease-smooth); }
+        100% { opacity: 1; translate: -100% 0; }
+    }
+    @keyframes splash-right {
+        0%, 38% { opacity: 0; }
+        52%, 69% { opacity: 1; translate: 0 0; animation-timing-function: var(--ease-smooth); }
+        100% { opacity: 1; translate: 100% 0; }
+    }
+    /* Home hero's entry, played as the splash parts (it was GSAP, which now starts later): navbar, photo, thumbnails,
+       tag, progress, arrows, then the first slide's text. "backwards" only: once played, the slider's GSAP owns them. */
+    @keyframes hero-text {
+        from { opacity: 0; translate: 0 28px; filter: blur(10px); }
+    }
+    @keyframes hero-drop {
+        from { opacity: 0; translate: 0 -20px; }
+    }
+    @keyframes hero-drop-sm {
+        from { opacity: 0; translate: 0 -10px; }
+    }
+    @keyframes hero-zoom {
+        from { scale: 1.08; }
+    }
+    @keyframes hero-slide {
+        from { opacity: 0; translate: -20px 0; }
+    }
+    @keyframes hero-fade {
+        from { opacity: 0; }
+    }
+    @keyframes hero-pop {
+        from { opacity: 0; scale: 0.8; }
+    }
+    @keyframes splash-out {
+        0% { visibility: visible; pointer-events: auto; }
+        100% { visibility: hidden; pointer-events: none; }
+    }
 
     /* Light theme (the design's :root) */
     --color-page: #faf8f5;

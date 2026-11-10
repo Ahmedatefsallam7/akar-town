@@ -9,6 +9,7 @@
         :title="e($name)"
         :description="$description ? \Illuminate\Support\Str::limit(strip_tags($description), 220) : null"
         :image="$image"
+        :image-small="$imageSmall"
         :count="$count"
         :count-label="__('Available Properties')"
     />

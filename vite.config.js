@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
-import { google } from 'laravel-vite-plugin/fonts';
+import { google, local } from 'laravel-vite-plugin/fonts';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
@@ -13,6 +13,9 @@ export default defineConfig({
                 google('Archivo', { weights: [300, 400, 500, 600, 700], styles: ['normal'], preload: [{ weight: 400 }] }),
                 // Arabic letters only: English words and numbers on Arabic pages fall back to Archivo (as on English pages).
                 google('Noto Kufi Arabic', { weights: [300, 400, 500, 600], subsets: ['arabic'] }),
+                // The language switch's "عر" on English pages: Noto Kufi cut to those two letters (3 KB), so English pages
+                // don't download the whole Arabic font (121 KB) for one label. See resources/fonts/README.md.
+                local('Kufi Label', { variants: [{ src: 'resources/fonts/kufi-label.woff2', weight: 700 }], preload: false }),
             ],
         }),
         tailwindcss(),

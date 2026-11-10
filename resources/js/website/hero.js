@@ -317,44 +317,10 @@ export default (slides) => ({
             btn.addEventListener('mouseleave', () => gsap.to(btn, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1,0.4)', overwrite: true }))
         })
 
-        /* Entry animation (after the design's 500ms loader pause) */
-        const entryAnimation = () => {
-            const firstSlide = getSlide(0)
-            const tl = gsap.timeline({
-                onComplete() {
-                    textIn(firstSlide)
-                    startAutoplay()
-                },
-            })
-
-            const navbar = document.querySelector('nav')
-            gsap.set(navbar, { y: -20, opacity: 0 })
-            tl.to(navbar, { y: 0, opacity: 1, duration: 0.7, ease: 'smooth' }, 0)
-
-            const bg = firstSlide.querySelector('[data-bg]')
-            gsap.set(bg, { scale: 1.08 })
-            tl.to(bg, { scale: 1, duration: 1.6, ease: 'smooth' }, 0.3)
-
-            const thumbItems = $$('[data-thumb]')
-            gsap.set(thumbItems, { x: -20, opacity: 0 })
-            tl.to(thumbItems, { x: 0, opacity: 1, duration: 0.6, ease: 'smooth', stagger: 0.08 }, 0.5)
-
-            const glassTag = $('[data-glass-tag]')
-            gsap.set(glassTag, { y: -10, opacity: 0 })
-            tl.to(glassTag, { y: 0, opacity: 1, duration: 0.6, ease: 'smooth' }, 0.8)
-
-            const progEls = $$('[data-prog]')
-            gsap.set(progEls, { opacity: 0 })
-            tl.to(progEls, { opacity: 1, duration: 0.5, stagger: 0.1 }, 0.9)
-
-            const navBtns = $$('[data-nav-btn]')
-            gsap.set(navBtns, { scale: 0.8, opacity: 0 })
-            tl.to(navBtns, { scale: 1, opacity: 1, duration: 0.5, ease: 'back.out(1.4)', stagger: 0.1 }, 1.0)
-        }
-
-        // Before the entry animation runs, keep the first slide's text hidden (it animates in).
-        if (!REDUCED) gsap.set(getSlide(0).querySelectorAll(TEXT), { opacity: 0 })
-        setTimeout(entryAnimation, 500)
+        /* The entry (navbar, photo, thumbnails, tag, progress, arrows, first slide's text) is played by CSS as the splash
+           parts (animate-hero-* in the views), so it doesn't wait for this script; the slider only starts its autoplay
+           once that entry is over (about 2.5 s after the page started). */
+        setTimeout(startAutoplay, Math.max(0, 2500 - performance.now()))
 
         previews = previewDeck(root, slides, () => activeIdx)
     },

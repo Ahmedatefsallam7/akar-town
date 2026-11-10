@@ -4,7 +4,7 @@
     revealFooter (home): the page content and its footer spacer scroll over the fixed footer, which they reveal at
     the end; other pages end with a normal footer, as in the design.
 --}}
-@props(['title' => null, 'description' => null, 'transparentNav' => false, 'revealFooter' => false])
+@props(['title' => null, 'description' => null, 'transparentNav' => false, 'revealFooter' => false, 'intro' => false])
 
 @php
     $dark = request()->cookie('theme') === 'dark';
@@ -34,7 +34,7 @@
 
         {{-- Both fonts are declared on every page (English pages show "عر", Arabic ones English); a font file is only
              downloaded when a page uses it, and only Archivo is preloaded. --}}
-        @fonts(['archivo', 'noto-kufi-arabic'])
+        @fonts(['archivo', 'noto-kufi-arabic', 'kufi-label'])
         @vite(['resources/css/website.css', 'resources/js/website.js'])
         @livewireStyles
         {{-- A page's first big photo, asked for early (e.g. the home hero). --}}
@@ -45,23 +45,34 @@
         {{ $before ?? '' }}
 
         <div id="site-wrap" class="relative z-2">
-            <x-website.navbar :transparent="$transparentNav" />
+            <x-website.navbar :transparent="$transparentNav" :intro="$intro" />
 
             {{ $slot }}
 
             @if ($revealFooter)
                 {{-- Drives the footer reveal scroll range. --}}
-                <div id="footer-spacer" x-data class="h-dvh" :class="{ 'h-dvh': ! $store.footer.static, 'h-0': $store.footer.static }" aria-hidden="true"></div>
+                <div id="footer-spacer" x-data class="h-dvh max-md:h-0" :class="{ 'h-dvh': ! $store.footer.static, 'h-0': $store.footer.static }" aria-hidden="true"></div>
             @endif
         </div>
 
-        {{-- Outside the page wrap, so its scroll transforms don't move these fixed layers. --}}
-        <x-website.gallery-lightbox />
-        <x-website.project-lightbox />
-        <x-website.compare-bar />
+        {{-- Outside the page wrap, so its scroll transforms don't move these fixed layers. They're hidden until used, so
+             Alpine sets them up later (data-alpine-later, see website/boot.js): the compare bar just after the start (it
+             shows saved properties), the lightboxes and windows on the visitor's first touch, before the click that
+             opens them. --}}
+        <div x-data x-ignore data-alpine-later="soon" class="contents">
+            <x-website.compare-bar />
+        </div>
+        <div x-data x-ignore data-alpine-later="touch" class="contents">
+            <x-website.gallery-lightbox />
+            <x-website.project-lightbox />
+        </div>
         {{-- "Sign in or Register", opened by the navbar's account button (event open-auth). --}}
-        <livewire:website.auth-modal />
-        <livewire:website.submit-property />
+        <div x-data x-ignore data-alpine-later="touch" class="contents">
+            <livewire:website.auth-modal />
+        </div>
+        <div x-data x-ignore data-alpine-later="touch" class="contents">
+            <livewire:website.submit-property />
+        </div>
         {{-- A one-time message from the server (e.g. a blocked account signed out), shown for a few seconds. --}}
         @if ($notice = session(\Modules\WebsiteUsers\Http\Middleware\EnsureWebsiteUserIsActive::NOTICE))
             <div
@@ -74,8 +85,11 @@
             >{{ $notice }}</div>
         @endif
 
-        <x-website.footer :reveal="$revealFooter" />
+        <div x-data x-ignore data-alpine-later="near" class="contents">
+            <x-website.footer :reveal="$revealFooter" />
+        </div>
 
-        @livewireScripts
+        {{-- Livewire and Alpine are bundled in website.js (a deferred module, not a blocking script). --}}
+        @livewireScriptConfig
     </body>
 </html>

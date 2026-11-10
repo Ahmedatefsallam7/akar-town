@@ -74,8 +74,9 @@
     </div>
 
     {{-- Advanced filters drawer --}}
-    <div class="fixed inset-0 z-1000" :class="drawer ? 'pointer-events-auto' : 'pointer-events-none'">
-        <div class="absolute inset-0 cursor-pointer bg-[rgba(6,6,10,0.42)] transition-opacity duration-350" :class="drawer ? 'opacity-100' : 'opacity-0'" @click="drawer = false"></div>
+    {{-- Closed in the markup too, so the page isn't dimmed or blocked before Alpine starts. --}}
+    <div class="pointer-events-none fixed inset-0 z-1000" :class="drawer ? 'pointer-events-auto' : 'pointer-events-none'">
+        <div class="absolute inset-0 cursor-pointer bg-[rgba(6,6,10,0.42)] opacity-0 transition-opacity duration-350" :class="drawer ? 'opacity-100' : 'opacity-0'" @click="drawer = false"></div>
         <aside
             class="absolute inset-y-0 right-0 flex w-[min(420px,calc(100vw-2.5rem))] translate-x-full flex-col overflow-hidden border-l border-black/9 bg-white transition-transform duration-400 ease-out-ex dark:border-white/8 dark:bg-[rgb(17,17,17)] max-md:w-screen"
             :class="{ 'translate-x-0': drawer, 'translate-x-full': ! drawer }"

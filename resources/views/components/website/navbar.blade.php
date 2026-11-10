@@ -3,7 +3,7 @@
     transparent: over a full-screen hero (home, about): see-through, dark glass once scrolled.
     Otherwise (inner pages): dark glass from the start and the current page's link is highlighted.
 --}}
-@props(['transparent' => false, 'scrollThreshold' => 40])
+@props(['transparent' => false, 'scrollThreshold' => 40, 'intro' => false])
 
 @php
     $business = app(\Modules\GeneralSettings\Settings\BusinessInfoSettings::class);
@@ -41,6 +41,8 @@
             'fixed inset-x-0 top-0 z-200 flex h-nav items-center justify-between border-b px-12 max-xs:px-4! [transition:background_0.5s_cubic-bezier(0.16,1,0.3,1),border-color_0.5s_ease,box-shadow_0.5s_ease] max-md:px-5',
             'border-white/6 bg-[rgba(8,8,8,0.88)] backdrop-blur-[48px] backdrop-saturate-180' => ! $transparent,
             'border-transparent bg-transparent' => $transparent,
+            // Home: the navbar drops in as the splash parts (with the hero's entry).
+            'motion-safe:animate-hero-nav' => $intro,
         ])
         aria-label="{{ __('Main navigation') }}"
     >
@@ -134,7 +136,7 @@
             >
                 <span class="relative z-1 flex-1 text-center font-sans text-[11px] leading-none font-bold tracking-[0.05em] transition-colors duration-300 select-none" :class="arabic ? 'text-white/50' : 'text-white'">EN</span>
                 <span class="absolute top-[3px] left-[3px] z-0 h-[calc(100%-6px)] w-[calc(50%-3px)] rounded-full bg-brand transition-transform duration-350 ease-spring" :class="arabic && 'translate-x-full'"></span>
-                <span class="relative z-1 flex-1 text-center font-arabic text-[11px] leading-none font-bold tracking-[0.05em] transition-colors duration-300 select-none" :class="arabic ? 'text-white' : 'text-white/50'">عر</span>
+                <span class="relative z-1 flex-1 text-center {{ $isArabic ? 'font-arabic' : 'font-label-ar' }} text-[11px] leading-none font-bold tracking-[0.05em] transition-colors duration-300 select-none" :class="arabic ? 'text-white' : 'text-white/50'">عر</span>
             </a>
 
             {{-- Wishlist: the saved units and projects (browser only), with their number --}}
@@ -235,7 +237,9 @@
         </button>
     </nav>
 
-    {{-- Mobile drawer: slides in from the end side. --}}
+    {{-- Mobile drawer: slides in from the end side. Set up by Alpine on the first touch (data-alpine-later,
+         website/boot.js), before the menu button's click; closed in the markup until then. --}}
+    <div x-ignore data-alpine-later="touch" class="contents">
     <div
         class="pointer-events-none fixed inset-0 z-199 flex flex-col overflow-y-auto bg-[rgba(8,8,8,0.97)] px-8 pt-[calc(var(--spacing-nav)+24px)] pb-12 backdrop-blur-[20px] transition-[translate,visibility] duration-380 ease-drawer invisible ltr:translate-x-full rtl:-translate-x-full"
         {{-- Closed: also invisible (it stays visible while sliding out). Off-screen alone isn't enough: when the home
@@ -295,7 +299,7 @@
                 <span dir="ltr" class="relative flex h-[22px] w-[58px] items-center rounded-full border border-[rgba(160,50,72,0.45)] bg-[rgba(160,50,72,0.18)] p-0.5" aria-hidden="true">
                     <span class="relative z-1 flex-1 text-center font-sans text-[8px] leading-none font-bold {{ $isArabic ? 'text-white/50' : 'text-white' }}">EN</span>
                     <span class="absolute top-0.5 left-0.5 z-0 h-[calc(100%-4px)] w-[calc(50%-2px)] rounded-full bg-brand {{ $isArabic ? 'translate-x-full' : '' }}"></span>
-                    <span class="relative z-1 flex-1 text-center font-arabic text-[8px] leading-none font-bold {{ $isArabic ? 'text-white' : 'text-white/50' }}">عر</span>
+                    <span class="relative z-1 flex-1 text-center {{ $isArabic ? 'font-arabic' : 'font-label-ar' }} text-[8px] leading-none font-bold {{ $isArabic ? 'text-white' : 'text-white/50' }}">عر</span>
                 </span>
                 <span>{{ __('Language') }}</span>
             </a>
@@ -330,5 +334,6 @@
                 </a>
             @endif
         </div>
+    </div>
     </div>
 </div>

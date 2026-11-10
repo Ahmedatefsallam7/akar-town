@@ -25,6 +25,7 @@ class LocationsController extends Controller
             'name' => $location->getLocalized('name'),
             'description' => $description,
             'image' => Image::url($location->getFirstMedia(Location::FEATURED_IMAGE)),
+            'imageSmall' => Image::url($location->getFirstMedia(Location::FEATURED_IMAGE), 'card'),
             'count' => PropertySearch::query(['location' => $location->slug])->reorder()->count(),
             'metaTitle' => $location->getLocalized('meta_title') ?: $location->getLocalized('name'),
             'metaDescription' => $location->getLocalized('meta_description') ?: Str::limit(strip_tags((string) $description), 160) ?: null,

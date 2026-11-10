@@ -180,6 +180,9 @@
             </div>
         </section>
 
+        {{-- Unit types, amenities, location and contact: under the first screens, so set up by Alpine as they come near
+             (data-alpine-later, website/boot.js). Inside the page's x-data: no x-data of their own, refs stay the page's. --}}
+        <div x-ignore data-alpine-later="near" class="contents">
         {{-- Unit types --}}
         @if ($p['types'])
             <section id="units" class="relative overflow-hidden bg-[rgb(13,11,8)] pt-[clamp(88px,11vw,144px)] pb-[clamp(72px,10vw,120px)]" aria-label="{{ __('Unit types') }}">
@@ -430,8 +433,10 @@
                 </div>
             </div>
         </section>
+        </div>
 
-        {{-- Gallery lightbox (the design's .glb) --}}
+        {{-- Gallery lightbox (the design's .glb): set up on the first touch, before the click that opens it. --}}
+        <div x-ignore data-alpine-later="touch" class="contents">
         <div
             x-show="gallery"
             x-cloak
@@ -477,6 +482,7 @@
                     ><img src="{{ $thumb }}" alt="" loading="lazy" class="block size-full object-cover" /></button>
                 @endforeach
             </div>
+        </div>
         </div>
         <x-website.pdf-picker :title="$p['title']" :label="__('Project Datasheet')" :en="route('projects.pdf', ['slug' => $p['slug'], 'locale' => 'en'])" :ar="route('projects.pdf', ['slug' => $p['slug'], 'locale' => 'ar'])" />
     </div>
