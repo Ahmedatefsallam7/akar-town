@@ -73,7 +73,7 @@ class PropertyDetailsTest extends TestCase
             ->assertSeeInOrder(['First.', 'Second.', 'Read More'])
             ->assertSee('Hidden third.')
             // Ground floor (0) is still shown.
-            ->assertSeeInOrder(['Floor', '<span data-pdf-val class="text-[14px] font-semibold text-ink">0</span>'], false)
+            ->assertSeeInOrder(['Floor', '<span class="text-[14px] font-semibold text-ink">0</span>'], false)
             ->assertDontSee('<script>alert(1)</script>', false);
     }
 
@@ -86,6 +86,27 @@ class PropertyDetailsTest extends TestCase
             ->assertSee(__('Choose PDF language'))
             ->assertSee(route('properties.pdf', ['slug' => $unit->slug, 'locale' => 'en']), false)
             ->assertSee(route('properties.pdf', ['slug' => $unit->slug, 'locale' => 'ar']), false);
+    }
+
+    public function test_the_pdf_downloads_in_english_and_arabic_only_for_a_published_property(): void
+    {
+        $unit = Unit::factory()->create(['name_en' => 'Sky Penthouse', 'slug' => 'sky-penthouse']);
+
+        foreach (['en', 'ar'] as $locale) {
+            $response = $this->get(route('properties.pdf', ['slug' => 'sky-penthouse', 'locale' => $locale]))
+                ->assertOk()
+                ->assertHeader('Content-Type', 'application/pdf')
+                ->assertHeader('Content-Disposition', 'attachment; filename="sky-penthouse-'.$locale.'.pdf"');
+            $this->assertStringStartsWith('%PDF-', $response->getContent());
+        }
+
+        // The page's language stays as it was.
+        $this->assertSame('en', app()->getLocale());
+
+        $this->get('/properties/sky-penthouse/pdf/fr')->assertNotFound();
+
+        $unit->update(['is_published' => false]);
+        $this->get(route('properties.pdf', ['slug' => 'sky-penthouse', 'locale' => 'en']))->assertNotFound();
     }
 
     public function test_the_units_own_floor_plan_and_master_plan_show_only_when_it_has_them(): void

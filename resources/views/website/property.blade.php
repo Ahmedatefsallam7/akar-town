@@ -42,8 +42,8 @@
 <x-website.layout :title="$p['title']" :description="$p['short']">
     <div
         x-data="propertyPage(@js(['count' => $count, 'latitude' => $p['latitude'], 'longitude' => $p['longitude'], 'place' => $p['place']]))"
-        data-pdf-phone="{{ $business->hotline }}"
-        data-pdf-email="{{ $business->email }}"
+       
+       
         class="leading-[normal]"
     >
         {{-- Breadcrumb --}}
@@ -100,7 +100,7 @@
                     @endforeach
                 </div>
                 @if ($p['price'])
-                    <div data-pdf-price class="mb-[18px] font-sans text-[clamp(32px,3.2vw,48px)] leading-none font-semibold tracking-[-0.01em] text-brand-dk"><sup class="mr-1 align-super text-[0.45em] font-normal tracking-[0.06em] text-ink-60 rtl:mr-0 rtl:ml-1">{{ __('EGP') }}</sup>{{ $p['price'] }}</div>
+                    <div class="mb-[18px] font-sans text-[clamp(32px,3.2vw,48px)] leading-none font-semibold tracking-[-0.01em] text-brand-dk"><sup class="mr-1 align-super text-[0.45em] font-normal tracking-[0.06em] text-ink-60 rtl:mr-0 rtl:ml-1">{{ __('EGP') }}</sup>{{ $p['price'] }}</div>
                 @endif
                 <div class="flex flex-wrap items-center gap-3 rtl:flex-row-reverse">
                     <button
@@ -128,7 +128,7 @@
                              the slider reaches them (property.js). Phones take the card size. --}}
                         <img
                             @if ($i === 0)
-                                src="{{ $image }}" srcset="{{ $p['srcsets'][0] }}" fetchpriority="high" data-pdf-hero
+                                src="{{ $image }}" srcset="{{ $p['srcsets'][0] }}" fetchpriority="high"
                             @else
                                 data-src="{{ $image }}" data-srcset="{{ $p['srcsets'][$i] }}"
                             @endif
@@ -226,7 +226,7 @@
             <div class="mx-auto grid max-w-[1280px] grid-cols-[1fr_340px] items-start gap-10 max-[900px]:grid-cols-1">
                 <div class="min-w-0">
                     <div class="mb-10">
-                        <div data-pdf-badges class="mb-[14px] flex flex-wrap items-center gap-2">
+                        <div class="mb-[14px] flex flex-wrap items-center gap-2">
                             @if ($p['featured'])
                                 <span class="{{ $badge }} {{ $dark }}">{{ __('Featured') }}</span>
                             @endif
@@ -237,9 +237,9 @@
                                 <span class="{{ $badge }} border-[1.5px] border-brand bg-brand text-white">{{ $p['finishing'] }}</span>
                             @endif
                         </div>
-                        <h1 data-pdf-name class="mb-3 font-sans text-[38px] leading-[1.15] font-normal tracking-[-0.01em] text-ink rtl:font-arabic max-[900px]:text-[30px] max-[640px]:text-[24px]">{{ $p['title'] }}</h1>
+                        <h1 class="mb-3 font-sans text-[38px] leading-[1.15] font-normal tracking-[-0.01em] text-ink rtl:font-arabic max-[900px]:text-[30px] max-[640px]:text-[24px]">{{ $p['title'] }}</h1>
                         @if ($p['place'])
-                            <p data-pdf-location class="mb-4 flex items-center gap-1.5 text-[13px] text-ink-60">
+                            <p class="mb-4 flex items-center gap-1.5 text-[13px] text-ink-60">
                                 <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14" class="shrink-0 text-brand" aria-hidden="true">{!! $pin !!}</svg>
                                 {{ $p['place'] }}
                             </p>
@@ -257,19 +257,19 @@
                     @if ($stats)
                         <div class="mb-10 flex items-stretch overflow-hidden rounded-xl border border-ink-10 bg-paper dark:border-line dark:bg-surface-2 max-[900px]:flex-wrap">
                             @foreach ($stats as $key => [$value, $label])
-                                <div data-pdf-stat class="relative flex flex-1 flex-col items-center justify-center gap-1.5 px-3 py-5 not-first:before:absolute not-first:before:top-[20%] not-first:before:left-0 not-first:before:h-[60%] not-first:before:w-px not-first:before:bg-ink-10 rtl:not-first:before:right-0 rtl:not-first:before:left-auto max-[900px]:min-w-[calc(50%-1px)] max-[640px]:min-w-full max-[640px]:not-first:before:hidden">
+                                <div class="relative flex flex-1 flex-col items-center justify-center gap-1.5 px-3 py-5 not-first:before:absolute not-first:before:top-[20%] not-first:before:left-0 not-first:before:h-[60%] not-first:before:w-px not-first:before:bg-ink-10 rtl:not-first:before:right-0 rtl:not-first:before:left-auto max-[900px]:min-w-[calc(50%-1px)] max-[640px]:min-w-full max-[640px]:not-first:before:hidden">
                                     <div class="flex size-9 shrink-0 items-center justify-center rounded-full bg-white/12 text-brand backdrop-blur-[8px]">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="size-[17px]" aria-hidden="true">{!! $icons[$key] !!}</svg>
                                     </div>
-                                    <span data-pdf-val class="text-[18px] leading-none font-bold tracking-[-0.02em] text-ink">{{ $value }}</span>
-                                    <span data-pdf-label class="text-[10px] font-medium tracking-[0.1em] text-ink-60 uppercase rtl:font-arabic">{{ $label }}</span>
+                                    <span class="text-[18px] leading-none font-bold tracking-[-0.02em] text-ink">{{ $value }}</span>
+                                    <span class="text-[10px] font-medium tracking-[0.1em] text-ink-60 uppercase rtl:font-arabic">{{ $label }}</span>
                                 </div>
                             @endforeach
                         </div>
                     @endif
 
                     @if ($p['intro'])
-                        <div data-pdf-desc class="mb-10">
+                        <div class="mb-10">
                             <div class="{{ $sectionTitle }}">{{ __('Overview') }}</div>
                             <div class="[&_p]:mb-4 [&_p]:text-[16px] [&_p]:leading-[1.8] [&_p]:text-ink-60">{!! $p['intro'] !!}</div>
                             @if ($p['more'])
@@ -289,13 +289,13 @@
                             <div class="mb-10 grid grid-cols-2 overflow-hidden rounded-xl border border-ink-10 dark:border-line max-[640px]:grid-cols-1">
                                 @foreach ($details as $row => $cells)
                                     @foreach ($cells as $label => $value)
-                                        <div data-pdf-detail @class([
+                                        <div @class([
                                             'flex flex-col gap-0.5 px-[18px] py-[13px]',
                                             'border-b border-ink-10 dark:border-line' => $row < count($details) - 1,
                                             'bg-[rgba(13,13,13,0.02)] dark:bg-[rgba(237,232,223,0.03)]' => $row % 2 === 0,
                                         ])>
-                                            <span data-pdf-label class="text-[10px] font-semibold tracking-[0.12em] text-ink-60 uppercase rtl:font-arabic">{{ $label }}</span>
-                                            <span data-pdf-val class="text-[14px] font-semibold text-ink">{{ $value }}</span>
+                                            <span class="text-[10px] font-semibold tracking-[0.12em] text-ink-60 uppercase rtl:font-arabic">{{ $label }}</span>
+                                            <span class="text-[14px] font-semibold text-ink">{{ $value }}</span>
                                         </div>
                                     @endforeach
                                 @endforeach
@@ -313,7 +313,7 @@
                                         <div class="flex size-9 shrink-0 items-center justify-center rounded-md bg-white/12 text-brand backdrop-blur-[8px] dark:bg-[rgba(212,20,44,0.1)]">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="size-[17px]" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
                                         </div>
-                                        <span data-pdf-amenity class="text-[12px] leading-[1.3] font-medium text-ink dark:text-ink-60">{{ $amenity }}</span>
+                                        <span class="text-[12px] leading-[1.3] font-medium text-ink dark:text-ink-60">{{ $amenity }}</span>
                                     </div>
                                 @endforeach
                             </div>
@@ -330,7 +330,7 @@
                                         <div class="flex size-9 shrink-0 items-center justify-center rounded-md bg-[rgba(228,201,154,0.15)] text-brand-dk">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="size-[17px]" aria-hidden="true">{!! $pin !!}</svg>
                                         </div>
-                                        <span data-pdf-facility class="text-[12px] font-medium text-ink dark:text-ink-60">{{ $facility }}</span>
+                                        <span class="text-[12px] font-medium text-ink dark:text-ink-60">{{ $facility }}</span>
                                     </div>
                                 @endforeach
                             </div>
@@ -507,48 +507,7 @@
                 </div>
             </section>
         @endif
-        <div
-            x-cloak
-            x-show="pdfOpen"
-            x-transition.opacity
-            @keydown.escape.window="pdfOpen = false"
-            @click.self="pdfOpen = false"
-            class="fixed inset-0 z-[300] flex items-center justify-center bg-[rgba(9,10,12,0.72)] p-4 backdrop-blur-[10px]"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="property-pdf-language-title"
-        >
-            <div class="relative w-full max-w-[440px] overflow-hidden rounded-2xl border border-white/70 bg-paper text-ink shadow-[0_28px_90px_rgba(0,0,0,0.32)] dark:border-line dark:bg-surface-2 dark:text-ink">
-                <div class="h-1 w-full bg-brand"></div>
-                <div class="p-6 sm:p-7">
-                    <div class="mb-6 flex items-start justify-between gap-4">
-                        <div class="flex items-start gap-3.5">
-                            <span class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand dark:bg-brand/15" aria-hidden="true">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="size-[21px]"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h8"/></svg>
-                            </span>
-                            <div class="pt-0.5">
-                                <p class="mb-1 text-[9px] font-bold tracking-[0.12em] text-brand uppercase rtl:tracking-normal">{{ __('Property Datasheet') }}</p>
-                                <h2 id="property-pdf-language-title" class="text-[19px] leading-tight font-semibold rtl:font-arabic">{{ __('Choose PDF language') }}</h2>
-                                <p class="mt-1.5 max-w-[290px] text-[12px] leading-relaxed text-ink-60 rtl:font-arabic">{{ $p['title'] }}</p>
-                            </div>
-                        </div>
-                        <button type="button" @click="pdfOpen = false" class="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-ink-10 text-ink-60 transition-colors hover:border-brand hover:bg-brand/5 hover:text-brand dark:border-line" aria-label="{{ __('Close') }}">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" class="size-4" aria-hidden="true"><path d="m18 6-12 12M6 6l12 12"/></svg>
-                        </button>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3 max-[420px]:grid-cols-1">
-                        <a href="{{ route('properties.pdf', ['slug' => $slug, 'locale' => 'en']) }}" @click="pdfOpen = false" class="group flex min-h-[84px] items-center justify-between gap-3 rounded-xl border border-ink-10 bg-white px-4 py-4 transition-[border-color,background,transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-brand hover:bg-brand/[0.03] hover:shadow-[0_8px_24px_rgba(200,16,46,0.09)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand dark:border-line dark:bg-surface-1 dark:hover:bg-brand/5" lang="en" dir="ltr">
-                            <span class="text-[15px] font-semibold">{{ __('English') }}</span>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="size-[17px] shrink-0 text-ink-30 transition-colors group-hover:text-brand" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5M12 15V3"/></svg>
-                        </a>
-                        <a href="{{ route('properties.pdf', ['slug' => $slug, 'locale' => 'ar']) }}" @click="pdfOpen = false" class="group flex min-h-[84px] items-center justify-between gap-3 rounded-xl border border-ink-10 bg-white px-4 py-4 transition-[border-color,background,transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-brand hover:bg-brand/[0.03] hover:shadow-[0_8px_24px_rgba(200,16,46,0.09)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand dark:border-line dark:bg-surface-1 dark:hover:bg-brand/5" lang="ar" dir="rtl">
-                            <span class="text-[15px] font-semibold rtl:font-arabic">{{ __('Arabic') }}</span>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="size-[17px] shrink-0 text-ink-30 transition-colors group-hover:text-brand" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5M12 15V3"/></svg>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-website.pdf-picker :title="$p['title']" :label="__('Property Datasheet')" :en="route('properties.pdf', ['slug' => $slug, 'locale' => 'en'])" :ar="route('properties.pdf', ['slug' => $slug, 'locale' => 'ar'])" />
     </div>
     <livewire:website.schedule-viewing :unit-id="$p['id']" />
 </x-website.layout>

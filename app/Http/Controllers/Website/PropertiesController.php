@@ -27,9 +27,6 @@ class PropertiesController extends Controller
     }
 
     /**
-     * One published property, with up to six similar ones (same project or type first, then the latest).
-     */
-    /**
      * The property's datasheet as a PDF download, in English or Arabic (the visitor picks; see PropertyPdf).
      */
     public function pdf(string $slug, string $locale): Response
@@ -43,6 +40,9 @@ class PropertiesController extends Controller
         ]);
     }
 
+    /**
+     * One published property, with up to six similar ones (same project or type first, then the latest).
+     */
     public function show(string $slug): View
     {
         $unit = Unit::query()->where('slug', $slug)->where('is_published', true)->firstOrFail();
