@@ -144,10 +144,11 @@ class Meeting extends Model implements CrmLead
             'email' => $this->email,
             'description' => collect([
                 'Requested '.__("admin.meetings.types.{$this->type}", [], 'en').' at '.$this->meeting_at->format('Y-m-d H:i'),
-                $this->notes_en,
-                $this->notes_ar,
+                // Where it came from before the notes: the CRM keeps only 191 characters.
                 filled($this->source) ? "Source: {$this->source}" : null,
                 filled($this->url) ? "URL: {$this->url}" : null,
+                $this->notes_en,
+                $this->notes_ar,
             ])->filter()->implode("\n\n"),
         ];
     }

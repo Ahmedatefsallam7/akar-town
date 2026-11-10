@@ -70,11 +70,13 @@ class WebsiteLeadsToCrmTest extends TestCase
     {
         $this->configureCrm();
 
-        Inquiry::factory()->create(['form' => 'project_enquiry', 'source' => 'Project: Mountain Park', 'url' => 'https://akartown.com/projects/mountain-park']);
+        // The form, source and page come before the message, so a long message (cut at the CRM's 191) doesn't drop them.
+        Inquiry::factory()->create(['form' => 'project_enquiry', 'message' => str_repeat('A long question. ', 20), 'source' => 'Project: Mountain Park', 'url' => 'https://akartown.com/projects/mountain-park']);
 
         Http::assertSent(fn (Request $request) => str_contains($request['description'], 'Form: Project Enquiry')
             && str_contains($request['description'], 'Source: Project: Mountain Park')
-            && str_contains($request['description'], 'URL: https://akartown.com/projects/mountain-park'));
+            && str_contains($request['description'], 'URL: https://akartown.com/projects/mountain-park')
+            && str_starts_with($request['description'], 'Form: Project Enquiry'));
     }
 
     public function test_a_sell_request_lead_has_the_owner_and_the_unit_but_not_the_internal_notes(): void

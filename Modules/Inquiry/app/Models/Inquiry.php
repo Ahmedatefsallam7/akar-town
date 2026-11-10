@@ -86,11 +86,12 @@ class Inquiry extends Model implements CrmLead
             'full_name' => $this->full_name,
             'phone' => $this->phone,
             'email' => $this->email,
+            // Where it came from first: the CRM keeps only 191 characters, so a long message is what gets cut.
             'description' => collect([
-                $this->message,
                 'Form: '.__("admin.contact_us.forms.{$this->crmForm()}", [], 'en'),
                 filled($this->source) ? "Source: {$this->source}" : null,
                 filled($this->url) ? "URL: {$this->url}" : null,
+                $this->message,
             ])->filter()->implode("\n\n"),
         ];
     }
