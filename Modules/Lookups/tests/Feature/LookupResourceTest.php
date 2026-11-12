@@ -8,6 +8,7 @@ use Modules\Lookups\Filament\Resources\LookupResource;
 use Modules\Lookups\Filament\Resources\LookupResource\Pages\ListLookupTypes;
 use Modules\Lookups\Filament\Resources\LookupResource\Pages\ManageLookupValues;
 use Modules\Lookups\Models\Lookup;
+use Modules\Units\Models\Unit;
 use Tests\TestCase;
 
 class LookupResourceTest extends TestCase
@@ -224,12 +225,12 @@ class LookupResourceTest extends TestCase
         $walk(require base_path('Modules/Lookups/database/seeders/data/lookups.php'));
     }
 
-    public function test_locations_open_level_by_level_down_to_sub_areas(): void
+    public function test_locations_open_level_by_level_down_to_compounds(): void
     {
         $this->actingAs($this->createAdmin());
         $tree = $this->locations();
 
-        // Cities listed under Egypt open their regions; sub-areas (the last level) open nothing.
+        // Cities listed under Egypt open their regions; compounds (the last level) open nothing.
         $this->get(LookupResource::getUrl('values', ['record' => $tree['country']]))
             ->assertOk()
             ->assertSee(LookupResource::getUrl('values', ['record' => $tree['city']]), false);
@@ -251,4 +252,39 @@ class LookupResourceTest extends TestCase
 
         $this->assertSame([__('admin.lookups.title'), 'Locations', 'Egypt', 'Cairo'], array_values($crumbs));
     }
+
+    public function test_the_last_location_level_is_the_compound(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $tree = $this->locations();
+
+        // The page under an area lists its compounds (AKAR-46: in place of the sub-areas), with "Add compound".
+        Livewire::test(ManageLookupValues::class, ['record' => $tree['area']->getRouteKey()])
+            ->assertSee('Compounds')
+            ->assertSee('Golden Square')
+            ->assertSee('Add compound');
+
+        // The other levels are named too; a flat type has no level name.
+        $this->assertSame('Cities', Livewire::test(ManageLookupValues::class, ['record' => $tree['country']->getRouteKey()])->instance()->getSubheading());
+        $this->assertNull(Livewire::test(ManageLookupValues::class, ['record' => $this->type('views', 'Views')->getRouteKey()])->instance()->getSubheading());
+
+        // The admin forms call the level "Compound".
+        $this->assertSame('Compound', __('admin.location_chain.sub_area'));
+    }
+
+    public function test_a_compound_linked_to_properties_cannot_be_deleted_and_says_how_many(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $tree = $this->locations();
+        $compound = $tree['sub_area'];
+        $deny = new \ReflectionMethod(LookupResource::class, 'recordDenialMessage');
+
+        Unit::factory()->count(2)->create(['sub_area_id' => $compound->id]);
+        Unit::factory()->create(['sub_area_id' => $compound->id])->delete(); // the trash counts too
+
+        $this->assertFalse(LookupResource::canDelete($compound->fresh()));
+        $this->assertSame(trans_choice('admin.location_chain.used_by_properties', 3, ['count' => 3]), $deny->invoke(null, 'delete', $compound->fresh()));
+        $this->assertStringContainsString('3 properties', $deny->invoke(null, 'delete', $compound->fresh()));
+    }
 }
+

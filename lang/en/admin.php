@@ -342,7 +342,7 @@ return [
         'name_en' => 'Name (English)',
         'name_ar' => 'Name (Arabic)',
         'slug' => 'Slug',
-        'sub_area' => 'Sub-Area',
+        'sub_area' => 'Compound',
         'project' => 'Project',
         'order' => 'Display Order',
         'featured_property' => 'Featured Property',
@@ -908,12 +908,16 @@ return [
         'city' => 'City',
         'region' => 'Region',
         'area' => 'Area',
-        'sub_area' => 'Sub-Area',
+        'sub_area' => 'Compound',
         'select_country' => 'Select country',
         'select_city' => 'Select city',
         'select_region' => 'Select region',
         'select_area' => 'Select area',
-        'select_sub_area' => 'Select sub-area',
+        'select_sub_area' => 'Select compound',
+        // The values page of each level of the tree (AKAR-46: the last level is the Compound).
+        'levels' => ['Countries', 'Cities', 'Regions', 'Areas', 'Compounds'],
+        'add' => ['Add country', 'Add city', 'Add region', 'Add area', 'Add compound'],
+        'used_by_properties' => 'Linked to :count property — move it to another place first.|Linked to :count properties — move them to another place first.',
     ],
 
     'lookups' => [

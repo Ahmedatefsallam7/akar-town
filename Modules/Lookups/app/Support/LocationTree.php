@@ -6,7 +6,8 @@ use Illuminate\Support\Collection;
 use Modules\Lookups\Models\Lookup;
 
 /**
- * The location chain (Country › City › Region › Area › Sub-Area): the lookup tree under "locations". The whole
+ * The location chain (Country › City › Region › Area › Compound; the last level was the sub-area, AKAR-46, and keeps
+ * its sub_area_id column): the lookup tree under "locations". The whole
  * tree is small, so it's read in ONE query once per request and every select, filter and check works from it.
  */
 class LocationTree
@@ -109,6 +110,14 @@ class LocationTree
             ->map(fn (Lookup $node) => ['column' => static::LEVELS[$tree['levels'][$node->id] - 1], 'id' => $node->id])
             ->values()
             ->all();
+    }
+
+    /**
+     * The level of a value in the tree, 1 (country) … 5 (compound); null when it isn't a place.
+     */
+    public static function levelOf(int $id): ?int
+    {
+        return static::tree()['levels'][$id] ?? null;
     }
 
     /**

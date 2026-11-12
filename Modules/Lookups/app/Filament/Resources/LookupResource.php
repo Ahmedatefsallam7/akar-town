@@ -18,10 +18,12 @@ use Illuminate\Validation\Rules\Unique;
 use Livewire\Component as Livewire;
 use Modules\Lookups\Filament\Resources\LookupResource\Pages;
 use Modules\Lookups\Models\Lookup;
+use Modules\Lookups\Support\LocationTree;
+use Modules\Lookups\Support\LookupUsage;
 
 /**
  * Lookups: one card per lookup type (the top level), and a page per type to manage its values. The Locations type
- * is a tree (country › city › region › area › sub-area) browsed level by level. Roles live under "user_roles" but
+ * is a tree (country › city › region › area › compound) browsed level by level. Roles live under "user_roles" but
  * are managed on the Roles page, so they never show up here.
  */
 class LookupResource extends Resource implements HasPermissionModule
@@ -29,7 +31,7 @@ class LookupResource extends Resource implements HasPermissionModule
     use HasResourceTranslations;
 
     /**
-     * How many levels of values a type has below it. Locations: country, city, region, area, sub-area.
+     * How many levels of values a type has below it. Locations: country, city, region, area, compound.
      */
     public const DEPTHS = ['locations' => 5];
 
@@ -98,6 +100,8 @@ class LookupResource extends Resource implements HasPermissionModule
 
         return match (true) {
             ! $record->is_deletable || $record->hasProtectedDescendants() => __('admin.lookups.cannot_delete_protected'),
+            // A place (e.g. a compound) linked to properties says how many (AKAR-46).
+            $record->isUsed() && LocationTree::levelOf($record->getKey()) && ($properties = LookupUsage::countIn('units', $record)) > 0 => trans_choice('admin.location_chain.used_by_properties', $properties, ['count' => $properties]),
             $record->isUsed() => __('admin.lookups.cannot_delete_used'),
             default => null,
         };

@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Collection;
 use Modules\Lookups\Filament\Resources\LookupResource;
 use Modules\Lookups\Models\Lookup;
+use Modules\Lookups\Support\LocationTree;
 
 /**
  * The values of one lookup type (or one level of the Locations tree): add and edit in a modal, re-order by drag and
@@ -51,6 +52,16 @@ class ManageLookupValues extends ManageRelatedRecords
     public function getTitle(): string|Htmlable
     {
         return $this->getOwnerRecord()->getLocalized('name');
+    }
+
+    /**
+     * In the Locations tree, the level these values are (Countries … Compounds), under the title.
+     */
+    public function getSubheading(): string|Htmlable|null
+    {
+        $level = $this->locationLevel();
+
+        return $level === null ? null : __('admin.location_chain.levels')[$level];
     }
 
     public function getBreadcrumbs(): array
@@ -109,8 +120,8 @@ class ManageLookupValues extends ManageRelatedRecords
             ->filters([TrashedFilter::make()])
             ->headerActions([
                 CreateAction::make()
-                    ->label(__('admin.lookups.add_value'))
-                    ->modalHeading(__('admin.lookups.add_value'))
+                    ->label($add = ($level = $this->locationLevel()) === null ? __('admin.lookups.add_value') : __('admin.location_chain.add')[$level])
+                    ->modalHeading($add)
                     ->icon('heroicon-o-plus'),
             ])
             ->recordActions([
@@ -140,6 +151,16 @@ class ManageLookupValues extends ManageRelatedRecords
         $levelOfValues = $this->ancestors()->count() + 1;
 
         return $levelOfValues < LookupResource::depthOf($type);
+    }
+
+    /**
+     * The Locations tree level of this page's values, 0 (countries) … 4 (compounds); null for other lookup types.
+     */
+    private function locationLevel(): ?int
+    {
+        $type = $this->ancestors()->first() ?? $this->getOwnerRecord();
+
+        return $type->slug === LocationTree::ROOT_SLUG ? $this->ancestors()->count() : null;
     }
 
     private function deleteWarning(Lookup $record): string
