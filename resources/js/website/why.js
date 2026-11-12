@@ -21,7 +21,7 @@ const countUp = (el) => {
     const suffix = el.dataset.suffix || ''
     const start = performance.now()
     const tick = (now) => {
-        const progress = Math.min((now - start) / 1800, 1)
+        const progress = Math.min((now - start) / 1000, 1)
         const value = Math.round((1 - Math.pow(1 - progress, 3)) * target)
         el.textContent = (value >= 1000 ? (value / 1000).toFixed(1).replace(/\.0$/, '') + 'K' : value) + suffix
         if (progress < 1) requestAnimationFrame(tick)

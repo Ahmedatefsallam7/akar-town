@@ -38,7 +38,8 @@
             <div
                 @if ($animate)
                     x-data="{ shown: 0 }"
-                    x-init="const step = () => { shown = Math.min(shown + 5, {{ $count }}); if (shown < {{ $count }}) requestAnimationFrame(step) }; requestAnimationFrame(step)"
+                    {{-- Counts up in 0.8 s whatever the number (it used to add 5 a frame: minutes for tens of thousands). --}}
+                    x-init="const end = {{ (int) $count }}, start = performance.now(); const step = (now) => { const t = Math.min((now - start) / 800, 1); shown = Math.round(end * (1 - Math.pow(1 - t, 3))); if (t < 1) requestAnimationFrame(step) }; requestAnimationFrame(step)"
                     x-text="shown"
                 @endif
                 class="font-sans text-[60px] leading-none font-light tracking-[-0.02em] text-white max-[700px]:text-[40px] max-[480px]:text-[32px]"
