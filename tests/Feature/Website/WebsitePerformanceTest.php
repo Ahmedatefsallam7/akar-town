@@ -156,6 +156,10 @@ class WebsitePerformanceTest extends TestCase
 
     public function test_the_hero_entry_is_played_by_css_and_hidden_parts_are_set_up_later(): void
     {
+        // A hero with slides (without them the home page has no slider to play in).
+        $hero = Slider::factory()->hero()->create(['is_active' => true]);
+        SliderItem::factory()->create(['slider_id' => $hero->id, 'project_id' => Project::factory()->create()->id, 'order' => 1, 'is_active' => true]);
+
         $home = $this->get(route('home'))->assertOk();
         // The navbar and the first slide come in as the splash parts, without waiting for the scripts.
         $home->assertSee(['motion-safe:animate-hero-nav', 'motion-safe:animate-hero-text motion-safe:[animation-delay:1.05s]', 'motion-safe:animate-hero-zoom'], false);

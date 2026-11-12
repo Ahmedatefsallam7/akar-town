@@ -163,4 +163,21 @@ class LayoutTest extends TestCase
         // The phone menu lists them too.
         $this->assertStringContainsString('href="tel:01001234567" @click="$track(\'phone\'); open = false"', $html);
     }
+
+    public function test_ui_review_fixes_are_in_the_markup(): void
+    {
+        $html = $this->get(route('about'))->assertOk()->getContent();
+
+        // Under 1200 px the bar shows the menu button (the full bar needs ≈1190 px).
+        $this->assertStringContainsString('max-[1199px]:hidden', $html);
+        $this->assertStringContainsString('p-1.5 max-[1199px]:flex', $html);
+        // The navbar stays above the footer, outside the page wrap the home footer reveal moves.
+        $this->assertStringContainsString('fixed inset-x-0 top-0 z-[950]', $html);
+        $this->assertLessThan(strpos($html, 'id="site-wrap"'), strpos($html, 'aria-label="Main navigation"'));
+        // An open window locks the page behind it (html has its own overflow).
+        $this->assertStringContainsString("has-[body[style*='overflow:_hidden']]:overflow-hidden", $html);
+        // ...and while a window shows, the navbar goes under the page so windows inside the page wrap cover it.
+        $this->assertStringContainsString('[:root:has([aria-modal=true]:not([style*=none]):not(.opacity-0):not([x-cloak]))_&]:z-1', $html);
+    }
 }
+

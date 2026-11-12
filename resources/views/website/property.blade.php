@@ -168,7 +168,7 @@
                             </button>
                             <div class="flex items-center gap-[7px] rounded-[20px] bg-[rgba(13,13,13,0.65)] px-3 py-[7px] backdrop-blur-[12px]">
                                 @foreach ($p['images'] as $i => $image)
-                                    <button type="button" @click="go({{ $i }})" class="h-[7px] cursor-pointer rounded-full border-none p-0 transition-[background,scale,width] duration-300" :class="current === {{ $i }} ? 'w-[18px] scale-120 rounded bg-brand' : 'w-[7px] bg-white/35'" aria-label="{{ __('Slide :number', ['number' => $i + 1]) }}"></button>
+                                    <button type="button" @click="go({{ $i }})" class="relative h-[7px] cursor-pointer rounded-full border-none p-0 transition-[background,scale,width] before:absolute before:-inset-x-1 before:-inset-y-2.5 before:content-[''] duration-210" :class="current === {{ $i }} ? 'w-[18px] scale-120 rounded bg-brand' : 'w-[7px] bg-white/35'" aria-label="{{ __('Slide :number', ['number' => $i + 1]) }}"></button>
                                 @endforeach
                             </div>
                             <button type="button" @click="go(current + 1)" class="{{ $arrow }}" aria-label="{{ __('Next image') }}">
@@ -186,8 +186,8 @@
                             <span class="text-[9px] font-medium tracking-[0.16em] text-ink-60 uppercase rtl:font-arabic">{{ __('Photos') }}</span>
                         </button>
                         @foreach (array_slice($p['thumbs'], 0, 4) as $i => $thumb)
-                            <button type="button" @click="go({{ $i }})" class="group/thumb relative h-[90px] flex-1 cursor-pointer overflow-hidden rounded-xl border-[3px] transition-[border-color] duration-250" :class="current === {{ $i }} ? 'border-brand' : 'border-white dark:border-surface-2'">
-                                <img src="{{ $thumb }}" alt="" loading="lazy" class="size-full object-cover transition-transform duration-400 ease-out-ex group-hover/thumb:scale-106" />
+                            <button type="button" @click="go({{ $i }})" aria-label="{{ __('Photo :number', ['number' => $i + 1]) }}" class="group/thumb relative h-[90px] flex-1 cursor-pointer overflow-hidden rounded-xl border-[3px] transition-[border-color] duration-180" :class="current === {{ $i }} ? 'border-brand' : 'border-white dark:border-surface-2'">
+                                <img src="{{ $thumb }}" alt="" loading="lazy" class="size-full object-cover transition-transform duration-200 ease-out-ex group-hover/thumb:scale-106" />
                             </button>
                         @endforeach
                     </div>
@@ -197,18 +197,19 @@
 
         {{-- Sticky bar --}}
         <div
-            class="pointer-events-none fixed inset-x-0 top-nav z-190 flex h-[52px] -translate-y-full items-center justify-between border-b border-white/6 bg-[rgba(8,8,8,0.92)] px-12 opacity-0 backdrop-blur-[48px] backdrop-saturate-180 [transition:translate_0.4s_var(--ease-out-ex),opacity_0.4s_var(--ease-out-ex)] max-[900px]:px-6"
+            class="pointer-events-none fixed inset-x-0 top-nav z-190 flex h-[52px] -translate-y-full items-center justify-between border-b border-white/6 bg-[rgba(8,8,8,0.92)] px-12 opacity-0 backdrop-blur-[48px] backdrop-saturate-180 [transition:translate_0.4s_var(--ease-out-ex),opacity_0.4s_var(--ease-out-ex)] max-[900px]:px-6 max-[640px]:px-4"
             :class="{ 'pointer-events-auto translate-y-0 opacity-100': sticky, 'pointer-events-none -translate-y-full opacity-0': ! sticky }"
             :aria-hidden="! sticky"
         >
-            <div class="flex items-center gap-5">
-                <span class="text-[13px] font-semibold tracking-[0.01em] whitespace-nowrap text-white/90 max-[640px]:max-w-[140px] max-[640px]:overflow-hidden max-[640px]:text-ellipsis rtl:font-arabic">{{ $p['title'] }}</span>
+            {{-- Phones: the price and the buttons only (the title is right above on the page); everything must fit 360 px. --}}
+            <div class="flex min-w-0 items-center gap-5">
+                <span class="text-[13px] font-semibold tracking-[0.01em] whitespace-nowrap text-white/90 max-[640px]:hidden rtl:font-arabic">{{ $p['title'] }}</span>
                 @if ($p['price'])
                     <span class="font-sans text-[18px] font-medium tracking-[0.02em] text-brand max-[640px]:text-[13px]">{{ __('EGP :price', ['price' => $p['price']]) }}</span>
                 @endif
             </div>
-            <div class="flex items-center gap-[10px]">
-                <button type="button" @click="$track('form', { unit_id: {{ $p['id'] }} }); $dispatch('schedule-viewing')" class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-[linear-gradient(135deg,rgba(215,20,52,0.96)_0%,rgb(185,10,36)_100%)] px-[18px] py-2 font-sans text-[11px] leading-none font-[650] tracking-[0.06em] whitespace-nowrap text-white backdrop-blur-[20px] transition-all duration-350 ease-out-ex hover:-translate-y-0.5 hover:bg-[linear-gradient(135deg,rgba(225,25,58,0.98)_0%,rgb(200,16,46)_100%)] rtl:font-arabic">{{ __('Schedule Visit') }}</button>
+            <div class="flex shrink-0 items-center gap-[10px] max-[640px]:gap-1.5">
+                <button type="button" @click="$track('form', { unit_id: {{ $p['id'] }} }); $dispatch('schedule-viewing')" class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-[linear-gradient(135deg,rgba(215,20,52,0.96)_0%,rgb(185,10,36)_100%)] px-[18px] py-2 max-[640px]:px-3 font-sans text-[11px] leading-none font-[650] tracking-[0.06em] whitespace-nowrap text-white backdrop-blur-[20px] transition-all duration-240 ease-out-ex hover:-translate-y-0.5 hover:bg-[linear-gradient(135deg,rgba(225,25,58,0.98)_0%,rgb(200,16,46)_100%)] rtl:font-arabic">{{ __('Schedule Visit') }}</button>
                 <button type="button" @click="$store.compare.toggle(@js($compare))" class="{{ $stickyButton }}" :class="$store.compare.has({{ $p['id'] }}) ? 'border-brand! bg-[rgba(200,16,46,0.15)]! text-brand!' : 'hover:text-brand'" title="{{ __('Compare') }}" aria-label="{{ __('Compare property') }}">
                     <x-website.icons.compare width="15" height="15" />
                 </button>

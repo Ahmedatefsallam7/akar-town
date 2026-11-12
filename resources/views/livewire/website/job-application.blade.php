@@ -36,7 +36,7 @@
     x-transition:enter-start="opacity-0"
     x-transition:leave="transition-opacity duration-300 ease-out-ex"
     x-transition:leave-end="opacity-0"
-    class="fixed inset-0 z-500 flex items-center justify-center p-6"
+    class="fixed inset-0 z-9998 flex items-center justify-center p-6"
     role="dialog"
     aria-modal="true"
     aria-labelledby="apply-title"

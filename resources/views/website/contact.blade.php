@@ -37,7 +37,7 @@
     />
 
     {{-- Form + map --}}
-    <section id="contact" x-data class="relative overflow-hidden bg-page py-[clamp(80px,10vw,130px)] before:absolute before:inset-x-12 before:top-0 before:h-px before:bg-[linear-gradient(to_right,var(--color-brand)_0%,rgba(200,16,46,0.18)_45%,transparent_100%)] max-[1100px]:before:inset-x-6 rtl:before:bg-[linear-gradient(to_left,var(--color-brand)_0%,rgba(200,16,46,0.18)_45%,transparent_100%)] dark:bg-[#100f0d]" aria-label="{{ __('Contact Akar Town') }}">
+    <section id="contact" x-data class="scroll-mt-nav relative overflow-hidden bg-page py-[clamp(80px,10vw,130px)] before:absolute before:inset-x-12 before:top-0 before:h-px before:bg-[linear-gradient(to_right,var(--color-brand)_0%,rgba(200,16,46,0.18)_45%,transparent_100%)] max-[1100px]:before:inset-x-6 rtl:before:bg-[linear-gradient(to_left,var(--color-brand)_0%,rgba(200,16,46,0.18)_45%,transparent_100%)] dark:bg-[#100f0d]" aria-label="{{ __('Contact Akar Town') }}">
         <div class="mx-auto grid max-w-[1320px] grid-cols-2 items-start gap-[clamp(48px,7vw,90px)] px-12 max-[1100px]:gap-10 max-[1100px]:px-6 max-[860px]:grid-cols-1 max-md:px-5">
             <div {!! $intersect !!} class="{{ $reveal }}">
                 <h2 class="mb-3 font-sans text-[clamp(36px,4.5vw,62px)] leading-[1.06] font-light tracking-[-0.022em] text-ink rtl:font-arabic rtl:leading-[1.3] rtl:tracking-normal [&_em]:text-brand [&_em]:not-italic">{!! __('Send Us a <em>Message</em>') !!}</h2>

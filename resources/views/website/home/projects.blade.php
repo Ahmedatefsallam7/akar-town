@@ -17,7 +17,7 @@
     $text = 'opacity-0';
 @endphp
 
-<section id="projects" x-data="projectsGrid" class="border-t border-ink-10 bg-page pt-20 pb-[100px]">
+<section id="projects" x-data="projectsGrid" class="scroll-mt-nav border-t border-ink-10 bg-page pt-20 pb-[100px]">
     <div class="mx-auto max-w-[1340px] px-[60px] max-[900px]:px-6 max-md:px-5">
         <header class="mb-[52px] flex items-end justify-between gap-10">
             <div class="flex-1">

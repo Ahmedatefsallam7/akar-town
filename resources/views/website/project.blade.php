@@ -139,7 +139,7 @@
         </section>
 
         {{-- Overview --}}
-        <section id="overview" class="relative overflow-hidden bg-page pt-[clamp(88px,11vw,144px)] pb-[clamp(88px,11vw,132px)] {{ $line }} after:pointer-events-none after:absolute after:inset-0 after:z-0 after:opacity-[0.022] after:bg-(image:--grain) after:bg-size-[200px_auto] dark:bg-[rgb(13,11,8)] max-[560px]:before:right-5 max-[560px]:before:left-5" aria-label="{{ __('Project overview') }}">
+        <section id="overview" class="scroll-mt-nav relative overflow-hidden bg-page pt-[clamp(88px,11vw,144px)] pb-[clamp(88px,11vw,132px)] {{ $line }} after:pointer-events-none after:absolute after:inset-0 after:z-0 after:opacity-[0.022] after:bg-(image:--grain) after:bg-size-[200px_auto] dark:bg-[rgb(13,11,8)] max-[560px]:before:right-5 max-[560px]:before:left-5" aria-label="{{ __('Project overview') }}">
             <div @class([
                 'relative z-2 mx-auto grid max-w-[1320px] items-start gap-[clamp(48px,7vw,100px)] px-12 max-[960px]:grid-cols-1 max-[960px]:gap-14 max-[560px]:px-5',
                 'grid-cols-2' => $metrics,
@@ -352,7 +352,7 @@
         @endif
 
         {{-- Contact --}}
-        <section id="contact" class="relative overflow-hidden bg-[rgb(7,6,10)] pt-[clamp(88px,11vw,144px)] pb-[clamp(80px,10vw,128px)]" aria-label="{{ __('Contact the sales team') }}">
+        <section id="contact" class="scroll-mt-nav relative overflow-hidden bg-[rgb(7,6,10)] pt-[clamp(88px,11vw,144px)] pb-[clamp(80px,10vw,128px)]" aria-label="{{ __('Contact the sales team') }}">
             {{-- Barely visible (7%): the card size is enough, fetched when the visitor nears it. The design's photo sits
                  under the project's, so the section keeps its background when the project has none (or it fails). --}}
             <div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-7 grayscale" data-bg="{{ $p['imageSmall'] === \App\Support\Website\Image::placeholder() ? '' : $p['imageSmall'] }}" data-bg-fallback="{{ asset('images/website/contact-section-bg.webp') }}" x-intersect.once.margin.600px="$el.style.backgroundImage = ($el.dataset.bg ? `url('${$el.dataset.bg}'), ` : '') + `url('${$el.dataset.bgFallback}')`" aria-hidden="true"></div>

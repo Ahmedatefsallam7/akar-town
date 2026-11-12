@@ -7,10 +7,11 @@
 <div
     x-cloak
     x-show="pdfOpen"
+    x-effect="document.body.style.overflow = pdfOpen ? 'hidden' : ''"
     x-transition.opacity
     @keydown.escape.window="pdfOpen = false"
     @click.self="pdfOpen = false"
-    class="fixed inset-0 z-[300] flex items-center justify-center bg-[rgba(9,10,12,0.72)] p-4 backdrop-blur-[10px]"
+    class="fixed inset-0 z-9998 flex items-center justify-center bg-[rgba(9,10,12,0.72)] p-4 backdrop-blur-[10px]"
     role="dialog"
     aria-modal="true"
     aria-labelledby="property-pdf-language-title"

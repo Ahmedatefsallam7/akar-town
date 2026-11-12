@@ -38,21 +38,25 @@
             }"
         @endif
         @class([
-            'fixed inset-x-0 top-0 z-200 flex h-nav items-center justify-between border-b px-12 max-xs:px-4! [transition:background_0.5s_cubic-bezier(0.16,1,0.3,1),border-color_0.5s_ease,box-shadow_0.5s_ease] max-md:px-5',
+            'fixed inset-x-0 top-0 z-[950] flex h-nav items-center justify-between border-b px-12 max-xs:px-4! [transition:background_0.5s_cubic-bezier(0.16,1,0.3,1),border-color_0.5s_ease,box-shadow_0.5s_ease] max-md:px-5',
             'border-white/6 bg-[rgba(8,8,8,0.88)] backdrop-blur-[48px] backdrop-saturate-180' => ! $transparent,
             'border-transparent bg-transparent' => $transparent,
             // Home: the navbar drops in as the splash parts (with the hero's entry).
             'motion-safe:animate-hero-nav' => $intro,
+            // While a window is open (an aria-modal dialog that is showing), the navbar goes under the page, so windows
+            // that live inside the page wrap (booking, PDF, job application, project gallery) cover it too.
+            '[:root:has([aria-modal=true]:not([style*=none]):not(.opacity-0):not([x-cloak]))_&]:z-1' => true,
         ])
         aria-label="{{ __('Main navigation') }}"
     >
         <a href="{{ route('home') }}" class="flex shrink-0 items-center" aria-label="{{ __('Akar Town — Home') }}">
-            {{-- The design's size on every screen: on phones the bar holds only the logo and the menu button. --}}
+            {{-- The design's size on every screen. Under 1200 px (phones, tablets, small laptops: the full bar needs ≈1190 px)
+                 it holds only the logo and the menu button; the drawer has everything else. --}}
             <x-website.logo width="230" class="max-w-full max-xs:w-[180px]" />
         </a>
 
         <div class="flex items-center gap-[15px] max-sm:gap-[10px] max-xs:gap-1.5">
-            <ul class="flex list-none items-center gap-[15px] max-md:hidden" role="list">
+            <ul class="flex list-none items-center gap-[15px] max-[1199px]:hidden" role="list">
                 @foreach ($links as $link)
                     <li>
                         <a
@@ -69,7 +73,7 @@
 
             @if (count($phones) > 1)
                 {{-- Several numbers: the first one opens a list of all, each one callable. --}}
-                <div x-data="{ list: false }" @click.outside="list = false" @keydown.escape.window="list = false" class="relative shrink-0 max-md:hidden">
+                <div x-data="{ list: false }" @click.outside="list = false" @keydown.escape.window="list = false" class="relative shrink-0 max-[1199px]:hidden">
                     <button
                         type="button"
                         @click="list = ! list"
@@ -103,7 +107,7 @@
                 <a
                     href="{{ $tel($phone) }}"
                     @click="$track('phone')"
-                    class="inline-flex shrink-0 items-center gap-[7px] text-[12px] font-semibold tracking-[0.06em] whitespace-nowrap text-white/90 transition-colors duration-250 hover:text-white max-md:hidden"
+                    class="inline-flex shrink-0 items-center gap-[7px] text-[12px] font-semibold tracking-[0.06em] whitespace-nowrap text-white/90 transition-colors duration-180 hover:text-white max-[1199px]:hidden"
                     aria-label="{{ __('Call :phone', ['phone' => $phone]) }}"
                 >
                     <x-website.icons.phone class="shrink-0 opacity-75" />
@@ -111,9 +115,9 @@
                 </a>
             @endif
 
-            <div class="h-[18px] w-px shrink-0 bg-white/15 max-md:hidden" aria-hidden="true"></div>
+            <div class="h-[18px] w-px shrink-0 bg-white/15 max-[1199px]:hidden" aria-hidden="true"></div>
 
-            <div class="flex items-center max-md:hidden">
+            <div class="flex items-center max-[1199px]:hidden">
                 <button
                     type="button"
                     @click="$dispatch('open-submit-property')"
@@ -122,7 +126,7 @@
             </div>
 
             {{-- Phones: language, wishlist, account and theme move into the drawer (the design's .navbar__right). --}}
-            <div class="flex items-center gap-[15px] max-md:hidden">
+            <div class="flex items-center gap-[15px] max-[1199px]:hidden">
             {{-- Language switch: the knob slides to the chosen language, then the page reloads in it. --}}
             <a
                 href="{{ route('locale.switch', $isArabic ? 'en' : 'ar') }}"
@@ -228,7 +232,7 @@
             type="button"
             @click="open = ! open"
             :aria-expanded="open"
-            class="z-10 hidden size-9 shrink-0 cursor-pointer flex-col justify-center gap-[5px] p-1.5 max-md:flex"
+            class="z-10 hidden size-9 shrink-0 cursor-pointer flex-col justify-center gap-[5px] p-1.5 max-[1199px]:flex"
             aria-label="{{ __('Toggle navigation') }}"
         >
             <span class="pointer-events-none block h-[1.5px] w-[22px] rounded-[2px] bg-white transition-[transform,opacity] duration-300" :class="open && 'translate-y-[6.5px] rotate-45'"></span>
@@ -241,7 +245,7 @@
          website/boot.js), before the menu button's click; closed in the markup until then. --}}
     <div x-ignore data-alpine-later="touch" class="contents">
     <div
-        class="pointer-events-none fixed inset-0 z-199 flex flex-col overflow-y-auto bg-[rgba(8,8,8,0.97)] px-8 pt-[calc(var(--spacing-nav)+24px)] pb-12 backdrop-blur-[20px] transition-[translate,visibility] duration-380 ease-drawer invisible ltr:translate-x-full rtl:-translate-x-full"
+        class="pointer-events-none fixed inset-0 z-[949] flex flex-col overflow-y-auto bg-[rgba(8,8,8,0.97)] px-8 pt-[calc(var(--spacing-nav)+24px)] pb-12 backdrop-blur-[20px] transition-[translate,visibility] duration-190 ease-drawer invisible ltr:translate-x-full rtl:-translate-x-full"
         {{-- Closed: also invisible (it stays visible while sliding out). Off-screen alone isn't enough: when the home
              page shrinks over the footer, the closed drawer showed through the gap as a black line on the side. --}}
         :class="{ 'pointer-events-auto visible translate-x-0': open, 'pointer-events-none invisible ltr:translate-x-full rtl:-translate-x-full': ! open }"

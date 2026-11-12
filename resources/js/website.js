@@ -1,6 +1,11 @@
 // Public website entry: the page and its first photo are painted first, then the app (Livewire, Alpine and the page's
 // components: website/boot.js) is fetched and started, so its start-up work doesn't hold back the first view. It
 // starts right after the browser reports the first paint (and its biggest element), or after 1.5 s at the latest.
+// Every page opens at its top, also on a reload (front-end review), not where the visitor had scrolled to. A link to
+// a part of a page (#contact) still goes there.
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual'
+if (!location.hash) window.scrollTo(0, 0)
+
 let started = false
 const start = () => {
     if (started) return

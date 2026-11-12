@@ -15,7 +15,9 @@
     lang="{{ app()->getLocale() }}"
     dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}"
     data-theme="{{ $dark ? 'dark' : 'light' }}"
-    class="overflow-x-clip antialiased [text-rendering:optimizeLegibility] transition-colors duration-450 rtl:tracking-normal rtl:normal-case"
+    {{-- While a window or the phone menu is open it sets overflow: hidden on <body>; <html> has its own overflow
+         (overflow-x-clip), so the page behind would still scroll: the has-[] class locks it here too. --}}
+    class="overflow-x-clip has-[body[style*='overflow:_hidden']]:overflow-hidden antialiased [text-rendering:optimizeLegibility] transition-colors duration-220 rtl:tracking-normal rtl:normal-case"
 >
     <head>
         <meta charset="utf-8" />
@@ -44,8 +46,11 @@
     <body class="min-h-screen overflow-x-clip bg-page font-sans leading-[1.6] text-ink selection:bg-brand selection:text-white rtl:text-right rtl:font-arabic">
         {{ $before ?? '' }}
 
+        {{-- Outside the page wrap: the home footer reveal moves and scales the wrap, which would take a fixed navbar
+             with it (front-end review: the navbar stays visible while scrolling). --}}
+        <x-website.navbar :transparent="$transparentNav" :intro="$intro" />
+
         <div id="site-wrap" class="relative z-2">
-            <x-website.navbar :transparent="$transparentNav" :intro="$intro" />
 
             {{ $slot }}
 
