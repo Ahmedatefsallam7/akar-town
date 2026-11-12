@@ -25,7 +25,7 @@ class PropertySearch
     public const OFF_PLAN = 'us-off-plan';
 
     /**
-     * @param  array{q?: ?string, type?: array, price?: array, beds?: array, baths?: array, area?: array, area_min?: mixed, area_max?: mixed, floor_min?: mixed, floor_max?: mixed, status?: array, amenities?: array, finishing?: array, intent?: ?string, category?: ?string, location?: ?string, project?: mixed, sort?: ?string}  $filters
+     * @param  array{q?: ?string, type?: array, compound?: array, price?: array, beds?: array, baths?: array, area?: array, area_min?: mixed, area_max?: mixed, floor_min?: mixed, floor_max?: mixed, status?: array, amenities?: array, finishing?: array, intent?: ?string, category?: ?string, location?: ?string, project?: mixed, sort?: ?string}  $filters
      */
     public static function query(array $filters): Builder
     {
@@ -38,6 +38,7 @@ class PropertySearch
         }
 
         static::whereIn($query, 'property_type_id', SearchOptions::ids('unittype', $filters['type'] ?? []));
+        static::whereIn($query, 'sub_area_id', SearchOptions::compoundIds('units', $filters['compound'] ?? []));
         static::whereIn($query, 'finishing_type_id', SearchOptions::ids('finishingtype', $filters['finishing'] ?? []));
         static::counts($query, 'bedrooms', static::strings($filters['beds'] ?? []));
         static::counts($query, 'bathrooms', static::strings($filters['baths'] ?? []));

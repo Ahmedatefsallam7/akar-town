@@ -28,6 +28,10 @@ class Projects extends Component
     #[Url(except: '')]
     public string $location = '';
 
+    /** A compound slug (the locations tree's last level, AKAR-46). */
+    #[Url(except: '')]
+    public string $compound = '';
+
     /** Untyped: the quick search sends lists (type[]=…); mount() keeps the first value. */
     #[Url(except: '')]
     public $type = '';
@@ -76,7 +80,7 @@ class Projects extends Component
 
     public function clear(): void
     {
-        $this->reset('q', 'location', 'type', 'status', 'developer', 'sort', 'shown');
+        $this->reset('q', 'location', 'compound', 'type', 'status', 'developer', 'sort', 'shown');
     }
 
     public function render(): View
@@ -84,6 +88,7 @@ class Projects extends Component
         $query = ProjectSearch::query([
             'q' => $this->q,
             'location' => $this->location,
+            'compound' => $this->compound,
             'type' => $this->type,
             'status' => $this->status,
             'developer' => $this->developer,
@@ -98,6 +103,7 @@ class Projects extends Component
             'more' => $total > count($projects) && $this->shown < self::MAX,
             'cards' => ProjectCards::from($projects),
             'locations' => SearchOptions::locations(),
+            'compounds' => SearchOptions::compounds('projects'),
             'types' => SearchOptions::values('unittype'),
             'statuses' => SearchOptions::values('projectstatus'),
             'developers' => SearchOptions::developers(),

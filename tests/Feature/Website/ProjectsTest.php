@@ -5,6 +5,7 @@ namespace Tests\Feature\Website;
 use App\Livewire\Website\Projects;
 use App\Support\Website\ProjectCards;
 use App\Support\Website\ProjectSearch;
+use App\Support\Website\SearchOptions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
@@ -192,5 +193,25 @@ class ProjectsTest extends TestCase
         Project::factory()->count(5)->create();
 
         $this->assertSame($few, $count(), json_encode(array_count_values(array_column(DB::getQueryLog(), 'query'))));
+    }
+
+
+    public function test_the_compound_filter_offers_compounds_with_projects_and_filters_by_them(): void
+    {
+        $root = Lookup::create(['slug' => 'locations', 'name_en' => 'Locations']);
+        $area = $root->children()->create(['slug' => 'egypt', 'name_en' => 'Egypt'])
+            ->children()->create(['slug' => 'cairo', 'name_en' => 'Cairo'])
+            ->children()->create(['slug' => 'new-cairo', 'name_en' => 'New Cairo'])
+            ->children()->create(['slug' => 'fifth-settlement', 'name_en' => 'Fifth Settlement']);
+        [$mivida, $palm, $empty] = collect(['Mivida', 'Palm Hills', 'Empty Compound'])->map(fn (string $name) => $area->children()->create(['slug' => str($name)->slug(), 'name_en' => $name, 'name_ar' => 'ع '.$name]))->all();
+        Lookup::fixTree();
+
+        Project::factory()->create(['title_en' => 'Mivida Gardens', 'sub_area_id' => $mivida->id, 'is_published' => true]);
+        Project::factory()->create(['title_en' => 'Palm Valley', 'sub_area_id' => $palm->id, 'is_published' => true]);
+
+        $this->assertSame(['mivida' => 'Mivida', 'palm-hills' => 'Palm Hills'], SearchOptions::compounds('projects'));
+        $this->assertSame(['Mivida Gardens'], ProjectSearch::query(['compound' => 'mivida'])->pluck('title_en')->all());
+
+        Livewire::test(Projects::class)->set('compound', 'palm-hills')->assertSee('Palm Valley')->assertDontSee('Mivida Gardens');
     }
 }

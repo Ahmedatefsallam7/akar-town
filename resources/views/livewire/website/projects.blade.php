@@ -35,6 +35,12 @@
             <x-website.filter-select model="location" live :label="__('Location')" :placeholder="__('All Locations')" :options="$locations">
                 <x-slot:icon><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg></x-slot:icon>
             </x-website.filter-select>
+            {{-- Compounds that hold published projects (AKAR-46); hidden when none has any. --}}
+            @if ($compounds)
+                <x-website.filter-select model="compound" live :label="__('Compound')" :placeholder="__('All Compounds')" :options="$compounds">
+                    <x-slot:icon><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1" /><rect x="14" y="3" width="7" height="5" rx="1" /><rect x="14" y="12" width="7" height="9" rx="1" /><rect x="3" y="16" width="7" height="5" rx="1" /></svg></x-slot:icon>
+                </x-website.filter-select>
+            @endif
             <x-website.filter-select model="type" live :label="__('Type')" :placeholder="__('All Types')" :options="$types">
                 <x-slot:icon><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg></x-slot:icon>
             </x-website.filter-select>

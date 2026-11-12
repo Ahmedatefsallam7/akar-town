@@ -6,6 +6,7 @@ use App\Livewire\Website\Properties;
 use App\Support\Website\Image;
 use App\Support\Website\PropertyCards;
 use App\Support\Website\PropertySearch;
+use App\Support\Website\SearchOptions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
@@ -204,5 +205,30 @@ class PropertiesTest extends TestCase
         Unit::factory()->count(8)->create();
 
         $this->assertSame($few, $count());
+    }
+
+
+    public function test_the_compound_filter_offers_compounds_with_properties_and_filters_by_them(): void
+    {
+        $root = Lookup::create(['slug' => 'locations', 'name_en' => 'Locations']);
+        $area = $root->children()->create(['slug' => 'egypt', 'name_en' => 'Egypt'])
+            ->children()->create(['slug' => 'cairo', 'name_en' => 'Cairo'])
+            ->children()->create(['slug' => 'new-cairo', 'name_en' => 'New Cairo'])
+            ->children()->create(['slug' => 'fifth-settlement', 'name_en' => 'Fifth Settlement']);
+        [$mivida, $palm, $empty] = collect(['Mivida', 'Palm Hills', 'Empty Compound'])->map(fn (string $name) => $area->children()->create(['slug' => str($name)->slug(), 'name_en' => $name, 'name_ar' => 'ع '.$name]))->all();
+        Lookup::fixTree();
+
+        Unit::factory()->create(['name_en' => 'Mivida Villa', 'sub_area_id' => $mivida->id]);
+        Unit::factory()->create(['name_en' => 'Palm Flat', 'sub_area_id' => $palm->id]);
+        Unit::factory()->create(['name_en' => 'Hidden', 'sub_area_id' => $empty->id, 'is_published' => false]);
+
+        // Only compounds holding published properties are offered (AKAR-46).
+        $this->assertSame(['mivida' => 'Mivida', 'palm-hills' => 'Palm Hills'], SearchOptions::compounds('units'));
+        $this->assertSame(['Mivida Villa'], $this->names(['compound' => ['mivida']]));
+        $this->assertSame(['Mivida Villa', 'Palm Flat'], $this->names(['compound' => ['mivida', 'palm-hills']]));
+        $this->assertCount(2, $this->names(['compound' => ['unknown']]));
+
+        $this->get(route('properties'))->assertOk()->assertSee(['All Compounds', 'Palm Hills']);
+        Livewire::test(Properties::class)->set('compound', ['palm-hills'])->assertSee('Palm Flat')->assertDontSee('Mivida Villa');
     }
 }

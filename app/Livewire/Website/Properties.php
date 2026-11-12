@@ -30,6 +30,10 @@ class Properties extends Component
     #[Url]
     public array $type = [];
 
+    /** Compound slugs (the locations tree's last level, AKAR-46). */
+    #[Url]
+    public array $compound = [];
+
     #[Url]
     public array $price = [];
 
@@ -119,6 +123,7 @@ class Properties extends Component
         $filters = [
             'q' => $this->q,
             'type' => $this->type,
+            'compound' => $this->compound,
             'price' => $this->price,
             'beds' => $this->beds,
             'baths' => $this->baths,

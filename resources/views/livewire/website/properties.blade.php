@@ -36,6 +36,12 @@
             <x-website.filter-select model="type" :label="__('Type')" :placeholder="__('All Types')" :options="SearchOptions::values('unittype')">
                 <x-slot:icon><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg></x-slot:icon>
             </x-website.filter-select>
+            {{-- Compounds that hold published properties (AKAR-46); hidden when none has any. --}}
+            @if ($compounds = SearchOptions::compounds('units'))
+                <x-website.filter-select model="compound" :label="__('Compound')" :placeholder="__('All Compounds')" :options="$compounds">
+                    <x-slot:icon><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1" /><rect x="14" y="3" width="7" height="5" rx="1" /><rect x="14" y="12" width="7" height="9" rx="1" /><rect x="3" y="16" width="7" height="5" rx="1" /></svg></x-slot:icon>
+                </x-website.filter-select>
+            @endif
             <x-website.price-range model="price" :label="__('Price')" :placeholder="__('Any Price')">
                 <x-slot:icon><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg></x-slot:icon>
             </x-website.price-range>

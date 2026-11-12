@@ -20,7 +20,7 @@ use Modules\UnitRequests\Models\UnitRequest;
 /**
  * The navbar's "Submit Property" window (the design's submit-modal.js): an owner offers a unit, saved as a sell request
  * (Pending, sent to the CRM). The form is only built when the window opens (window event "open-submit-property"). The
- * place is picked from the admin's locations tree (country → city → region → area → sub-area, each list opening when
+ * place is picked from the admin's locations tree (country → city → region → area → compound, each list opening when
  * the level above is chosen), or, when it isn't there, typed as a full address; the compound goes in the address. The
  * photos are kept with the request, the first one as its featured image.
  */
@@ -50,7 +50,7 @@ class SubmitProperty extends Component
 
     public string $compound = '';
 
-    /** The picked place, one id per level of the locations tree (country … sub-area). */
+    /** The picked place, one id per level of the locations tree (country … compound). */
     public array $place = [null, null, null, null, null];
 
     /** "My area isn't listed": the full address is typed instead. */
@@ -148,7 +148,7 @@ class SubmitProperty extends Component
             'phone' => __('Phone'),
             'type' => __('Property Type'),
             'listing' => __('Listing Type'),
-            'compound' => __('Area / Compound'),
+            'compound' => __('Compound name'),
             'fullAddress' => __('Full address'),
             'place.0' => __('Country'),
             'place.1' => __('City'),

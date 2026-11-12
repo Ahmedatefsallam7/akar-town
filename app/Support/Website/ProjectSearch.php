@@ -21,7 +21,7 @@ class ProjectSearch
     public const OFF_PLAN = 'off-plan';
 
     /**
-     * @param  array{q?: ?string, location?: ?string, type?: mixed, status?: mixed, developer?: mixed, sort?: ?string}  $filters
+     * @param  array{q?: ?string, location?: ?string, compound?: mixed, type?: mixed, status?: mixed, developer?: mixed, sort?: ?string}  $filters
      */
     public static function query(array $filters): Builder
     {
@@ -35,6 +35,10 @@ class ProjectSearch
         }
 
         PropertySearch::inLocation($query, $filters['location'] ?? null);
+
+        if ($compound = SearchOptions::compoundIds('projects', static::first($filters['compound'] ?? null))) {
+            $query->whereIn('sub_area_id', $compound);
+        }
 
         // Lookups the project picked (its unit types, its status).
         foreach (['type' => 'unittype', 'status' => 'projectstatus'] as $filter => $type) {

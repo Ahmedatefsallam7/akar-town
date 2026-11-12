@@ -2,6 +2,7 @@
 
 namespace App\Support\Website;
 
+use Illuminate\Support\Facades\DB;
 use Modules\Developers\Models\Developer;
 use Modules\Locations\Models\Location;
 use Modules\Lookups\Models\Lookup;
@@ -47,6 +48,54 @@ class SearchOptions
             ->get()
             ->mapWithKeys(fn (Lookup $root) => [$root->slug => $root->children->mapWithKeys(fn (Lookup $value) => [$value->slug => ['id' => $value->id, 'name' => $value->getLocalized('name')]])->all()])
             ->all());
+    }
+
+    /**
+     * The compounds (the locations tree's last level, AKAR-46) that hold published properties or projects, for the
+     * listings' Compound filter: a compound with nothing in it isn't offered. Keyed by slug like the other filters;
+     * the same slug under two areas is one choice that covers both.
+     *
+     * @param  'units'|'projects'  $table
+     * @return array<string, string> slug => localized name
+     */
+    public static function compounds(string $table): array
+    {
+        return array_map(fn (array $compound) => $compound['name'], static::compoundsIn($table));
+    }
+
+    /**
+     * The ids of the given compound slugs (unknown ones are ignored), for the search queries.
+     *
+     * @param  'units'|'projects'  $table
+     * @param  array<mixed>|string|null  $slugs
+     * @return list<int>
+     */
+    public static function compoundIds(string $table, array|string|null $slugs): array
+    {
+        $compounds = static::compoundsIn($table);
+
+        return array_values(array_merge([], ...array_map(fn ($slug) => $compounds[$slug]['ids'], array_filter((array) $slugs, fn ($slug) => is_string($slug) && isset($compounds[$slug])))));
+    }
+
+    /**
+     * Read once per request: one query for the compounds used, one for their names.
+     *
+     * @return array<string, array{ids: list<int>, name: string}>
+     */
+    private static function compoundsIn(string $table): array
+    {
+        return once(function () use ($table) {
+            $used = DB::table($table)->where('is_published', true)->whereNull('deleted_at')->whereNotNull('sub_area_id')->distinct()->pluck('sub_area_id');
+
+            return Lookup::query()
+                ->whereIn('id', $used)
+                ->where('is_active', true)
+                ->orderBy('order')->orderBy('name_en')
+                ->get(['id', 'slug', 'name_en', 'name_ar'])
+                ->groupBy('slug')
+                ->map(fn ($same) => ['ids' => $same->pluck('id')->all(), 'name' => $same->first()->getLocalized('name')])
+                ->all();
+        });
     }
 
     /**

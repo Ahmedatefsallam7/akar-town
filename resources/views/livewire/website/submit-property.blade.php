@@ -148,7 +148,7 @@
                         </div>
 
                         <div class="{{ $field }}">
-                            <label for="sp-compound" class="{{ $label }}">{{ __('Area / Compound') }}</label>
+                            <label for="sp-compound" class="{{ $label }}">{{ __('Compound name (if it isn’t in the list)') }}</label>
                             <input id="sp-compound" type="text" wire:model="compound" class="{{ $input }} rtl:font-arabic" placeholder="{{ __('e.g. Katameya Heights') }}" />
                             @error('compound') <span class="{{ $error }}">{{ $message }}</span> @enderror
                         </div>
@@ -158,7 +158,7 @@
                             <div class="grid grid-cols-[repeat(2,minmax(0,1fr))] gap-3 max-[480px]:grid-cols-1">
                                 @foreach ($levels as $level => $options)
                                     <div class="{{ $field }}" wire:key="sp-level-{{ $level }}">
-                                        <label for="sp-place-{{ $level }}" class="{{ $label }}">{{ [__('Country'), __('City'), __('Region'), __('Neighbourhood'), __('Sub-area')][$level] }}</label>
+                                        <label for="sp-place-{{ $level }}" class="{{ $label }}">{{ [__('Country'), __('City'), __('Region'), __('Neighbourhood'), __('Compound')][$level] }}</label>
                                         <div class="relative">
                                             <select id="sp-place-{{ $level }}" wire:model.live="place.{{ $level }}" class="{{ $select }} rtl:font-arabic" :class="! $wire.place[{{ $level }}] && 'text-black/28 dark:text-[rgba(237,232,223,0.2)]'">
                                                 <option value="">{{ __('Select…') }}</option>

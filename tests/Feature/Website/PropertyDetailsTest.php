@@ -213,4 +213,26 @@ class PropertyDetailsTest extends TestCase
 
         $this->assertSame($few, $count(), json_encode(array_count_values(array_column(DB::getQueryLog(), 'query'))));
     }
+
+
+    public function test_the_project_and_the_compound_are_separate_rows(): void
+    {
+        $compound = Lookup::create(['slug' => 'locations', 'name_en' => 'Locations'])
+            ->children()->create(['slug' => 'egypt', 'name_en' => 'Egypt'])
+            ->children()->create(['slug' => 'cairo', 'name_en' => 'Cairo'])
+            ->children()->create(['slug' => 'new-cairo', 'name_en' => 'New Cairo'])
+            ->children()->create(['slug' => 'fifth-settlement', 'name_en' => 'Fifth Settlement'])
+            ->children()->create(['slug' => 'mivida', 'name_en' => 'Mivida', 'name_ar' => 'ميفيدا']);
+        Lookup::fixTree();
+        // The project is in the compound; its unit takes the project's place (a unit without a country of its own does).
+        $project = Project::factory()->create(['title_en' => 'Mivida Gardens', 'is_published' => true, 'sub_area_id' => $compound->id]);
+        $unit = Unit::factory()->create(['project_id' => $project->id]);
+
+        // AKAR-46: "Compound" is the place's last level; the project has its own row.
+        $this->get(route('properties.show', $unit->slug))->assertOk()
+            ->assertSeeInOrder(['Project', 'Mivida Gardens'])
+            ->assertSeeInOrder(['Compound', 'Mivida']);
+        $this->withCookie('locale', 'ar')->get(route('properties.show', $unit->slug))->assertOk()
+            ->assertSee(['المشروع', 'الكمبوند', 'ميفيدا']);
+    }
 }

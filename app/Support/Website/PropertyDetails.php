@@ -76,7 +76,9 @@ class PropertyDetails
                 __('Furnishing') => $name($unit->furnishing_status_id),
                 __('Delivery') => $delivery ? 'Q'.$delivery->quarter.' '.$delivery->year : null,
                 __('Developer') => $unit->project?->developer?->getLocalized('name'),
-                __('Compound') => $unit->project?->getLocalized('title'),
+                __('Project') => $unit->project?->getLocalized('title'),
+                // The place's last level (AKAR-46), not the project: several projects can share a compound.
+                __('Compound') => $unit->sub_area_id ? (LocationTree::path([$unit->sub_area_id]) ?: null) : null,
                 __('Ownership') => $name($unit->ownership_type_id),
                 __('Building Year') => $unit->building_year,
                 __('Status') => $name($unit->unit_status_id),

@@ -774,7 +774,6 @@
     "Submit Another": "اعرض وحدة أخرى",
     "Select type…": "اختر النوع…",
     "Listing Type": "نوع العرض",
-    "Area / Compound": "المنطقة / الكمبوند",
     "e.g. Katameya Heights": "مثلاً: قطامية هايتس",
     "Select…": "اختر…",
     "Unit Area": "مساحة الوحدة",
@@ -787,7 +786,6 @@
     "Country": "الدولة",
     "City": "المدينة",
     "Region": "المنطقة",
-    "Sub-area": "المنطقة الفرعية",
     "Full address": "العنوان بالكامل",
     "Street, district, city": "الشارع، الحي، المدينة",
     "Choose my area from the list": "اختر منطقتي من القائمة",
@@ -851,5 +849,9 @@
     "Interested in this project?": "مهتم بهذا المشروع؟",
     "About This Project": "عن المشروع",
     ":count year|:count years": "{1} سنة واحدة|{2} سنتان|[3,10] :count سنوات|[11,*] :count سنة",
-    "Usage": "الاستخدام"
+    "Usage": "الاستخدام",
+    "Project": "المشروع",
+    "All Compounds": "كل الكمبوندات",
+    "Compound name": "اسم الكمبوند",
+    "Compound name (if it isn’t in the list)": "اسم الكمبوند (إن لم يكن في القائمة)"
 }
