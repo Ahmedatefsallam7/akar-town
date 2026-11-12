@@ -180,4 +180,3 @@ class LayoutTest extends TestCase
         $this->assertStringContainsString('[:root:has([aria-modal=true]:not([style*=none]):not(.opacity-0):not([x-cloak]))_&]:z-1', $html);
     }
 }
-

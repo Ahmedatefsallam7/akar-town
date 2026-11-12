@@ -186,4 +186,3 @@ class WebsitePerformanceTest extends TestCase
         $this->assertGreaterThan(10, substr_count($html, '<use href="#splash-sketch-'));
     }
 }
-
