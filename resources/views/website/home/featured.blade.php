@@ -6,9 +6,9 @@
 --}}
 @php
     $reveal = 'opacity-0 [transform:translateY(30px)]';
-    $action = 'relative flex size-9 cursor-pointer items-center justify-center rounded-full border bg-transparent p-0 transition-all duration-250 ease-smooth';
-    $actionIcon = 'pointer-events-none size-[15px] fill-none stroke-current stroke-[1.6] transition-all duration-250 ease-smooth [stroke-linecap:round] [stroke-linejoin:round]';
-    $thumbArrow = 'flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-ink-30 bg-page p-0 text-ink transition-all duration-280 hover:border-ink hover:bg-ink hover:text-paper disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-25';
+    $action = 'relative flex size-9 cursor-pointer items-center justify-center rounded-full border bg-transparent p-0 transition-all duration-180 ease-smooth';
+    $actionIcon = 'pointer-events-none size-[15px] fill-none stroke-current stroke-[1.6] transition-all duration-180 ease-smooth [stroke-linecap:round] [stroke-linejoin:round]';
+    $thumbArrow = 'flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-ink-30 bg-page p-0 text-ink transition-all duration-200 hover:border-ink hover:bg-ink hover:text-paper disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-25';
 @endphp
 
 <section id="properties" x-data="featuredUnits(@js($featured))" @mouseenter="stop()" @mouseleave="start()" class="relative bg-page pt-[72px] pb-[90px]">
@@ -27,7 +27,7 @@
                 {{-- Photo + the properties' thumbnails --}}
                 <div class="relative pb-14 max-lg:pb-0!">
                     <div x-ref="mainWrap" class="group/img relative h-[515px] w-full overflow-hidden rounded-[20px] bg-ink-10 max-lg:h-[380px]! max-md:h-[280px]!">
-                        <img x-ref="main" loading="lazy" :src="current.images[0]" :srcset="current.srcset" :alt="current.title" src="{{ $featured[0]['images'][0] ?? '' }}" srcset="{{ $featured[0]['srcset'] ?? '' }}" sizes="(max-width: 1024px) 100vw, 60vw" alt="{{ $featured[0]['title'] }}" loading="eager" class="size-full object-cover transition-transform duration-700 ease-smooth will-change-[transform,opacity] group-hover/img:scale-103" />
+                        <img x-ref="main" loading="lazy" :src="current.images[0]" :srcset="current.srcset" :alt="current.title" src="{{ $featured[0]['images'][0] ?? '' }}" srcset="{{ $featured[0]['srcset'] ?? '' }}" sizes="(max-width: 1024px) 100vw, 60vw" alt="{{ $featured[0]['title'] }}" loading="eager" class="size-full object-cover transition-transform duration-340 ease-smooth will-change-[transform,opacity] group-hover/img:scale-103" />
                     </div>
                     <div class="absolute bottom-[75px] left-[26%] z-10 flex w-[calc(100%+280px)] items-center gap-3 rtl:right-[26%] rtl:left-auto max-lg:relative! max-lg:inset-auto! max-lg:mt-[10px]! max-lg:w-full! max-lg:p-0!">
                         <div class="flex min-w-0 flex-1 flex-nowrap gap-2">
@@ -37,10 +37,10 @@
                                     data-unit-thumb
                                     @click="go({{ $i }})"
                                     aria-label="{{ $unit['title'] }}"
-                                    class="group/thumb relative aspect-[4/3] min-w-0 flex-1 basis-0 cursor-pointer overflow-hidden rounded-[7px] border-[3px] bg-none p-0 transition-[border-color] duration-300 after:pointer-events-none after:absolute after:inset-0 after:bg-[rgba(13,13,13,0.32)] after:transition-opacity after:duration-300 hover:after:opacity-0"
+                                    class="group/thumb relative aspect-[4/3] min-w-0 flex-1 basis-0 cursor-pointer overflow-hidden rounded-[7px] border-[3px] bg-none p-0 transition-[border-color] duration-210 after:pointer-events-none after:absolute after:inset-0 after:bg-[rgba(13,13,13,0.32)] after:transition-opacity after:duration-210 hover:after:opacity-0"
                                     :class="idx === {{ $i }} ? 'border-brand after:opacity-0' : 'border-white'"
                                 >
-                                    <img src="{{ $unit['cover'] }}" srcset="{{ $unit['coverSet'] }}" sizes="(max-width: 1024px) 20vw, 120px" alt="" loading="{{ $i === 0 ? 'eager' : 'lazy' }}" class="block size-full object-cover transition-transform duration-500 group-hover/thumb:scale-107" />
+                                    <img src="{{ $unit['cover'] }}" srcset="{{ $unit['coverSet'] }}" sizes="(max-width: 1024px) 20vw, 120px" alt="" loading="{{ $i === 0 ? 'eager' : 'lazy' }}" class="block size-full object-cover transition-transform duration-240 group-hover/thumb:scale-107" />
                                 </button>
                             @endforeach
                         </div>
@@ -143,9 +143,9 @@
                             <div class="mb-1.5 text-[10px] font-medium tracking-[0.2em] text-brand uppercase">{{ __('Starting Price') }}</div>
                             <div class="text-[clamp(24px,2.5vw,34px)] leading-none font-semibold text-brand-dk tabular-nums" x-text="current.price ?? '—'"></div>
                         </div>
-                        <a :href="current.url" class="group inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-full border-none bg-brand px-[30px] py-[14px] font-sans text-[13px] leading-none font-[650] tracking-[0.055em] whitespace-nowrap text-white transition-all duration-300 ease-out-ex hover:-translate-y-0.5 hover:bg-brand-lt hover:text-ink rtl:font-arabic">
+                        <a :href="current.url" class="group inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-full border-none bg-brand px-[30px] py-[14px] font-sans text-[13px] leading-none font-[650] tracking-[0.055em] whitespace-nowrap text-white transition-all duration-210 ease-out-ex hover:-translate-y-0.5 hover:bg-brand-lt hover:text-ink rtl:font-arabic">
                             {{ __('Explore') }}
-                            <x-website.icons.arrow class="size-[14px] transition-transform duration-300 ease-out-ex group-hover:translate-x-1 rtl:-scale-x-100 rtl:group-hover:-translate-x-1" />
+                            <x-website.icons.arrow class="size-[14px] transition-transform duration-210 ease-out-ex group-hover:translate-x-1 rtl:-scale-x-100 rtl:group-hover:-translate-x-1" />
                         </a>
                     </div>
                 </div>

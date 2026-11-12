@@ -26,7 +26,7 @@
 >
     <div class="relative aspect-[16/10] shrink-0 overflow-hidden">
         @if ($card['image'])
-            <img src="{{ $card['image'] }}" alt="{{ $card['title'] }}" loading="lazy" class="size-full object-cover transition-transform duration-650 ease-out-ex group-hover/card:scale-106" />
+            <img src="{{ $card['image'] }}" alt="{{ $card['title'] }}" loading="lazy" class="size-full object-cover transition-transform duration-320 ease-out-ex group-hover/card:scale-106" />
         @else
             <div class="size-full bg-night"></div>
         @endif
@@ -115,10 +115,10 @@
         <a
             href="{{ $card['url'] }}"
             @click.stop
-            class="group/details ms-auto flex items-center gap-1.5 leading-[normal] rounded-full border-[1.5px] border-white/65 bg-white/48 px-4 py-[7px] text-[11px] font-medium tracking-[0.04em] whitespace-nowrap text-brand-dk shadow-[0_2px_16px_rgba(0,0,0,0.08),0_1px_4px_rgba(0,0,0,0.05)] backdrop-blur-[16px] backdrop-saturate-180 transition-all duration-280 ease-out-ex hover:border-[rgba(200,16,46,0.35)] hover:bg-[rgba(200,16,46,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.07)] dark:border-[rgba(237,232,223,0.13)] dark:bg-[rgba(28,25,18,0.8)] dark:text-ink dark:hover:border-[rgba(200,16,46,0.35)] dark:hover:bg-[rgba(40,35,24,0.9)] dark:hover:text-brand rtl:font-arabic"
+            class="group/details ms-auto flex items-center gap-1.5 leading-[normal] rounded-full border-[1.5px] border-white/65 bg-white/48 px-4 py-[7px] text-[11px] font-medium tracking-[0.04em] whitespace-nowrap text-brand-dk shadow-[0_2px_16px_rgba(0,0,0,0.08),0_1px_4px_rgba(0,0,0,0.05)] backdrop-blur-[16px] backdrop-saturate-180 transition-all duration-200 ease-out-ex hover:border-[rgba(200,16,46,0.35)] hover:bg-[rgba(200,16,46,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.07)] dark:border-[rgba(237,232,223,0.13)] dark:bg-[rgba(28,25,18,0.8)] dark:text-ink dark:hover:border-[rgba(200,16,46,0.35)] dark:hover:bg-[rgba(40,35,24,0.9)] dark:hover:text-brand rtl:font-arabic"
         >
             {{ __('View Project') }}
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-250 ease-out-ex group-hover/details:translate-x-[3px] rtl:-scale-x-100 rtl:group-hover/details:-translate-x-[3px]" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-180 ease-out-ex group-hover/details:translate-x-[3px] rtl:-scale-x-100 rtl:group-hover/details:-translate-x-[3px]" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
         </a>
     </div>
 </article>

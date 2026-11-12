@@ -64,7 +64,7 @@
                     @if ($card['track']) @click="$track(@js($card['track']))" @endif
                     class="group/cta flex items-center gap-[18px] rounded-2xl border border-white/9 bg-white/4 px-[22px] py-5 backdrop-blur-[24px] [transition:background_0.28s_var(--ease-out-ex),border-color_0.28s,translate_0.28s_var(--ease-out-ex)] hover:translate-x-[5px] hover:border-[rgba(200,16,46,0.32)] hover:bg-[rgba(200,16,46,0.1)] rtl:hover:-translate-x-[5px] max-md:hover:translate-x-0!"
                 >
-                    <span class="grid size-11 shrink-0 place-items-center rounded-xl bg-[rgba(200,16,46,0.14)] text-brand transition-[background] duration-280 group-hover/cta:bg-[rgba(200,16,46,0.24)]" aria-hidden="true">{!! $card['icon'] !!}</span>
+                    <span class="grid size-11 shrink-0 place-items-center rounded-xl bg-[rgba(200,16,46,0.14)] text-brand transition-[background] duration-200 group-hover/cta:bg-[rgba(200,16,46,0.24)]" aria-hidden="true">{!! $card['icon'] !!}</span>
                     <span class="min-w-0 flex-1">
                         <span class="mb-[3px] block text-[13px] font-semibold text-white rtl:font-arabic">{{ $card['label'] }}</span>
                         <span class="block text-[11px] tracking-[0.02em] text-white/38">{{ $card['sub'] }}</span>

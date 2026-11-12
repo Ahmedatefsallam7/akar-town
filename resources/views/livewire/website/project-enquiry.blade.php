@@ -78,7 +78,7 @@
             <button
                 type="submit"
                 wire:loading.attr="disabled"
-                class="mt-1 flex w-full cursor-pointer items-center justify-center gap-[9px] rounded-full border border-white/18 bg-[linear-gradient(135deg,rgba(215,20,52,0.96)_0%,rgb(185,10,36)_100%)] px-6 py-[15px] font-sans text-[12px] leading-[normal] font-bold tracking-[0.12em] text-white uppercase transition-[translate,opacity] duration-250 ease-out-ex hover:-translate-y-0.5 disabled:translate-y-0 disabled:cursor-default disabled:opacity-65 rtl:font-arabic rtl:tracking-normal"
+                class="mt-1 flex w-full cursor-pointer items-center justify-center gap-[9px] rounded-full border border-white/18 bg-[linear-gradient(135deg,rgba(215,20,52,0.96)_0%,rgb(185,10,36)_100%)] px-6 py-[15px] font-sans text-[12px] leading-[normal] font-bold tracking-[0.12em] text-white uppercase transition-[translate,opacity] duration-180 ease-out-ex hover:-translate-y-0.5 disabled:translate-y-0 disabled:cursor-default disabled:opacity-65 rtl:font-arabic rtl:tracking-normal"
             >
                 <span>{{ __('Send Enquiry') }}</span>
                 <span wire:loading wire:target="send" class="size-[13px] animate-spin rounded-full border-2 border-white border-x-white/35 border-b-white/35" aria-hidden="true"></span>

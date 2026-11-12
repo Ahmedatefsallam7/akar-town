@@ -5,9 +5,9 @@
     then "What to Expect" (Settings → Developer Details cards, as in Dastan; not in the design).
 --}}
 @php
-    $reveal = 'opacity-0 [transform:translateY(32px)] transition-[opacity,transform] duration-900 ease-out-ex [&.is-in]:opacity-100 [&.is-in]:[transform:none]';
+    $reveal = 'opacity-0 [transform:translateY(32px)] transition-[opacity,transform] duration-440 ease-out-ex [&.is-in]:opacity-100 [&.is-in]:[transform:none]';
     $intersect = 'x-intersect.once.threshold.12="$el.classList.add(\'is-in\')"';
-    $badge = 'inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/5.5 py-1.5 ps-2.5 pe-3.5 text-[10px] font-semibold tracking-[0.09em] text-white/62 uppercase backdrop-blur-[12px] transition-[border-color,background] duration-250 hover:border-white/22 hover:bg-white/9 max-[600px]:py-[5px] max-[600px]:ps-2 max-[600px]:pe-[11px] max-[600px]:text-[9px] rtl:font-arabic rtl:tracking-normal';
+    $badge = 'inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/5.5 py-1.5 ps-2.5 pe-3.5 text-[10px] font-semibold tracking-[0.09em] text-white/62 uppercase backdrop-blur-[12px] transition-[border-color,background] duration-180 hover:border-white/22 hover:bg-white/9 max-[600px]:py-[5px] max-[600px]:ps-2 max-[600px]:pe-[11px] max-[600px]:text-[9px] rtl:font-arabic rtl:tracking-normal';
     $badgeIcon = 'size-3.5 shrink-0 opacity-80';
     $icons = [
         'instagram' => '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>',
@@ -54,7 +54,7 @@
         <div class="relative z-5 flex flex-1 flex-col">
             <div class="flex flex-1 flex-col items-center justify-center px-20 pt-[calc(var(--spacing-nav)+80px)] pb-20 text-center max-md:px-6 max-md:pb-14">
                 {{-- Logo in breathing rings --}}
-                <div class="relative mb-2.5 flex size-[100px] items-center justify-center before:absolute before:-inset-3 before:animate-ring-breathe before:rounded-full before:border before:border-[rgba(200,16,46,0.3)] after:absolute after:-inset-6 after:animate-ring-breathe after:rounded-full after:border after:border-[rgba(200,16,46,0.14)] after:[animation-delay:0.9s]" role="img" aria-label="{{ __(':name logo', ['name' => $name]) }}">
+                <div class="relative mb-2.5 flex size-[100px] items-center justify-center before:absolute before:-inset-3 before:animate-ring-breathe before:rounded-full before:border before:border-[rgba(200,16,46,0.3)] after:absolute after:-inset-6 after:animate-ring-breathe after:rounded-full after:border after:border-[rgba(200,16,46,0.14)] after:[animation-delay:0.68s]" role="img" aria-label="{{ __(':name logo', ['name' => $name]) }}">
                     <div class="relative z-1 flex size-[100px] items-center justify-center overflow-hidden rounded-full border-[1.5px] border-[rgba(200,16,46,0.5)] bg-[rgba(13,11,8,0.75)] shadow-[0_0_0_1px_rgba(255,255,255,0.06),0_8px_40px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-[24px] backdrop-saturate-160">
                         @if ($logo)
                             <img src="{{ $logo }}" alt="" class="size-full object-contain p-3" />
@@ -107,7 +107,7 @@
                 <div class="pointer-events-none absolute -top-3.5 right-3.5 bottom-3.5 -left-3.5 z-0 rounded-[20px] border border-[rgba(200,16,46,0.22)] dark:border-[rgba(200,16,46,0.12)] rtl:right-[-14px] rtl:left-3.5 max-[960px]:hidden" aria-hidden="true"></div>
                 <div class="group/photo relative z-1 aspect-[4/3] overflow-hidden rounded-2xl bg-ink-10 after:pointer-events-none after:absolute after:inset-0 after:z-2 after:bg-[linear-gradient(to_bottom,transparent_45%,rgba(7,6,10,0.5)_100%)]">
                     @if ($storyPhoto)
-                        <img src="{{ $storyPhoto }}" alt="{{ __('A project by :name', ['name' => $name]) }}" loading="lazy" class="block size-full object-cover transition-transform duration-900 ease-out-ex group-hover/photo:scale-104" />
+                        <img src="{{ $storyPhoto }}" alt="{{ __('A project by :name', ['name' => $name]) }}" loading="lazy" class="block size-full object-cover transition-transform duration-440 ease-out-ex group-hover/photo:scale-104" />
                     @endif
                 </div>
 
@@ -116,7 +116,7 @@
                         <span class="mb-3.5 block text-[8.5px] font-bold tracking-[0.22em] text-white/35 uppercase rtl:font-arabic rtl:tracking-normal">{{ __('Follow us on') }}</span>
                         <div class="flex flex-wrap gap-2">
                             @foreach ($socials as $network => $url)
-                                <a href="{{ $url }}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-[7px] rounded-lg border border-white/10 bg-white/4 py-[7px] ps-[9px] pe-3 text-[10.5px] font-medium tracking-[0.02em] whitespace-nowrap text-white/70 no-underline transition-[border-color,background,color] duration-250 hover:border-[rgba(200,16,46,0.45)] hover:bg-[rgba(200,16,46,0.1)] hover:text-white [&_svg]:shrink-0 [&_svg]:opacity-80" aria-label="{{ $networks[$network] }}">
+                                <a href="{{ $url }}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-[7px] rounded-lg border border-white/10 bg-white/4 py-[7px] ps-[9px] pe-3 text-[10.5px] font-medium tracking-[0.02em] whitespace-nowrap text-white/70 no-underline transition-[border-color,background,color] duration-180 hover:border-[rgba(200,16,46,0.45)] hover:bg-[rgba(200,16,46,0.1)] hover:text-white [&_svg]:shrink-0 [&_svg]:opacity-80" aria-label="{{ $networks[$network] }}">
                                     {!! $icons[$network] !!}
                                     {{ $networks[$network] }}
                                 </a>
@@ -129,9 +129,9 @@
             {{-- Text --}}
             <div class="flex flex-col justify-center">
                 <p {!! $intersect !!} class="{{ $reveal }} mb-5 block text-[10px] font-bold tracking-[0.26em] text-brand uppercase rtl:font-arabic rtl:tracking-normal">{{ __('Our Story') }}</p>
-                <h2 {!! $intersect !!} class="{{ $reveal }} mb-[22px] font-sans text-[clamp(36px,4.2vw,58px)] leading-[1.1] font-light tracking-[-0.01em] text-ink delay-120 rtl:font-arabic rtl:leading-[1.3] [&_em]:text-brand [&_em]:not-italic">{!! __('About <em>:name</em>', ['name' => e($name)]) !!}</h2>
+                <h2 {!! $intersect !!} class="{{ $reveal }} mb-[22px] font-sans text-[clamp(36px,4.2vw,58px)] leading-[1.1] font-light tracking-[-0.01em] text-ink delay-60 rtl:font-arabic rtl:leading-[1.3] [&_em]:text-brand [&_em]:not-italic">{!! __('About <em>:name</em>', ['name' => e($name)]) !!}</h2>
                 @if ($description)
-                    <div {!! $intersect !!} class="{{ $reveal }} text-[15px] leading-[1.9] font-light text-ink-60 delay-240 [&_p]:mb-4 [&_ul]:mb-4 [&_ul]:list-disc [&_ul]:ps-5 [&_strong]:font-medium [&_strong]:text-ink">{!! $description !!}</div>
+                    <div {!! $intersect !!} class="{{ $reveal }} text-[15px] leading-[1.9] font-light text-ink-60 delay-120 [&_p]:mb-4 [&_ul]:mb-4 [&_ul]:list-disc [&_ul]:ps-5 [&_strong]:font-medium [&_strong]:text-ink">{!! $description !!}</div>
                 @endif
             </div>
         </div>

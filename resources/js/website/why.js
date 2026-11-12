@@ -40,10 +40,10 @@ export default () => ({
 
         const reveal = [...root.querySelectorAll('[data-why-reveal]')]
         reveal.forEach((el, i) => (el.dataset.whyDelay = i * 0.08))
-        observe(reveal, 0.15, (el) => gsap.to(el, { y: 0, opacity: 1, duration: 0.72, delay: +el.dataset.whyDelay, ease: 'power3.out' }))
+        observe(reveal, 0.15, (el) => gsap.to(el, { y: 0, opacity: 1, duration: 0.35, delay: +el.dataset.whyDelay, ease: 'power3.out' }))
 
         const clip = root.querySelector('[x-ref="clip"]')
-        observe([clip.closest('svg').parentElement], 0.2, () => gsap.to(clip, { attr: { width: 790 }, duration: 1.5, ease: 'none', delay: 0.2 }))
+        observe([clip.closest('svg').parentElement], 0.2, () => gsap.to(clip, { attr: { width: 790 }, duration: 0.73, ease: 'none', delay: 0.2 }))
 
         observe(root.querySelectorAll('[data-stage]'), 0.2, (stage) => {
             stage.classList.remove('translate-y-[30px]', 'opacity-0')

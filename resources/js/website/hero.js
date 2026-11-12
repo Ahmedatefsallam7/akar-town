@@ -86,14 +86,14 @@ export default (slides) => ({
             gsap.killTweensOf(els)
             gsap.set(els, { opacity: 0, y: 28, filter: 'blur(10px)' })
             const tl = gsap.timeline()
-            els.forEach((el, i) => tl.to(el, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.78, ease: 'text.in' }, i * 0.11))
+            els.forEach((el, i) => tl.to(el, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.39, ease: 'text.in' }, i * 0.11))
             return tl
         }
         const textOut = (slideEl) => {
             if (REDUCED) return
             const els = [...slideEl.querySelectorAll(TEXT)]
             gsap.killTweensOf(els)
-            return gsap.to(els.reverse(), { opacity: 0, y: -16, filter: 'blur(6px)', duration: 0.35, ease: 'power2.in', stagger: 0.06 })
+            return gsap.to(els.reverse(), { opacity: 0, y: -16, filter: 'blur(6px)', duration: 0.24, ease: 'power2.in', stagger: 0.04 })
         }
 
         /* Liquid displacement wipe: the outgoing slide is clipped by a wavy diagonal seam sweeping across, with a
@@ -150,8 +150,8 @@ export default (slides) => ({
 
             if (REDUCED) {
                 gsap.set(toSlide, { opacity: 0 })
-                tl.to(fromSlide, { opacity: 0, duration: 0.4 })
-                    .to(toSlide, { opacity: 1, duration: 0.4 }, 0)
+                tl.to(fromSlide, { opacity: 0, duration: 0.2 })
+                    .to(toSlide, { opacity: 1, duration: 0.2 }, 0)
                     .add(() => gsap.set(fromSlide, { opacity: 1 }))
                 return
             }
@@ -290,7 +290,7 @@ export default (slides) => ({
                 },
                 touchEnd(sw) {
                     const bg = sw.slides[activeIdx]?.querySelector('[data-bg]')
-                    if (bg) gsap.to(bg, { x: 0, duration: 0.5, ease: 'smooth' })
+                    if (bg) gsap.to(bg, { x: 0, duration: 0.24, ease: 'smooth' })
                 },
             },
         })
@@ -312,15 +312,15 @@ export default (slides) => ({
         $$('[data-nav-btn]').forEach((btn) => {
             btn.addEventListener('mousemove', (e) => {
                 const r = btn.getBoundingClientRect()
-                gsap.to(btn, { x: (e.clientX - r.left - r.width / 2) * 0.35, y: (e.clientY - r.top - r.height / 2) * 0.35, duration: 0.3, ease: 'power2.out', overwrite: true })
+                gsap.to(btn, { x: (e.clientX - r.left - r.width / 2) * 0.35, y: (e.clientY - r.top - r.height / 2) * 0.35, duration: 0.21, ease: 'power2.out', overwrite: true })
             })
-            btn.addEventListener('mouseleave', () => gsap.to(btn, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1,0.4)', overwrite: true }))
+            btn.addEventListener('mouseleave', () => gsap.to(btn, { x: 0, y: 0, duration: 0.24, ease: 'elastic.out(1,0.4)', overwrite: true }))
         })
 
         /* The entry (navbar, photo, thumbnails, tag, progress, arrows, first slide's text) is played by CSS as the splash
            parts (animate-hero-* in the views), so it doesn't wait for this script; the slider only starts its autoplay
-           once that entry is over (about 2.5 s after the page started). */
-        setTimeout(startAutoplay, Math.max(0, 2500 - performance.now()))
+           once that entry is over (about 1.9 s after the page started). */
+        setTimeout(startAutoplay, Math.max(0, 1900 - performance.now()))
 
         previews = previewDeck(root, slides, () => activeIdx)
     },
@@ -503,8 +503,8 @@ function previewDeck(heroEl, slides, getActive) {
         })
         const offsets = cards.map((c) => c.in)
         gsap.timeline({ onUpdate: () => cards.forEach(paint), onComplete: measure })
-            .to(offsets, { x: 0, y: 0, rot: 0, scale: 1, duration: 0.9, ease: 'expo.out', stagger: 0.1 }, 0)
-            .to(offsets, { op: 1, duration: 0.55, ease: 'power2.out', stagger: 0.1 }, 0)
+            .to(offsets, { x: 0, y: 0, rot: 0, scale: 1, duration: 0.44, ease: 'expo.out', stagger: 0.07 }, 0)
+            .to(offsets, { op: 1, duration: 0.27, ease: 'power2.out', stagger: 0.07 }, 0)
     }
     const setActive = (index) => {
         activeLocal = index

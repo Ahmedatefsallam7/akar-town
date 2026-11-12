@@ -57,7 +57,7 @@
 
         {{-- Hero: details + photos --}}
         <section x-ref="hero" class="grid min-h-[calc(100vh-var(--spacing-nav)-44px)] grid-cols-[38fr_62fr] items-start bg-page max-[960px]:grid-cols-1">
-            <div class="flex flex-col py-[52px] pr-11 pl-[52px] *:animate-fade-up rtl:pr-[52px] rtl:pl-11 max-[960px]:px-6! max-[960px]:pt-9! max-[960px]:pb-7! [&>*:nth-child(1)]:[animation-delay:0.08s] [&>*:nth-child(2)]:[animation-delay:0.15s] [&>*:nth-child(3)]:[animation-delay:0.21s] [&>*:nth-child(4)]:[animation-delay:0.27s] [&>*:nth-child(5)]:[animation-delay:0.33s] [&>*:nth-child(6)]:[animation-delay:0.39s] [&>*:nth-child(7)]:[animation-delay:0.44s]">
+            <div class="flex flex-col py-[52px] pr-11 pl-[52px] *:animate-fade-up rtl:pr-[52px] rtl:pl-11 max-[960px]:px-6! max-[960px]:pt-9! max-[960px]:pb-7! [&>*:nth-child(1)]:[animation-delay:0.06s] [&>*:nth-child(2)]:[animation-delay:0.11s] [&>*:nth-child(3)]:[animation-delay:0.16s] [&>*:nth-child(4)]:[animation-delay:0.2s] [&>*:nth-child(5)]:[animation-delay:0.25s] [&>*:nth-child(6)]:[animation-delay:0.29s] [&>*:nth-child(7)]:[animation-delay:0.33s]">
                 <div class="mb-5 flex flex-wrap items-center gap-[14px]">
                     @if ($p['year'])
                         <span class="text-[11px] font-medium tracking-[0.14em] text-ink-60">{{ __('Delivery :year', ['year' => $p['year']]) }}</span>
@@ -106,7 +106,7 @@
                     <button
                         type="button"
                         @click="pdf()"
-                        class="inline-flex cursor-pointer items-center gap-2 rounded-full border border-brand bg-brand px-[26px] py-[13px] font-sans text-[13px] leading-none font-[650] tracking-[0.055em] text-white backdrop-blur-[12px] transition-all duration-300 hover:-translate-y-0.5 hover:border-[rgb(165,13,38)] hover:bg-[rgb(165,13,38)] dark:border-white/30 dark:bg-white/10 dark:hover:border-white/70 dark:hover:bg-white/20 rtl:font-arabic"
+                        class="inline-flex cursor-pointer items-center gap-2 rounded-full border border-brand bg-brand px-[26px] py-[13px] font-sans text-[13px] leading-none font-[650] tracking-[0.055em] text-white backdrop-blur-[12px] transition-all duration-210 hover:-translate-y-0.5 hover:border-[rgb(165,13,38)] hover:bg-[rgb(165,13,38)] dark:border-white/30 dark:bg-white/10 dark:hover:border-white/70 dark:hover:bg-white/20 rtl:font-arabic"
                         aria-label="{{ __('Download property PDF') }}"
                     >
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{!! $pdfIcon !!}</svg>
@@ -116,7 +116,7 @@
                     <button
                         type="button"
                         @click="$track('form', { unit_id: {{ $p['id'] }} }); $dispatch('schedule-viewing')"
-                        class="inline-flex cursor-pointer items-center gap-2 rounded-full border-[1.5px] border-white/65 bg-white/48 px-[26px] py-[13px] font-sans text-[13px] leading-none font-[650] tracking-[0.055em] whitespace-nowrap text-brand-dk shadow-[0_2px_16px_rgba(0,0,0,0.08),0_1px_4px_rgba(0,0,0,0.05)] backdrop-blur-[20px] backdrop-saturate-200 transition-all duration-350 ease-out-ex hover:-translate-y-0.5 dark:border-white/28 dark:bg-transparent dark:text-white dark:shadow-none dark:backdrop-blur-none dark:hover:border-white/48 dark:hover:bg-white/8 rtl:font-arabic [&_svg]:rtl:-scale-x-100"
+                        class="inline-flex cursor-pointer items-center gap-2 rounded-full border-[1.5px] border-white/65 bg-white/48 px-[26px] py-[13px] font-sans text-[13px] leading-none font-[650] tracking-[0.055em] whitespace-nowrap text-brand-dk shadow-[0_2px_16px_rgba(0,0,0,0.08),0_1px_4px_rgba(0,0,0,0.05)] backdrop-blur-[20px] backdrop-saturate-200 transition-all duration-240 ease-out-ex hover:-translate-y-0.5 dark:border-white/28 dark:bg-transparent dark:text-white dark:shadow-none dark:backdrop-blur-none dark:hover:border-white/48 dark:hover:bg-white/8 rtl:font-arabic [&_svg]:rtl:-scale-x-100"
                     >{!! $schedule !!}<span>{{ __('Schedule a Visit') }}</span></button>
                 </div>
             </div>
@@ -136,7 +136,7 @@
                             data-photo="{{ $i }}"
                             alt="{{ $p['title'] }}"
                             {{-- The first photo shows and the others are hidden from the first paint (not only once Alpine runs). --}}
-                            @class(['pointer-events-none absolute inset-0 size-full object-cover transition-opacity duration-600 ease-out-ex', 'z-1 opacity-100' => $i === 0, 'opacity-0' => $i !== 0])
+                            @class(['pointer-events-none absolute inset-0 size-full object-cover transition-opacity duration-290 ease-out-ex', 'z-1 opacity-100' => $i === 0, 'opacity-0' => $i !== 0])
                             :class="{ 'z-1 opacity-100': current === {{ $i }}, 'opacity-0': current !== {{ $i }} }"
                         />
                     @empty
@@ -279,7 +279,7 @@
                                 <div x-show="more" x-cloak style="display: none" class="[&_p]:mb-4 [&_p]:text-[16px] [&_p]:leading-[1.8] [&_p]:text-ink-60">{!! $p['more'] !!}</div>
                                 <button type="button" @click="more = ! more" class="inline-flex cursor-pointer items-center gap-1.5 border-none bg-none p-0 text-[13px] font-semibold tracking-[0.02em] text-brand underline underline-offset-3 transition-colors duration-200 hover:text-brand-dk">
                                     <span x-text="more ? @js(__('Read Less')) : @js(__('Read More'))">{{ __('Read More') }}</span>
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="size-[14px] transition-[rotate] duration-300 ease-smooth" :class="more && 'rotate-180'" aria-hidden="true"><polyline points="6 9 12 15 18 9" /></svg>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="size-[14px] transition-[rotate] duration-210 ease-smooth" :class="more && 'rotate-180'" aria-hidden="true"><polyline points="6 9 12 15 18 9" /></svg>
                                 </button>
                             @endif
                         </div>
@@ -380,7 +380,7 @@
                             @endif
                         </p>
                         <div class="mb-5 h-px bg-white/8 dark:bg-[rgba(237,232,223,0.08)]"></div>
-                        @php($cardButton = 'mb-[10px] inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-full px-[26px] py-[13px] font-sans text-[13px] leading-none font-[650] tracking-[0.055em] whitespace-nowrap text-white transition-all duration-350 ease-out-ex hover:-translate-y-0.5 rtl:font-arabic')
+                        @php($cardButton = 'mb-[10px] inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-full px-[26px] py-[13px] font-sans text-[13px] leading-none font-[650] tracking-[0.055em] whitespace-nowrap text-white transition-all duration-240 ease-out-ex hover:-translate-y-0.5 rtl:font-arabic')
                         <button type="button" @click="$track('form', { unit_id: {{ $p['id'] }} }); $dispatch('schedule-viewing')" class="{{ $cardButton }} border-[1.5px] border-white/30 bg-white/15 backdrop-blur-[8px] hover:border-white/50 hover:bg-white/25 dark:border-[rgba(212,20,44,0.35)] dark:bg-[rgba(212,20,44,0.2)] dark:hover:bg-[rgba(212,20,44,0.32)]">{!! $schedule !!}<span>{{ __('Schedule Viewing') }}</span></button>
                         {{-- when the user fill the form it will tracked --}}
                         <a href="{{ route('contact', ['property' => $slug]) }}" @click="$track('form', { unit_id: {{ $p['id'] }} })" class="{{ $cardButton }} border-[1.5px] border-white/25 bg-white/6 hover:border-white/50 hover:bg-white/13 dark:border-[rgba(237,232,223,0.14)] dark:bg-[rgba(237,232,223,0.06)] dark:hover:bg-[rgba(237,232,223,0.1)]">
@@ -499,13 +499,13 @@
                         </div>
                     </div>
                 </div>
-                @php($simNav = 'flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-ink-10 bg-transparent p-0 text-ink transition-all duration-300 hover:scale-106 hover:border-ink hover:bg-ink hover:text-paper [&.is-disabled]:pointer-events-none [&.is-disabled]:cursor-not-allowed [&.is-disabled]:opacity-25')
+                @php($simNav = 'flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-ink-10 bg-transparent p-0 text-ink transition-all duration-210 hover:scale-106 hover:border-ink hover:bg-ink hover:text-paper [&.is-disabled]:pointer-events-none [&.is-disabled]:cursor-not-allowed [&.is-disabled]:opacity-25')
                 <div class="mx-auto mt-8 flex max-w-[1280px] items-center gap-5">
                     <button type="button" x-ref="similarPrev" class="{{ $simNav }}" aria-label="{{ __('Previous') }}">
                         <x-website.icons.arrow class="size-[15px] -scale-x-100 stroke-[1.8] rtl:scale-x-100" />
                     </button>
                     <div class="h-0.5 flex-1 overflow-hidden rounded-[2px] bg-ink-10">
-                        <div x-ref="similarFill" class="h-full w-0 rounded-[2px] bg-brand transition-[width] duration-250"></div>
+                        <div x-ref="similarFill" class="h-full w-0 rounded-[2px] bg-brand transition-[width] duration-180"></div>
                     </div>
                     <button type="button" x-ref="similarNext" class="{{ $simNav }}" aria-label="{{ __('Next') }}">
                         <x-website.icons.arrow class="size-[15px] stroke-[1.8] rtl:-scale-x-100" />

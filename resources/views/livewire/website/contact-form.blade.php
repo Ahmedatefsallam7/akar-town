@@ -61,7 +61,7 @@
                         }"
                     >
                         <span x-text="options[$wire.interest] ?? @js(__('Select an option'))">{{ __('Select an option') }}</span>
-                        <svg width="12" height="8" viewBox="0 0 12 8" fill="none" aria-hidden="true" class="shrink-0 transition-transform duration-300 ease-out-ex" :class="open ? 'rotate-180 text-brand' : 'text-ink-30'"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                        <svg width="12" height="8" viewBox="0 0 12 8" fill="none" aria-hidden="true" class="shrink-0 transition-transform duration-210 ease-out-ex" :class="open ? 'rotate-180 text-brand' : 'text-ink-30'"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
                     </button>
                     <div
                         role="listbox"
@@ -93,7 +93,7 @@
             </div>
 
             <div class="mt-2 self-start">
-                <button type="submit" wire:loading.attr="disabled" class="group inline-flex cursor-pointer items-center gap-2 rounded-full border border-white/20 bg-[linear-gradient(135deg,rgba(215,20,52,0.96)_0%,rgb(185,10,36)_100%)] px-[30px] py-[14px] font-sans text-[13px] leading-none font-[650] tracking-[0.055em] whitespace-nowrap text-white backdrop-blur-[20px] transition-all duration-300 ease-out-ex hover:-translate-y-0.5 hover:bg-[linear-gradient(135deg,rgba(225,25,58,0.98)_0%,rgb(200,16,46)_100%)] disabled:opacity-60 rtl:font-arabic">
+                <button type="submit" wire:loading.attr="disabled" class="group inline-flex cursor-pointer items-center gap-2 rounded-full border border-white/20 bg-[linear-gradient(135deg,rgba(215,20,52,0.96)_0%,rgb(185,10,36)_100%)] px-[30px] py-[14px] font-sans text-[13px] leading-none font-[650] tracking-[0.055em] whitespace-nowrap text-white backdrop-blur-[20px] transition-all duration-210 ease-out-ex hover:-translate-y-0.5 hover:bg-[linear-gradient(135deg,rgba(225,25,58,0.98)_0%,rgb(200,16,46)_100%)] disabled:opacity-60 rtl:font-arabic">
                     {{ __('Send Message') }}
                     <svg width="14" height="10" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="rtl:-scale-x-100"><path d="M1 6h14M9 1l6 5-6 5" /></svg>
                 </button>

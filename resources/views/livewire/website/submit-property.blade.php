@@ -31,9 +31,9 @@
     @keydown.escape.window="open && close()"
     x-show="open"
     x-cloak
-    x-transition:enter="transition-opacity duration-280 ease-out"
+    x-transition:enter="transition-opacity duration-200 ease-out"
     x-transition:enter-start="opacity-0"
-    x-transition:leave="transition-opacity duration-280 ease-out"
+    x-transition:leave="transition-opacity duration-200 ease-out"
     x-transition:leave-end="opacity-0"
     class="fixed inset-0 z-9998 flex items-center justify-center bg-[rgba(8,8,8,0.65)] p-4 backdrop-blur-[6px]"
     @click.self="close()"
@@ -43,7 +43,7 @@
 >
     <div
         x-show="open"
-        x-transition:enter="transition-transform duration-320 ease-out-ex"
+        x-transition:enter="transition-transform duration-220 ease-out-ex"
         x-transition:enter-start="[transform:translateY(20px)_scale(0.97)]"
         class="relative flex max-h-[90vh] w-full max-w-[880px] overflow-hidden rounded-[20px] border border-black/8 shadow-[0_32px_80px_rgba(0,0,0,0.18)] dark:border-white/8 max-md:max-w-[560px]"
     >
@@ -247,7 +247,7 @@
                             @error('photos.*') <span class="{{ $error }}">{{ $message }}</span> @enderror
                         </div>
 
-                        <button type="submit" wire:loading.attr="disabled" wire:target="send,photos" class="mt-1.5 w-full cursor-pointer rounded-full bg-brand p-[14px] text-[14px] font-[650] tracking-[0.04em] text-white transition-[background,translate] duration-250 hover:-translate-y-px hover:bg-[#a50d26] disabled:opacity-60 rtl:font-arabic">{{ __('Submit Property') }}</button>
+                        <button type="submit" wire:loading.attr="disabled" wire:target="send,photos" class="mt-1.5 w-full cursor-pointer rounded-full bg-brand p-[14px] text-[14px] font-[650] tracking-[0.04em] text-white transition-[background,translate] duration-180 hover:-translate-y-px hover:bg-[#a50d26] disabled:opacity-60 rtl:font-arabic">{{ __('Submit Property') }}</button>
                     </form>
                 @endif
             </div>

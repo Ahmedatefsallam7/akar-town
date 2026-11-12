@@ -18,7 +18,7 @@
         'tiktok' => $business->social_tiktok,
     ]);
     $label = 'mb-[0.9rem] block text-[0.68rem] font-semibold tracking-[0.16em] text-cream/55 uppercase rtl:tracking-[0.04em]';
-    $link = 'text-[0.92rem] font-medium text-cream/85 transition-colors duration-300 hover:text-cream focus-visible:text-cream';
+    $link = 'text-[0.92rem] font-medium text-cream/85 transition-colors duration-210 hover:text-cream focus-visible:text-cream';
 @endphp
 
 <footer
@@ -81,7 +81,7 @@
                         @foreach ($socials as $network => $url)
                             <a
                                 href="{{ $url }}"
-                                class="flex size-9 items-center justify-center rounded-full border border-cream/35 text-cream/80 transition-[border-color,color] duration-300 hover:border-cream hover:text-cream focus-visible:border-cream focus-visible:text-cream"
+                                class="flex size-9 items-center justify-center rounded-full border border-cream/35 text-cream/80 transition-[border-color,color] duration-210 hover:border-cream hover:text-cream focus-visible:border-cream focus-visible:text-cream"
                                 aria-label="{{ $network === 'tiktok' ? 'TikTok' : ucfirst($network) }}"
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -133,12 +133,12 @@
                     href="https://www.8worx.com/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="bg-[linear-gradient(currentColor,currentColor)] bg-[size:100%_1px] bg-[position:0_100%] bg-no-repeat font-semibold text-cream transition-[background-size] duration-350 hover:bg-[size:0_1px] hover:bg-[position:100%_100%] focus-visible:bg-[size:0_1px] focus-visible:bg-[position:100%_100%]"
+                    class="bg-[linear-gradient(currentColor,currentColor)] bg-[size:100%_1px] bg-[position:0_100%] bg-no-repeat font-semibold text-cream transition-[background-size] duration-240 hover:bg-[size:0_1px] hover:bg-[position:100%_100%] focus-visible:bg-[size:0_1px] focus-visible:bg-[position:100%_100%]"
                 >8WORX</a>
             </span>
             <div class="flex gap-5">
-                <a href="{{ route('privacy', absolute: false) }}" class="text-cream/60 transition-colors duration-300 hover:text-cream focus-visible:text-cream">{{ __('Privacy Policy') }}</a>
-                <a href="{{ route('terms', absolute: false) }}" class="text-cream/60 transition-colors duration-300 hover:text-cream focus-visible:text-cream">{{ __('Terms') }}</a>
+                <a href="{{ route('privacy', absolute: false) }}" class="text-cream/60 transition-colors duration-210 hover:text-cream focus-visible:text-cream">{{ __('Privacy Policy') }}</a>
+                <a href="{{ route('terms', absolute: false) }}" class="text-cream/60 transition-colors duration-210 hover:text-cream focus-visible:text-cream">{{ __('Terms') }}</a>
             </div>
         </div>
     </div>

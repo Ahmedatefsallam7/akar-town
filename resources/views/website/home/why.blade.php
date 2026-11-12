@@ -42,7 +42,7 @@
 
         <div class="mb-20 grid grid-cols-4 gap-px overflow-hidden rounded-xl bg-[rgba(13,13,13,0.08)] dark:bg-[rgba(237,232,223,0.04)] max-[900px]:grid-cols-2">
             @foreach ($stats as [$value, $suffix, $label])
-                <div data-why-reveal data-stat class="{{ $reveal }} relative bg-[rgba(250,248,245,0.7)] px-7 py-8 text-center backdrop-blur-[8px] after:absolute after:bottom-0 after:left-1/2 after:h-0.5 after:w-8 after:-translate-x-1/2 after:rounded-[2px] after:bg-brand after:opacity-0 after:transition-opacity after:duration-600 dark:bg-[rgba(20,17,10,0.96)] dark:backdrop-blur-[16px]">
+                <div data-why-reveal data-stat class="{{ $reveal }} relative bg-[rgba(250,248,245,0.7)] px-7 py-8 text-center backdrop-blur-[8px] after:absolute after:bottom-0 after:left-1/2 after:h-0.5 after:w-8 after:-translate-x-1/2 after:rounded-[2px] after:bg-brand after:opacity-0 after:transition-opacity after:duration-290 dark:bg-[rgba(20,17,10,0.96)] dark:backdrop-blur-[16px]">
                     <span data-target="{{ $value }}" data-suffix="{{ $suffix }}" dir="ltr" class="mb-2 block font-sans text-[clamp(36px,4vw,52px)] leading-none font-light tracking-[-0.03em] text-brand">0{{ $suffix }}</span>
                     <span class="block text-[11px] font-medium tracking-[0.16em] text-ink uppercase dark:text-ink-60 rtl:tracking-[0.05em] rtl:normal-case">{{ $label }}</span>
                 </div>
@@ -55,12 +55,12 @@
             <div class="grid min-h-[500px] grid-cols-4 grid-rows-[1fr_auto_1fr] gap-0 max-[900px]:min-h-0! max-[900px]:grid-cols-2! max-[900px]:grid-rows-none! max-[900px]:gap-x-6! max-[900px]:gap-y-10! max-[480px]:grid-cols-1! max-[480px]:gap-9!">
                 @foreach (array_slice($home->why_choose_cards, 0, 4) as $i => $card)
                     @php($top = $i % 2 === 1)
-                    @php($column = ['col-start-1 delay-0', 'col-start-2 delay-150', 'col-start-3 delay-300', 'col-start-4 delay-450'][$i])
+                    @php($column = ['col-start-1 delay-0', 'col-start-2 delay-70', 'col-start-3 delay-150', 'col-start-4 delay-220'][$i])
                     <div
                         data-stage
                         @class([
                             $column,
-                            'flex translate-y-[30px] flex-col items-center px-5 text-center opacity-0 transition-[opacity,translate] duration-700 max-[900px]:col-auto! max-[900px]:row-auto! max-[900px]:justify-start! max-[900px]:px-4! max-[900px]:py-0! max-[480px]:items-center! max-[480px]:px-6! max-[480px]:text-center!',
+                            'flex translate-y-[30px] flex-col items-center px-5 text-center opacity-0 transition-[opacity,translate] duration-340 max-[900px]:col-auto! max-[900px]:row-auto! max-[900px]:justify-start! max-[900px]:px-4! max-[900px]:py-0! max-[480px]:items-center! max-[480px]:px-6! max-[480px]:text-center!',
                             'row-start-1 justify-end pb-20' => $top,
                             'row-start-3 justify-start pt-12' => ! $top,
                         ])

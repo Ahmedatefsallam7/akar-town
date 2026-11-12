@@ -31,18 +31,18 @@
     /* Home splash (about 1.3 s, user 2026-11-10): the sketch columns race up, the white halves fade in under the logo
        at 0.5 s and part at 0.9 s, then it's gone (see website/home/splash.blade.php). */
     --animate-splash-column: splash-column 1s linear infinite;
-    --animate-splash-columns: splash-columns 0.9s step-end both;
-    --animate-splash-logo: splash-logo 1.3s both;
-    --animate-splash-left: splash-left 1.3s both;
-    --animate-splash-right: splash-right 1.3s both;
-    --animate-splash-out: splash-out 1.35s step-end both;
-    --animate-hero-text: hero-text 0.78s cubic-bezier(0.16, 1, 0.3, 1) backwards;
-    --animate-hero-nav: hero-drop 0.7s var(--ease-smooth) 0.9s backwards;
-    --animate-hero-zoom: hero-zoom 1.6s var(--ease-smooth) 0.95s backwards;
-    --animate-hero-thumb: hero-slide 0.6s var(--ease-smooth) backwards;
-    --animate-hero-tag: hero-drop-sm 0.6s var(--ease-smooth) 1.45s backwards;
-    --animate-hero-fade: hero-fade 0.5s ease backwards;
-    --animate-hero-pop: hero-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+    --animate-splash-columns: splash-columns 0.68s step-end both;
+    --animate-splash-logo: splash-logo 0.98s both;
+    --animate-splash-left: splash-left 0.98s both;
+    --animate-splash-right: splash-right 0.98s both;
+    --animate-splash-out: splash-out 1.01s step-end both;
+    --animate-hero-text: hero-text 0.49s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+    --animate-hero-nav: hero-drop 0.45s var(--ease-smooth) 0.64s backwards;
+    --animate-hero-zoom: hero-zoom 1.05s var(--ease-smooth) 0.64s backwards;
+    --animate-hero-thumb: hero-slide 0.45s var(--ease-smooth) backwards;
+    --animate-hero-tag: hero-drop-sm 0.38s var(--ease-smooth) 0.75s backwards;
+    --animate-hero-fade: hero-fade 0.38s ease backwards;
+    --animate-hero-pop: hero-pop 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
 
     @keyframes splash-column {
         to { translate: 0 -50%; }
@@ -127,16 +127,16 @@
     --ease-drawer: cubic-bezier(0.32, 0, 0.15, 1);
 
     --animate-pulse-dot: pulse-dot 2.2s ease-in-out infinite;
-    --animate-fade-up: fade-up 0.65s var(--ease-out-ex) both;
-    --animate-slide-in: slide-in 0.7s var(--ease-out-ex) 0.1s both;
+    --animate-fade-up: fade-up 0.34s var(--ease-out-ex) both;
+    --animate-slide-in: slide-in 0.38s var(--ease-out-ex) 0.04s both;
     --animate-status-pulse: status-pulse 2s ease-in-out infinite;
-    --animate-panel-in: panel-in 0.38s var(--ease-out-ex) both;
+    --animate-panel-in: panel-in 0.2s var(--ease-out-ex) both;
     --animate-avail-glow: avail-glow 2s ease-in-out infinite;
-    --animate-card-out: card-out 0.35s var(--ease-smooth) forwards;
+    --animate-card-out: card-out 0.19s var(--ease-smooth) forwards;
     --animate-heart-pulse: heart-pulse 2.4s ease-in-out infinite;
     --animate-ring-breathe: ring-breathe 3s ease-in-out infinite;
     --animate-ring-pulse: ring-pulse 4s ease-in-out infinite;
-    --animate-pop: pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    --animate-pop: pop 0.24s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 
     /* The developer page's logo rings (developer-details.html). */
     @keyframes ring-breathe {

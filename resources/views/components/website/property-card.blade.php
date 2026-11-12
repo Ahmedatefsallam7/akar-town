@@ -41,7 +41,7 @@
             @endif
         </div>
         @if ($card['image'])
-            <img src="{{ $card['image'] }}" alt="{{ $card['title'] }}" loading="lazy" class="size-full object-cover transition-transform duration-650 ease-smooth group-hover/card:scale-105" />
+            <img src="{{ $card['image'] }}" alt="{{ $card['title'] }}" loading="lazy" class="size-full object-cover transition-transform duration-320 ease-smooth group-hover/card:scale-105" />
         @endif
     </div>
 
@@ -136,7 +136,7 @@
             @endif
             <a
                 href="{{ $card['url'] }}"
-                class="group/detail ml-auto flex items-center gap-1.5 rounded-full border-[1.5px] border-white/65 bg-white/48 px-[18px] py-2 text-[11px] font-medium tracking-[0.04em] text-brand-dk shadow-[0_2px_16px_rgba(0,0,0,0.08),0_1px_4px_rgba(0,0,0,0.05)] backdrop-blur-[16px] backdrop-saturate-180 transition-all duration-280 ease-out-ex dark:border-[rgba(237,232,223,0.14)] dark:bg-[rgba(237,232,223,0.06)] dark:text-ink dark:hover:border-[rgba(212,20,44,0.28)] dark:hover:bg-[rgba(212,20,44,0.12)]"
+                class="group/detail ml-auto flex items-center gap-1.5 rounded-full border-[1.5px] border-white/65 bg-white/48 px-[18px] py-2 text-[11px] font-medium tracking-[0.04em] text-brand-dk shadow-[0_2px_16px_rgba(0,0,0,0.08),0_1px_4px_rgba(0,0,0,0.05)] backdrop-blur-[16px] backdrop-saturate-180 transition-all duration-200 ease-out-ex dark:border-[rgba(237,232,223,0.14)] dark:bg-[rgba(237,232,223,0.06)] dark:text-ink dark:hover:border-[rgba(212,20,44,0.28)] dark:hover:bg-[rgba(212,20,44,0.12)]"
             >
                 <span>{{ __('Details') }}</span>
                 <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true" class="transition-transform group-hover/detail:translate-x-[3px] rtl:-scale-x-100"><polyline points="9,18 15,12 9,6" /></svg>

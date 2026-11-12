@@ -66,9 +66,9 @@
     @keydown.escape.window="open && close()"
     @click.self="close()"
     x-show="open"
-    x-transition:enter="transition-opacity duration-280 ease-out"
+    x-transition:enter="transition-opacity duration-200 ease-out"
     x-transition:enter-start="opacity-0"
-    x-transition:leave="transition-opacity duration-280 ease-out"
+    x-transition:leave="transition-opacity duration-200 ease-out"
     x-transition:leave-end="opacity-0"
     x-cloak
     style="display: none"
@@ -79,7 +79,7 @@
 >
     <div
         x-show="open"
-        x-transition:enter="transition-transform duration-320 ease-out-ex"
+        x-transition:enter="transition-transform duration-220 ease-out-ex"
         x-transition:enter-start="translate-y-[18px] scale-97"
         x-transition:enter-end="translate-y-0 scale-100"
         class="relative flex max-h-[calc(100dvh-32px)] w-full max-w-[750px] rounded-[18px] border border-[#4d4d4d] dark:border-white/10 max-[620px]:m-auto max-[620px]:overflow-x-hidden max-[620px]:overflow-y-auto max-[620px]:rounded-[14px]"

@@ -9,16 +9,16 @@
 <article
     x-data
     @click="window.location = @js($card['url'])"
-    {{ $attributes->class('group/dev flex min-h-[180px] cursor-pointer flex-row overflow-hidden rounded-2xl border border-ink-10 bg-white transition-[translate,box-shadow,border-color] duration-350 ease-out-ex hover:border-[rgba(200,16,46,0.2)] rtl:flex-row-reverse dark:border-[rgba(237,232,223,0.07)] dark:bg-[#1c1912] dark:hover:border-[rgba(212,20,44,0.28)] dark:hover:shadow-[0_20px_60px_rgba(0,0,0,0.5)] max-[500px]:min-h-0 max-[500px]:flex-col max-[500px]:rtl:flex-col') }}
+    {{ $attributes->class('group/dev flex min-h-[180px] cursor-pointer flex-row overflow-hidden rounded-2xl border border-ink-10 bg-white transition-[translate,box-shadow,border-color] duration-240 ease-out-ex hover:border-[rgba(200,16,46,0.2)] rtl:flex-row-reverse dark:border-[rgba(237,232,223,0.07)] dark:bg-[#1c1912] dark:hover:border-[rgba(212,20,44,0.28)] dark:hover:shadow-[0_20px_60px_rgba(0,0,0,0.5)] max-[500px]:min-h-0 max-[500px]:flex-col max-[500px]:rtl:flex-col') }}
     aria-label="{{ $card['name'] }}"
 >
     {{-- Photo panel --}}
     <div class="relative flex flex-[0_0_38%] items-center justify-center overflow-hidden border-r border-[rgba(200,16,46,0.1)] bg-[#0d0b08] rtl:border-r-0 rtl:border-l dark:border-[rgba(237,232,223,0.07)] max-[500px]:h-[130px] max-[500px]:flex-none max-[500px]:border-r-0 max-[500px]:border-b max-[500px]:rtl:border-l-0">
         <div class="pointer-events-none absolute inset-0 z-1 bg-[linear-gradient(to_top,rgba(0,0,0,0.55)_0%,rgba(0,0,0,0.1)_50%,transparent_100%)]"></div>
         @if ($card['image'])
-            <img src="{{ $card['image'] }}" alt="{{ $card['name'] }}" loading="lazy" class="absolute inset-0 z-0 size-full object-cover transition-transform duration-650 ease-out-ex group-hover/dev:scale-107" />
+            <img src="{{ $card['image'] }}" alt="{{ $card['name'] }}" loading="lazy" class="absolute inset-0 z-0 size-full object-cover transition-transform duration-320 ease-out-ex group-hover/dev:scale-107" />
         @else
-            <span class="relative z-1 font-sans text-[clamp(3.8rem,5.5vw,5.2rem)] leading-none font-light tracking-[-0.02em] text-[rgba(200,16,46,0.22)] transition-colors duration-350 select-none group-hover/dev:text-[rgba(200,16,46,0.4)] dark:text-white/10 dark:group-hover/dev:text-white/22" aria-hidden="true">{{ $card['initials'] }}</span>
+            <span class="relative z-1 font-sans text-[clamp(3.8rem,5.5vw,5.2rem)] leading-none font-light tracking-[-0.02em] text-[rgba(200,16,46,0.22)] transition-colors duration-240 select-none group-hover/dev:text-[rgba(200,16,46,0.4)] dark:text-white/10 dark:group-hover/dev:text-white/22" aria-hidden="true">{{ $card['initials'] }}</span>
         @endif
         <div class="absolute inset-y-0 left-0 z-2 w-[3px] bg-brand rtl:right-0 rtl:left-auto max-[500px]:inset-x-0 max-[500px]:top-auto max-[500px]:h-[3px] max-[500px]:w-auto"></div>
         <span class="absolute top-3 left-3 z-2 rounded-full border border-white/25 bg-black/45 px-[9px] py-1 text-[9px] font-bold tracking-[0.14em] text-white uppercase backdrop-blur-[8px] rtl:font-arabic rtl:tracking-normal">{{ trans_choice(':count Project|:count Projects', $card['projects'], ['count' => $card['projects']]) }}</span>
@@ -46,9 +46,9 @@
             @else
                 <span></span>
             @endif
-            <a href="{{ $card['url'] }}" @click.stop class="group/link flex items-center gap-1.5 rounded-full border-[1.5px] border-white/65 bg-white/48 px-4 py-[7px] text-[11px] font-medium tracking-[0.04em] text-brand-dk shadow-[0_2px_16px_rgba(0,0,0,0.08),0_1px_4px_rgba(0,0,0,0.05)] backdrop-blur-[16px] backdrop-saturate-180 transition-all duration-280 ease-out-ex hover:border-[rgba(200,16,46,0.35)] hover:bg-[rgba(200,16,46,0.08)] dark:border-[rgba(237,232,223,0.13)] dark:bg-[rgba(28,25,18,0.8)] dark:text-ink dark:hover:bg-[rgba(40,35,24,0.9)] dark:hover:text-brand rtl:font-arabic rtl:tracking-normal">
+            <a href="{{ $card['url'] }}" @click.stop class="group/link flex items-center gap-1.5 rounded-full border-[1.5px] border-white/65 bg-white/48 px-4 py-[7px] text-[11px] font-medium tracking-[0.04em] text-brand-dk shadow-[0_2px_16px_rgba(0,0,0,0.08),0_1px_4px_rgba(0,0,0,0.05)] backdrop-blur-[16px] backdrop-saturate-180 transition-all duration-200 ease-out-ex hover:border-[rgba(200,16,46,0.35)] hover:bg-[rgba(200,16,46,0.08)] dark:border-[rgba(237,232,223,0.13)] dark:bg-[rgba(28,25,18,0.8)] dark:text-ink dark:hover:bg-[rgba(40,35,24,0.9)] dark:hover:text-brand rtl:font-arabic rtl:tracking-normal">
                 {{ __('View Developer') }}
-                <svg width="14" height="10" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-250 ease-out-ex group-hover/link:translate-x-[3px] rtl:-scale-x-100 rtl:group-hover/link:-translate-x-[3px]" aria-hidden="true"><path d="M1 6h14M9 1l6 5-6 5" /></svg>
+                <svg width="14" height="10" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-180 ease-out-ex group-hover/link:translate-x-[3px] rtl:-scale-x-100 rtl:group-hover/link:-translate-x-[3px]" aria-hidden="true"><path d="M1 6h14M9 1l6 5-6 5" /></svg>
             </a>
         </div>
     </div>

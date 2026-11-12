@@ -28,7 +28,7 @@
     $badge = 'mt-1.5 inline-flex items-center gap-1 self-start rounded-full border-[1.5px] border-[rgba(200,16,46,0.35)] bg-white/12 px-[10px] py-[3px] text-[9px] font-bold tracking-[0.12em] text-brand uppercase backdrop-blur-[8px] rtl:font-arabic rtl:tracking-normal';
     $text = 'text-[15px] text-ink rtl:font-arabic max-[600px]:text-[14px]';
     $bar = 'mt-2 h-[3px] w-full overflow-hidden rounded-[3px] bg-ink-10';
-    $barFill = 'h-full w-0 rounded-[3px] bg-[linear-gradient(to_right,var(--color-brand-dk),var(--color-brand))] transition-[width] duration-1100 ease-out-ex rtl:bg-[linear-gradient(to_left,var(--color-brand-dk),var(--color-brand))]';
+    $barFill = 'h-full w-0 rounded-[3px] bg-[linear-gradient(to_right,var(--color-brand-dk),var(--color-brand))] transition-[width] duration-540 ease-out-ex rtl:bg-[linear-gradient(to_left,var(--color-brand-dk),var(--color-brand))]';
     $pin = '<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true" class="mt-[3px] shrink-0 text-brand"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>';
     $rows = [
         __('Overview') => array_filter([
@@ -105,9 +105,9 @@
             <div x-intersect:enter="strip = false" x-intersect:leave="strip = true" class="border-t border-white/6 bg-[rgb(17,17,17)]">
                 <div class="mx-auto flex max-w-[1320px] overflow-hidden px-12 max-[900px]:px-6">
                     @foreach ($units as $i => $unit)
-                        <div class="group relative h-[260px] min-w-0 flex-1 overflow-hidden border-r border-white/4 transition-[flex] duration-500 ease-out-ex last:border-r-0 hover:flex-[1.55] rtl:border-r-0 rtl:border-l rtl:last:border-l-0 max-[900px]:h-[200px] max-[600px]:h-[170px]">
+                        <div class="group relative h-[260px] min-w-0 flex-1 overflow-hidden border-r border-white/4 transition-[flex] duration-240 ease-out-ex last:border-r-0 hover:flex-[1.55] rtl:border-r-0 rtl:border-l rtl:last:border-l-0 max-[900px]:h-[200px] max-[600px]:h-[170px]">
                             <a href="{{ $unit['url'] }}" class="absolute inset-0" aria-label="{{ $unit['title'] }}">
-                                <img src="{{ $unit['image'] }}" alt="{{ $unit['title'] }}" loading="lazy" class="absolute inset-0 size-full object-cover brightness-70 saturate-90 transition-[transform,filter] duration-700 ease-smooth group-hover:scale-106 group-hover:brightness-80 group-hover:saturate-110" />
+                                <img src="{{ $unit['image'] }}" alt="{{ $unit['title'] }}" loading="lazy" class="absolute inset-0 size-full object-cover brightness-70 saturate-90 transition-[transform,filter] duration-340 ease-smooth group-hover:scale-106 group-hover:brightness-80 group-hover:saturate-110" />
                                 <div class="absolute inset-0 bg-[linear-gradient(to_top,rgba(0,0,0,0.9)_0%,rgba(0,0,0,0.35)_55%,rgba(0,0,0,0.05)_100%)]"></div>
                             </a>
                             <div class="pointer-events-none absolute top-4 left-4 z-4 flex size-6 items-center justify-center rounded-full bg-brand text-[10px] font-bold text-white rtl:right-4 rtl:left-auto">{{ $i + 1 }}</div>
@@ -127,7 +127,7 @@
                         </div>
                     @endforeach
                     @if ($count < \App\Support\Website\CompareUnits::MAX)
-                        <a href="{{ route('properties') }}" class="flex flex-[0_0_110px] cursor-pointer flex-col items-center justify-center gap-[10px] border-l border-white/6 bg-white/3 p-5 text-white/35 transition-all duration-300 hover:bg-[rgba(200,16,46,0.07)] hover:text-brand rtl:border-r rtl:border-l-0 max-[600px]:flex-[0_0_80px]" title="{{ __('Add more properties') }}">
+                        <a href="{{ route('properties') }}" class="flex flex-[0_0_110px] cursor-pointer flex-col items-center justify-center gap-[10px] border-l border-white/6 bg-white/3 p-5 text-white/35 transition-all duration-210 hover:bg-[rgba(200,16,46,0.07)] hover:text-brand rtl:border-r rtl:border-l-0 max-[600px]:flex-[0_0_80px]" title="{{ __('Add more properties') }}">
                             <div class="flex size-[38px] items-center justify-center rounded-full border-[1.5px]">
                                 <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
                             </div>
@@ -138,7 +138,7 @@
             </div>
 
             {{-- Strip under the navbar once the photos are passed --}}
-            <div class="fixed inset-x-0 top-nav z-150 overflow-hidden border-b border-white/6 bg-[rgba(10,10,10,0.95)] -translate-y-full backdrop-blur-[24px] transition-transform duration-400 ease-out-ex" :class="strip && 'translate-y-0!'" aria-hidden="true">
+            <div class="fixed inset-x-0 top-nav z-150 overflow-hidden border-b border-white/6 bg-[rgba(10,10,10,0.95)] -translate-y-full backdrop-blur-[24px] transition-transform duration-200 ease-out-ex" :class="strip && 'translate-y-0!'" aria-hidden="true">
                 <div class="mx-auto flex max-w-[1320px] items-stretch px-12 max-[900px]:px-6">
                     <div class="flex flex-[0_0_var(--lw)] items-center border-r border-white/6 pr-4 text-[14px] font-bold tracking-[0.14em] text-white/55 uppercase rtl:border-r-0 rtl:border-l rtl:pr-0 rtl:pl-4 rtl:font-arabic rtl:tracking-normal">{{ __('Comparing') }}</div>
                     @foreach ($units as $unit)
@@ -274,10 +274,10 @@
                             <div
                                 x-data="{ shown: false }"
                                 x-intersect.once.threshold.08="setTimeout(() => shown = true, {{ $i * 80 }})"
-                                class="group min-w-[200px] flex-1 overflow-hidden rounded-2xl border border-white/7 bg-white/4 transition-all duration-[650ms] ease-out-ex hover:-translate-y-1 hover:border-[rgba(200,16,46,0.28)] hover:bg-white/6"
+                                class="group min-w-[200px] flex-1 overflow-hidden rounded-2xl border border-white/7 bg-white/4 transition-all duration-[320ms] ease-out-ex hover:-translate-y-1 hover:border-[rgba(200,16,46,0.28)] hover:bg-white/6"
                                 :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[22px]'"
                             >
-                                <img src="{{ $unit['image'] }}" alt="{{ $unit['title'] }}" loading="lazy" class="block aspect-video w-full object-cover opacity-80 transition-opacity duration-400 group-hover:opacity-100" />
+                                <img src="{{ $unit['image'] }}" alt="{{ $unit['title'] }}" loading="lazy" class="block aspect-video w-full object-cover opacity-80 transition-opacity duration-200 group-hover:opacity-100" />
                                 <div class="p-[18px]">
                                     @if ($unit['type'])
                                         <div class="mb-2 text-[9px] font-bold tracking-[0.2em] text-brand uppercase rtl:font-arabic rtl:tracking-normal">{{ $unit['type'] }}</div>
@@ -285,9 +285,9 @@
                                     <div class="mb-1 font-sans text-[22px] leading-[1.15] font-light text-white rtl:font-arabic">{{ $unit['title'] }}</div>
                                     <div class="mb-[18px] text-[14px] font-medium tracking-[0.01em] text-brand">{{ $unit['price'] ? __('EGP :price', ['price' => $unit['price']]) : '' }}</div>
                                     <div class="flex gap-2">
-                                        <a href="{{ $unit['url'] }}" class="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full border border-white/22 bg-white/8 px-4 py-[11px] text-[11px] font-medium tracking-[0.06em] whitespace-nowrap text-white/80 uppercase backdrop-blur-[20px] backdrop-saturate-180 transition-all duration-300 ease-out-ex hover:-translate-y-px hover:border-white/40 hover:bg-white/14 hover:text-white dark:border-white/28 dark:bg-transparent dark:text-white dark:backdrop-blur-none rtl:font-arabic rtl:tracking-[0.02em] rtl:normal-case">{{ __('View Details') }}</a>
+                                        <a href="{{ $unit['url'] }}" class="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full border border-white/22 bg-white/8 px-4 py-[11px] text-[11px] font-medium tracking-[0.06em] whitespace-nowrap text-white/80 uppercase backdrop-blur-[20px] backdrop-saturate-180 transition-all duration-210 ease-out-ex hover:-translate-y-px hover:border-white/40 hover:bg-white/14 hover:text-white dark:border-white/28 dark:bg-transparent dark:text-white dark:backdrop-blur-none rtl:font-arabic rtl:tracking-[0.02em] rtl:normal-case">{{ __('View Details') }}</a>
                                         @if ($phone)
-                                            <a href="tel:{{ $phone }}" @click="$track('phone', { unit_id: {{ $unit['id'] }} })" class="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full border border-white/20 bg-[linear-gradient(135deg,rgba(215,20,52,0.96)_0%,rgb(185,10,36)_100%)] px-4 py-[11px] text-[11px] font-bold tracking-[0.06em] whitespace-nowrap text-white uppercase backdrop-blur-[20px] transition-all duration-300 ease-out-ex hover:-translate-y-0.5 hover:bg-[linear-gradient(135deg,rgba(225,25,58,0.98)_0%,rgb(200,16,46)_100%)] rtl:font-arabic rtl:tracking-[0.02em] rtl:normal-case">{{ __('Request Tour') }}</a>
+                                            <a href="tel:{{ $phone }}" @click="$track('phone', { unit_id: {{ $unit['id'] }} })" class="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full border border-white/20 bg-[linear-gradient(135deg,rgba(215,20,52,0.96)_0%,rgb(185,10,36)_100%)] px-4 py-[11px] text-[11px] font-bold tracking-[0.06em] whitespace-nowrap text-white uppercase backdrop-blur-[20px] transition-all duration-210 ease-out-ex hover:-translate-y-0.5 hover:bg-[linear-gradient(135deg,rgba(225,25,58,0.98)_0%,rgb(200,16,46)_100%)] rtl:font-arabic rtl:tracking-[0.02em] rtl:normal-case">{{ __('Request Tour') }}</a>
                                         @endif
                                     </div>
                                 </div>
@@ -302,7 +302,7 @@
                 <svg width="56" height="56" fill="none" stroke="currentColor" stroke-width="1.3" viewBox="0 0 24 24" aria-hidden="true" class="mb-6 text-ink-30"><line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" /></svg>
                 <h2 class="mb-3 font-sans text-[40px] font-light text-ink rtl:font-arabic max-[600px]:text-[28px]">{{ __('Nothing to Compare') }}</h2>
                 <p class="mb-8 max-w-[380px] text-[14px] text-ink-60 rtl:font-arabic">{{ __('Select two or more properties from the listings page and tap "Compare Now" to see them side-by-side.') }}</p>
-                <a href="{{ route('properties') }}" class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-[linear-gradient(135deg,rgba(215,20,52,0.96)_0%,rgb(185,10,36)_100%)] px-7 py-[13px] text-[12px] font-semibold text-white backdrop-blur-[20px] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[linear-gradient(135deg,rgba(225,25,58,0.98)_0%,rgb(200,16,46)_100%)] rtl:font-arabic">
+                <a href="{{ route('properties') }}" class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-[linear-gradient(135deg,rgba(215,20,52,0.96)_0%,rgb(185,10,36)_100%)] px-7 py-[13px] text-[12px] font-semibold text-white backdrop-blur-[20px] transition-all duration-210 hover:-translate-y-0.5 hover:bg-[linear-gradient(135deg,rgba(225,25,58,0.98)_0%,rgb(200,16,46)_100%)] rtl:font-arabic">
                     <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true" class="rtl:-scale-x-100"><polyline points="15,18 9,12 15,6" /></svg>
                     {{ __('Browse Properties') }}
                 </a>

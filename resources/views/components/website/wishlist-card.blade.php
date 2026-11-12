@@ -20,10 +20,10 @@
 <article
     x-show="$store.favourites.has({{ $fav }})"
     :class="removing.includes({{ $fav }}) && 'animate-card-out'"
-    class="group flex flex-col overflow-hidden rounded-2xl border border-ink-10 bg-paper transition-[transform,box-shadow,border-color] duration-300 ease-out-ex hover:border-ink-30 dark:border-line dark:bg-surface-2 dark:hover:border-line-md dark:hover:shadow-[0_20px_48px_rgba(0,0,0,0.4)]"
+    class="group flex flex-col overflow-hidden rounded-2xl border border-ink-10 bg-paper transition-[transform,box-shadow,border-color] duration-210 ease-out-ex hover:border-ink-30 dark:border-line dark:bg-surface-2 dark:hover:border-line-md dark:hover:shadow-[0_20px_48px_rgba(0,0,0,0.4)]"
 >
     <div class="relative aspect-[16/10] shrink-0 overflow-hidden bg-ink-10">
-        <img src="{{ $item['image'] ?? \App\Support\Website\Image::placeholder() }}" alt="{{ $item['title'] }}" loading="lazy" class="size-full object-cover transition-transform duration-600 ease-smooth group-hover:scale-104" />
+        <img src="{{ $item['image'] ?? \App\Support\Website\Image::placeholder() }}" alt="{{ $item['title'] }}" loading="lazy" class="size-full object-cover transition-transform duration-290 ease-smooth group-hover:scale-104" />
         <button
             type="button"
             @click="remove({{ $fav }})"
@@ -67,7 +67,7 @@
                     <div class="text-[17px] leading-none font-bold text-brand tabular-nums">{{ $price }}</div>
                 @endif
             </div>
-            <a href="{{ $item['url'] }}" class="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-brand px-5 py-[10px] text-[12px] leading-[normal] font-[650] tracking-[0.04em] whitespace-nowrap text-white transition-[background,translate] duration-250 hover:-translate-y-0.5 hover:bg-brand-lt rtl:font-arabic">
+            <a href="{{ $item['url'] }}" class="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-brand px-5 py-[10px] text-[12px] leading-[normal] font-[650] tracking-[0.04em] whitespace-nowrap text-white transition-[background,translate] duration-180 hover:-translate-y-0.5 hover:bg-brand-lt rtl:font-arabic">
                 {{ __('View') }} {!! $arrow !!}
             </a>
         </div>

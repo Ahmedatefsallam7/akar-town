@@ -31,7 +31,7 @@ export default () => ({
             (entries) =>
                 entries.forEach((entry) => {
                     if (!entry.isIntersecting) return
-                    gsap.to(entry.target, { y: 0, opacity: 1, duration: 0.72, delay: header.indexOf(entry.target) * 0.06, ease: 'power3.out' })
+                    gsap.to(entry.target, { y: 0, opacity: 1, duration: 0.35, delay: header.indexOf(entry.target) * 0.06, ease: 'power3.out' })
                     headerObserver.unobserve(entry.target)
                 }),
             { threshold: 0.08 },
@@ -44,8 +44,8 @@ export default () => ({
                 wipeObserver.disconnect()
                 cards.forEach((card, i) => {
                     const wipe = WIPES[i] || WIPES[WIPES.length - 1]
-                    gsap.fromTo(card, { clipPath: wipe.from, opacity: 1 }, { clipPath: wipe.to, duration: 1.05, delay: wipe.delay, ease: 'power2.inOut' })
-                    gsap.fromTo(card.querySelector('[data-img]'), { scale: 1.15 }, { scale: 1, duration: 1.3, delay: wipe.delay, ease: 'power2.out' })
+                    gsap.fromTo(card, { clipPath: wipe.from, opacity: 1 }, { clipPath: wipe.to, duration: 0.51, delay: wipe.delay, ease: 'power2.inOut' })
+                    gsap.fromTo(card.querySelector('[data-img]'), { scale: 1.15 }, { scale: 1, duration: 0.64, delay: wipe.delay, ease: 'power2.out' })
                 })
             },
             { threshold: 0.12 },
@@ -87,11 +87,11 @@ export default () => ({
             const type = typeOf(card)
             card.dataset.type = type
             tl = gsap.timeline()
-            tl.to(img, { scale: 1.06, duration: 0.35, ease: 'power2.out' }, 0)
-            tl.to(dim, { opacity: 1, duration: 0.25, ease: 'power2.out' }, 0.04)
-            if (type === 'square') tl.to(panel, { opacity: 1, scale: 1, y: 0, duration: 0.28, ease: 'power3.out' }, 0.04)
-            else tl.to(panel, { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.32, ease: 'power3.out' }, 0.04)
-            tl.to(texts, { opacity: 1, y: 0, stagger: 0.04, duration: 0.22, ease: 'power2.out' }, 0.12)
+            tl.to(img, { scale: 1.06, duration: 0.24, ease: 'power2.out' }, 0)
+            tl.to(dim, { opacity: 1, duration: 0.17, ease: 'power2.out' }, 0.04)
+            if (type === 'square') tl.to(panel, { opacity: 1, scale: 1, y: 0, duration: 0.2, ease: 'power3.out' }, 0.04)
+            else tl.to(panel, { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.22, ease: 'power3.out' }, 0.04)
+            tl.to(texts, { opacity: 1, y: 0, stagger: 0.03, duration: 0.22, ease: 'power2.out' }, 0.12)
             tl.to(cta, { opacity: 1, y: 0, duration: 0.18, ease: 'power2.out' }, '+=0.02')
         })
 
@@ -100,15 +100,15 @@ export default () => ({
             const type = typeOf(card)
             tl = gsap.timeline()
             tl.to([...texts, cta], { opacity: 0, y: 8, duration: 0.12, ease: 'power2.in' }, 0)
-            tl.to(img, { scale: 1, duration: 0.3, ease: 'power2.out' }, 0)
+            tl.to(img, { scale: 1, duration: 0.21, ease: 'power2.out' }, 0)
             tl.to(dim, { opacity: 0, duration: 0.2, ease: 'power2.in' }, 0)
             if (type === 'square') tl.to(panel, { opacity: 0, scale: 0.93, y: 12, duration: 0.22, ease: 'power2.in' }, 0.03)
-            else tl.to(panel, { clipPath: type === 'landscape' ? 'inset(0% 100% 0% 0%)' : 'inset(100% 0% 0% 0%)', duration: 0.26, ease: 'power2.in' }, 0.03)
+            else tl.to(panel, { clipPath: type === 'landscape' ? 'inset(0% 100% 0% 0%)' : 'inset(100% 0% 0% 0%)', duration: 0.18, ease: 'power2.in' }, 0.03)
         })
     },
 
     // The favourite button's little bounce.
     pop(el) {
-        gsap.fromTo(el, { scale: 0.7 }, { scale: 1, duration: 0.4, ease: 'elastic.out(1,0.5)' })
+        gsap.fromTo(el, { scale: 0.7 }, { scale: 1, duration: 0.2, ease: 'elastic.out(1,0.5)' })
     },
 })

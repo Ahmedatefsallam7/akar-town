@@ -162,7 +162,7 @@ class WebsitePerformanceTest extends TestCase
 
         $home = $this->get(route('home'))->assertOk();
         // The navbar and the first slide come in as the splash parts, without waiting for the scripts.
-        $home->assertSee(['motion-safe:animate-hero-nav', 'motion-safe:animate-hero-text motion-safe:[animation-delay:1.05s]', 'motion-safe:animate-hero-zoom'], false);
+        $home->assertSee(['motion-safe:animate-hero-nav', 'motion-safe:animate-hero-text motion-safe:[animation-delay:0.64s]', 'motion-safe:animate-hero-zoom'], false);
 
         // Windows, lightboxes and the footer are set up by Alpine after the start (website/boot.js).
         $this->get(route('about'))->assertOk()

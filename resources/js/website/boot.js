@@ -319,8 +319,8 @@ document.addEventListener('alpine:init', () => {
             this.contentTween = gsap.from(targets, {
                 opacity: 0,
                 y: 32,
-                duration: 0.6,
-                stagger: 0.07,
+                duration: 0.29,
+                stagger: 0.05,
                 ease: 'power2.out',
                 scrollTrigger: { trigger: spacer, start: 'top 50%', toggleActions: 'play none none reverse' },
             })

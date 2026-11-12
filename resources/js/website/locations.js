@@ -57,7 +57,7 @@ export default () => ({
             (entries) =>
                 entries.forEach((entry) => {
                     if (!entry.isIntersecting) return
-                    gsap.to(entry.target, { y: 0, opacity: 1, duration: 0.72, delay: reveal.indexOf(entry.target) * 0.07, ease: 'power3.out' })
+                    gsap.to(entry.target, { y: 0, opacity: 1, duration: 0.35, delay: reveal.indexOf(entry.target) * 0.07, ease: 'power3.out' })
                     observer.unobserve(entry.target)
                 }),
             { threshold: 0.08 },

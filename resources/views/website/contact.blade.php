@@ -7,7 +7,7 @@
     use Illuminate\Support\Carbon;
 
     $business = app(\Modules\GeneralSettings\Settings\BusinessInfoSettings::class);
-    $reveal = 'opacity-0 [transform:translateY(32px)] transition-[opacity,transform] duration-900 ease-out-ex [&.is-in]:opacity-100 [&.is-in]:[transform:none]';
+    $reveal = 'opacity-0 [transform:translateY(32px)] transition-[opacity,transform] duration-440 ease-out-ex [&.is-in]:opacity-100 [&.is-in]:[transform:none]';
     $intersect = 'x-intersect.once.threshold.12="$el.classList.add(\'is-in\')"';
     $office = $business->{'headquarters_'.app()->getLocale()};
     $time = fn (string $time) => Carbon::createFromFormat('H:i', $time)->locale(app()->getLocale())->translatedFormat('g A');
@@ -45,7 +45,7 @@
                 <livewire:website.contact-form />
             </div>
 
-            <div {!! $intersect !!} class="{{ $reveal }} flex flex-col gap-7 delay-120 max-[860px]:-order-1">
+            <div {!! $intersect !!} class="{{ $reveal }} flex flex-col gap-7 delay-60 max-[860px]:-order-1">
                 @if ($office)
                     <div class="relative aspect-[4/3.2] overflow-hidden rounded-[20px] bg-[#e8e4de] shadow-[0_2px_6px_rgba(13,13,13,0.04),0_12px_40px_rgba(13,13,13,0.1)] dark:shadow-[0_2px_6px_rgba(0,0,0,0.2),0_12px_40px_rgba(0,0,0,0.4)]">
                         <iframe
@@ -72,7 +72,7 @@
                                 @if ($item['track']) @click="$track(@js($item['track']))" @endif
                                 class="{{ $card }} {{ $item['href'] ? $hover : '' }} {{ ($item['wide'] ?? false) ? 'col-span-full' : '' }}"
                             >
-                                <span class="grid size-[38px] shrink-0 place-items-center rounded-[10px] bg-[rgba(200,16,46,0.08)] text-brand transition-[background] duration-250 group-hover/card:bg-[rgba(200,16,46,0.16)]" aria-hidden="true">
+                                <span class="grid size-[38px] shrink-0 place-items-center rounded-[10px] bg-[rgba(200,16,46,0.08)] text-brand transition-[background] duration-180 group-hover/card:bg-[rgba(200,16,46,0.16)]" aria-hidden="true">
                                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">{!! $item['icon'] !!}</svg>
                                 </span>
                                 <span class="min-w-0">

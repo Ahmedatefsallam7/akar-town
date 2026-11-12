@@ -26,7 +26,7 @@
     <div class="pointer-events-none absolute inset-0 z-1 bg-(image:--grain) bg-size-[200px_auto] opacity-4" aria-hidden="true"></div>
     <div class="pointer-events-none absolute inset-0 z-2 bg-[radial-gradient(ellipse_75%_75%_at_50%_45%,rgba(7,6,10,0.35)_0%,rgba(7,6,10,0.72)_100%),linear-gradient(to_bottom,rgba(7,6,10,0.65)_0%,rgba(7,6,10,0.22)_40%,rgba(7,6,10,0.68)_100%)]" aria-hidden="true"></div>
 
-    <div x-intersect.once.threshold.12="$el.classList.add('is-in')" class="relative z-5 flex flex-1 flex-col items-center justify-center px-12 pt-nav pb-5 text-center opacity-0 [transform:translateY(32px)] transition-[opacity,transform] duration-900 ease-out-ex max-[1100px]:px-6 max-md:px-5 max-md:pt-[calc(var(--spacing-nav)+48px)] max-md:pb-16 [&.is-in]:opacity-100 [&.is-in]:[transform:none]">
+    <div x-intersect.once.threshold.12="$el.classList.add('is-in')" class="relative z-5 flex flex-1 flex-col items-center justify-center px-12 pt-nav pb-5 text-center opacity-0 [transform:translateY(32px)] transition-[opacity,transform] duration-440 ease-out-ex max-[1100px]:px-6 max-md:px-5 max-md:pt-[calc(var(--spacing-nav)+48px)] max-md:pb-16 [&.is-in]:opacity-100 [&.is-in]:[transform:none]">
         <span class="mb-7 text-[9px] font-bold tracking-[0.35em] text-brand uppercase rtl:font-arabic rtl:tracking-normal">{{ $eyebrow }}</span>
         <div class="{{ $rule }}" aria-hidden="true">{!! $diamond !!}</div>
         <h1 @class([

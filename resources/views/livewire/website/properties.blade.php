@@ -11,7 +11,7 @@
     $statuses = ['for-sale' => __('For Sale'), 'for-rent' => __('For Rent'), 'off-plan' => __('Off Plan')];
     $pad = 'px-12 max-xl:px-7 max-md:px-5';
     $clear = 'rounded-full border leading-[normal] border-transparent px-[14px] py-[7px] text-[11px] font-medium tracking-[0.1em] text-ink-30 uppercase transition-[color,border-color] duration-200 hover:border-[rgba(200,16,46,0.2)] hover:text-danger rtl:font-arabic';
-    $apply = 'inline-flex cursor-pointer leading-[normal] items-center gap-2 rounded-full border border-white/20 bg-[linear-gradient(135deg,rgba(215,20,52,0.96)_0%,rgb(185,10,36)_100%)] px-5 py-[9px] text-[12px] font-semibold tracking-[0.04em] text-white transition-all duration-300 ease-out-ex hover:-translate-y-0.5 hover:bg-[linear-gradient(135deg,rgba(225,25,58,0.98)_0%,rgb(200,16,46)_100%)] rtl:font-arabic';
+    $apply = 'inline-flex cursor-pointer leading-[normal] items-center gap-2 rounded-full border border-white/20 bg-[linear-gradient(135deg,rgba(215,20,52,0.96)_0%,rgb(185,10,36)_100%)] px-5 py-[9px] text-[12px] font-semibold tracking-[0.04em] text-white transition-all duration-210 ease-out-ex hover:-translate-y-0.5 hover:bg-[linear-gradient(135deg,rgba(225,25,58,0.98)_0%,rgb(200,16,46)_100%)] rtl:font-arabic';
     $groupLabel = 'mb-[14px] flex items-center gap-2 text-[10px] font-semibold tracking-[0.16em] text-black/40 uppercase dark:text-white/45 rtl:font-arabic';
     $range = 'flex items-stretch overflow-hidden rounded-[10px] border border-black/12 bg-black/3 transition-[border-color] duration-220 dark:border-line-md dark:bg-surface-2';
     $rangeInput = 'min-w-0 flex-1 border-none leading-[normal] bg-transparent p-[10px] text-center text-[13px] text-ink outline-none placeholder:text-[12px] placeholder:text-black/28 dark:bg-transparent dark:placeholder:text-ink-30';
@@ -76,9 +76,9 @@
     {{-- Advanced filters drawer --}}
     {{-- Closed in the markup too, so the page isn't dimmed or blocked before Alpine starts. --}}
     <div class="pointer-events-none fixed inset-0 z-1000" :class="drawer ? 'pointer-events-auto' : 'pointer-events-none'">
-        <div class="absolute inset-0 cursor-pointer bg-[rgba(6,6,10,0.42)] opacity-0 transition-opacity duration-350" :class="drawer ? 'opacity-100' : 'opacity-0'" @click="drawer = false"></div>
+        <div class="absolute inset-0 cursor-pointer bg-[rgba(6,6,10,0.42)] opacity-0 transition-opacity duration-240" :class="drawer ? 'opacity-100' : 'opacity-0'" @click="drawer = false"></div>
         <aside
-            class="absolute inset-y-0 right-0 flex w-[min(420px,calc(100vw-2.5rem))] translate-x-full flex-col overflow-hidden border-l border-black/9 bg-white transition-transform duration-400 ease-out-ex dark:border-white/8 dark:bg-[rgb(17,17,17)] max-md:w-screen"
+            class="absolute inset-y-0 right-0 flex w-[min(420px,calc(100vw-2.5rem))] translate-x-full flex-col overflow-hidden border-l border-black/9 bg-white transition-transform duration-200 ease-out-ex dark:border-white/8 dark:bg-[rgb(17,17,17)] max-md:w-screen"
             :class="{ 'translate-x-0': drawer, 'translate-x-full': ! drawer }"
             aria-label="{{ __('Advanced Filters') }}"
         >

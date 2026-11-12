@@ -8,7 +8,7 @@
     @keydown.window.arrow-left="$store.projectLightbox.open && $store.projectLightbox.prev()"
     @keydown.window.arrow-right="$store.projectLightbox.open && $store.projectLightbox.next()"
     @click.self="$store.projectLightbox.close()"
-    class="pointer-events-none fixed inset-0 z-9999 flex items-center justify-center bg-[rgba(10,10,10,0.96)] opacity-0 transition-opacity duration-300"
+    class="pointer-events-none fixed inset-0 z-9999 flex items-center justify-center bg-[rgba(10,10,10,0.96)] opacity-0 transition-opacity duration-210"
     :class="{ 'pointer-events-none opacity-0': ! $store.projectLightbox.open, 'pointer-events-auto opacity-100': $store.projectLightbox.open }"
     role="dialog"
     aria-modal="true"

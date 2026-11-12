@@ -7,7 +7,7 @@
     $input = 'w-full rounded-[10px] border-[1.5px] border-[rgba(13,13,13,0.16)] bg-white px-[14px] py-[11px] font-sans text-[14px] text-ink outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-[rgba(13,13,13,0.42)] focus:border-brand focus:shadow-[0_0_0_3px_rgba(200,16,46,0.08)] dark:border-white/16 dark:bg-white/5 dark:placeholder:text-white/38';
     $error = 'block text-[12px] text-danger rtl:font-arabic';
     $field = 'flex flex-col gap-1.5';
-    $button = 'inline-flex cursor-pointer items-center gap-2 self-start rounded-full bg-brand px-7 py-[13px] text-[13px] font-[650] tracking-[0.04em] text-white transition-[background,translate] duration-250 hover:-translate-y-px hover:bg-[#a50d26] disabled:opacity-60 rtl:font-arabic';
+    $button = 'inline-flex cursor-pointer items-center gap-2 self-start rounded-full bg-brand px-7 py-[13px] text-[13px] font-[650] tracking-[0.04em] text-white transition-[background,translate] duration-180 hover:-translate-y-px hover:bg-[#a50d26] disabled:opacity-60 rtl:font-arabic';
     $ok = 'rounded-[10px] border border-[rgba(25,160,70,0.25)] bg-[rgba(25,160,70,0.07)] px-4 py-3 text-[13px] text-[#15803d] rtl:font-arabic';
 @endphp
 

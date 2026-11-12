@@ -60,7 +60,7 @@
             <span class="text-[9px] font-semibold tracking-[0.14em] text-ink-30 uppercase rtl:font-arabic">{{ $label }}</span>
             <span class="text-[12px] font-semibold text-ink rtl:text-right rtl:font-arabic" x-text="text">{{ $placeholder }}</span>
         </span>
-        <svg class="shrink-0 transition-[rotate,color] duration-280 ease-smooth" :class="open ? 'rotate-180 text-brand' : 'text-ink-30'" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6,9 12,15 18,9" /></svg>
+        <svg class="shrink-0 transition-[rotate,color] duration-200 ease-smooth" :class="open ? 'rotate-180 text-brand' : 'text-ink-30'" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6,9 12,15 18,9" /></svg>
     </button>
 
     <div

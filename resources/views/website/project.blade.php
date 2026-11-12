@@ -17,7 +17,7 @@
     $whatsapp = $whatsappNumber ? $whatsappNumber.'?text='.rawurlencode(__("I'm interested in :project", ['project' => $p['title']])) : null;
     $maps = 'https://maps.google.com/?q='.rawurlencode($p['latitude'] && $p['longitude'] ? $p['latitude'].','.$p['longitude'] : ($p['address'] ?: $p['title']));
     $grain = 'bg-(image:--grain) bg-size-[200px_auto]';
-    $reveal = 'opacity-0 [transform:translateY(32px)] transition-[opacity,transform] duration-900 ease-out-ex [&.is-in]:opacity-100 [&.is-in]:[transform:none]';
+    $reveal = 'opacity-0 [transform:translateY(32px)] transition-[opacity,transform] duration-440 ease-out-ex [&.is-in]:opacity-100 [&.is-in]:[transform:none]';
     $intersect = 'x-intersect.once.threshold.12="$el.classList.add(\'is-in\')"';
     $eyebrow = 'block font-sans text-[10px] font-bold tracking-[0.28em] text-brand uppercase rtl:font-arabic rtl:tracking-[0.04em] dark:text-ink-60';
     $title = 'font-sans font-light tracking-[-0.01em] leading-[1.1] rtl:font-arabic rtl:leading-[1.35] [&_em]:text-brand [&_em]:not-italic';
@@ -117,7 +117,7 @@
                 <button
                     type="button"
                     @click="open(0)"
-                    class="absolute right-[clamp(20px,4vw,56px)] bottom-[22px] inline-flex cursor-pointer items-center gap-[10px] rounded-full border-[1.5px] border-brand bg-brand py-[11px] pr-5 pl-[14px] font-sans text-[11px] leading-[normal] font-bold tracking-[0.12em] text-white uppercase backdrop-blur-[20px] transition-[border-color,background,color,translate] duration-250 hover:-translate-y-0.5 hover:border-[rgb(168,13,38)] hover:bg-[rgb(168,13,38)] rtl:right-auto rtl:left-[clamp(20px,4vw,56px)] rtl:pr-[14px] rtl:pl-5 rtl:font-arabic rtl:tracking-normal max-md:right-4 max-md:rtl:left-4 max-[480px]:static max-[480px]:mt-7 max-[480px]:self-end"
+                    class="absolute right-[clamp(20px,4vw,56px)] bottom-[22px] inline-flex cursor-pointer items-center gap-[10px] rounded-full border-[1.5px] border-brand bg-brand py-[11px] pr-5 pl-[14px] font-sans text-[11px] leading-[normal] font-bold tracking-[0.12em] text-white uppercase backdrop-blur-[20px] transition-[border-color,background,color,translate] duration-180 hover:-translate-y-0.5 hover:border-[rgb(168,13,38)] hover:bg-[rgb(168,13,38)] rtl:right-auto rtl:left-[clamp(20px,4vw,56px)] rtl:pr-[14px] rtl:pl-5 rtl:font-arabic rtl:tracking-normal max-md:right-4 max-md:rtl:left-4 max-[480px]:static max-[480px]:mt-7 max-[480px]:self-end"
                     aria-label="{{ trans_choice('View gallery (:count photo)|View gallery (:count photos)', $count, ['count' => $count]) }}"
                 >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21,15 16,10 5,21" /></svg>
@@ -146,18 +146,18 @@
             ])>
                 <div class="flex flex-col">
                     <p {!! $intersect !!} class="{{ $reveal }} {{ $eyebrow }} mb-5">{{ __('Project Overview') }}</p>
-                    <h2 {!! $intersect !!} class="{{ $reveal }} delay-120 {{ $title }} mb-6 text-[clamp(34px,4vw,54px)] text-ink">{!! __('About <em>:project</em>', ['project' => e($p['title'])]) !!}</h2>
+                    <h2 {!! $intersect !!} class="{{ $reveal }} delay-60 {{ $title }} mb-6 text-[clamp(34px,4vw,54px)] text-ink">{!! __('About <em>:project</em>', ['project' => e($p['title'])]) !!}</h2>
                     @if ($p['description'])
-                        <div {!! $intersect !!} class="{{ $reveal }} delay-240 [&_p]:mb-[18px] [&_p]:font-sans [&_p]:text-[15px] [&_p]:leading-[1.9] [&_p]:font-light [&_p]:text-ink-60 rtl:[&_p]:font-arabic">{!! $p['description'] !!}</div>
+                        <div {!! $intersect !!} class="{{ $reveal }} delay-120 [&_p]:mb-[18px] [&_p]:font-sans [&_p]:text-[15px] [&_p]:leading-[1.9] [&_p]:font-light [&_p]:text-ink-60 rtl:[&_p]:font-arabic">{!! $p['description'] !!}</div>
                     @endif
-                    <div {!! $intersect !!} class="{{ $reveal }} delay-360 mt-[10px] flex flex-wrap items-center gap-4 max-[560px]:flex-col max-[560px]:items-stretch">
-                        <a href="#contact" class="inline-flex items-center gap-[9px] rounded-full border border-white/18 bg-[linear-gradient(135deg,rgba(215,20,52,0.96)_0%,rgb(185,10,36)_100%)] px-[26px] py-[13px] font-sans text-[11.5px] font-bold tracking-[0.1em] text-white uppercase transition-transform duration-250 ease-out-ex hover:-translate-y-0.5 rtl:font-arabic rtl:tracking-normal max-[560px]:justify-center">
+                    <div {!! $intersect !!} class="{{ $reveal }} delay-180 mt-[10px] flex flex-wrap items-center gap-4 max-[560px]:flex-col max-[560px]:items-stretch">
+                        <a href="#contact" class="inline-flex items-center gap-[9px] rounded-full border border-white/18 bg-[linear-gradient(135deg,rgba(215,20,52,0.96)_0%,rgb(185,10,36)_100%)] px-[26px] py-[13px] font-sans text-[11.5px] font-bold tracking-[0.1em] text-white uppercase transition-transform duration-180 ease-out-ex hover:-translate-y-0.5 rtl:font-arabic rtl:tracking-normal max-[560px]:justify-center">
                             {{ __('Enquire Now') }} {!! $arrow !!}
                         </a>
                         <button
                             type="button"
                             @click="pdfOpen = true"
-                            class="inline-flex cursor-pointer items-center gap-2 rounded-full border border-[rgba(13,13,13,0.18)] bg-transparent px-[26px] py-[15px] font-sans text-[11.5px] leading-none font-bold tracking-[0.1em] whitespace-nowrap text-ink uppercase transition-[border-color,color,translate] duration-250 ease-out-ex hover:-translate-y-0.5 hover:border-brand hover:text-brand dark:border-[rgba(237,232,223,0.18)] dark:text-[rgba(237,232,223,0.75)] dark:hover:border-brand dark:hover:text-brand rtl:font-arabic rtl:tracking-normal max-[560px]:justify-center"
+                            class="inline-flex cursor-pointer items-center gap-2 rounded-full border border-[rgba(13,13,13,0.18)] bg-transparent px-[26px] py-[15px] font-sans text-[11.5px] leading-none font-bold tracking-[0.1em] whitespace-nowrap text-ink uppercase transition-[border-color,color,translate] duration-180 ease-out-ex hover:-translate-y-0.5 hover:border-brand hover:text-brand dark:border-[rgba(237,232,223,0.18)] dark:text-[rgba(237,232,223,0.75)] dark:hover:border-brand dark:hover:text-brand rtl:font-arabic rtl:tracking-normal max-[560px]:justify-center"
                             aria-label="{{ __('Download project PDF') }}"
                         >
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="12" y1="18" x2="12" y2="12" /><line x1="9" y1="15" x2="15" y2="15" /></svg>
@@ -169,7 +169,7 @@
                 @if ($metrics)
                     <div {!! $intersect !!} class="{{ $reveal }} grid grid-cols-2 gap-[14px]">
                         @foreach ($metrics as [$value, $label, $desc])
-                            <div class="group relative overflow-hidden rounded-2xl border border-ink-10 bg-page px-[22px] py-[26px] transition-[border-color,box-shadow,background] duration-300 before:absolute before:inset-x-0 before:top-0 before:h-0.5 before:bg-[linear-gradient(to_right,var(--color-brand),transparent)] before:opacity-0 before:transition-opacity before:duration-300 dark:border-white/8 dark:bg-white/3 dark:hover:border-[rgba(200,16,46,0.25)] dark:hover:bg-white/5">
+                            <div class="group relative overflow-hidden rounded-2xl border border-ink-10 bg-page px-[22px] py-[26px] transition-[border-color,box-shadow,background] duration-210 before:absolute before:inset-x-0 before:top-0 before:h-0.5 before:bg-[linear-gradient(to_right,var(--color-brand),transparent)] before:opacity-0 before:transition-opacity before:duration-210 dark:border-white/8 dark:bg-white/3 dark:hover:border-[rgba(200,16,46,0.25)] dark:hover:bg-white/5">
                                 <span class="mb-2 block font-sans text-[clamp(28px,3.2vw,44px)] leading-none font-light tracking-[-0.02em] text-ink [&_em]:text-brand [&_em]:not-italic">{!! $value !!}</span>
                                 <span class="mb-[7px] block font-sans text-[9.5px] font-bold tracking-[0.2em] text-ink-60 uppercase rtl:font-arabic rtl:tracking-normal">{{ $label }}</span>
                                 <span class="block font-sans text-[12px] leading-[1.55] font-light text-ink-30 rtl:font-arabic">{{ $desc }}</span>
@@ -231,7 +231,7 @@
                             class="grid animate-panel-in grid-cols-2 items-start gap-[clamp(36px,6vw,88px)] max-[900px]:grid-cols-1 max-[900px]:gap-9"
                         >
                             <div class="group relative aspect-[4/3] overflow-hidden rounded-[20px] after:pointer-events-none after:absolute after:inset-0 after:z-1 after:bg-[linear-gradient(transparent_45%,rgba(0,0,0,0.42)_100%)] max-[560px]:aspect-[3/2]">
-                                <img src="{{ $type['image'] }}" alt="{{ $type['name'] }}" loading="lazy" class="block size-full object-cover transition-transform duration-1000 ease-out-ex group-hover:scale-104" />
+                                <img src="{{ $type['image'] }}" alt="{{ $type['name'] }}" loading="lazy" class="block size-full object-cover transition-transform duration-490 ease-out-ex group-hover:scale-104" />
                                 <span class="absolute bottom-4 left-4 z-2 inline-flex items-center rounded-full border border-white/10 bg-[rgba(7,6,10,0.74)] px-[13px] py-1.5 font-sans text-[9.5px] font-bold tracking-[0.16em] text-white/82 uppercase backdrop-blur-[18px] rtl:right-4 rtl:left-auto rtl:font-arabic rtl:tracking-normal">{{ $type['name'] }}@if ($type['area']) · {{ $type['area'] }} {{ __('m²') }}@endif</span>
                             </div>
                             <div class="flex flex-col pt-1.5">
@@ -265,7 +265,7 @@
                                 <a
                                     href="#contact"
                                     @click="$dispatch('project-unit-type', {{ $type['id'] }})"
-                                    class="inline-flex items-center gap-[9px] self-start rounded-full border border-[rgba(200,16,46,0.42)] bg-[rgba(200,16,46,0.1)] px-[26px] py-[13px] font-sans text-[11.5px] font-bold tracking-[0.1em] text-white uppercase transition-[background,border-color,translate] duration-250 hover:-translate-y-0.5 hover:border-[rgba(200,16,46,0.68)] hover:bg-[rgba(200,16,46,0.22)] rtl:font-arabic rtl:tracking-normal"
+                                    class="inline-flex items-center gap-[9px] self-start rounded-full border border-[rgba(200,16,46,0.42)] bg-[rgba(200,16,46,0.1)] px-[26px] py-[13px] font-sans text-[11.5px] font-bold tracking-[0.1em] text-white uppercase transition-[background,border-color,translate] duration-180 hover:-translate-y-0.5 hover:border-[rgba(200,16,46,0.68)] hover:bg-[rgba(200,16,46,0.22)] rtl:font-arabic rtl:tracking-normal"
                                 >{{ __('Enquire About This Unit') }} {!! $arrow !!}</a>
                             </div>
                         </div>
@@ -329,8 +329,8 @@
                                 @endif
                             </div>
 
-                            <div {!! $intersect !!} class="{{ $reveal }} delay-120 group relative overflow-hidden rounded-[20px]">
-                                <img src="{{ $p['images'][1] ?? $p['image'] }}" alt="{{ $p['place'] ?: $p['title'] }}" loading="lazy" class="block aspect-[4/3] w-full object-cover brightness-88 saturate-78 transition-[transform,filter] duration-900 ease-out-ex group-hover:scale-103 group-hover:brightness-92 group-hover:saturate-88" />
+                            <div {!! $intersect !!} class="{{ $reveal }} delay-60 group relative overflow-hidden rounded-[20px]">
+                                <img src="{{ $p['images'][1] ?? $p['image'] }}" alt="{{ $p['place'] ?: $p['title'] }}" loading="lazy" class="block aspect-[4/3] w-full object-cover brightness-88 saturate-78 transition-[transform,filter] duration-440 ease-out-ex group-hover:scale-103 group-hover:brightness-92 group-hover:saturate-88" />
                                 <div class="pointer-events-none absolute inset-0 z-1 bg-[linear-gradient(transparent_40%,rgba(7,6,10,0.72)_100%)]" aria-hidden="true"></div>
                                 <div class="absolute inset-x-5 bottom-5 z-2 flex flex-wrap items-center justify-between gap-[10px]">
                                     @if ($p['place'])
@@ -426,7 +426,7 @@
                         @endif
                     </div>
 
-                    <div {!! $intersect !!} class="{{ $reveal }} delay-120 rounded-[20px] border border-white/8 bg-white/4 p-[clamp(24px,4vw,40px)] backdrop-blur-[16px]">
+                    <div {!! $intersect !!} class="{{ $reveal }} delay-60 rounded-[20px] border border-white/8 bg-white/4 p-[clamp(24px,4vw,40px)] backdrop-blur-[16px]">
                         <p class="mb-6 font-sans text-[16px] font-semibold text-white rtl:font-arabic">{{ __('Send an Enquiry') }}</p>
                         <livewire:website.project-enquiry :project-id="$p['id']" :types="$p['types']" />
                     </div>
@@ -463,7 +463,7 @@
                     @load="loaded = true"
                     alt="{{ $p['title'] }}"
                     draggable="false"
-                    class="max-h-full max-w-full rounded-lg object-contain transition-opacity duration-250 select-none"
+                    class="max-h-full max-w-full rounded-lg object-contain transition-opacity duration-180 select-none"
                     :class="loaded ? 'opacity-100' : 'opacity-0'"
                 />
                 <button type="button" @click="go(index + 1)" class="{{ $glbButton }} absolute top-1/2 right-5 size-11 -translate-y-1/2 rtl:right-auto rtl:left-5 max-[600px]:right-2 max-[600px]:rtl:left-2" aria-label="{{ __('Next') }}">

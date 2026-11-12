@@ -5,7 +5,7 @@
 @php
     $pad = 'px-12 max-xl:px-7 max-md:px-5';
     $clear = 'rounded-full border leading-[normal] border-transparent px-[14px] py-[7px] text-[11px] font-medium tracking-[0.1em] text-ink-30 uppercase transition-[color,border-color] duration-200 hover:border-[rgba(200,16,46,0.2)] hover:text-danger dark:text-ink-60 dark:hover:border-[rgba(212,20,44,0.25)] dark:hover:text-brand rtl:font-arabic';
-    $apply = 'inline-flex cursor-pointer leading-[normal] items-center gap-2 rounded-full border border-white/20 bg-[linear-gradient(135deg,rgba(215,20,52,0.96)_0%,rgb(185,10,36)_100%)] px-5 py-[9px] text-[12px] font-semibold tracking-[0.04em] text-white transition-all duration-300 ease-out-ex hover:-translate-y-0.5 hover:bg-[linear-gradient(135deg,rgba(225,25,58,0.98)_0%,rgb(200,16,46)_100%)] rtl:font-arabic';
+    $apply = 'inline-flex cursor-pointer leading-[normal] items-center gap-2 rounded-full border border-white/20 bg-[linear-gradient(135deg,rgba(215,20,52,0.96)_0%,rgb(185,10,36)_100%)] px-5 py-[9px] text-[12px] font-semibold tracking-[0.04em] text-white transition-all duration-210 ease-out-ex hover:-translate-y-0.5 hover:bg-[linear-gradient(135deg,rgba(225,25,58,0.98)_0%,rgb(200,16,46)_100%)] rtl:font-arabic';
     $sorts = [
         'featured' => __('Featured First'),
         'newest' => __('Newest'),

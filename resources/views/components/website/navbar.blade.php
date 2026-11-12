@@ -62,7 +62,7 @@
                         <a
                             href="{{ route($link['route']) }}"
                             @class([
-                                'relative font-sans text-[12px] font-semibold tracking-[0.18em] uppercase transition-colors duration-250 after:absolute after:-bottom-[5px] after:left-0 after:h-px after:bg-brand after:transition-[width] after:duration-380 after:ease-smooth hover:text-white/95 hover:after:w-full rtl:font-arabic rtl:tracking-[0.02em] rtl:normal-case',
+                                'relative font-sans text-[12px] font-semibold tracking-[0.18em] uppercase transition-colors duration-180 after:absolute after:-bottom-[5px] after:left-0 after:h-px after:bg-brand after:transition-[width] after:duration-190 after:ease-smooth hover:text-white/95 hover:after:w-full rtl:font-arabic rtl:tracking-[0.02em] rtl:normal-case',
                                 'text-white after:w-full' => ! $transparent && request()->routeIs($link['active'] ?? $link['route']),
                                 'text-white/90 after:w-0' => $transparent || ! request()->routeIs($link['active'] ?? $link['route']),
                             ])
@@ -79,7 +79,7 @@
                         @click="list = ! list"
                         :aria-expanded="list"
                         aria-haspopup="true"
-                        class="inline-flex cursor-pointer items-center gap-[7px] text-[12px] font-semibold tracking-[0.06em] whitespace-nowrap text-white/90 transition-colors duration-250 hover:text-white"
+                        class="inline-flex cursor-pointer items-center gap-[7px] text-[12px] font-semibold tracking-[0.06em] whitespace-nowrap text-white/90 transition-colors duration-180 hover:text-white"
                         aria-label="{{ __('Phone numbers') }}"
                     >
                         <x-website.icons.phone class="shrink-0 opacity-75" />
@@ -121,7 +121,7 @@
                 <button
                     type="button"
                     @click="$dispatch('open-submit-property')"
-                    class="inline-flex cursor-pointer items-center gap-2 rounded-full border border-white/20 bg-[linear-gradient(135deg,rgba(215,20,52,0.96)_0%,rgb(185,10,36)_100%)] px-5 py-[9px] font-sans text-[11px] leading-none font-[650] tracking-[0.06em] whitespace-nowrap text-white backdrop-blur-[20px] transition-all duration-300 ease-out-ex hover:-translate-y-0.5 hover:bg-[linear-gradient(135deg,rgba(225,25,58,0.98)_0%,rgb(200,16,46)_100%)] rtl:font-arabic"
+                    class="inline-flex cursor-pointer items-center gap-2 rounded-full border border-white/20 bg-[linear-gradient(135deg,rgba(215,20,52,0.96)_0%,rgb(185,10,36)_100%)] px-5 py-[9px] font-sans text-[11px] leading-none font-[650] tracking-[0.06em] whitespace-nowrap text-white backdrop-blur-[20px] transition-all duration-210 ease-out-ex hover:-translate-y-0.5 hover:bg-[linear-gradient(135deg,rgba(225,25,58,0.98)_0%,rgb(200,16,46)_100%)] rtl:font-arabic"
                 >{{ __('Submit Property') }}</button>
             </div>
 
@@ -135,19 +135,19 @@
                 dir="ltr"
                 role="switch"
                 :aria-checked="arabic"
-                class="relative flex h-[31px] w-20 shrink-0 cursor-pointer items-center rounded-full border border-[rgba(160,50,72,0.45)] bg-[rgba(160,50,72,0.18)] p-[3px] outline-none backdrop-blur-[10px] transition-[box-shadow,border-color] duration-300 hover:border-[rgba(160,50,72,0.7)] rtl:mr-3 rtl:max-xs:mr-0"
+                class="relative flex h-[31px] w-20 shrink-0 cursor-pointer items-center rounded-full border border-[rgba(160,50,72,0.45)] bg-[rgba(160,50,72,0.18)] p-[3px] outline-none backdrop-blur-[10px] transition-[box-shadow,border-color] duration-210 hover:border-[rgba(160,50,72,0.7)] rtl:mr-3 rtl:max-xs:mr-0"
                 aria-label="{{ __('Switch language') }}"
             >
-                <span class="relative z-1 flex-1 text-center font-sans text-[11px] leading-none font-bold tracking-[0.05em] transition-colors duration-300 select-none" :class="arabic ? 'text-white/50' : 'text-white'">EN</span>
-                <span class="absolute top-[3px] left-[3px] z-0 h-[calc(100%-6px)] w-[calc(50%-3px)] rounded-full bg-brand transition-transform duration-350 ease-spring" :class="arabic && 'translate-x-full'"></span>
-                <span class="relative z-1 flex-1 text-center {{ $isArabic ? 'font-arabic' : 'font-label-ar' }} text-[11px] leading-none font-bold tracking-[0.05em] transition-colors duration-300 select-none" :class="arabic ? 'text-white' : 'text-white/50'">عر</span>
+                <span class="relative z-1 flex-1 text-center font-sans text-[11px] leading-none font-bold tracking-[0.05em] transition-colors duration-210 select-none" :class="arabic ? 'text-white/50' : 'text-white'">EN</span>
+                <span class="absolute top-[3px] left-[3px] z-0 h-[calc(100%-6px)] w-[calc(50%-3px)] rounded-full bg-brand transition-transform duration-240 ease-spring" :class="arabic && 'translate-x-full'"></span>
+                <span class="relative z-1 flex-1 text-center {{ $isArabic ? 'font-arabic' : 'font-label-ar' }} text-[11px] leading-none font-bold tracking-[0.05em] transition-colors duration-210 select-none" :class="arabic ? 'text-white' : 'text-white/50'">عر</span>
             </a>
 
             {{-- Wishlist: the saved units and projects (browser only), with their number --}}
             <a
                 href="{{ route('wishlist') }}"
                 @class([
-                    $iconButton.' '.$tooltip.' transition-[background,border-color,color] duration-250 hover:border-[#c8102e] hover:bg-[rgba(200,16,46,0.85)] hover:text-white',
+                    $iconButton.' '.$tooltip.' transition-[background,border-color,color] duration-180 hover:border-[#c8102e] hover:bg-[rgba(200,16,46,0.85)] hover:text-white',
                     'border-[#c8102e]! bg-[rgba(200,16,46,0.85)] text-white! [&_path]:fill-current' => request()->routeIs('wishlist'),
                 ])
                 aria-label="{{ __('Wishlist') }}"
@@ -169,7 +169,7 @@
                         type="button"
                         @click="menu = ! menu"
                         :aria-expanded="menu"
-                        class="inline-flex h-[31px] max-w-[160px] cursor-pointer items-center gap-[7px] rounded-full border border-white/20 bg-white/8 ps-1 pe-[10px] text-[11.5px] font-semibold whitespace-nowrap text-white transition-[background,border-color] duration-250 hover:border-[#c8102e] max-sm:pe-1 rtl:font-arabic"
+                        class="inline-flex h-[31px] max-w-[160px] cursor-pointer items-center gap-[7px] rounded-full border border-white/20 bg-white/8 ps-1 pe-[10px] text-[11.5px] font-semibold whitespace-nowrap text-white transition-[background,border-color] duration-180 hover:border-[#c8102e] max-sm:pe-1 rtl:font-arabic"
                         aria-label="{{ __('My account') }}"
                     >
                         <span class="flex size-[22px] flex-none items-center justify-center rounded-full bg-[#c8102e] text-[10px] font-bold text-white">{{ mb_strtoupper(mb_substr($account->name, 0, 1)) }}</span>
@@ -202,7 +202,7 @@
                 <button
                     type="button"
                     @click="$dispatch('open-auth')"
-                    class="{{ $iconButton }} {{ $tooltip }} font-[inherit] transition-[background,border-color,color] duration-250 hover:border-[#c8102e] hover:bg-[rgba(200,16,46,0.85)] hover:text-white"
+                    class="{{ $iconButton }} {{ $tooltip }} font-[inherit] transition-[background,border-color,color] duration-180 hover:border-[#c8102e] hover:bg-[rgba(200,16,46,0.85)] hover:text-white"
                     aria-label="{{ __('Sign in or register') }}"
                     data-tooltip="{{ __('Sign in') }}"
                 >
@@ -215,7 +215,7 @@
                 @click="$store.theme.toggle()"
                 :aria-pressed="$store.theme.dark"
                 :aria-label="$store.theme.dark ? @js(__('Switch to light mode')) : @js(__('Switch to dark mode'))"
-                class="{{ $iconButton }} {{ $tooltip }} transition-[background,border-color,color,box-shadow] duration-250 hover:border-white/38 hover:bg-white/10 dark:border-[rgba(201,168,76,0.32)] dark:text-[rgba(237,232,223,0.88)] dark:shadow-[0_0_12px_rgba(201,168,76,0.08)] dark:hover:border-[rgba(201,168,76,0.55)] dark:hover:bg-[rgba(201,168,76,0.1)] dark:hover:shadow-[0_0_20px_rgba(201,168,76,0.15)]"
+                class="{{ $iconButton }} {{ $tooltip }} transition-[background,border-color,color,box-shadow] duration-180 hover:border-white/38 hover:bg-white/10 dark:border-[rgba(201,168,76,0.32)] dark:text-[rgba(237,232,223,0.88)] dark:shadow-[0_0_12px_rgba(201,168,76,0.08)] dark:hover:border-[rgba(201,168,76,0.55)] dark:hover:bg-[rgba(201,168,76,0.1)] dark:hover:shadow-[0_0_20px_rgba(201,168,76,0.15)]"
                 data-tooltip="{{ __('Theme') }}"
             >
                 <span class="absolute flex scale-60 rotate-90 items-center justify-center opacity-0 [transition:opacity_0.3s_ease,transform_0.4s_cubic-bezier(0.34,1.56,0.64,1)] dark:scale-100 dark:rotate-0 dark:opacity-100" aria-hidden="true">
@@ -235,9 +235,9 @@
             class="z-10 hidden size-9 shrink-0 cursor-pointer flex-col justify-center gap-[5px] p-1.5 max-[1199px]:flex"
             aria-label="{{ __('Toggle navigation') }}"
         >
-            <span class="pointer-events-none block h-[1.5px] w-[22px] rounded-[2px] bg-white transition-[transform,opacity] duration-300" :class="open && 'translate-y-[6.5px] rotate-45'"></span>
-            <span class="pointer-events-none block h-[1.5px] w-[22px] rounded-[2px] bg-white transition-[transform,opacity] duration-300" :class="open && 'opacity-0'"></span>
-            <span class="pointer-events-none block h-[1.5px] w-[22px] rounded-[2px] bg-white transition-[transform,opacity] duration-300" :class="open && '-translate-y-[6.5px] -rotate-45'"></span>
+            <span class="pointer-events-none block h-[1.5px] w-[22px] rounded-[2px] bg-white transition-[transform,opacity] duration-210" :class="open && 'translate-y-[6.5px] rotate-45'"></span>
+            <span class="pointer-events-none block h-[1.5px] w-[22px] rounded-[2px] bg-white transition-[transform,opacity] duration-210" :class="open && 'opacity-0'"></span>
+            <span class="pointer-events-none block h-[1.5px] w-[22px] rounded-[2px] bg-white transition-[transform,opacity] duration-210" :class="open && '-translate-y-[6.5px] -rotate-45'"></span>
         </button>
     </nav>
 

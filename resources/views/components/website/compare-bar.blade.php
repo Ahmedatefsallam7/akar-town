@@ -7,7 +7,7 @@
     @compare-full.window="shake(6); setTimeout(() => shake(-6), 80); setTimeout(() => shake(0), 160)"
     x-show="$store.compare.items.length && ! $store.footer.atEnd"
     x-cloak
-    class="pointer-events-none fixed right-8 bottom-8 z-900 flex translate-y-4 flex-col items-end gap-[10px] opacity-0 transition-[opacity,translate,transform] duration-250 rtl:right-auto rtl:left-8"
+    class="pointer-events-none fixed right-8 bottom-8 z-900 flex translate-y-4 flex-col items-end gap-[10px] opacity-0 transition-[opacity,translate,transform] duration-180 rtl:right-auto rtl:left-8"
     :class="{ 'translate-y-4 opacity-0': ! $store.compare.items.length, 'translate-y-0 opacity-100': $store.compare.items.length }"
 >
     <div
@@ -49,7 +49,7 @@
         <div class="shrink-0 border-t border-black/7 bg-transparent px-4 pt-[14px] pb-4 dark:border-line dark:bg-black/25">
             <a
                 :href="@js(route('compare')) + '?units=' + $store.compare.items.map((item) => item.slug).filter(Boolean).join(',')"
-                class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-full border border-white/12 bg-[linear-gradient(135deg,var(--color-brand)_0%,#a00d22_100%)] p-[13px] text-[13px] font-semibold tracking-[0.04em] text-white transition-all duration-300 ease-out-ex hover:-translate-y-0.5 hover:brightness-110"
+                class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-full border border-white/12 bg-[linear-gradient(135deg,var(--color-brand)_0%,#a00d22_100%)] p-[13px] text-[13px] font-semibold tracking-[0.04em] text-white transition-all duration-210 ease-out-ex hover:-translate-y-0.5 hover:brightness-110"
             >{{ __('Compare Now') }}</a>
         </div>
     </div>
@@ -58,13 +58,13 @@
         <button
             type="button"
             @click="$store.compare.open = ! $store.compare.open"
-            class="group relative flex cursor-pointer flex-row items-center gap-[10px] overflow-hidden rounded-full border border-black/10 bg-[linear-gradient(135deg,#ffffff_0%,#f0f0f0_100%)] py-[10px] pr-[18px] pl-[14px] whitespace-nowrap text-[#1a1a1a] shadow-[0_4px_16px_rgba(0,0,0,0.1)] backdrop-blur-[20px] transition-all duration-350 ease-out-ex before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:bg-[linear-gradient(135deg,rgba(200,16,46,0.08)_0%,transparent_55%)] hover:-translate-y-[3px] hover:border-[rgba(200,16,46,0.35)] dark:border-line-md dark:bg-[linear-gradient(135deg,#1c1912_0%,#131008_100%)] dark:text-ink dark:shadow-[0_4px_20px_rgba(0,0,0,0.5),0_0_0_1px_rgba(212,20,44,0.06)] dark:before:bg-[linear-gradient(135deg,rgba(212,20,44,0.14)_0%,transparent_55%)] dark:hover:border-[rgba(212,20,44,0.28)] dark:hover:shadow-[0_6px_28px_rgba(0,0,0,0.6),0_0_0_1px_rgba(212,20,44,0.14)]"
+            class="group relative flex cursor-pointer flex-row items-center gap-[10px] overflow-hidden rounded-full border border-black/10 bg-[linear-gradient(135deg,#ffffff_0%,#f0f0f0_100%)] py-[10px] pr-[18px] pl-[14px] whitespace-nowrap text-[#1a1a1a] shadow-[0_4px_16px_rgba(0,0,0,0.1)] backdrop-blur-[20px] transition-all duration-240 ease-out-ex before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:bg-[linear-gradient(135deg,rgba(200,16,46,0.08)_0%,transparent_55%)] hover:-translate-y-[3px] hover:border-[rgba(200,16,46,0.35)] dark:border-line-md dark:bg-[linear-gradient(135deg,#1c1912_0%,#131008_100%)] dark:text-ink dark:shadow-[0_4px_20px_rgba(0,0,0,0.5),0_0_0_1px_rgba(212,20,44,0.06)] dark:before:bg-[linear-gradient(135deg,rgba(212,20,44,0.14)_0%,transparent_55%)] dark:hover:border-[rgba(212,20,44,0.28)] dark:hover:shadow-[0_6px_28px_rgba(0,0,0,0.6),0_0_0_1px_rgba(212,20,44,0.14)]"
             aria-label="{{ __('Toggle compare panel') }}"
         >
             <x-website.icons.compare width="18" height="18" />
             <span class="text-[13px] font-semibold tracking-[0.02em] text-black/80 dark:text-ink">{{ __('Compare') }}</span>
             <span class="rounded-full bg-brand px-[9px] py-[3px] text-[11px] leading-[1.4] font-bold tracking-[0.02em] text-white" x-text="$store.compare.items.length + '/' + $store.compare.max"></span>
-            <svg class="text-black/60 opacity-50 transition-[rotate,opacity] duration-300 ease-drawer group-hover:opacity-90 dark:text-ink-60" :class="$store.compare.open && 'rotate-180'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <svg class="text-black/60 opacity-50 transition-[rotate,opacity] duration-210 ease-drawer group-hover:opacity-90 dark:text-ink-60" :class="$store.compare.open && 'rotate-180'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <polyline points="18 15 12 9 6 15" />
             </svg>
         </button>

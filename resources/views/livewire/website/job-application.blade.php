@@ -32,9 +32,9 @@
     @keydown.escape.window="open && close()"
     x-show="open"
     x-cloak
-    x-transition:enter="transition-opacity duration-300 ease-out-ex"
+    x-transition:enter="transition-opacity duration-210 ease-out-ex"
     x-transition:enter-start="opacity-0"
-    x-transition:leave="transition-opacity duration-300 ease-out-ex"
+    x-transition:leave="transition-opacity duration-210 ease-out-ex"
     x-transition:leave-end="opacity-0"
     class="fixed inset-0 z-9998 flex items-center justify-center p-6"
     role="dialog"
@@ -45,7 +45,7 @@
 
     <div
         x-show="open"
-        x-transition:enter="transition-transform duration-350 ease-out-ex"
+        x-transition:enter="transition-transform duration-240 ease-out-ex"
         x-transition:enter-start="[transform:translateY(20px)_scale(0.97)]"
         class="relative z-1 max-h-[90vh] w-full max-w-[580px] overflow-y-auto rounded-[28px] border border-[rgba(13,13,13,0.07)] bg-page shadow-[0_24px_80px_rgba(7,6,10,0.4),0_0_0_1px_rgba(255,255,255,0.06)] dark:bg-[#131108] [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[rgba(13,13,13,0.14)] hover:[&::-webkit-scrollbar-thumb]:bg-[rgba(13,13,13,0.28)] [&::-webkit-scrollbar-track]:my-7 [&::-webkit-scrollbar-track]:bg-transparent"
     >
@@ -92,7 +92,7 @@
                             @foreach (\Modules\Careers\Models\Applicant::genderOptions() as $value => $name)
                                 <label class="cursor-pointer">
                                     <input type="radio" wire:model="gender" value="{{ $value }}" class="peer sr-only" />
-                                    <span class="flex items-center justify-center rounded-[14px] border-[1.5px] border-[rgba(13,13,13,0.16)] bg-white px-4 py-[13px] text-[14px] leading-[normal] text-ink-60 transition-[border-color,box-shadow,color] duration-250 peer-checked:border-brand peer-checked:font-semibold peer-checked:text-brand peer-checked:shadow-[0_0_0_4px_rgba(200,16,46,0.09)] peer-focus-visible:border-brand hover:border-[rgba(13,13,13,0.3)] rtl:font-arabic dark:border-white/16 dark:bg-white/5">{{ $name }}</span>
+                                    <span class="flex items-center justify-center rounded-[14px] border-[1.5px] border-[rgba(13,13,13,0.16)] bg-white px-4 py-[13px] text-[14px] leading-[normal] text-ink-60 transition-[border-color,box-shadow,color] duration-180 peer-checked:border-brand peer-checked:font-semibold peer-checked:text-brand peer-checked:shadow-[0_0_0_4px_rgba(200,16,46,0.09)] peer-focus-visible:border-brand hover:border-[rgba(13,13,13,0.3)] rtl:font-arabic dark:border-white/16 dark:bg-white/5">{{ $name }}</span>
                                 </label>
                             @endforeach
                         </div>
@@ -113,7 +113,7 @@
 
                     <div class="group/field mb-[22px] flex flex-col">
                         <span class="{{ $label }}">{{ __('Resume / CV') }}</span>
-                        <div class="relative flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-[1.5px] border-dashed border-[rgba(13,13,13,0.28)] px-5 py-7 transition-[border-color,background] duration-250 hover:border-[rgba(200,16,46,0.4)] hover:bg-[rgba(200,16,46,0.025)] dark:border-white/10 dark:hover:bg-[rgba(200,16,46,0.05)]">
+                        <div class="relative flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-[1.5px] border-dashed border-[rgba(13,13,13,0.28)] px-5 py-7 transition-[border-color,background] duration-180 hover:border-[rgba(200,16,46,0.4)] hover:bg-[rgba(200,16,46,0.025)] dark:border-white/10 dark:hover:bg-[rgba(200,16,46,0.05)]">
                             <input type="file" wire:model="resume" accept=".pdf,.doc,.docx" @change="file = $event.target.files[0]?.name ?? ''" class="absolute inset-0 size-full cursor-pointer opacity-0" aria-label="{{ __('Upload your CV') }}" />
                             <span class="grid size-10 place-items-center rounded-xl bg-[rgba(200,16,46,0.08)] text-brand" aria-hidden="true">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
@@ -134,7 +134,7 @@
 
                     <div class="mt-1 flex flex-wrap items-center justify-between gap-3">
                         <p class="max-w-[28ch] text-[11px] leading-[1.5] text-ink-60 rtl:font-arabic">{{ __('Your application will be reviewed within 5 business days.') }}</p>
-                        <button type="submit" wire:loading.attr="disabled" wire:target="send,resume" class="group inline-flex cursor-pointer items-center gap-2 rounded-full border border-white/20 bg-[linear-gradient(135deg,rgba(215,20,52,0.96)_0%,rgb(185,10,36)_100%)] px-[30px] py-[14px] font-sans text-[13px] leading-none font-[650] tracking-[0.055em] whitespace-nowrap text-white backdrop-blur-[20px] transition-all duration-300 ease-out-ex hover:-translate-y-0.5 hover:bg-[linear-gradient(135deg,rgba(225,25,58,0.98)_0%,rgb(200,16,46)_100%)] disabled:opacity-60 rtl:font-arabic">
+                        <button type="submit" wire:loading.attr="disabled" wire:target="send,resume" class="group inline-flex cursor-pointer items-center gap-2 rounded-full border border-white/20 bg-[linear-gradient(135deg,rgba(215,20,52,0.96)_0%,rgb(185,10,36)_100%)] px-[30px] py-[14px] font-sans text-[13px] leading-none font-[650] tracking-[0.055em] whitespace-nowrap text-white backdrop-blur-[20px] transition-all duration-210 ease-out-ex hover:-translate-y-0.5 hover:bg-[linear-gradient(135deg,rgba(225,25,58,0.98)_0%,rgb(200,16,46)_100%)] disabled:opacity-60 rtl:font-arabic">
                             {{ __('Submit Application') }}
                             <svg width="14" height="10" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="rtl:-scale-x-100"><path d="M1 6h14M9 1l6 5-6 5" /></svg>
                         </button>

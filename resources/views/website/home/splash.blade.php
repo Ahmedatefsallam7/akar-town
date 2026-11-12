@@ -31,13 +31,13 @@
     $columns = [[0,1,2,3,4,5,6,7],[5,6,7,8,9,0,1,2],[3,4,5,6,7,8,9,0],[7,8,9,0,1,2,3,4],[2,3,4,5,6,7,8,9]];
     $hideAt = ['max-xl:hidden', 'max-[700px]:hidden', '', 'max-[700px]:hidden', 'max-xl:hidden'];
     // Each column's loop time (the design's speeds, 1.5x faster).
-    $loopTime = ['[animation-duration:0.77s]', '[animation-duration:0.96s]', '[animation-duration:0.66s]', '[animation-duration:0.89s]', '[animation-duration:0.72s]'];
+    $loopTime = ['[animation-duration:0.65s]', '[animation-duration:0.82s]', '[animation-duration:0.56s]', '[animation-duration:0.76s]', '[animation-duration:0.61s]'];
 @endphp
 
-{{-- Removed once its animation is over (about 1.35 s after the page started), so its many sketch elements don't stay in the page. --}}
+{{-- Removed once its animation is over (about 1 s after the page started), so its many sketch elements don't stay in the page. --}}
 <div
     x-data
-    x-init="setTimeout(() => $el.remove(), Math.max(0, 1400 - performance.now()))"
+    x-init="setTimeout(() => $el.remove(), Math.max(0, 1050 - performance.now()))"
     @click="$el.remove()"
     @keydown.escape.window="$el.remove()"
     class="pointer-events-auto fixed inset-0 z-9999 flex animate-splash-out cursor-pointer items-center justify-center overflow-hidden motion-reduce:hidden"

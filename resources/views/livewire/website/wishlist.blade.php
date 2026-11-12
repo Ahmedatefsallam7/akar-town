@@ -42,7 +42,7 @@
                     clearTimeout(this.timer)
                     this.toast = true
                     this.timer = setTimeout(() => (this.toast = false), 2400)
-                }, 350)
+                }, 190)
             },
         }"
     >
@@ -99,7 +99,7 @@
                     </div>
                     <h2 class="mb-3 text-[28px] font-light tracking-[-0.02em] text-ink rtl:font-arabic">{{ __('Your wishlist is empty') }}</h2>
                     <p class="mb-9 max-w-[380px] text-[14.5px] leading-[1.6] text-ink-60 rtl:font-arabic">{{ __("Start saving properties you love and find them all here, ready for when you're ready.") }}</p>
-                    <a href="{{ route('properties') }}" class="inline-flex items-center gap-2 rounded-full bg-brand px-8 py-[14px] text-[13px] leading-[normal] font-[650] tracking-[0.055em] text-white transition-[background,translate] duration-250 hover:-translate-y-0.5 hover:bg-brand-lt rtl:font-arabic rtl:tracking-normal">
+                    <a href="{{ route('properties') }}" class="inline-flex items-center gap-2 rounded-full bg-brand px-8 py-[14px] text-[13px] leading-[normal] font-[650] tracking-[0.055em] text-white transition-[background,translate] duration-180 hover:-translate-y-0.5 hover:bg-brand-lt rtl:font-arabic rtl:tracking-normal">
                         {{ __('Explore Properties') }}
                         <svg viewBox="0 0 16 14" aria-hidden="true" class="size-[13px] flex-none fill-none stroke-current stroke-2 rtl:-scale-x-100"><path d="M8 0.414C8 1.11 8.69 2.152 9.387 3.027C10.286 4.154 11.357 5.138 12.587 5.889C13.509 6.452 14.628 6.992 15.526 6.992M8 13.586C8 12.889 8.69 11.848 9.387 10.973C10.286 9.846 11.357 8.862 12.587 8.111C13.509 7.548 14.628 7.008 15.526 7.008M15.526 6.999H0.474" stroke-linecap="round" stroke-linejoin="round" /></svg>
                     </a>
@@ -108,7 +108,7 @@
         </section>
 
         <div
-            class="pointer-events-none fixed bottom-8 left-1/2 z-999 -translate-x-1/2 rounded-full bg-ink px-[22px] py-3 text-[13px] font-medium whitespace-nowrap text-paper opacity-0 transition-[opacity,translate] duration-250 ease-out-ex rtl:font-arabic"
+            class="pointer-events-none fixed bottom-8 left-1/2 z-999 -translate-x-1/2 rounded-full bg-ink px-[22px] py-3 text-[13px] font-medium whitespace-nowrap text-paper opacity-0 transition-[opacity,translate] duration-180 ease-out-ex rtl:font-arabic"
             :class="toast ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'"
             role="status"
             aria-live="polite"

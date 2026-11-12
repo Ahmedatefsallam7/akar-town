@@ -5,7 +5,7 @@
 @php
     $data = \App\Support\Website\CareerCards::open();
     $jobs = $data['jobs'];
-    $reveal = 'opacity-0 [transform:translateY(32px)] transition-[opacity,transform] duration-900 ease-out-ex [&.is-in]:opacity-100 [&.is-in]:[transform:none]';
+    $reveal = 'opacity-0 [transform:translateY(32px)] transition-[opacity,transform] duration-440 ease-out-ex [&.is-in]:opacity-100 [&.is-in]:[transform:none]';
     $pill = 'cursor-pointer rounded-full border px-4 py-[7px] text-[11px] font-semibold tracking-[0.06em] transition-all duration-200 rtl:font-arabic rtl:tracking-normal';
 @endphp
 
@@ -61,7 +61,7 @@
                             x-show="filter === 'all' || filter === @js($job['department'])"
                             class="group/job relative flex items-center gap-6 rounded-2xl border border-ink-10 bg-white px-7 py-[26px] [transition:border-color_0.28s,box-shadow_0.28s] hover:border-[rgba(200,16,46,0.28)] max-md:flex-col max-md:items-start dark:border-white/8 dark:bg-[#1a1916] dark:hover:border-[rgba(200,16,46,0.3)] dark:hover:shadow-[0_8px_36px_rgba(0,0,0,0.4)]"
                         >
-                            <span class="grid size-12 shrink-0 place-items-center rounded-xl bg-[rgba(200,16,46,0.08)] text-brand transition-[background] duration-250 group-hover/job:bg-[rgba(200,16,46,0.15)]" aria-hidden="true">
+                            <span class="grid size-12 shrink-0 place-items-center rounded-xl bg-[rgba(200,16,46,0.08)] text-brand transition-[background] duration-180 group-hover/job:bg-[rgba(200,16,46,0.15)]" aria-hidden="true">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">{!! $job['icon'] !!}</svg>
                             </span>
                             <div class="min-w-0 flex-1">
@@ -87,7 +87,7 @@
                                 <button
                                     type="button"
                                     @click="$dispatch('apply-job', @js(['id' => $job['id'], 'title' => $job['title'], 'department' => $job['departmentName']]))"
-                                    class="inline-flex cursor-pointer items-center gap-[7px] rounded-full bg-[linear-gradient(135deg,rgba(215,20,52,0.96)_0%,rgb(185,10,36)_100%)] px-5 py-[10px] text-[11px] font-bold tracking-[0.08em] whitespace-nowrap text-white transition-all duration-250 ease-out-ex hover:-translate-y-px rtl:font-arabic rtl:tracking-normal"
+                                    class="inline-flex cursor-pointer items-center gap-[7px] rounded-full bg-[linear-gradient(135deg,rgba(215,20,52,0.96)_0%,rgb(185,10,36)_100%)] px-5 py-[10px] text-[11px] font-bold tracking-[0.08em] whitespace-nowrap text-white transition-all duration-180 ease-out-ex hover:-translate-y-px rtl:font-arabic rtl:tracking-normal"
                                 >
                                     {{ __('Apply Now') }}
                                     <svg width="12" height="9" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="rtl:-scale-x-100"><path d="M1 6h14M9 1l6 5-6 5" /></svg>

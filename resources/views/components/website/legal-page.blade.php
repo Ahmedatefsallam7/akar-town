@@ -14,7 +14,7 @@
         ->values()
         ->map(fn (array $entry, int $i) => ['id' => 'section-'.($i + 1), 'title' => $entry["header_{$locale}"], 'body' => $paragraphs($entry["body_{$locale}"] ?? '')])
         ->all();
-    $reveal = 'opacity-0 [transform:translateY(24px)] transition-[opacity,transform] duration-700 ease-out-ex [&.is-in]:opacity-100 [&.is-in]:[transform:none]';
+    $reveal = 'opacity-0 [transform:translateY(24px)] transition-[opacity,transform] duration-340 ease-out-ex [&.is-in]:opacity-100 [&.is-in]:[transform:none]';
 @endphp
 
 <x-website.page-hero

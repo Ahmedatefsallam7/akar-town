@@ -70,7 +70,7 @@
                 <button
                     type="submit"
                     wire:loading.attr="disabled"
-                    class="flex size-[38px] shrink-0 cursor-pointer items-center justify-center rounded-full bg-[#c8102e] text-white transition-[background,opacity] duration-250 hover:bg-[#a60d24] disabled:opacity-60"
+                    class="flex size-[38px] shrink-0 cursor-pointer items-center justify-center rounded-full bg-[#c8102e] text-white transition-[background,opacity] duration-180 hover:bg-[#a60d24] disabled:opacity-60"
                     aria-label="{{ __('Submit') }}"
                 >
                     <span wire:loading wire:target="send" class="size-[14px] animate-spin rounded-full border-2 border-white border-x-white/35 border-b-white/35" aria-hidden="true"></span>

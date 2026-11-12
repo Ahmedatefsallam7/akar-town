@@ -21,7 +21,7 @@ export default (items) => ({
             (entries) =>
                 entries.forEach((entry) => {
                     if (!entry.isIntersecting) return
-                    gsap.to(entry.target, { y: 0, opacity: 1, duration: 0.78, delay: +entry.target.dataset.revealDelay, ease: 'power3.out' })
+                    gsap.to(entry.target, { y: 0, opacity: 1, duration: 0.39, delay: +entry.target.dataset.revealDelay, ease: 'power3.out' })
                     observer.unobserve(entry.target)
                 }),
             { threshold: 0.12 },
@@ -63,8 +63,8 @@ export default (items) => ({
         clone.style.cssText = `position:fixed;top:${tr.top}px;left:${tr.left}px;width:${tr.width}px;height:${tr.height}px;object-fit:cover;border-radius:8px;z-index:9999;pointer-events:none;will-change:transform`
         document.body.appendChild(clone)
 
-        gsap.to(mainImg, { opacity: 0, duration: 0.25, ease: 'power2.in' })
-        gsap.to(info, { opacity: 0, y: -10, duration: 0.28, ease: 'power2.in' })
+        gsap.to(mainImg, { opacity: 0, duration: 0.17, ease: 'power2.in' })
+        gsap.to(info, { opacity: 0, y: -10, duration: 0.2, ease: 'power2.in' })
 
         gsap.to(clone, {
             top: mr.top,
@@ -72,15 +72,15 @@ export default (items) => ({
             width: mr.width,
             height: mr.height,
             borderRadius: '14px',
-            duration: 0.72,
+            duration: 0.35,
             ease: 'power3.inOut',
             onComplete: () => {
                 this.idx = newIdx
 
                 const reveal = () => {
                     gsap.set(mainImg, { opacity: 1 })
-                    gsap.to(clone, { opacity: 0, duration: 0.28, ease: 'power2.out', onComplete: () => clone.remove() })
-                    gsap.fromTo(info, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.48, ease: 'power3.out' })
+                    gsap.to(clone, { opacity: 0, duration: 0.2, ease: 'power2.out', onComplete: () => clone.remove() })
+                    gsap.fromTo(info, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.24, ease: 'power3.out' })
                     this.busy = false
                 }
 

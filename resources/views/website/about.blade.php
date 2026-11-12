@@ -6,7 +6,7 @@
 @php
     $about = app(\Modules\GeneralSettings\Settings\AboutUsSettings::class);
     $locale = app()->getLocale();
-    $reveal = 'opacity-0 [transform:translateY(32px)] transition-[opacity,transform] duration-900 ease-out-ex [&.is-in]:opacity-100 [&.is-in]:[transform:none]';
+    $reveal = 'opacity-0 [transform:translateY(32px)] transition-[opacity,transform] duration-440 ease-out-ex [&.is-in]:opacity-100 [&.is-in]:[transform:none]';
     $intersect = 'x-intersect.once.threshold.12="$el.classList.add(\'is-in\')"';
 
     // The design colours the end of each title: the last two words of the hero, the last word of the story.
@@ -52,11 +52,11 @@
                 <x-website.button :href="route('properties')" arrow>{{ __('Explore Properties') }}</x-website.button>
             </div>
 
-            <div {!! $intersect !!} class="{{ $reveal }} flex items-center justify-center delay-120">
+            <div {!! $intersect !!} class="{{ $reveal }} flex items-center justify-center delay-60">
                 <div class="relative">
                     <div class="pointer-events-none absolute -inset-4 animate-ring-pulse rounded-full border border-[rgba(200,16,46,0.22)]" aria-hidden="true"></div>
                     <div class="group/photo relative size-[clamp(300px,36vw,460px)] shrink-0 overflow-hidden rounded-full max-[860px]:size-[clamp(260px,72vw,380px)]">
-                        <img src="{{ $about->story_image ? \Illuminate\Support\Facades\Storage::disk('public')->url($about->story_image) : asset('images/website/about-story.webp') }}" alt="{{ __('Luxury property in Egypt') }}" loading="lazy" width="460" height="460" class="block size-full object-cover transition-transform duration-900 ease-out-ex group-hover/photo:scale-106" />
+                        <img src="{{ $about->story_image ? \Illuminate\Support\Facades\Storage::disk('public')->url($about->story_image) : asset('images/website/about-story.webp') }}" alt="{{ __('Luxury property in Egypt') }}" loading="lazy" width="460" height="460" class="block size-full object-cover transition-transform duration-440 ease-out-ex group-hover/photo:scale-106" />
                     </div>
                     <div class="absolute right-[-16px] bottom-3 flex flex-col items-center gap-0.5 rounded-full border border-ink-10 bg-white px-5 py-3 whitespace-nowrap shadow-[0_8px_32px_rgba(13,13,13,0.1)] max-[860px]:right-0 max-[860px]:bottom-2 dark:border-white/10 dark:bg-[#1a1916]">
                         <span dir="ltr" class="font-sans text-[28px] leading-none font-light tracking-[-0.025em] text-brand">{{ $about->years_of_excellence }}+</span>

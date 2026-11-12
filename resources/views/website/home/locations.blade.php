@@ -7,11 +7,11 @@
 --}}
 @php
     $reveal = 'opacity-0 [transform:translateY(24px)]';
-    $navButton = 'flex size-10 cursor-pointer items-center justify-center rounded-full border border-ink-10 bg-transparent p-0 text-ink transition-all duration-300 ease-smooth hover:scale-106 hover:border-ink hover:bg-ink hover:text-paper disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-25';
+    $navButton = 'flex size-10 cursor-pointer items-center justify-center rounded-full border border-ink-10 bg-transparent p-0 text-ink transition-all duration-210 ease-smooth hover:scale-106 hover:border-ink hover:bg-ink hover:text-paper disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-25';
 @endphp
 
 <section id="locations" x-data="locationsSlider" class="relative overflow-hidden border-t border-ink-10 bg-page pt-20 pb-[100px] max-md:pt-[60px] max-md:pb-20">
-    <div x-ref="ambient" class="pointer-events-none absolute inset-0 z-0 bg-cover bg-center opacity-0 transition-opacity duration-900 [filter:blur(55px)_saturate(130%)] [transform:scale(1.2)]" aria-hidden="true"></div>
+    <div x-ref="ambient" class="pointer-events-none absolute inset-0 z-0 bg-cover bg-center opacity-0 transition-opacity duration-440 [filter:blur(55px)_saturate(130%)] [transform:scale(1.2)]" aria-hidden="true"></div>
 
     <div class="relative z-1 mx-auto max-w-[1340px] px-[60px] max-md:px-5">
         <header class="mb-[52px] flex items-end justify-between gap-10 max-md:mb-9 max-md:flex-col max-md:items-start max-md:gap-4">
@@ -37,10 +37,10 @@
                         class="{{ $reveal }} group/loc relative block h-[460px] w-[320px] shrink-0 overflow-hidden rounded-2xl bg-ink-10 [transition:width_0.58s_cubic-bezier(0.16,1,0.3,1),box-shadow_0.48s_ease] hover:w-[490px] max-md:h-[400px] max-md:w-[280px] max-md:hover:w-[490px]"
                     >
                         @if ($location['image'])
-                            <img src="{{ $location['image'] }}" alt="{{ $location['name'] }}" loading="lazy" draggable="false" class="absolute inset-0 block size-full object-cover transition-transform duration-700 ease-out-ex group-hover/loc:scale-106" />
+                            <img src="{{ $location['image'] }}" alt="{{ $location['name'] }}" loading="lazy" draggable="false" class="absolute inset-0 block size-full object-cover transition-transform duration-340 ease-out-ex group-hover/loc:scale-106" />
                         @endif
                         <div class="pointer-events-none absolute inset-0 z-1 bg-[linear-gradient(rgba(0,0,0,0.28)_0%,rgba(0,0,0,0)_28%)]"></div>
-                        <div class="absolute inset-0 z-1 bg-[linear-gradient(rgba(0,0,0,0)_30%,rgba(0,0,0,0.52)_62%,rgba(0,0,0,0.86)_100%)] transition-[background] duration-400 group-hover/loc:bg-[linear-gradient(rgba(0,0,0,0.08)_0%,rgba(0,0,0,0.62)_50%,rgba(0,0,0,0.92)_100%)]"></div>
+                        <div class="absolute inset-0 z-1 bg-[linear-gradient(rgba(0,0,0,0)_30%,rgba(0,0,0,0.52)_62%,rgba(0,0,0,0.86)_100%)] transition-[background] duration-200 group-hover/loc:bg-[linear-gradient(rgba(0,0,0,0.08)_0%,rgba(0,0,0,0.62)_50%,rgba(0,0,0,0.92)_100%)]"></div>
                         <div class="absolute inset-x-0 bottom-0 z-2 flex flex-col px-6 py-7">
                             @if ($location['country'])
                                 <div class="mb-[10px] flex items-center gap-[7px]">
@@ -60,8 +60,8 @@
                                     <span class="size-[5px] shrink-0 rounded-full bg-brand"></span>
                                     {{ trans_choice(':count Property|:count Properties', $location['count'], ['count' => $location['count']]) }}
                                 </span>
-                                <span class="flex size-9 shrink-0 items-center justify-center rounded-full border border-white/22 bg-white/8 text-paper backdrop-blur-[8px] transition-all duration-300 ease-out-ex group-hover/loc:border-brand group-hover/loc:bg-brand">
-                                    <x-website.icons.arrow class="size-[14px] stroke-[1.8] transition-transform duration-300 ease-out-ex group-hover/loc:translate-x-[3px] rtl:-scale-x-100 rtl:group-hover/loc:-translate-x-[3px]" />
+                                <span class="flex size-9 shrink-0 items-center justify-center rounded-full border border-white/22 bg-white/8 text-paper backdrop-blur-[8px] transition-all duration-210 ease-out-ex group-hover/loc:border-brand group-hover/loc:bg-brand">
+                                    <x-website.icons.arrow class="size-[14px] stroke-[1.8] transition-transform duration-210 ease-out-ex group-hover/loc:translate-x-[3px] rtl:-scale-x-100 rtl:group-hover/loc:-translate-x-[3px]" />
                                 </span>
                             </div>
                         </div>
@@ -75,7 +75,7 @@
                 <x-website.icons.arrow class="size-[15px] -scale-x-100 stroke-[1.8] rtl:scale-x-100" />
             </button>
             <div class="h-0.5 flex-1 overflow-hidden rounded-[2px] bg-ink-10">
-                <div class="h-full rounded-[2px] bg-brand transition-[width] duration-250" :style="`width: ${progress}%`"></div>
+                <div class="h-full rounded-[2px] bg-brand transition-[width] duration-180" :style="`width: ${progress}%`"></div>
             </div>
             <button type="button" @click="next()" :disabled="atEnd" class="{{ $navButton }}" aria-label="{{ __('Next locations') }}">
                 <x-website.icons.arrow class="size-[15px] stroke-[1.8] rtl:-scale-x-100" />

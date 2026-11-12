@@ -13,7 +13,7 @@
                     x-intersect.once.threshold.08="shown = true"
                     :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-7'"
                     style="transition-delay: {{ ($i % 6) * 60 }}ms"
-                    class="flex transition-[opacity,translate] duration-650 ease-out-ex [&>article]:flex-1"
+                    class="flex transition-[opacity,translate] duration-320 ease-out-ex [&>article]:flex-1"
                 >
                     <x-website.developer-card :card="$card" />
                 </div>

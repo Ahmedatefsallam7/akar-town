@@ -36,7 +36,7 @@
                     data-card
                     data-url="{{ $project['url'] }}"
                     @click="if (! $event.target.closest('[data-card-actions], [data-card-cta]')) window.location = $el.dataset.url"
-                    class="{{ $areas[$i] }} group/card relative isolate cursor-pointer overflow-hidden rounded-xl bg-ink-10 transition-shadow duration-450 [clip-path:inset(0_100%_0_0_round_12px)] [transform:translateZ(0)] max-[900px]:col-auto! max-[900px]:row-auto!"
+                    class="{{ $areas[$i] }} group/card relative isolate cursor-pointer overflow-hidden rounded-xl bg-ink-10 transition-shadow duration-220 [clip-path:inset(0_100%_0_0_round_12px)] [transform:translateZ(0)] max-[900px]:col-auto! max-[900px]:row-auto!"
                 >
                     <img data-img src="{{ $project['image'] }}" alt="{{ $project['title'] }}" loading="lazy" class="block size-full origin-center object-cover" />
                     <div data-dim class="pointer-events-none absolute inset-0 z-1 bg-black/18 opacity-0 will-change-[opacity]"></div>
@@ -58,7 +58,7 @@
                         @endif
                         <a data-card-cta href="{{ $project['url'] }}" class="{{ $text }} group/cta mb-[14px] inline-flex w-fit items-center gap-[7px] pb-[3px] font-sans text-[10px] font-semibold tracking-[0.18em] text-ink uppercase transition-[border-color,color] duration-200 hover:border-brand hover:text-brand-dk rtl:font-arabic">
                             {{ __('Explore Project') }}
-                            <x-website.icons.arrow class="h-3 w-[14px] transition-transform duration-250 group-hover/cta:translate-x-[3px] rtl:-scale-x-100 rtl:group-hover/cta:-translate-x-[3px]" />
+                            <x-website.icons.arrow class="h-3 w-[14px] transition-transform duration-180 group-hover/cta:translate-x-[3px] rtl:-scale-x-100 rtl:group-hover/cta:-translate-x-[3px]" />
                         </a>
                     </div>
 
@@ -67,7 +67,7 @@
                             type="button"
                             x-data="{ id: 'project-{{ $project['id'] }}' }"
                             @click="$store.favourites.toggle(id); pop($el)"
-                            class="{{ $action }} group-hover/card:delay-80"
+                            class="{{ $action }} group-hover/card:delay-40"
                             :class="$store.favourites.has(id) ? 'border-transparent! bg-[rgba(220,38,38,0.88)]! text-white!' : 'border-white/18 bg-[rgba(8,8,8,0.52)] text-white/88'"
                             aria-label="{{ __('Save to favourites') }}"
                             title="{{ __('Save') }}"
@@ -79,7 +79,7 @@
                         <button
                             type="button"
                             @click="$store.projectLightbox.show(@js($project['images']), @js($project['title']))"
-                            class="{{ $action }} border-white/18 bg-[rgba(8,8,8,0.52)] text-white/88 group-hover/card:delay-140"
+                            class="{{ $action }} border-white/18 bg-[rgba(8,8,8,0.52)] text-white/88 group-hover/card:delay-70"
                             aria-label="{{ __('View all photos') }}"
                             title="{{ __('Gallery') }}"
                         >
