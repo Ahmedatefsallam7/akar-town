@@ -26,7 +26,6 @@
        Arabic font lacks ("²") keep the site's fonts instead of the system's Arial / Noto Sans. */
     --font-sans: var(--font-archivo), var(--font-noto-kufi-arabic), system-ui, sans-serif;
     --font-arabic: var(--font-noto-kufi-arabic), var(--font-archivo), system-ui, sans-serif;
-    --font-label-ar: var(--font-kufi-label), var(--font-noto-kufi-arabic), system-ui, sans-serif;
 
     /* Home splash (about 1.3 s, user 2026-11-10): the sketch columns race up, the white halves fade in under the logo
        at 0.5 s and part at 0.9 s, then it's gone (see website/home/splash.blade.php). */
