@@ -20,8 +20,8 @@
 
     {{-- Filter bar --}}
     <div class="sticky top-nav z-100 border-b border-ink-10 bg-page dark:border-[rgba(237,232,223,0.07)] dark:bg-[rgba(13,11,8,0.95)]">
-        <div class="{{ $pad }} mx-auto flex max-w-[1320px] flex-wrap items-center gap-2 py-[10px] max-md:px-4 max-md:py-3">
-            <div class="relative min-w-[160px] flex-1 max-w-[240px] max-md:max-w-full max-md:basis-full">
+        <div class="{{ $pad }} mx-auto flex max-w-[1320px] flex-wrap items-center gap-1.5 py-[10px] max-md:px-4 max-md:py-3">
+            <div class="relative min-w-[140px] flex-1 max-w-[240px] max-md:max-w-full max-md:basis-full">
                 <svg class="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-ink-30 rtl:right-3 rtl:left-auto" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
                 <input
                     type="text"
@@ -58,7 +58,8 @@
             </x-website.filter-select>
 
             <div class="ml-auto flex shrink-0 items-center gap-2 rtl:mr-auto rtl:ml-0">
-                <button type="button" wire:click="clear" class="{{ $clear }}">{{ __('Reset') }}</button>
+                {{-- Reset as an icon, so the bar (with the Compound filter) stays on one row. --}}
+                <button type="button" wire:click="clear" class="grid size-[34px] shrink-0 cursor-pointer place-items-center rounded-full border border-ink-10 text-ink-30 transition-[color,border-color] duration-200 hover:border-[rgba(200,16,46,0.3)] hover:text-danger dark:text-ink-60" aria-label="{{ __('Reset') }}" title="{{ __('Reset') }}"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5" /></svg></button>
                 <button type="button" wire:click="$refresh" class="{{ $apply }}">{{ __('Apply') }}</button>
             </div>
         </div>
