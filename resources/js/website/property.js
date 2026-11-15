@@ -1,6 +1,8 @@
 // Property details page: photo slider, sticky bar, "Read More", location map, similar properties and PDF language choice.
 import Swiper from 'swiper'
 import { Navigation } from 'swiper/modules'
+// Swiper's own styles, with the page's code (pages load only their own code: the home slider's copy isn't here).
+import 'swiper/css'
 
 export default ({ count, latitude, longitude, place }) => ({
     current: 0,
