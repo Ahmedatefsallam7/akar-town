@@ -30,14 +30,20 @@
         </div>
         <div class="grid grid-cols-[repeat(2,minmax(0,1fr))] gap-4 max-[600px]:grid-cols-1">
             <div class="{{ $field }}">
-                <label for="acc-email" class="{{ $label }}">{{ __('Email Address') }}</label>
+                <label for="acc-email" class="{{ $label }}">{{ __('Email Address') }}@if ($byPhone) <span class="font-normal text-ink-30">({{ __('optional') }})</span>@endif</label>
                 <input id="acc-email" type="email" wire:model="email" autocomplete="email" dir="ltr" class="{{ $input }} rtl:text-right" />
                 @error('email') <span class="{{ $error }}">{{ $message }}</span> @enderror
             </div>
             <div class="{{ $field }}">
                 <label for="acc-phone" class="{{ $label }}">{{ __('Phone Number') }}</label>
-                <input id="acc-phone" type="tel" wire:model="phone" autocomplete="tel" dir="ltr" class="{{ $input }} rtl:text-right" placeholder="+20 1XX XXX XXXX" />
-                @error('phone') <span class="{{ $error }}">{{ $message }}</span> @enderror
+                @if ($byPhone)
+                    {{-- The WhatsApp number the account signs in with (AKAR-49): not changed here. --}}
+                    <input id="acc-phone" type="tel" value="{{ $phone }}" readonly dir="ltr" class="{{ $input }} cursor-not-allowed opacity-70 rtl:text-right" aria-describedby="acc-phone-help" />
+                    <span id="acc-phone-help" class="mt-1.5 block text-[11.5px] text-ink-30 rtl:font-arabic">{{ __('Your sign-in number. Contact us to change it.') }}</span>
+                @else
+                    <input id="acc-phone" type="tel" wire:model="phone" autocomplete="tel" dir="ltr" class="{{ $input }} rtl:text-right" placeholder="+20 1XX XXX XXXX" />
+                    @error('phone') <span class="{{ $error }}">{{ $message }}</span> @enderror
+                @endif
             </div>
         </div>
         <button type="submit" wire:loading.attr="disabled" wire:target="saveDetails" class="{{ $button }}">{{ __('Save changes') }}</button>

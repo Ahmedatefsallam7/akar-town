@@ -181,7 +181,7 @@
                     >
                         <div class="border-b border-white/8 px-3 pt-2 pb-3">
                             <p class="truncate text-[13px] font-semibold text-white rtl:font-arabic">{{ $account->name }}</p>
-                            <p class="truncate text-[11.5px] text-white/50" dir="ltr">{{ $account->email }}</p>
+                            <p class="truncate text-[11.5px] text-white/50" dir="ltr">{{ $account->email ?: $account->phone }}</p>
                         </div>
                         <a href="{{ route('account') }}" class="mt-1 flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-[13px] text-white/80 transition-[background,color] duration-200 hover:bg-[rgba(200,16,46,0.15)] hover:text-white rtl:font-arabic">
                             <x-website.icons.user class="size-[15px]" />

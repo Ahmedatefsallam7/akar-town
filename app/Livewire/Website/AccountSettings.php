@@ -56,22 +56,27 @@ class AccountSettings extends Component
         // "0100 123-4567" and "01001234567" are one number: separators go before the checks and the save.
         $this->phone = preg_replace('/[\s\-.\/()]+/', '', $this->phone);
         $this->email = Str::lower(trim($this->email));
+        // An account made with WhatsApp (AKAR-49) signs in with its number: it stays, and the e-mail is optional.
+        $byPhone = $user->registration_method === 'phone';
+        if ($byPhone) {
+            $this->phone = (string) $user->phone;
+        }
 
         $this->validate([
             'name' => ['required', 'string', 'max:191'],
-            'email' => ['required', 'max:191', ...LeadContact::emailRules(), Rule::unique('website_users', 'email')->ignore($user->id)],
+            'email' => [$byPhone ? 'nullable' : 'required', 'max:191', ...LeadContact::emailRules(), Rule::unique('website_users', 'email')->ignore($user->id)],
             'phone' => ['nullable', 'string', 'max:30', ...LeadContact::phoneRules(), Rule::unique('website_users', 'phone')->ignore($user->id)],
         ], attributes: ['name' => __('Full name'), 'email' => __('Email'), 'phone' => __('Phone')]);
 
         $emailChanged = $this->email !== Str::lower((string) $user->email);
-        $user->fill(['name' => trim($this->name), 'email' => $this->email, 'phone' => $this->phone ?: null]);
+        $user->fill(['name' => trim($this->name), 'email' => $this->email ?: null, 'phone' => $this->phone ?: null]);
         if ($emailChanged) {
             // The new address is checked like at sign-up: unverified until its link is opened.
             $user->email_verified_at = null;
         }
         $user->save();
 
-        if ($emailChanged) {
+        if ($emailChanged && $this->email !== '') {
             $user->sendEmailVerificationNotification();
         }
 
@@ -116,6 +121,9 @@ class AccountSettings extends Component
 
     public function render(): View
     {
-        return view('livewire.website.account-settings', ['verified' => $this->user()->hasVerifiedEmail()]);
+        return view('livewire.website.account-settings', [
+            'verified' => $this->user()->hasVerifiedEmail(),
+            'byPhone' => $this->user()->registration_method === 'phone',
+        ]);
     }
 }
