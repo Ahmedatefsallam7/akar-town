@@ -28,6 +28,22 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    // WhatsApp sign-in codes (AKAR-49): "log" writes the code to the log (local, tests); "meta" sends it with the
+    // WhatsApp Cloud API, as an approved authentication template (the client's Meta business account).
+    'whatsapp' => [
+        'driver' => env('WHATSAPP_DRIVER', 'log'),
+        'token' => env('WHATSAPP_TOKEN'),
+        'phone_number_id' => env('WHATSAPP_PHONE_NUMBER_ID'),
+        'template' => env('WHATSAPP_OTP_TEMPLATE', 'login_code'),
+        // The template's language codes as approved in Meta, per site language.
+        'languages' => ['en' => env('WHATSAPP_OTP_LANGUAGE_EN', 'en'), 'ar' => env('WHATSAPP_OTP_LANGUAGE_AR', 'ar')],
+        'version' => env('WHATSAPP_API_VERSION', 'v21.0'),
+        // The webhook (delivery of codes, /api/webhooks/whatsapp): Meta's app secret checks each call is Meta's; the
+        // verify token is any secret text, typed again in Meta's dashboard when the webhook is added.
+        'app_secret' => env('WHATSAPP_APP_SECRET'),
+        'verify_token' => env('WHATSAPP_VERIFY_TOKEN'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

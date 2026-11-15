@@ -5,6 +5,9 @@ namespace Modules\WebsiteUsers\Providers;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Routing\Router;
 use Modules\WebsiteUsers\Http\Middleware\EnsureWebsiteUserIsActive;
+use Modules\WebsiteUsers\Support\WhatsApp\CodeSender;
+use Modules\WebsiteUsers\Support\WhatsApp\LogCodeSender;
+use Modules\WebsiteUsers\Support\WhatsApp\MetaCodeSender;
 use Nwidart\Modules\Support\ModuleServiceProvider;
 
 class WebsiteUsersServiceProvider extends ModuleServiceProvider
@@ -35,6 +38,16 @@ class WebsiteUsersServiceProvider extends ModuleServiceProvider
         EventServiceProvider::class,
         RouteServiceProvider::class,
     ];
+
+    public function register(): void
+    {
+        parent::register();
+
+        // WhatsApp sign-in codes: logged locally, sent with the WhatsApp Cloud API once configured (AKAR-49).
+        $this->app->bind(CodeSender::class, fn () => config('services.whatsapp.driver') === 'meta'
+            ? new MetaCodeSender(config('services.whatsapp'))
+            : new LogCodeSender);
+    }
 
     public function boot(): void
     {
