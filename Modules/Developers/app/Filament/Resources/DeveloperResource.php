@@ -7,6 +7,7 @@ use App\Filament\Forms\SeoFields;
 use App\Filament\Helpers\TableHelper;
 use App\Filament\Schemas\Tab;
 use App\Filament\Traits\HasResourceTranslations;
+use App\Support\SmartSearch;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -244,7 +245,7 @@ class DeveloperResource extends Resource implements HasPermissionModule
                     ->label(__('admin.developers.name_en'))
                     // A compound's name also finds the developers with a project or a unit in it (AKAR-47, unpublished too).
                     ->searchable(query: fn (Builder $query, string $search) => $query->where(fn (Builder $query) => $query
-                        ->whereAny(['name_en', 'name_ar', 'email', 'phone'], 'like', '%'.$search.'%')
+                        ->where(fn (Builder $query) => SmartSearch::match($query, $search)->orWhereAny(['email', 'phone'], 'like', '%'.$search.'%'))
                         ->orWhereIn('id', Project::query()->select('developer_id')->where(fn (Builder $query) => $query
                             ->whereIn('sub_area_id', $compounds = LocationTree::compoundsMatching($search, withInactive: true) ?: [0])
                             ->orWhereIn('id', Unit::query()->select('project_id')->whereNotNull('project_id')->whereIn('sub_area_id', $compounds))))))

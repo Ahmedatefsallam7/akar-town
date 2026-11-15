@@ -9,6 +9,7 @@ use App\Filament\Helpers\TableHelper;
 use App\Filament\Schemas\Tab;
 use App\Filament\Traits\HasResourceTranslations;
 use App\Rules\VideoEmbed;
+use App\Support\SmartSearch;
 use Closure;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\RichEditor;
@@ -320,7 +321,7 @@ class ProjectResource extends Resource implements HasPermissionModule
                     ->label(__('admin.table.title'))
                     // A compound's name also finds the projects in it or with a unit in it (AKAR-47, unpublished too).
                     ->searchable(query: fn (Builder $query, string $search) => $query->where(fn (Builder $query) => $query
-                        ->whereAny(['title_en', 'title_ar', 'project_number'], 'like', '%'.$search.'%')
+                        ->where(fn (Builder $query) => SmartSearch::match($query, $search)->orWhere('project_number', 'like', '%'.$search.'%'))
                         ->orWhereIn('sub_area_id', $compounds = LocationTree::compoundsMatching($search, withInactive: true) ?: [0])
                         ->orWhereIn('id', Unit::query()->select('project_id')->whereNotNull('project_id')->whereIn('sub_area_id', $compounds))))
                     ->sortable()

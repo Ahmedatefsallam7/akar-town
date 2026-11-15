@@ -8,6 +8,7 @@ use App\Filament\Forms\SeoFields;
 use App\Filament\Helpers\TableHelper;
 use App\Filament\Schemas\Tab;
 use App\Filament\Traits\HasResourceTranslations;
+use App\Support\SmartSearch;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
@@ -189,7 +190,7 @@ class LocationResource extends Resource implements HasPermissionModule
                     ->label(__('admin.table.name'))
                     // A compound's name also finds the location page of the compound or of the area holding it (AKAR-47).
                     ->searchable(query: fn (Builder $query, string $search) => $query->where(fn (Builder $query) => $query
-                        ->whereAny(['name_en', 'name_ar'], 'like', '%'.$search.'%')
+                        ->where(fn (Builder $query) => SmartSearch::match($query, $search))
                         ->orWhereIn(DB::raw('coalesce(sub_area_id, area_id, region_id, city_id, country_id)'), collect(LocationTree::compoundsMatching($search, withInactive: true))
                             ->flatMap(fn (int $compound) => array_slice(LocationTree::withAncestors($compound), 0, 2))->unique()->values()->all() ?: [0])))
                     ->sortable()

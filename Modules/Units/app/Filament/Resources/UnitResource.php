@@ -10,6 +10,7 @@ use App\Filament\Schemas\Tab;
 use App\Filament\Support\PrefixSearch;
 use App\Filament\Traits\HasResourceTranslations;
 use App\Rules\VideoUrl;
+use App\Support\SmartSearch;
 use Closure;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\RichEditor;
@@ -98,7 +99,18 @@ class UnitResource extends Resource implements HasPermissionModule
      */
     protected static function applyGlobalSearchAttributeConstraints(Builder $query, string $search): void
     {
-        PrefixSearch::apply($query, $search, static::SEARCH_COLUMNS);
+        static::search($query, $search);
+    }
+
+    /**
+     * Any part of the name (any case, Arabic letters either way: AKAR-48), the start of the slug, or a compound's name
+     * (its units: AKAR-47). Unpublished units too.
+     */
+    public static function search(Builder $query, string $search): Builder
+    {
+        return $query->where(fn (Builder $query) => SmartSearch::match($query, $search)
+            ->orWhere(fn (Builder $query) => PrefixSearch::apply($query, $search, ['slug']))
+            ->orWhereIn('sub_area_id', LocationTree::compoundsMatching($search, withInactive: true)));
     }
 
     public static function getModelLabel(): string
@@ -335,8 +347,7 @@ class UnitResource extends Resource implements HasPermissionModule
                     ->label(__('admin.table.title'))
                     // Fast "starts with" search (see PrefixSearch): "Villa 1" finds "Villa 12", not "Garden Villa".
                     // A compound's name (any part, any case, Arabic letters either way) finds its units too (AKAR-47).
-                    ->searchable(query: fn (Builder $query, string $search) => $query->where(fn (Builder $query) => PrefixSearch::apply($query, $search, static::SEARCH_COLUMNS)
-                        ->orWhereIn('sub_area_id', LocationTree::compoundsMatching($search, withInactive: true))))
+                    ->searchable(query: fn (Builder $query, string $search) => static::search($query, $search))
                     ->sortable()
                     ->weight('medium')
                     ->url(fn (Unit $record) => static::getUrl('view', ['record' => $record]))
