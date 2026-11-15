@@ -836,7 +836,7 @@ return [
             'submit_property' => 'Submit Your Property',
             'developer_details' => 'Developer Details',
             'privacy_policy' => 'Privacy Policy',
-            'terms_of_use' => 'Terms of Use',
+            'terms_of_use' => 'Terms & Conditions',
             'website_images' => 'Website Images',
         ],
         'sections' => [

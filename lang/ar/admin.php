@@ -835,7 +835,7 @@ return [
             'submit_property' => 'اعرض عقارك',
             'developer_details' => 'تفاصيل المطور',
             'privacy_policy' => 'سياسة الخصوصية',
-            'terms_of_use' => 'شروط الاستخدام',
+            'terms_of_use' => 'الشروط والأحكام',
             'website_images' => 'صور الموقع',
         ],
         'sections' => [

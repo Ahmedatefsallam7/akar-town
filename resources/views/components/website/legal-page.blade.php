@@ -1,5 +1,5 @@
 {{--
-    The Privacy Policy / Terms of Use page (not in the design; Dastan's layout in the site's look): the listing header
+    The Privacy Policy / Terms & Conditions page (not in the design; Dastan's layout in the site's look): the listing header
     (title, number of sections), a table of contents that follows the reading (not on phones), then the introduction and the
     numbered sections from their Settings page, and a "Questions?" box to the contact page. The texts are plain text from
     the admin: a blank line starts a new paragraph.

@@ -269,7 +269,6 @@
     "Switch to dark mode": "التبديل إلى الوضع الداكن",
     "Switch to light mode": "التبديل إلى الوضع الفاتح",
     "Tell us what you need — we'll alert you the moment it's listed.": "أخبرنا بما تحتاجه — سنُنبهك فور إدراجه.",
-    "Terms": "الشروط",
     "Theme": "المظهر",
     "Villa": "فيلا",
     "Years": "سنة",
@@ -809,7 +808,6 @@
     "Reach out to our team and we’ll answer as soon as we can.": "تواصل مع فريقنا وسنرد عليك في أقرب وقت.",
     "Questions about your privacy?": "لديك أسئلة عن خصوصيتك؟",
     "Questions about these terms?": "لديك أسئلة عن هذه الشروط؟",
-    "Terms of Use": "شروط الاستخدام",
     "My Account": "حسابي",
     "My details": "بياناتي",
     "My requests": "طلباتي",
@@ -874,5 +872,6 @@
     "See all": "عرض الكل",
     "See all results": "عرض كل النتائج",
     "all results": "كل النتائج",
-    "No exact match for “:q”, showing close matches.": "لا توجد نتيجة مطابقة لـ «:q»، وهذه أقرب النتائج."
+    "No exact match for “:q”, showing close matches.": "لا توجد نتيجة مطابقة لـ «:q»، وهذه أقرب النتائج.",
+    "Terms & Conditions": "الشروط والأحكام"
 }

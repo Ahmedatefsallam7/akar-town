@@ -9,7 +9,7 @@ use Modules\GeneralSettings\Settings\TermsOfUseSettings;
 use Tests\TestCase;
 
 /**
- * The Privacy Policy and Terms of Use pages: their introduction and numbered sections from Settings, with a contents
+ * The Privacy Policy and Terms & Conditions pages: their introduction and numbered sections from Settings, with a contents
  * list and a link to the contact page.
  */
 class LegalPagesTest extends TestCase
@@ -58,7 +58,13 @@ class LegalPagesTest extends TestCase
 
         $this->get(route('terms'))
             ->assertOk()
-            ->assertSee(['Terms of Use', 'Information We Collect', 'Questions about these terms?']);
+            ->assertSee(['Terms & Conditions', 'Information We Collect', 'Questions about these terms?'])
+            ->assertDontSee('Terms of Use'); // AKAR-53: the page's name
+
+        // Footer link, tab title, header and breadcrumb in Arabic.
+        $this->withCookie('locale', 'ar')->get(route('terms'))->assertOk()
+            ->assertSee(['<title>الشروط والأحكام', '>الشروط والأحكام</a>'], false)
+            ->assertDontSee('شروط الاستخدام');
     }
 
     public function test_the_footer_links_open_them_and_arabic(): void

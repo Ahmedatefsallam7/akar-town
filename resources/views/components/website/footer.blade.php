@@ -138,7 +138,7 @@
             </span>
             <div class="flex gap-5">
                 <a href="{{ route('privacy', absolute: false) }}" class="text-cream/60 transition-colors duration-210 hover:text-cream focus-visible:text-cream">{{ __('Privacy Policy') }}</a>
-                <a href="{{ route('terms', absolute: false) }}" class="text-cream/60 transition-colors duration-210 hover:text-cream focus-visible:text-cream">{{ __('Terms') }}</a>
+                <a href="{{ route('terms', absolute: false) }}" class="text-cream/60 transition-colors duration-210 hover:text-cream focus-visible:text-cream">{{ __('Terms & Conditions') }}</a>
             </div>
         </div>
     </div>
