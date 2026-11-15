@@ -136,6 +136,24 @@ class LocationTree
     }
 
     /**
+     * The compounds whose name holds the text with a small typo (SearchText::nearly, AKAR-48): "madinsty" finds
+     * Madinaty. From the tree, no query; active compounds only.
+     *
+     * @return list<int>
+     */
+    public static function compoundsNearly(string $text): array
+    {
+        $text = SearchText::normalize($text);
+        $tree = static::tree();
+
+        return $tree['nodes']
+            ->filter(fn (Lookup $node) => ($tree['levels'][$node->id] ?? null) === 5 && $node->is_active
+                && (SearchText::nearly($node->name_en, $text) || SearchText::nearly($node->name_ar, $text)))
+            ->keys()
+            ->all();
+    }
+
+    /**
      * A place and every place above it (its chain), e.g. a compound with its area, region, city and country.
      *
      * @return list<int>
