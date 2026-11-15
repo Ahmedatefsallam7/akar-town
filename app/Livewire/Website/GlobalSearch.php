@@ -20,11 +20,12 @@ class GlobalSearch extends Component
     public function render(): View
     {
         $term = trim(mb_substr($this->q, 0, 80));
-        $results = Search::for($term);
+        ['groups' => $results, 'near' => $near] = Search::search($term);
 
         return view('livewire.website.global-search', [
             'term' => $term,
             'results' => $results,
+            'near' => $near,
             'searched' => $searched = mb_strlen($term) >= 2,
             'popular' => $this->opened && ! $searched ? Search::popularCompounds() : [],
             'found' => collect($results)->flatten(1)->isNotEmpty(),

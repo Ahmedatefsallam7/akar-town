@@ -2,7 +2,7 @@
 
 namespace App\Support\Website;
 
-use App\Filament\Support\PrefixSearch;
+use App\Support\SmartSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -44,7 +44,7 @@ class LocationCards
         $places = collect(PropertySearch::compoundsWithProperties($q))->flatMap(fn (int $compound) => array_slice(LocationTree::withAncestors($compound), 0, 2))->unique()->values()->all();
 
         return $query->where(fn (Builder $query) => $query
-            ->where(fn (Builder $query) => PrefixSearch::apply($query, $q, ['name_en', 'name_ar']))
+            ->where(fn (Builder $query) => SmartSearch::match($query, $q))
             ->orWhereIn(DB::raw('coalesce(sub_area_id, area_id, region_id, city_id, country_id)'), $places ?: [0]));
     }
 

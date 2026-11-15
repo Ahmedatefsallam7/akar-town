@@ -1,8 +1,9 @@
 {{--
     The navbar's search window (App\Livewire\Website\GlobalSearch, AKAR-47), in the site's window look. Before typing:
     the visitor's recent searches (this browser only), the most popular compounds and quick links. Then the results
-    grouped by type, with tabs to show one type, the typed text marked in each name, a small photo (or an icon), a
-    second line and a price or count. ↑ / ↓ move through the rows and Enter opens one; Escape, the × and a click
+    grouped by type, with tabs to show one type, the typed text marked in each name, the type, a small photo (or an
+    icon), a second line and a price or count; close matches when a typo found nothing (AKAR-48). ↑ / ↓ move through
+    the rows and Enter opens the one picked, or else the search page with every result; Escape, the × and a click
     outside close it. Opened by the window event "open-search".
 --}}
 @php
@@ -14,6 +15,7 @@
         'locations' => __('Locations'),
     ];
     // One icon per type: the row's picture when it has no photo (compounds never do).
+    $types = ['compounds' => __('Compound'), 'properties' => __('Property'), 'projects' => __('Project'), 'developers' => __('Developer'), 'locations' => __('Location')];
     $icons = [
         'compounds' => '<rect x="3" y="3" width="7" height="9" rx="1" /><rect x="14" y="3" width="7" height="5" rx="1" /><rect x="14" y="12" width="7" height="9" rx="1" /><rect x="3" y="16" width="7" height="5" rx="1" />',
         'properties' => '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" />',
@@ -86,8 +88,10 @@
             if (rows.length) this.mark((this.active + step + rows.length) % rows.length)
         },
         go() {
-            const row = this.rows()[this.active] ?? this.rows()[0]
-            row?.click()
+            // A row picked with the arrows opens; otherwise Enter shows every result (the search page).
+            const row = this.rows()[this.active]
+            if (row) return row.click()
+            if ($wire.q.trim().length >= 2) window.location = @js(route('search')) + '?q=' + encodeURIComponent($wire.q.trim())
         },
     }"
     @open-search.window="show()"
@@ -223,6 +227,12 @@
                     <p class="max-w-[300px] text-[12.5px] leading-relaxed text-ink-30 rtl:font-arabic">{{ __('Try a compound, area, project or developer name.') }}</p>
                 </div>
             @else
+                @if ($near)
+                    <p class="mx-1 mb-1.5 flex items-center gap-2 rounded-[12px] bg-[rgba(200,16,46,0.05)] px-3 py-2.5 text-[12.5px] text-ink-60 rtl:font-arabic dark:text-white/60" role="status">
+                        <svg class="size-4 shrink-0 text-brand" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
+                        {{ __('No exact match for “:q”, showing close matches.', ['q' => $term]) }}
+                    </p>
+                @endif
                 @foreach ($groups as $key => $title)
                     @if ($results[$key])
                         <section x-show="scope === 'all' || scope === '{{ $key }}'" class="mb-1 last:mb-0" wire:key="group-{{ $key }}">
@@ -247,14 +257,16 @@
                                     @endif
                                     <span class="flex min-w-0 flex-1 flex-col gap-1">
                                         <span class="truncate text-[14.5px] leading-tight font-semibold text-ink rtl:font-arabic dark:text-[#ede8df]">{!! $mark($item['title']) !!}</span>
-                                        @if ($item['sub'])
-                                            <span class="flex min-w-0 items-center gap-1 text-[12px] text-ink-30 rtl:font-arabic">
+                                        <span class="flex min-w-0 items-center gap-1.5 text-[12px] text-ink-30 rtl:font-arabic">
+                                            {{-- The type on every row (also under "All"). --}}
+                                            <span class="shrink-0 rounded-[5px] border border-black/8 px-1.5 py-px text-[10px] font-semibold tracking-[0.04em] text-ink-60 uppercase rtl:tracking-normal dark:border-white/10 dark:text-white/55">{{ $types[$key] }}</span>
+                                            @if ($item['sub'])
                                                 @if ($key !== 'developers')
                                                     <svg class="size-3 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
                                                 @endif
                                                 <span class="truncate">{{ $item['sub'] }}</span>
-                                            </span>
-                                        @endif
+                                            @endif
+                                        </span>
                                     </span>
                                     @if ($item['badge'] ?? null)
                                         <span @class([
@@ -272,16 +284,16 @@
             @endif
         </div>
 
-        {{-- Keys (big screens) and every property matching the text --}}
+        {{-- Keys (big screens) and the search page with every result --}}
         <div @class(['flex shrink-0 items-center justify-between gap-3 border-t border-black/6 bg-black/[0.015] px-5 py-3 text-[11.5px] text-ink-30 rtl:font-arabic dark:border-white/6 dark:bg-white/2', 'max-sm:hidden' => ! $found])>
             <span class="flex items-center gap-3.5 max-sm:hidden">
                 <span class="flex items-center gap-1"><kbd class="{{ $kbd }}">↑</kbd><kbd class="{{ $kbd }}">↓</kbd> {{ __('to move') }}</span>
-                <span class="flex items-center gap-1"><kbd class="{{ $kbd }}">↵</kbd> {{ __('to open') }}</span>
+                <span class="flex items-center gap-1"><kbd class="{{ $kbd }}">↵</kbd> {{ __('all results') }}</span>
                 <span class="flex items-center gap-1"><kbd class="{{ $kbd }}">Esc</kbd> {{ __('to close') }}</span>
             </span>
             @if ($found)
-                <a href="{{ route('properties', ['q' => $term]) }}" @click="remember()" class="ms-auto inline-flex items-center gap-1.5 rounded-full bg-brand px-3.5 py-1.5 font-semibold text-white transition-[background,gap] duration-150 hover:gap-2.5 hover:bg-brand-dk">
-                    {{ __('See all properties') }}
+                <a href="{{ route('search', ['q' => $term]) }}" @click="remember()" class="ms-auto inline-flex items-center gap-1.5 rounded-full bg-brand px-3.5 py-1.5 font-semibold text-white transition-[background,gap] duration-150 hover:gap-2.5 hover:bg-brand-dk">
+                    {{ __('See all results') }}
                     <svg class="size-3.5 rtl:-scale-x-100" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
                 </a>
             @endif

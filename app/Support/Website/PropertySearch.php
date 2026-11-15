@@ -2,7 +2,7 @@
 
 namespace App\Support\Website;
 
-use App\Filament\Support\PrefixSearch;
+use App\Support\SmartSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Modules\Locations\Models\Location;
 use Modules\Lookups\Models\Lookup;
@@ -33,7 +33,7 @@ class PropertySearch
 
         if (filled($q = trim((string) ($filters['q'] ?? '')))) {
             $query->where(fn (Builder $query) => $query
-                ->where(fn (Builder $query) => PrefixSearch::apply($query, $q, ['name_en', 'name_ar']))
+                ->where(fn (Builder $query) => SmartSearch::match($query, $q)) // any part of the name (AKAR-48)
                 ->orWhere(fn (Builder $query) => static::inPlaces($query, LocationTree::startingWith($q)))
                 // A compound's name, partly typed, any case or Arabic spelling (AKAR-47).
                 ->orWhereIn('sub_area_id', LocationTree::compoundsMatching($q)));

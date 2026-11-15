@@ -2,7 +2,7 @@
 
 namespace App\Support\Website;
 
-use App\Filament\Support\PrefixSearch;
+use App\Support\SmartSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
@@ -10,60 +10,94 @@ use Modules\Developers\Models\Developer;
 use Modules\Locations\Models\Location;
 use Modules\Lookups\Models\Lookup;
 use Modules\Lookups\Support\LocationTree;
+use Modules\Lookups\Support\SearchText;
 use Modules\Projects\Models\Project;
 use Modules\Units\Models\Unit;
 
 /**
- * The website's global search (navbar, AKAR-47): what a typed text finds, grouped by type and published only. A
- * compound's name (any part, any case, Arabic letters written either way) finds the compound itself (it opens the
- * properties listing filtered by it), its properties, the projects and developers with a property in it and the
- * location it belongs to; names find properties, projects, developers and locations too. A few rows a group, each
- * with a small photo and a second line, in a fixed number of small queries whatever the data.
+ * The website's search (the navbar window and the /search page, AKAR-47/48): what a typed text finds, grouped by
+ * type and published only. Names match in any part, any case, Arabic letters written either way, the best matches
+ * first (SmartSearch). A compound's name also finds the compound (it opens the properties filtered by it), its
+ * properties, the projects and developers with a property in it and the location it belongs to. When nothing
+ * matches, close names with a small typo are tried (compounds, developers, locations: "madinsty" → Madinaty, and
+ * what is in it). A fixed number of small queries whatever the data.
  */
 class GlobalSearch
 {
-    private const PER_GROUP = 5;
+    public const PER_GROUP = 5;
+
+    public const GROUPS = ['compounds', 'properties', 'projects', 'developers', 'locations'];
 
     /**
      * @return array<string, list<array{title: string, sub: ?string, image: ?string, url: string, badge?: ?string}>> compounds, properties, projects, developers, locations
      */
-    public static function for(string $q): array
+    public static function for(string $q, int $limit = self::PER_GROUP): array
+    {
+        return static::search($q, $limit)['groups'];
+    }
+
+    /**
+     * The groups, and whether they are close matches (a typo) rather than matches.
+     *
+     * @return array{groups: array<string, list<array<string, mixed>>>, near: bool}
+     */
+    public static function search(string $q, int $limit = self::PER_GROUP): array
     {
         $q = trim($q);
-        $empty = ['compounds' => [], 'properties' => [], 'projects' => [], 'developers' => [], 'locations' => []];
+        $empty = array_fill_keys(self::GROUPS, []);
         if (mb_strlen($q) < 2) {
-            return $empty;
+            return ['groups' => $empty, 'near' => false];
         }
 
+        $groups = static::find($q, $limit);
+        if (collect($groups)->flatten(1)->isEmpty() && mb_strlen(SearchText::normalize($q)) >= 4) {
+            return ['groups' => static::find($q, $limit, static::near($q)), 'near' => true];
+        }
+
+        return ['groups' => $groups, 'near' => false];
+    }
+
+    /**
+     * @param  array{compounds: list<int>, developers: list<int>, locations: list<int>}|null  $near  close matches instead of the text
+     */
+    private static function find(string $q, int $limit, ?array $near = null): array
+    {
         // Only compounds with published properties: one with nothing to open isn't offered.
-        $compoundIds = PropertySearch::compoundsWithProperties($q);
-        $compounds = Lookup::query()->whereIn('id', $compoundIds)->orderBy('order')->orderBy('name_en')->limit(self::PER_GROUP)->get(['id', 'parent_id', 'slug', 'name_en', 'name_ar']);
+        $compoundIds = $near ? static::withProperties($near['compounds']) : PropertySearch::compoundsWithProperties($q);
+        $compounds = Lookup::query()->whereIn('id', $compoundIds ?: [0])->orderBy('order')->orderBy('name_en')->limit($limit)->get(['id', 'parent_id', 'slug', 'name_en', 'name_ar']);
         $counts = $compounds->isEmpty() ? collect() : Unit::query()->where('is_published', true)->whereIn('sub_area_id', $compounds->modelKeys())
             ->groupBy('sub_area_id')->selectRaw('sub_area_id, count(*) as total')->pluck('total', 'sub_area_id');
 
         $photo = fn (string $collection) => ['media' => fn ($query) => $query->where('collection_name', $collection)];
+        $byName = fn (Builder $query) => $near ? $query : SmartSearch::rank($query, $q);
 
-        $units = Unit::query()->where('is_published', true)
-            ->where(fn (Builder $query) => $query->whereIn('sub_area_id', $compoundIds ?: [0])->orWhere(fn (Builder $query) => PrefixSearch::apply($query, $q, ['name_en', 'name_ar'])))
+        $units = $byName(Unit::query()->where('is_published', true)
+            ->where(fn (Builder $query) => $query->whereIn('sub_area_id', $compoundIds ?: [0])
+                ->when(! $near, fn (Builder $query) => $query->orWhere(fn (Builder $query) => SmartSearch::match($query, $q)))))
             ->with($photo(Unit::FEATURED_IMAGE))
-            ->orderByDesc('is_featured')->latest('id')->limit(self::PER_GROUP)
+            ->orderByDesc('is_featured')->latest('id')->limit($limit)
             ->get(['id', 'slug', 'name_en', 'name_ar', 'price', 'country_id', 'city_id', 'region_id', 'area_id', 'sub_area_id']);
 
-        $projects = Project::query()->where('is_published', true)
+        $projects = $byName(Project::query()->where('is_published', true)
             ->where(fn (Builder $query) => $query->whereIn('sub_area_id', $compoundIds ?: [0])
                 ->orWhereIn('id', PropertySearch::withPropertiesIn($compoundIds, 'project_id'))
-                ->orWhere(fn (Builder $query) => PrefixSearch::apply($query, $q, ['title_en', 'title_ar'])))
+                ->when($near, fn (Builder $query) => $query->orWhereIn('developer_id', $near['developers'] ?: [0]),
+                    fn (Builder $query) => $query->orWhere(fn (Builder $query) => SmartSearch::match($query, $q)))))
             ->with($photo(Project::FEATURED_IMAGE))
-            ->orderByDesc('is_featured')->latest('id')->limit(self::PER_GROUP)
+            ->orderByDesc('is_featured')->latest('id')->limit($limit)
             ->get(['id', 'slug', 'title_en', 'title_ar', 'country_id', 'city_id', 'region_id', 'area_id', 'sub_area_id']);
 
-        $developers = DeveloperCards::search(Developer::query()->where('is_published', true), $q)
+        $developers = $byName($near
+            ? Developer::query()->where('is_published', true)->whereIn('id', $near['developers'] ?: [0])
+            : DeveloperCards::search(Developer::query()->where('is_published', true), $q))
             ->with($photo(Developer::LOGO))->withCount(['projects' => fn (Builder $query) => $query->where('is_published', true)])
-            ->orderByDesc('is_featured')->orderBy('name_en')->limit(self::PER_GROUP)->get(['id', 'slug', 'name_en', 'name_ar']);
+            ->orderByDesc('is_featured')->orderBy('name_en')->limit($limit)->get(['id', 'slug', 'name_en', 'name_ar']);
 
-        $locations = LocationCards::search(Location::query()->where('is_active', true), $q)
+        $locations = $byName($near
+            ? Location::query()->where('is_active', true)->whereIn('id', $near['locations'] ?: [0])
+            : LocationCards::search(Location::query()->where('is_active', true), $q))
             ->with($photo(Location::FEATURED_IMAGE))
-            ->orderByDesc('is_featured')->orderBy('order')->limit(self::PER_GROUP)->get(['id', 'slug', 'name_en', 'name_ar', 'country_id', 'city_id', 'region_id', 'area_id', 'sub_area_id']);
+            ->orderByDesc('is_featured')->orderBy('order')->limit($limit)->get(['id', 'slug', 'name_en', 'name_ar', 'country_id', 'city_id', 'region_id', 'area_id', 'sub_area_id']);
 
         $place = fn (Model $model) => LocationTree::place([$model->country_id, $model->city_id, $model->region_id, $model->area_id, $model->sub_area_id]) ?: null;
         $thumb = fn (Model $model, string $collection) => Image::url($model->getFirstMedia($collection), 'thumb');
@@ -103,6 +137,33 @@ class GlobalSearch
                 'url' => route('locations.show', $location->slug),
             ])->all(),
         ];
+    }
+
+    /**
+     * Names close to the text (a small typo): compounds from the tree, developers and locations from their search
+     * names (two small lists: published developers, active locations).
+     *
+     * @return array{compounds: list<int>, developers: list<int>, locations: list<int>}
+     */
+    private static function near(string $q): array
+    {
+        $text = SearchText::normalize($q);
+        $close = fn (Builder $query) => $query->pluck('search_name', 'id')->filter(fn (?string $name) => SearchText::nearly($name, $text))->keys()->take(20)->all();
+
+        return [
+            'compounds' => LocationTree::compoundsNearly($text),
+            'developers' => $close(Developer::query()->where('is_published', true)),
+            'locations' => $close(Location::query()->where('is_active', true)),
+        ];
+    }
+
+    /**
+     * @param  list<int>  $compounds
+     * @return list<int> the ones holding published properties
+     */
+    private static function withProperties(array $compounds): array
+    {
+        return $compounds === [] ? [] : Unit::query()->where('is_published', true)->whereIn('sub_area_id', $compounds)->distinct()->pluck('sub_area_id')->all();
     }
 
     /**

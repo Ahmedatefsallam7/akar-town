@@ -125,7 +125,7 @@ class CompoundSearchTest extends TestCase
             ->set('q', 'madinaty')
             ->assertSee(['Compounds', 'Madinaty', 'Sunny Villa', 'Garden Towers', 'Talaat Group', 'Fifth Settlement'])
             ->assertDontSee(['Elsewhere Flat', 'Far Away Project', 'Other Developer', 'Maadi'])
-            ->assertSee(['1 project', 'See all properties', route('properties', ['q' => 'madinaty'])], false)
+            ->assertSee(['1 project', 'See all results', route('search', ['q' => 'madinaty'])], false)
             ->set('q', 'zzzz nothing')
             ->assertSee('No results for “zzzz nothing”');
     }

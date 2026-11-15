@@ -2,7 +2,7 @@
 
 namespace App\Support\Website;
 
-use App\Filament\Support\PrefixSearch;
+use App\Support\SmartSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Modules\Developers\Models\Developer;
@@ -41,7 +41,7 @@ class DeveloperCards
         $compounds = PropertySearch::compoundsWithProperties($q);
 
         return $query->where(fn (Builder $query) => $query
-            ->where(fn (Builder $query) => PrefixSearch::apply($query, $q, ['name_en', 'name_ar']))
+            ->where(fn (Builder $query) => SmartSearch::match($query, $q))
             ->orWhereIn('id', Project::query()->toBase()->select('developer_id')->whereNull('deleted_at')
                 ->where(fn ($query) => $query->whereIn('sub_area_id', $compounds ?: [0])->orWhereIn('id', PropertySearch::withPropertiesIn($compounds, 'project_id')))));
     }

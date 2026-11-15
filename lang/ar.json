@@ -865,10 +865,16 @@
     "No results for “:q”": "لا توجد نتائج لـ «:q»",
     "Try a compound, area, project or developer name.": "جرّب اسم كمبوند أو منطقة أو مشروع أو مطور.",
     "to move": "للتنقل",
-    "to open": "للفتح",
     "to close": "للإغلاق",
-    "See all properties": "عرض كل العقارات",
     "Popular compounds": "الكمبوندات الأكثر طلبًا",
     "Recent searches": "عمليات البحث الأخيرة",
-    "Clear": "مسح"
+    "Clear": "مسح",
+    "Property": "العقار",
+    "Search <em>Results</em>": "نتائج <em>البحث</em>",
+    "Results": "نتيجة",
+    "What are you looking for?": "عمّ تبحث؟",
+    "See all": "عرض الكل",
+    "See all results": "عرض كل النتائج",
+    "all results": "كل النتائج",
+    "No exact match for “:q”, showing close matches.": "لا توجد نتيجة مطابقة لـ «:q»، وهذه أقرب النتائج."
 }

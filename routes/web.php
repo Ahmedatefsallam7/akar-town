@@ -31,6 +31,7 @@ Route::get('/projects/{slug}/pdf/{locale}', [ProjectsController::class, 'pdf'])
 Route::view('/locations', 'website.locations')->name('locations');
 Route::get('/locations/{slug}', [LocationsController::class, 'show'])->name('locations.show');
 Route::view('/wishlist', 'website.wishlist')->name('wishlist');
+Route::view('/search', 'website.search')->name('search');
 Route::view('/developers', 'website.developers')->name('developers');
 Route::get('/developers/{slug}', [DevelopersController::class, 'show'])->name('developers.show');
 Route::view('/about', 'website.about')->name('about');

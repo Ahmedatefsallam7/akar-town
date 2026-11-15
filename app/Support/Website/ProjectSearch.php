@@ -2,7 +2,7 @@
 
 namespace App\Support\Website;
 
-use App\Filament\Support\PrefixSearch;
+use App\Support\SmartSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Modules\Developers\Models\Developer;
 use Modules\Lookups\Support\LocationTree;
@@ -29,8 +29,8 @@ class ProjectSearch
 
         if (filled($q = trim((string) ($filters['q'] ?? '')))) {
             $query->where(fn (Builder $query) => $query
-                ->where(fn (Builder $query) => PrefixSearch::apply($query, $q, ['title_en', 'title_ar']))
-                ->orWhereHas('developer', fn (Builder $query) => PrefixSearch::apply($query->where('is_published', true), $q, ['name_en', 'name_ar']))
+                ->where(fn (Builder $query) => SmartSearch::match($query, $q)) // any part of the name (AKAR-48)
+                ->orWhereHas('developer', fn (Builder $query) => SmartSearch::match($query->where('is_published', true), $q))
                 ->orWhere(fn (Builder $query) => PropertySearch::inPlaces($query, LocationTree::startingWith($q)))
                 // A compound's name: the projects in it, and the ones with a published property in it (AKAR-47).
                 ->orWhereIn('sub_area_id', $compounds = LocationTree::compoundsMatching($q))
