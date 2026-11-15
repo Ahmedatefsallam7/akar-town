@@ -2,7 +2,6 @@
 
 return [
 
-
     'navigation' => [
         'property_management' => 'Property Management',
         'content_management' => 'Content Management',
@@ -21,6 +20,7 @@ return [
         'careers' => 'Careers',
         'possible_leads' => 'Possible Leads',
         'website_users' => 'Website Users',
+        'phone_locks' => 'WhatsApp Locks',
         'applicants' => 'Applicants',
         'users' => 'Users',
         'contact_us' => 'Contact Us',
@@ -184,6 +184,8 @@ return [
         'meeting_until' => 'Meeting Until',
         'registered_from' => 'Registered From',
         'registered_until' => 'Registered Until',
+        'locked_from' => 'Locked From',
+        'locked_until' => 'Locked Until',
         'created_from' => 'Created From',
         'created_until' => 'Created Until',
         'updated_from' => 'Updated From',
@@ -273,7 +275,6 @@ return [
         ],
     ],
 
-
     'developers' => [
         'singular' => 'Developer',
         'plural' => 'Developers',
@@ -354,8 +355,6 @@ return [
             'deleted' => 'Gallery ":name" has been deleted successfully.',
         ],
     ],
-
-
 
     'sliders' => [
         'singular' => 'Slider',
@@ -503,6 +502,27 @@ return [
         ],
     ],
 
+    'phone_locks' => [
+        'singular' => 'WhatsApp lock',
+        'plural' => 'WhatsApp Locks',
+        'subheading' => 'Numbers locked for WhatsApp sign-in after 3 wrong codes. Unlock a number to give it 3 new tries.',
+        'tab_locked' => 'Locked now',
+        'tab_all' => 'All locks (log)',
+        'empty' => 'No locked numbers',
+        'phone' => 'WhatsApp number',
+        'account' => 'Account',
+        'no_account' => 'No account yet',
+        'status' => 'Status',
+        'locked' => 'Locked',
+        'unlocked' => 'Unlocked',
+        'attempts' => 'Wrong codes',
+        'locked_at' => 'Locked at',
+        'ip' => 'IP address',
+        'unlocked_by' => 'by :name',
+        'unlock' => 'Unlock',
+        'unlock_confirm' => ':phone gets 3 new tries and can ask for a code again.',
+        'unlocked_notice' => 'Number unlocked',
+    ],
     'website_users' => [
         'singular' => 'Website User',
         'plural' => 'Website Users',
@@ -928,7 +948,6 @@ return [
         ],
     ],
 
-
     'units' => [
         'singular' => 'Property',
         'plural' => 'Properties',
@@ -1037,7 +1056,6 @@ return [
             'cancelled' => 'Cancelled',
         ],
     ],
-
 
     'notifications' => [
         'updated' => 'Records updated successfully',

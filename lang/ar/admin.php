@@ -2,7 +2,6 @@
 
 return [
 
-
     'navigation' => [
         'property_management' => 'إدارة العقارات',
         'content_management' => 'إدارة المحتوى',
@@ -21,6 +20,7 @@ return [
         'careers' => 'الوظائف',
         'possible_leads' => 'العملاء المحتملون',
         'website_users' => 'مستخدمو الموقع',
+        'phone_locks' => 'أرقام واتساب المقفولة',
         'applicants' => 'المتقدمون',
         'users' => 'المستخدمين',
         'contact_us' => 'اتصل بنا',
@@ -184,6 +184,8 @@ return [
         'meeting_until' => 'الموعد إلى',
         'registered_from' => 'سجّل من',
         'registered_until' => 'سجّل حتى',
+        'locked_from' => 'قُفل من',
+        'locked_until' => 'قُفل حتى',
         'created_from' => 'من تاريخ',
         'created_until' => 'إلى تاريخ',
         'updated_from' => 'من تاريخ التحديث',
@@ -273,7 +275,6 @@ return [
         ],
     ],
 
-
     'developers' => [
         'singular' => 'مطور',
         'plural' => 'المطورين',
@@ -354,8 +355,6 @@ return [
             'deleted' => 'تم حذف المعرض ":name" بنجاح.',
         ],
     ],
-
-
 
     'sliders' => [
         'singular' => 'سلايدر',
@@ -503,6 +502,27 @@ return [
         ],
     ],
 
+    'phone_locks' => [
+        'singular' => 'رقم مقفول',
+        'plural' => 'أرقام واتساب المقفولة',
+        'subheading' => 'أرقام قُفلت للدخول بواتساب بعد 3 أكواد خاطئة. افتح الرقم ليحصل على 3 محاولات جديدة.',
+        'tab_locked' => 'مقفولة الآن',
+        'tab_all' => 'كل عمليات القفل (السجل)',
+        'empty' => 'لا توجد أرقام مقفولة',
+        'phone' => 'رقم واتساب',
+        'account' => 'الحساب',
+        'no_account' => 'بدون حساب بعد',
+        'status' => 'الحالة',
+        'locked' => 'مقفول',
+        'unlocked' => 'مفتوح',
+        'attempts' => 'أكواد خاطئة',
+        'locked_at' => 'وقت القفل',
+        'ip' => 'عنوان IP',
+        'unlocked_by' => 'بواسطة :name',
+        'unlock' => 'فتح',
+        'unlock_confirm' => 'سيحصل :phone على 3 محاولات جديدة ويمكنه طلب كود مرة أخرى.',
+        'unlocked_notice' => 'تم فتح الرقم',
+    ],
     'website_users' => [
         'singular' => 'مستخدم الموقع',
         'plural' => 'مستخدمو الموقع',
@@ -927,7 +947,6 @@ return [
         ],
     ],
 
-
     'units' => [
         'singular' => 'عقار',
         'plural' => 'العقارات',
@@ -1036,7 +1055,6 @@ return [
             'cancelled' => 'ملغى',
         ],
     ],
-
 
     'notifications' => [
         'updated' => 'تم تحديث السجلات بنجاح',
