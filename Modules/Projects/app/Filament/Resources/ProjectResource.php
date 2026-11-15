@@ -39,6 +39,7 @@ use Modules\Lookups\Support\LookupOptions;
 use Modules\Projects\Filament\Resources\ProjectResource\Pages;
 use Modules\Projects\Filament\Resources\ProjectResource\RelationManagers;
 use Modules\Projects\Models\Project;
+use Modules\Units\Models\Unit;
 use Modules\Users\Filament\Forms\AgentFields;
 
 /**
@@ -317,7 +318,11 @@ class ProjectResource extends Resource implements HasPermissionModule
                     ->alignment('center'),
                 TextColumn::make(getLocalizedFieldName('title'))
                     ->label(__('admin.table.title'))
-                    ->searchable(['title_en', 'title_ar', 'project_number'])
+                    // A compound's name also finds the projects in it or with a unit in it (AKAR-47, unpublished too).
+                    ->searchable(query: fn (Builder $query, string $search) => $query->where(fn (Builder $query) => $query
+                        ->whereAny(['title_en', 'title_ar', 'project_number'], 'like', '%'.$search.'%')
+                        ->orWhereIn('sub_area_id', $compounds = LocationTree::compoundsMatching($search, withInactive: true) ?: [0])
+                        ->orWhereIn('id', Unit::query()->select('project_id')->whereNotNull('project_id')->whereIn('sub_area_id', $compounds))))
                     ->sortable()
                     ->weight('medium')
                     ->url(fn (Project $record) => static::getUrl('view', ['record' => $record]))

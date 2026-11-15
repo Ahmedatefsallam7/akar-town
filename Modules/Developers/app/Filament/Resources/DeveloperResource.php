@@ -28,6 +28,8 @@ use Modules\Developers\Filament\Resources\DeveloperResource\RelationManagers;
 use Modules\Developers\Models\Developer;
 use Modules\Lookups\Filament\Forms\LocationFields;
 use Modules\Lookups\Support\LocationTree;
+use Modules\Projects\Models\Project;
+use Modules\Units\Models\Unit;
 
 /**
  * Real-estate developer profiles: developer pages and the "Our Partners" strip on the website.
@@ -240,7 +242,12 @@ class DeveloperResource extends Resource implements HasPermissionModule
                     ->alignment('center'),
                 TextColumn::make('name_en')
                     ->label(__('admin.developers.name_en'))
-                    ->searchable(['name_en', 'name_ar', 'email', 'phone'])
+                    // A compound's name also finds the developers with a project or a unit in it (AKAR-47, unpublished too).
+                    ->searchable(query: fn (Builder $query, string $search) => $query->where(fn (Builder $query) => $query
+                        ->whereAny(['name_en', 'name_ar', 'email', 'phone'], 'like', '%'.$search.'%')
+                        ->orWhereIn('id', Project::query()->select('developer_id')->where(fn (Builder $query) => $query
+                            ->whereIn('sub_area_id', $compounds = LocationTree::compoundsMatching($search, withInactive: true) ?: [0])
+                            ->orWhereIn('id', Unit::query()->select('project_id')->whereNotNull('project_id')->whereIn('sub_area_id', $compounds))))))
                     ->sortable()
                     ->weight('medium')
                     ->url(fn (Developer $record) => static::getUrl('view', ['record' => $record]))

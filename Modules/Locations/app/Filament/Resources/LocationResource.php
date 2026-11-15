@@ -25,6 +25,7 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\DB;
 use Modules\Locations\Filament\Resources\LocationResource\Pages;
 use Modules\Locations\Filament\Resources\LocationResource\RelationManagers;
 use Modules\Locations\Models\Location;
@@ -186,7 +187,11 @@ class LocationResource extends Resource implements HasPermissionModule
                     ->alignment('center'),
                 TextColumn::make(getLocalizedFieldName('name'))
                     ->label(__('admin.table.name'))
-                    ->searchable(['name_en', 'name_ar'])
+                    // A compound's name also finds the location page of the compound or of the area holding it (AKAR-47).
+                    ->searchable(query: fn (Builder $query, string $search) => $query->where(fn (Builder $query) => $query
+                        ->whereAny(['name_en', 'name_ar'], 'like', '%'.$search.'%')
+                        ->orWhereIn(DB::raw('coalesce(sub_area_id, area_id, region_id, city_id, country_id)'), collect(LocationTree::compoundsMatching($search, withInactive: true))
+                            ->flatMap(fn (int $compound) => array_slice(LocationTree::withAncestors($compound), 0, 2))->unique()->values()->all() ?: [0])))
                     ->sortable()
                     ->weight('medium')
                     ->url(fn (Location $record) => static::getUrl('view', ['record' => $record]))

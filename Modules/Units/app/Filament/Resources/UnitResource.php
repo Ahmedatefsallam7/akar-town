@@ -334,7 +334,9 @@ class UnitResource extends Resource implements HasPermissionModule
                 TextColumn::make(getLocalizedFieldName('name'))
                     ->label(__('admin.table.title'))
                     // Fast "starts with" search (see PrefixSearch): "Villa 1" finds "Villa 12", not "Garden Villa".
-                    ->searchable(query: PrefixSearch::using(static::SEARCH_COLUMNS))
+                    // A compound's name (any part, any case, Arabic letters either way) finds its units too (AKAR-47).
+                    ->searchable(query: fn (Builder $query, string $search) => $query->where(fn (Builder $query) => PrefixSearch::apply($query, $search, static::SEARCH_COLUMNS)
+                        ->orWhereIn('sub_area_id', LocationTree::compoundsMatching($search, withInactive: true))))
                     ->sortable()
                     ->weight('medium')
                     ->url(fn (Unit $record) => static::getUrl('view', ['record' => $record]))
