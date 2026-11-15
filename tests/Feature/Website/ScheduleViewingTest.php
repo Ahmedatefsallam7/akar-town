@@ -145,4 +145,11 @@ class ScheduleViewingTest extends TestCase
             ->assertOk()
             ->assertSee(['احجز معاينة', 'زيارة الموقع', 'تأكيد طلب المعاينة']);
     }
+
+    public function test_the_window_fits_short_screens_without_an_inner_scroll(): void
+    {
+        $this->get(route('properties.show', 'sky-penthouse'))->assertOk()
+            ->assertSee(['[@media(max-height:900px)]:max-h-[calc(100dvh-24px)]', '[@media(max-height:900px)]:gap-2.5'], false);
+    }
 }
+
