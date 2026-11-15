@@ -231,4 +231,15 @@ class PropertiesTest extends TestCase
         $this->get(route('properties'))->assertOk()->assertSee(['All Compounds', 'Palm Hills']);
         Livewire::test(Properties::class)->set('compound', ['palm-hills'])->assertSee('Palm Flat')->assertDontSee('Mivida Villa');
     }
+
+    public function test_the_advanced_filters_drawer_takes_clicks_while_open_and_is_a_window(): void
+    {
+        // Its closed classes are dropped while open: a fixed "pointer-events-none" beat the bound
+        // "pointer-events-auto", so the × and the backdrop didn't close it.
+        $this->get(route('properties'))
+            ->assertOk()
+            ->assertSee(":class=\"{ 'pointer-events-auto': drawer, 'pointer-events-none': ! drawer }\"", false)
+            ->assertSee(":class=\"{ 'translate-x-0': drawer, 'ltr:translate-x-full rtl:-translate-x-full': ! drawer }\"", false)
+            ->assertSee(':aria-modal="drawer"', false);
+    }
 }

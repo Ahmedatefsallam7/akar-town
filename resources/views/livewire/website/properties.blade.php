@@ -81,14 +81,17 @@
 
     {{-- Advanced filters drawer --}}
     {{-- Closed in the markup too, so the page isn't dimmed or blocked before Alpine starts. --}}
-    <div class="pointer-events-none fixed inset-0 z-1000" :class="drawer ? 'pointer-events-auto' : 'pointer-events-none'">
-        <div class="absolute inset-0 cursor-pointer bg-[rgba(6,6,10,0.42)] opacity-0 transition-opacity duration-240" :class="drawer ? 'opacity-100' : 'opacity-0'" @click="drawer = false"></div>
+    <div class="pointer-events-none fixed inset-0 z-1000" :class="{ 'pointer-events-auto': drawer, 'pointer-events-none': ! drawer }">
+        <div class="absolute inset-0 cursor-pointer bg-[rgba(6,6,10,0.42)] opacity-0 transition-opacity duration-240" :class="{ 'opacity-100': drawer, 'opacity-0': ! drawer }" @click="drawer = false"></div>
         <aside
-            class="absolute inset-y-0 right-0 flex w-[min(420px,calc(100vw-2.5rem))] translate-x-full flex-col overflow-hidden border-l border-black/9 bg-white transition-transform duration-200 ease-out-ex dark:border-white/8 dark:bg-[rgb(17,17,17)] max-md:w-screen"
-            :class="{ 'translate-x-0': drawer, 'translate-x-full': ! drawer }"
+            class="absolute inset-y-0 end-0 flex w-[min(420px,calc(100vw-2.5rem))] ltr:translate-x-full rtl:-translate-x-full flex-col overflow-hidden border-s border-black/9 bg-white transition-transform duration-200 ease-out-ex dark:border-white/8 dark:bg-[rgb(17,17,17)] max-md:w-screen"
+            :class="{ 'translate-x-0': drawer, 'ltr:translate-x-full rtl:-translate-x-full': ! drawer }"
+            {{-- Slides in from the end side (the left in Arabic), like the menu drawer. A window while open: the navbar then goes under it (see the navbar's aria-modal rule). --}}
+            role="dialog"
+            :aria-modal="drawer"
             aria-label="{{ __('Advanced Filters') }}"
         >
-            <span class="pointer-events-none absolute inset-y-0 left-0 w-0.5 bg-brand" aria-hidden="true"></span>
+            <span class="pointer-events-none absolute inset-y-0 start-0 w-0.5 bg-brand" aria-hidden="true"></span>
             <header class="flex flex-none items-start justify-between gap-4 border-b border-black/7 px-7 pt-7 pb-5 dark:border-white/8 max-md:px-5">
                 <div>
                     <span class="mb-1.5 block text-[9px] font-bold tracking-[0.2em] text-brand uppercase dark:text-ink-60 rtl:font-arabic">{{ __('Refine') }}</span>
