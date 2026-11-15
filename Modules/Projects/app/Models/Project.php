@@ -2,6 +2,7 @@
 
 namespace Modules\Projects\Models;
 
+use App\Models\Concerns\HasSearchName;
 use App\Models\Concerns\HasUniqueSlug;
 use App\Traits\HasLocalization;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -27,7 +28,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  */
 class Project extends Model implements HasMedia
 {
-    use HasFactory, HasLocalization, HasLookups, HasUniqueSlug, InteractsWithMedia, SoftDeletes, Userstamps;
+    use HasFactory, HasLocalization, HasLookups, HasSearchName, HasUniqueSlug, InteractsWithMedia, SoftDeletes, Userstamps;
 
     public const FEATURED_IMAGE = 'featured_image';
 
@@ -116,6 +117,11 @@ class Project extends Model implements HasMedia
     public static function slugSource(): string
     {
         return 'title_en';
+    }
+
+    public static function searchNameSources(): array
+    {
+        return ['title_en', 'title_ar'];
     }
 
     protected static function newFactory(): ProjectFactory

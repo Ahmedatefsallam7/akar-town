@@ -7,7 +7,11 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use Modules\Developers\Models\Developer;
+use Modules\Locations\Models\Location;
 use Modules\Lookups\Models\Lookup;
+use Modules\Projects\Models\Project;
+use Modules\Units\Models\Unit;
 use Modules\Users\Models\User;
 
 /**
@@ -99,8 +103,27 @@ trait SeedsDemoData
 
         $this->command?->info('  '.number_format($target - $have)." more {$table} (SEED_SCALE)");
         foreach (array_chunk(range($have + 1, $target), 1000) as $numbers) {
-            DB::table($table)->insert(array_map($row, $numbers));
+            DB::table($table)->insert(array_map(fn (int $n) => $this->withSearchName($table, $row($n)), $numbers));
         }
+    }
+
+    /**
+     * Rows of units, projects, developers and locations also get their search name, as saving the model does
+     * (AKAR-48, App\Models\Concerns\HasSearchName).
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function withSearchName(string $table, array $data): array
+    {
+        $model = [
+            'units' => Unit::class,
+            'projects' => Project::class,
+            'developers' => Developer::class,
+            'locations' => Location::class,
+        ][$table] ?? null;
+
+        return $model ? $data + ['search_name' => $model::searchNameFor(array_map(fn (string $column) => $data[$column] ?? null, $model::searchNameSources()))] : $data;
     }
 
     /**

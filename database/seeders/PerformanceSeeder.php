@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Modules\Developers\Models\Developer;
+use Modules\Locations\Models\Location;
 use Modules\Lookups\Models\Lookup;
 use Modules\Lookups\Support\LocationTree;
 use Modules\Projects\Models\Project;
@@ -104,20 +106,20 @@ class PerformanceSeeder extends Seeder
 
         foreach (array_chunk(range(1, self::LOCATIONS), self::CHUNK) as $numbers) {
             DB::table('locations')->insert(array_map(fn (int $n) => $chain($n) + [
-                'name_en' => "Perf Location {$n}", 'name_ar' => "موقع تجريبي {$n}", 'slug' => "perf-loc-{$n}",
+                'name_en' => "Perf Location {$n}", 'name_ar' => "موقع تجريبي {$n}", 'slug' => "perf-loc-{$n}", 'search_name' => Location::searchNameFor(["Perf Location {$n}", "موقع تجريبي {$n}"]),
                 'neighbourhoods' => json_encode(['A', 'B', 'C']), 'is_active' => true, 'created_at' => $now, 'updated_at' => $now,
             ], $numbers));
         }
 
         DB::table('developers')->insert(array_map(fn (int $n) => $chain($n) + [
-            'name_en' => "Perf Developer {$n}", 'name_ar' => "مطور تجريبي {$n}", 'slug' => "perf-dev-{$n}",
+            'name_en' => "Perf Developer {$n}", 'name_ar' => "مطور تجريبي {$n}", 'slug' => "perf-dev-{$n}", 'search_name' => Developer::searchNameFor(["Perf Developer {$n}", "مطور تجريبي {$n}"]),
             'is_published' => true, 'created_at' => $now, 'updated_at' => $now,
         ], range(1, self::DEVELOPERS)));
         $developerIds = DB::table('developers')->where('slug', 'like', 'perf-dev-%')->pluck('id')->all();
 
         foreach (array_chunk(range(1, self::PROJECTS), self::CHUNK) as $numbers) {
             DB::table('projects')->insert(array_map(fn (int $n) => $chain($n) + [
-                'title_en' => "Perf Project {$n}", 'title_ar' => "مشروع تجريبي {$n}", 'slug' => "perf-project-{$n}",
+                'title_en' => "Perf Project {$n}", 'title_ar' => "مشروع تجريبي {$n}", 'slug' => "perf-project-{$n}", 'search_name' => Project::searchNameFor(["Perf Project {$n}", "مشروع تجريبي {$n}"]),
                 'developer_id' => $developerIds[$n % count($developerIds)],
                 'price_from' => 1_000_000 + ($n % 200) * 50_000, 'price_to' => 3_000_000 + ($n % 200) * 80_000,
                 'area_from' => 60 + $n % 300, 'area_to' => 200 + $n % 400,
@@ -170,7 +172,7 @@ class PerformanceSeeder extends Seeder
                 $place = $project ? array_intersect_key((array) $project, array_flip(LocationTree::LEVELS)) : $chain($n);
 
                 return $place + [
-                    'name_en' => "Perf Unit {$n}", 'name_ar' => "وحدة تجريبية {$n}", 'slug' => "perf-unit-{$n}",
+                    'name_en' => "Perf Unit {$n}", 'name_ar' => "وحدة تجريبية {$n}", 'slug' => "perf-unit-{$n}", 'search_name' => Unit::searchNameFor(["Perf Unit {$n}", "وحدة تجريبية {$n}"]),
                     'project_id' => $project?->id,
                     'offering_type_id' => $offering[$n % count($offering)], 'property_type_id' => $unitType[$n % count($unitType)],
                     'finishing_type_id' => $finishing[$n % count($finishing)], 'unit_status_id' => $status[$n % count($status)],

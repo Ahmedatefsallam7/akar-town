@@ -2,6 +2,7 @@
 
 namespace Modules\Locations\Models;
 
+use App\Models\Concerns\HasSearchName;
 use App\Models\Concerns\HasUniqueSlug;
 use App\Traits\HasLocalization;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -23,7 +24,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  */
 class Location extends Model implements HasMedia
 {
-    use HasFactory, HasLocalization, HasUniqueSlug, InteractsWithMedia, SoftDeletes, Userstamps;
+    use HasFactory, HasLocalization, HasSearchName, HasUniqueSlug, InteractsWithMedia, SoftDeletes, Userstamps;
 
     public const FEATURED_IMAGE = 'featured_image';
 
