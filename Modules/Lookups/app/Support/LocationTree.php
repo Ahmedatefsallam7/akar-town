@@ -113,6 +113,47 @@ class LocationTree
     }
 
     /**
+     * The compounds (level 5) whose English or Arabic name holds the text anywhere, compared as SearchText does (case,
+     * Arabic letter variants), from the tree read once per request: no query of its own (AKAR-47). Switched-off
+     * compounds only when asked (the admin).
+     *
+     * @return list<int>
+     */
+    public static function compoundsMatching(string $text, bool $withInactive = false): array
+    {
+        $text = SearchText::normalize($text);
+        if (mb_strlen($text) < 2) {
+            return [];
+        }
+        $tree = static::tree();
+
+        return $tree['nodes']
+            ->filter(fn (Lookup $node) => ($tree['levels'][$node->id] ?? null) === 5
+                && ($withInactive || $node->is_active)
+                && (SearchText::contains($node->name_en, $text) || SearchText::contains($node->name_ar, $text)))
+            ->keys()
+            ->all();
+    }
+
+    /**
+     * A place and every place above it (its chain), e.g. a compound with its area, region, city and country.
+     *
+     * @return list<int>
+     */
+    public static function withAncestors(int $id): array
+    {
+        $nodes = static::tree()['nodes'];
+        $chain = [];
+        for ($node = $nodes->get($id); $node; $node = $nodes->get($node->parent_id)) {
+            if (static::levelOf($node->id)) {
+                $chain[] = $node->id;
+            }
+        }
+
+        return $chain;
+    }
+
+    /**
      * The level of a value in the tree, 1 (country) … 5 (compound); null when it isn't a place.
      */
     public static function levelOf(int $id): ?int
