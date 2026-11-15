@@ -2,9 +2,11 @@
 
 namespace App\Support\Website;
 
+use App\Filament\Support\PrefixSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Modules\Developers\Models\Developer;
+use Modules\Projects\Models\Project;
 
 /**
  * Website developer cards (the design's developers.html .dev-card): published developers, featured first then the
@@ -24,6 +26,24 @@ class DeveloperCards
             ->orderByDesc('is_featured')
             ->orderByDesc('projects_count')
             ->orderBy('name_en');
+    }
+
+    /**
+     * The developers page's search: the developer's name (starts with), or a compound's name: the developers with a
+     * project in it or a published property in it (AKAR-47).
+     */
+    public static function search(Builder $query, string $q): Builder
+    {
+        $q = trim($q);
+        if ($q === '') {
+            return $query;
+        }
+        $compounds = PropertySearch::compoundsWithProperties($q);
+
+        return $query->where(fn (Builder $query) => $query
+            ->where(fn (Builder $query) => PrefixSearch::apply($query, $q, ['name_en', 'name_ar']))
+            ->orWhereIn('id', Project::query()->toBase()->select('developer_id')->whereNull('deleted_at')
+                ->where(fn ($query) => $query->whereIn('sub_area_id', $compounds ?: [0])->orWhereIn('id', PropertySearch::withPropertiesIn($compounds, 'project_id')))));
     }
 
     /**

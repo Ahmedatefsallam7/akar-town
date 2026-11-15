@@ -78,6 +78,10 @@
         <div x-data x-ignore data-alpine-later="touch" class="contents">
             <livewire:website.submit-property />
         </div>
+        {{-- The site-wide search, opened by the navbar's search button (event open-search, AKAR-47). --}}
+        <div x-data x-ignore data-alpine-later="touch" class="contents">
+            <livewire:website.global-search />
+        </div>
         {{-- A one-time message from the server (e.g. a blocked account signed out), shown for a few seconds. --}}
         @if ($notice = session(\Modules\WebsiteUsers\Http\Middleware\EnsureWebsiteUserIsActive::NOTICE))
             <div

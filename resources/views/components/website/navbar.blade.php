@@ -143,6 +143,17 @@
                 <span class="relative z-1 flex-1 text-center {{ $isArabic ? 'font-arabic' : 'font-label-ar' }} text-[11px] leading-none font-bold tracking-[0.05em] transition-colors duration-210 select-none" :class="arabic ? 'text-white' : 'text-white/50'">عر</span>
             </a>
 
+            {{-- Search: the site-wide search window (AKAR-47, livewire website.global-search) --}}
+            <button
+                type="button"
+                @click="$dispatch('open-search')"
+                class="{{ $iconButton }} {{ $tooltip }} transition-[background,border-color,color] duration-180 hover:border-white/38 hover:bg-white/10"
+                aria-label="{{ __('Search') }}"
+                data-tooltip="{{ __('Search') }}"
+            >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="size-[14px] flex-none" aria-hidden="true"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
+            </button>
+
             {{-- Wishlist: the saved units and projects (browser only), with their number --}}
             <a
                 href="{{ route('wishlist') }}"
@@ -227,6 +238,16 @@
             </button>
             </div>
         </div>
+
+        {{-- Phones and tablets: the search stays one tap away beside the menu button. --}}
+        <button
+            type="button"
+            @click="open = false; $dispatch('open-search')"
+            class="relative ms-auto me-3 hidden size-[31px] shrink-0 cursor-pointer items-center justify-center rounded-full border border-white/18 bg-transparent text-white/88 transition-[background,border-color] duration-180 hover:border-white/38 hover:bg-white/10 max-[1280px]:inline-flex"
+            aria-label="{{ __('Search') }}"
+        >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="size-[14px] flex-none" aria-hidden="true"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
+        </button>
 
         <button
             type="button"

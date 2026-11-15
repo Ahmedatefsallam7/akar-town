@@ -31,7 +31,10 @@ class ProjectSearch
             $query->where(fn (Builder $query) => $query
                 ->where(fn (Builder $query) => PrefixSearch::apply($query, $q, ['title_en', 'title_ar']))
                 ->orWhereHas('developer', fn (Builder $query) => PrefixSearch::apply($query->where('is_published', true), $q, ['name_en', 'name_ar']))
-                ->orWhere(fn (Builder $query) => PropertySearch::inPlaces($query, LocationTree::startingWith($q))));
+                ->orWhere(fn (Builder $query) => PropertySearch::inPlaces($query, LocationTree::startingWith($q)))
+                // A compound's name: the projects in it, and the ones with a published property in it (AKAR-47).
+                ->orWhereIn('sub_area_id', $compounds = LocationTree::compoundsMatching($q))
+                ->orWhereIn('id', PropertySearch::withPropertiesIn($compounds, 'project_id')));
         }
 
         PropertySearch::inLocation($query, $filters['location'] ?? null);

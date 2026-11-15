@@ -3,6 +3,7 @@
 --}}
 <div>
     <x-website.page-hero :crumb="__('Developers')" :title="__('Explore <em>Trusted</em> Developers')" :count="$total" :count-label="__('Trusted Partners')" :animate="false" />
+    <x-website.listing-search :placeholder="__('Search developers or a compound…')" />
 
     <div class="mx-auto max-w-[1320px] px-12 pt-12 {{ $more ? 'pb-0' : 'pb-12 max-md:pb-[60px]' }} max-[1100px]:px-7 max-md:px-5 max-md:pt-6">
         <div class="grid grid-cols-3 gap-6 max-[1100px]:grid-cols-2 max-md:grid-cols-1" aria-label="{{ __('Developers') }}">
@@ -21,7 +22,7 @@
                 <div class="col-span-full px-6 py-20 text-center" role="status">
                     <svg class="mx-auto mb-5 size-16 text-ink-30" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="28" /><path d="M22 32h20M32 22v20" stroke-linecap="round" /></svg>
                     <p class="mb-2 font-sans text-[1.6rem] font-light text-ink rtl:font-arabic">{{ __('No developers found') }}</p>
-                    <p class="text-[13px] text-ink-30">{{ __('Please check back soon.') }}</p>
+                    <p class="text-[13px] text-ink-30">{{ $q !== '' ? __('Try another name or compound.') : __('Please check back soon.') }}</p>
                 </div>
             @endforelse
         </div>

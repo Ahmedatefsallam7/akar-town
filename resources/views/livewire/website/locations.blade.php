@@ -4,6 +4,7 @@
 --}}
 <div>
     <x-website.page-hero :crumb="__('Locations')" :title="__('Explore <em>Prime</em> Locations')" :count="$total" :count-label="__('Locations')" :animate="false" start-on-phone />
+    <x-website.listing-search :placeholder="__('Search locations or a compound…')" />
 
     <main class="mx-auto max-w-[1320px] px-12 pt-12 {{ $more ? 'pb-0' : 'pb-12' }} max-[1100px]:px-7 max-[700px]:px-5" aria-label="{{ __('Locations listing') }}">
         <div class="grid grid-cols-3 gap-[18px] max-[1100px]:grid-cols-2 max-[1100px]:gap-[14px] max-[700px]:grid-cols-1 max-[700px]:gap-3">
@@ -49,7 +50,7 @@
             @empty
                 <div class="col-span-full px-5 py-20 text-center" role="status">
                     <p class="mb-2 text-[18px] font-medium text-ink rtl:font-arabic">{{ __('No locations found') }}</p>
-                    <p class="text-[14px] text-ink-60">{{ __('Please check back soon.') }}</p>
+                    <p class="text-[14px] text-ink-60">{{ $q !== '' ? __('Try another name or compound.') : __('Please check back soon.') }}</p>
                 </div>
             @endforelse
         </div>

@@ -5,7 +5,7 @@
     [value, label] pairs (kept in order), and their menu items are built the first time the menu opens: a long list (2,000
     locations) no longer weighs on every page load.
 --}}
-@props(['model', 'options', 'placeholder', 'label' => null, 'live' => false, 'variant' => 'filter'])
+@props(['model', 'options', 'placeholder', 'label' => null, 'live' => false, 'variant' => 'filter', 'searchable' => false])
 
 @php
     $options = ['' => $placeholder] + $options;
@@ -22,6 +22,16 @@
         get current() {
             const value = $wire.get(@js($model))
             return String(Array.isArray(value) ? (value[0] ?? '') : (value ?? ''))
+        },
+        // searchable: a box above a long list (compounds, AKAR-47) narrows it as the visitor types: any part of the name,
+        // any case, Arabic letters written either way (as SearchText on the server).
+        find: '',
+        norm(text) {
+            return String(text).toLowerCase().replace(/[\u064B-\u065F\u0670\u0640]/g, '').replace(/[أإآٱ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه').trim()
+        },
+        get shown() {
+            const find = this.norm(this.find)
+            return find === '' ? this.options : this.options.filter((option, i) => i === 0 || this.norm(option[1]).includes(find))
         },
         choose(value) {
             const array = Array.isArray($wire.get(@js($model)))
@@ -63,7 +73,12 @@
     >
         <template x-if="built">
             <div>
-                <template x-for="[value, text] in options" :key="value">
+                @if ($searchable)
+                    <div class="sticky top-0 border-b border-ink-10 bg-page p-2">
+                        <input type="search" x-model="find" @click.stop placeholder="{{ __('Type a name…') }}" aria-label="{{ __('Type a name…') }}" class="w-full rounded-lg border border-ink-10 bg-transparent px-3 py-1.5 text-[12.5px] text-ink outline-none placeholder:text-ink-30 focus:border-brand rtl:font-arabic" />
+                    </div>
+                @endif
+                <template x-for="[value, text] in shown" :key="value">
                     <div
                         role="option"
                         @click="choose(value)"
@@ -73,6 +88,9 @@
                         x-text="text"
                     ></div>
                 </template>
+                @if ($searchable)
+                    <p x-show="shown.length < 2" class="px-[14px] py-[9px] text-[12.5px] text-ink-30 rtl:font-arabic">{{ __('No results') }}</p>
+                @endif
             </div>
         </template>
     </div>

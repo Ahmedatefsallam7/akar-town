@@ -34,7 +34,9 @@ class PropertySearch
         if (filled($q = trim((string) ($filters['q'] ?? '')))) {
             $query->where(fn (Builder $query) => $query
                 ->where(fn (Builder $query) => PrefixSearch::apply($query, $q, ['name_en', 'name_ar']))
-                ->orWhere(fn (Builder $query) => static::inPlaces($query, LocationTree::startingWith($q))));
+                ->orWhere(fn (Builder $query) => static::inPlaces($query, LocationTree::startingWith($q)))
+                // A compound's name, partly typed, any case or Arabic spelling (AKAR-47).
+                ->orWhereIn('sub_area_id', LocationTree::compoundsMatching($q)));
         }
 
         static::whereIn($query, 'property_type_id', SearchOptions::ids('unittype', $filters['type'] ?? []));
@@ -200,6 +202,31 @@ class PropertySearch
      *
      * @param  list<array{column: string, id: int}>  $places
      */
+    /**
+     * The compounds whose name holds the text and that have published properties (a compound with nothing to open
+     * isn't offered to visitors), once per request per text (AKAR-47).
+     *
+     * @return list<int>
+     */
+    public static function compoundsWithProperties(string $text): array
+    {
+        $compounds = LocationTree::compoundsMatching($text);
+
+        return $compounds === [] ? [] : once(fn () => Unit::query()->where('is_published', true)->whereIn('sub_area_id', $compounds)->distinct()->pluck('sub_area_id')->all());
+    }
+
+    /**
+     * The ids of what has a published property in one of the compounds (e.g. 'project_id'): a subquery for whereIn,
+     * so projects, developers and locations are found through the properties that sit in a compound (AKAR-47).
+     *
+     * @param  list<int>  $compounds
+     */
+    public static function withPropertiesIn(array $compounds, string $column): \Illuminate\Database\Query\Builder
+    {
+        return Unit::query()->toBase()->select($column)->where('is_published', true)->whereNull('deleted_at')
+            ->whereNotNull($column)->whereIn('sub_area_id', $compounds ?: [0]);
+    }
+
     public static function inPlaces(Builder $query, array $places): void
     {
         $query->where(function (Builder $query) use ($places) {

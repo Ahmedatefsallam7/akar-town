@@ -2,9 +2,11 @@
 
 namespace App\Support\Website;
 
+use App\Filament\Support\PrefixSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Modules\Locations\Models\Location;
 use Modules\Lookups\Support\LocationTree;
 use Modules\Units\Models\Unit;
@@ -27,6 +29,23 @@ class LocationCards
             ->orderByRaw('`order` is null')
             ->orderBy('order')
             ->orderBy('id');
+    }
+
+    /**
+     * The locations page's search: the location's name (starts with), or a compound's name: the location that is the
+     * compound or its area (its most precise place), when the compound has published properties (AKAR-47).
+     */
+    public static function search(Builder $query, string $q): Builder
+    {
+        $q = trim($q);
+        if ($q === '') {
+            return $query;
+        }
+        $places = collect(PropertySearch::compoundsWithProperties($q))->flatMap(fn (int $compound) => array_slice(LocationTree::withAncestors($compound), 0, 2))->unique()->values()->all();
+
+        return $query->where(fn (Builder $query) => $query
+            ->where(fn (Builder $query) => PrefixSearch::apply($query, $q, ['name_en', 'name_ar']))
+            ->orWhereIn(DB::raw('coalesce(sub_area_id, area_id, region_id, city_id, country_id)'), $places ?: [0]));
     }
 
     /**
