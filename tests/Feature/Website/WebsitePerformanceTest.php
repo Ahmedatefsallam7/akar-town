@@ -117,14 +117,15 @@ class WebsitePerformanceTest extends TestCase
         $this->assertDoesNotMatchRegularExpression('/<script src="[^"]*livewire[^"]*\.js/', $html);
     }
 
-    public function test_english_pages_draw_the_language_switch_letters_without_the_whole_arabic_font(): void
+    public function test_english_pages_draw_the_language_switch_without_the_arabic_font(): void
     {
+        // The switch reads "EN | AR" on English pages (no Arabic letters to draw), "إنجليزي | عربي" in the Arabic font.
         $this->get(route('about'))->assertOk()
-            ->assertSee('font-label-ar text-[11px]', false)
-            ->assertDontSee('font-arabic text-[11px]', false);
+            ->assertSee(['>EN</a>', '>AR</a>'], false)
+            ->assertDontSee('font-arabic min-w-10', false);
 
         $this->withCookie('locale', 'ar')->get(route('about'))->assertOk()
-            ->assertSee('font-arabic text-[11px]', false);
+            ->assertSee('font-arabic min-w-10', false);
     }
 
     public function test_the_listing_header_photo_is_asked_for_early_and_phones_take_the_small_copy(): void

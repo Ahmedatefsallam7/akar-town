@@ -127,21 +127,8 @@
 
             {{-- Phones: language, wishlist, account and theme move into the drawer (the design's .navbar__right). --}}
             <div class="flex items-center gap-[15px] max-[1280px]:hidden">
-            {{-- Language switch: the knob slides to the chosen language, then the page reloads in it. --}}
-            <a
-                href="{{ route('locale.switch', $isArabic ? 'en' : 'ar') }}"
-                x-data="{ arabic: @js($isArabic) }"
-                @click.prevent="arabic = ! arabic; setTimeout(() => window.location = $el.href, 250)"
-                dir="ltr"
-                role="switch"
-                :aria-checked="arabic"
-                class="relative flex h-[31px] w-20 shrink-0 cursor-pointer items-center rounded-full border border-[rgba(160,50,72,0.45)] bg-[rgba(160,50,72,0.18)] p-[3px] outline-none backdrop-blur-[10px] transition-[box-shadow,border-color] duration-210 hover:border-[rgba(160,50,72,0.7)] rtl:mr-3 rtl:max-xs:mr-0"
-                aria-label="{{ __('Switch language') }}"
-            >
-                <span class="relative z-1 flex-1 text-center font-sans text-[11px] leading-none font-bold tracking-[0.05em] transition-colors duration-210 select-none" :class="arabic ? 'text-white/50' : 'text-white'">EN</span>
-                <span class="absolute top-[3px] left-[3px] z-0 h-[calc(100%-6px)] w-[calc(50%-3px)] rounded-full bg-brand transition-transform duration-240 ease-spring" :class="arabic && 'translate-x-full'"></span>
-                <span class="relative z-1 flex-1 text-center {{ $isArabic ? 'font-arabic' : 'font-label-ar' }} text-[11px] leading-none font-bold tracking-[0.05em] transition-colors duration-210 select-none" :class="arabic ? 'text-white' : 'text-white/50'">عر</span>
-            </a>
+            {{-- Language switch, in the admin's look (website/language-switch). --}}
+            <x-website.language-switch class="rtl:mr-3 rtl:max-xs:mr-0" />
 
             {{-- Search: the site-wide search window (AKAR-47, livewire website.global-search) --}}
             <button
@@ -287,8 +274,8 @@
                 </li>
             @endforeach
         </ul>
-        {{-- Account · wishlist · theme · language (the design's .mobile-nav__utils). --}}
-        <div class="mb-7 grid grid-cols-4 gap-2.5 border-y border-white/7 py-5">
+        {{-- Account · wishlist · theme (the design's .mobile-nav__utils), then the language. --}}
+        <div class="mb-7 grid grid-cols-3 gap-2.5 border-y border-white/7 py-5">
             @if ($account)
                 {{-- Signed in: the account page (sign out is there). --}}
                 <a href="{{ route('account') }}" class="{{ $tile }}" aria-label="{{ __('My Account') }}">
@@ -320,14 +307,11 @@
                 </span>
                 <span>{{ __('Theme') }}</span>
             </button>
-            <a href="{{ route('locale.switch', $isArabic ? 'en' : 'ar') }}" class="{{ $tile }}" aria-label="{{ __('Switch language') }}">
-                <span dir="ltr" class="relative flex h-[22px] w-[58px] items-center rounded-full border border-[rgba(160,50,72,0.45)] bg-[rgba(160,50,72,0.18)] p-0.5" aria-hidden="true">
-                    <span class="relative z-1 flex-1 text-center font-sans text-[8px] leading-none font-bold {{ $isArabic ? 'text-white/50' : 'text-white' }}">EN</span>
-                    <span class="absolute top-0.5 left-0.5 z-0 h-[calc(100%-4px)] w-[calc(50%-2px)] rounded-full bg-brand {{ $isArabic ? 'translate-x-full' : '' }}"></span>
-                    <span class="relative z-1 flex-1 text-center {{ $isArabic ? 'font-arabic' : 'font-label-ar' }} text-[8px] leading-none font-bold {{ $isArabic ? 'text-white' : 'text-white/50' }}">عر</span>
-                </span>
-                <span>{{ __('Language') }}</span>
-            </a>
+        </div>
+        {{-- Language: its own row, the switch needs the room of both names. --}}
+        <div class="-mt-2 mb-2 flex items-center justify-between gap-4">
+            <span class="font-sans text-[10px] font-semibold tracking-[0.06em] text-white/75 uppercase rtl:font-arabic rtl:tracking-normal">{{ __('Language') }}</span>
+            <x-website.language-switch />
         </div>
         @if ($phones)
             {{-- Every number, one per line, each callable. --}}

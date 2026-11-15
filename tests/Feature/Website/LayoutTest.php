@@ -77,6 +77,17 @@ class LayoutTest extends TestCase
             ->assertSee(route('locale.switch', 'en'), false);
     }
 
+    public function test_the_language_switch_has_one_button_per_language_like_the_admin(): void
+    {
+        $this->get(route('about'))->assertOk()
+            ->assertSee('aria-label="Switch language"', false)
+            ->assertSee(['href="'.route('locale.switch', 'en').'"', 'href="'.route('locale.switch', 'ar').'"', 'hreflang="ar"', '[--index:0]'], false)
+            ->assertSee(['>EN</a>', '>AR</a>'], false);
+
+        $this->withCookie('locale', 'ar')->get(route('about'))->assertOk()
+            ->assertSee(['>إنجليزي</a>', '>عربي</a>', '[--index:1]'], false);
+    }
+
     public function test_the_chosen_theme_is_rendered_by_the_server(): void
     {
         $this->withUnencryptedCookie('theme', 'dark')->get(route('home'))->assertSee('data-theme="dark"', false);
@@ -138,7 +149,7 @@ class LayoutTest extends TestCase
         $head = fn (string $html) => (string) str($html)->before('</head>');
 
         $english = $head($this->get(route('about'))->assertOk()->getContent());
-        $this->assertStringContainsString('Noto Kufi Arabic', $english); // the language switch's "عر"
+        $this->assertStringContainsString('Noto Kufi Arabic', $english); // declared for any Arabic text
         $this->assertMatchesRegularExpression('/rel="preload" as="font" href="[^"]*archivo/', $english);
         $this->assertDoesNotMatchRegularExpression('/rel="preload" as="font" href="[^"]*noto-kufi-arabic/', $english);
 
