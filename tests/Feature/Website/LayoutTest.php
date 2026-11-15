@@ -168,9 +168,9 @@ class LayoutTest extends TestCase
     {
         $html = $this->get(route('about'))->assertOk()->getContent();
 
-        // Under 1200 px the bar shows the menu button (the full bar needs ≈1190 px).
-        $this->assertStringContainsString('max-[1199px]:hidden', $html);
-        $this->assertStringContainsString('p-1.5 max-[1199px]:flex', $html);
+        // Under 1280 px the bar shows the menu button (the full bar needs ≈1240 px).
+        $this->assertStringContainsString('max-[1280px]:hidden', $html);
+        $this->assertStringContainsString('p-1.5 max-[1280px]:flex', $html);
         // The navbar stays above the footer, outside the page wrap the home footer reveal moves.
         $this->assertStringContainsString('fixed inset-x-0 top-0 z-[950]', $html);
         $this->assertLessThan(strpos($html, 'id="site-wrap"'), strpos($html, 'aria-label="Main navigation"'));

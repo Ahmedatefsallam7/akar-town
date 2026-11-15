@@ -50,13 +50,13 @@
         aria-label="{{ __('Main navigation') }}"
     >
         <a href="{{ route('home') }}" class="flex shrink-0 items-center" aria-label="{{ __('Akar Town — Home') }}">
-            {{-- The design's size on every screen. Under 1200 px (phones, tablets, small laptops: the full bar needs ≈1190 px)
+            {{-- The design's size on every screen. Under 1280 px (phones, tablets, small laptops: the full bar needs ≈1240 px)
                  it holds only the logo and the menu button; the drawer has everything else. --}}
             <x-website.logo width="230" class="max-w-full max-xs:w-[180px]" />
         </a>
 
         <div class="flex items-center gap-[15px] max-sm:gap-[10px] max-xs:gap-1.5">
-            <ul class="flex list-none items-center gap-[15px] max-[1199px]:hidden" role="list">
+            <ul class="flex list-none items-center gap-[15px] max-[1280px]:hidden" role="list">
                 @foreach ($links as $link)
                     <li>
                         <a
@@ -73,7 +73,7 @@
 
             @if (count($phones) > 1)
                 {{-- Several numbers: the first one opens a list of all, each one callable. --}}
-                <div x-data="{ list: false }" @click.outside="list = false" @keydown.escape.window="list = false" class="relative shrink-0 max-[1199px]:hidden">
+                <div x-data="{ list: false }" @click.outside="list = false" @keydown.escape.window="list = false" class="relative shrink-0 max-[1280px]:hidden">
                     <button
                         type="button"
                         @click="list = ! list"
@@ -107,7 +107,7 @@
                 <a
                     href="{{ $tel($phone) }}"
                     @click="$track('phone')"
-                    class="inline-flex shrink-0 items-center gap-[7px] text-[12px] font-semibold tracking-[0.06em] whitespace-nowrap text-white/90 transition-colors duration-180 hover:text-white max-[1199px]:hidden"
+                    class="inline-flex shrink-0 items-center gap-[7px] text-[12px] font-semibold tracking-[0.06em] whitespace-nowrap text-white/90 transition-colors duration-180 hover:text-white max-[1280px]:hidden"
                     aria-label="{{ __('Call :phone', ['phone' => $phone]) }}"
                 >
                     <x-website.icons.phone class="shrink-0 opacity-75" />
@@ -115,9 +115,9 @@
                 </a>
             @endif
 
-            <div class="h-[18px] w-px shrink-0 bg-white/15 max-[1199px]:hidden" aria-hidden="true"></div>
+            <div class="h-[18px] w-px shrink-0 bg-white/15 max-[1280px]:hidden" aria-hidden="true"></div>
 
-            <div class="flex items-center max-[1199px]:hidden">
+            <div class="flex items-center max-[1280px]:hidden">
                 <button
                     type="button"
                     @click="$dispatch('open-submit-property')"
@@ -126,7 +126,7 @@
             </div>
 
             {{-- Phones: language, wishlist, account and theme move into the drawer (the design's .navbar__right). --}}
-            <div class="flex items-center gap-[15px] max-[1199px]:hidden">
+            <div class="flex items-center gap-[15px] max-[1280px]:hidden">
             {{-- Language switch: the knob slides to the chosen language, then the page reloads in it. --}}
             <a
                 href="{{ route('locale.switch', $isArabic ? 'en' : 'ar') }}"
@@ -232,7 +232,7 @@
             type="button"
             @click="open = ! open"
             :aria-expanded="open"
-            class="z-10 hidden size-9 shrink-0 cursor-pointer flex-col justify-center gap-[5px] p-1.5 max-[1199px]:flex"
+            class="z-10 hidden size-9 shrink-0 cursor-pointer flex-col justify-center gap-[5px] p-1.5 max-[1280px]:flex"
             aria-label="{{ __('Toggle navigation') }}"
         >
             <span class="pointer-events-none block h-[1.5px] w-[22px] rounded-[2px] bg-white transition-[transform,opacity] duration-210" :class="open && 'translate-y-[6.5px] rotate-45'"></span>
