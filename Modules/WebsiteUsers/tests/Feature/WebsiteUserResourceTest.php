@@ -68,11 +68,11 @@ class WebsiteUserResourceTest extends TestCase
         $this->assertFalse(Auth::guard('web')->validate(['email' => 'visitor@example.com', 'password' => 'password']));
     }
 
-    public function test_email_is_required_and_email_and_mobile_are_unique(): void
+    public function test_email_and_mobile_are_unique_and_a_whatsapp_account_may_have_no_email(): void
     {
         $user = WebsiteUser::factory()->create(['email' => 'sara@example.com', 'phone' => '+201001112222']);
 
-        foreach ([['email' => null], ['email' => 'sara@example.com'], ['phone' => '+201001112222']] as $invalid) {
+        foreach ([['email' => 'sara@example.com'], ['phone' => '+201001112222']] as $invalid) {
             try {
                 WebsiteUser::factory()->create($invalid);
                 $this->fail('Saved an account with '.json_encode($invalid));
@@ -82,6 +82,10 @@ class WebsiteUserResourceTest extends TestCase
 
         $this->assertSame(1, WebsiteUser::count());
         $this->assertNotNull($user);
+
+        // An account made with a WhatsApp number has no e-mail (AKAR-49); several can exist.
+        WebsiteUser::factory()->count(2)->sequence(['phone' => '+201001112233'], ['phone' => '+201001112244'])->create(['email' => null, 'registration_method' => 'phone']);
+        $this->assertSame(2, WebsiteUser::query()->whereNull('email')->count());
     }
 
     public function test_the_password_is_never_shown_or_editable(): void

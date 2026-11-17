@@ -52,6 +52,9 @@ class AuthModal extends Component
      */
     public static function phoneRules(string $country): array
     {
+        // Only the countries we offer (the country can be changed from the browser): anything else is Egypt.
+        $country = in_array($country, array_column(self::COUNTRIES, 0), true) ? $country : 'EG';
+
         return once(function () use ($country) {
             $util = PhoneNumberUtil::getInstance();
             $example = $util->getExampleNumberForType($country, PhoneNumberType::MOBILE);
