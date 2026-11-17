@@ -2,6 +2,7 @@
 
 namespace Modules\Units\Tests\Feature;
 
+use App\Support\Images\ProtectedImages;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -39,7 +40,7 @@ class UnitResourceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        Storage::fake('public');
+        Storage::fake(ProtectedImages::DISK);
 
         $root = Lookup::create(['slug' => LocationTree::ROOT_SLUG, 'name_en' => 'Locations', 'name_ar' => 'المواقع']);
         $add = fn (Lookup $parent, string $name) => $parent->children()->create(['slug' => str($name)->slug(), 'name_en' => $name, 'name_ar' => "ع {$name}"]);
@@ -437,12 +438,12 @@ class UnitResourceTest extends TestCase
 
         $unit->delete();
         $this->assertDatabaseHas('lookupables', ['lookupable_id' => $unit->id, 'lookupable_type' => Unit::class]);
-        Storage::disk('public')->assertExists($path);
+        Storage::disk(ProtectedImages::DISK)->assertExists($path);
 
         $unit->forceDelete();
         $this->assertDatabaseMissing('lookupables', ['lookupable_id' => $unit->id, 'lookupable_type' => Unit::class]);
         $this->assertDatabaseMissing('unit_price_histories', ['unit_id' => $unit->id]);
-        Storage::disk('public')->assertMissing($path);
+        Storage::disk(ProtectedImages::DISK)->assertMissing($path);
     }
 
     public function test_the_view_page_is_read_only_with_edit_delete_and_price_history(): void

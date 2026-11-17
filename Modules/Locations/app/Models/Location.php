@@ -5,6 +5,8 @@ namespace Modules\Locations\Models;
 use App\Models\Concerns\HasLocalization;
 use App\Models\Concerns\HasSearchName;
 use App\Models\Concerns\HasUniqueSlug;
+use App\Support\Images\MediaSizes;
+use App\Support\Images\ProtectedImages;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -14,7 +16,6 @@ use Modules\Locations\Database\Factories\LocationFactory;
 use Modules\Lookups\Support\LocationTree;
 use Modules\Projects\Models\Project;
 use Modules\Units\Models\Unit;
-use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -104,24 +105,8 @@ class Location extends Model implements HasMedia
      */
     public function registerMediaCollections(): void
     {
-        $this->addMediaCollection(self::FEATURED_IMAGE)
-            ->useDisk('public')
-            ->singleFile()
-            ->registerMediaConversions(function () {
-                // Small WebP for the admin list, and the website's size (made in the background).
-                $this->addMediaConversion('thumb')
-                    ->fit(Fit::Crop, 160, 160)
-                    ->format('webp')
-                    ->nonQueued();
-                $this->addMediaConversion('large')
-                    ->fit(Fit::Max, 1920, 1920)
-                    ->format('webp')
-                    ->queued();
-                // The cards' size (home destinations).
-                $this->addMediaConversion('card')
-                    ->fit(Fit::Max, 900, 900)
-                    ->format('webp')
-                    ->queued();
-            });
+        // Protected images (AKAR-51): the private disk, the website's sizes watermarked (MediaSizes).
+        $this->addMediaCollection(self::FEATURED_IMAGE)->useDisk(ProtectedImages::DISK)->singleFile()
+            ->registerMediaConversions(fn () => MediaSizes::photo($this));
     }
 }

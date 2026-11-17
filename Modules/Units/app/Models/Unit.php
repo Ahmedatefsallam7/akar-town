@@ -5,6 +5,8 @@ namespace Modules\Units\Models;
 use App\Models\Concerns\HasLocalization;
 use App\Models\Concerns\HasSearchName;
 use App\Models\Concerns\HasUniqueSlug;
+use App\Support\Images\MediaSizes;
+use App\Support\Images\ProtectedImages;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,7 +19,6 @@ use Modules\Lookups\Support\LocationTree;
 use Modules\Projects\Models\Project;
 use Modules\Units\Database\Factories\UnitFactory;
 use Modules\Users\Models\User;
-use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -134,20 +135,15 @@ class Unit extends Model implements HasMedia
 
     public function registerMediaCollections(): void
     {
-        $this->addMediaCollection(self::FEATURED_IMAGE)->useDisk('public')->singleFile()
-            ->registerMediaConversions(function () {
-                $this->addMediaConversion('thumb')->fit(Fit::Crop, 160, 160)->format('webp')->nonQueued();
-                // The website's size, made in the background (the original is used until then).
-                $this->addMediaConversion('large')->fit(Fit::Max, 1920, 1920)->format('webp')->queued();
-                // The cards' size (lists, sliders, wishlist, compare).
-                $this->addMediaConversion('card')->fit(Fit::Max, 900, 900)->format('webp')->queued();
-            });
+        // Protected images (AKAR-51): the private disk, the website's sizes watermarked (MediaSizes).
+        $this->addMediaCollection(self::FEATURED_IMAGE)->useDisk(ProtectedImages::DISK)->singleFile()
+            ->registerMediaConversions(fn () => MediaSizes::photo($this));
         // 360° images are kept whole (too big to resize on the server); only the website viewer uses them.
-        $this->addMediaCollection(self::IMAGES_360)->useDisk('public');
+        $this->addMediaCollection(self::IMAGES_360)->useDisk(ProtectedImages::DISK);
         // Plans are shown whole, never cropped.
         foreach ([self::FLOOR_PLAN, self::MASTER_PLAN] as $plan) {
-            $this->addMediaCollection($plan)->useDisk('public')->singleFile()
-                ->registerMediaConversions(fn () => $this->addMediaConversion('thumb')->fit(Fit::Max, 160, 160)->format('webp')->nonQueued());
+            $this->addMediaCollection($plan)->useDisk(ProtectedImages::DISK)->singleFile()
+                ->registerMediaConversions(fn () => MediaSizes::plan($this));
         }
     }
 

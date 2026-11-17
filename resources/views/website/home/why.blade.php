@@ -66,7 +66,7 @@
                         ])
                     >
                         @if ($card['icon'] ?? null)
-                            <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($card['icon']) }}" alt="" loading="lazy" class="mb-5 h-[100px] w-[120px] shrink-0 object-contain max-[480px]:mb-[14px] max-[480px]:h-[66px] max-[480px]:w-20" />
+                            <img src="{{ \App\Support\Images\ProtectedImages::url($card['icon']) }}" alt="" loading="lazy" class="mb-5 h-[100px] w-[120px] shrink-0 object-contain max-[480px]:mb-[14px] max-[480px]:h-[66px] max-[480px]:w-20" />
                         @else
                             <x-dynamic-component :component="'website.illustrations.'.$illustrations[$i]" class="mb-5 h-[100px] w-[120px] shrink-0 max-[480px]:mb-[14px] max-[480px]:h-[66px] max-[480px]:w-20" />
                         @endif

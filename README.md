@@ -54,6 +54,9 @@ Naming: traits go in a `Concerns/` folder, helpers in a `Support/` folder.
 - **An image upload field:** add the field (and the places that show it) to `App\Support\Images\ImageSizes`, then wrap
   the admin field in `ImageRules::apply($field, 'key')` (a test fails if you forget). A website form validates with
   `ImageValidation::rules('key')`. Its sizes then show on Settings → Image Sizes, where an admin can change them.
+- **Website images are protected** (AKAR-51): uploads live on the private `media` disk and the website shows them
+  through short-lived signed links (`App\Support\Images\ProtectedImages`), never an original. The watermark on the
+  photos is switched on or off at once with `IMAGES_WATERMARK=true|false` in `.env`.
 - **Text:** never hard-code it. Admin: `__('admin.…')` in `lang/{en,ar}/admin.php`. Website: `__('English text')` plus
   the Arabic in `lang/ar.json`.
 

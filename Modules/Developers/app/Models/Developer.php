@@ -5,6 +5,8 @@ namespace Modules\Developers\Models;
 use App\Models\Concerns\HasLocalization;
 use App\Models\Concerns\HasSearchName;
 use App\Models\Concerns\HasUniqueSlug;
+use App\Support\Images\MediaSizes;
+use App\Support\Images\ProtectedImages;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -12,7 +14,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Mattiverse\Userstamps\Traits\Userstamps;
 use Modules\Developers\Database\Factories\DeveloperFactory;
 use Modules\Projects\Models\Project;
-use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -97,28 +98,10 @@ class Developer extends Model implements HasMedia
      */
     public function registerMediaCollections(): void
     {
-        $this->addMediaCollection(self::LOGO)
-            ->useDisk('public')
-            ->singleFile()
-            ->registerMediaConversions(function () {
-                // Whole logo, never cropped: the admin list and the developer page's round logo (100 px).
-                $this->addMediaConversion('thumb')
-                    ->fit(Fit::Max, 160, 160)
-                    ->format('webp')
-                    ->nonQueued();
-            });
-
-        $this->addMediaCollection(self::FEATURED_IMAGE)
-            ->useDisk('public')
-            ->singleFile()
-            ->registerMediaConversions(function () {
-                $this->addMediaConversion('thumb')
-                    ->fit(Fit::Crop, 160, 160)
-                    ->format('webp')
-                    ->nonQueued();
-                // The website's sizes: the developers page cards, the developer page's story photo.
-                $this->addMediaConversion('card')->fit(Fit::Max, 900, 900)->format('webp')->queued();
-                $this->addMediaConversion('large')->fit(Fit::Max, 1920, 1920)->format('webp')->queued();
-            });
+        // Protected images (AKAR-51): the private disk; the logo whole, the photo's website sizes watermarked.
+        $this->addMediaCollection(self::LOGO)->useDisk(ProtectedImages::DISK)->singleFile()
+            ->registerMediaConversions(fn () => MediaSizes::logo($this));
+        $this->addMediaCollection(self::FEATURED_IMAGE)->useDisk(ProtectedImages::DISK)->singleFile()
+            ->registerMediaConversions(fn () => MediaSizes::photo($this));
     }
 }

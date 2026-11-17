@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Website;
 
+use App\Support\Images\ProtectedImages;
 use App\Support\Website\Image;
 use App\Support\Website\SearchOptions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -33,29 +34,30 @@ class WebsitePerformanceTest extends TestCase
         $site->save();
     }
 
-    public function test_an_image_url_takes_the_asked_size_then_the_large_one_then_the_original(): void
+    public function test_an_image_url_takes_the_asked_size_then_the_large_one_never_the_original(): void
     {
-        Storage::fake('public');
+        Storage::fake(ProtectedImages::DISK);
         $unit = Unit::factory()->create();
         $media = $unit->addMedia(UploadedFile::fake()->image('villa.jpg', 2400, 1600))->toMediaCollection(Unit::FEATURED_IMAGE);
 
-        // Sizes are made in the background after an upload: until then, the next best one.
+        // Sizes are made in the background after an upload: until then, the next best one (protected links, AKAR-51).
         $media->generated_conversions = ['thumb' => true, 'large' => true, 'card' => true];
-        $this->assertStringEndsWith('-card.webp', Image::url($media, 'card'));
-        $this->assertStringEndsWith('-large.webp', Image::url($media));
+        $this->assertStringContainsString('-card.webp?expires=', Image::url($media, 'card'));
+        $this->assertStringContainsString('-large.webp?expires=', Image::url($media));
         // Both sizes made: the browser picks (phones the card one).
-        $this->assertMatchesRegularExpression('/-card\.webp 900w, .+-large\.webp 1920w$/', Image::srcset($media));
+        $this->assertMatchesRegularExpression('/-card\.webp\?\S+ 900w, .+-large\.webp\?\S+ 1920w$/', Image::srcset($media));
         $media->generated_conversions = ['thumb' => true, 'large' => true, 'card' => false];
-        $this->assertStringEndsWith('-large.webp', Image::url($media, 'card'));
+        $this->assertStringContainsString('-large.webp?expires=', Image::url($media, 'card'));
+        // None made yet: the placeholder, never the original (it has no watermark).
         $media->generated_conversions = ['thumb' => true, 'large' => false, 'card' => false];
-        $this->assertStringEndsWith('villa.jpg', Image::url($media, 'card'));
+        $this->assertSame(Image::placeholder(), Image::url($media, 'card'));
         $this->assertNull(Image::srcset($media)); // nothing to choose from yet
         $this->assertNull(Image::url(null));
     }
 
     public function test_cards_use_the_card_size(): void
     {
-        Storage::fake('public');
+        Storage::fake(ProtectedImages::DISK);
         $unit = Unit::factory()->create(['is_featured' => true]);
         $unit->addMedia(UploadedFile::fake()->image('villa.jpg', 2400, 1600))->toMediaCollection(Unit::FEATURED_IMAGE);
 
@@ -94,7 +96,7 @@ class WebsitePerformanceTest extends TestCase
 
     public function test_only_the_first_property_photo_loads_with_the_page(): void
     {
-        Storage::fake('public');
+        Storage::fake(ProtectedImages::DISK);
         $gallery = Gallery::query()->create(['name_en' => 'Villa Gallery', 'name_ar' => 'معرض']);
         foreach (['a.jpg', 'b.jpg'] as $name) {
             $gallery->addMedia(UploadedFile::fake()->image($name))->toMediaCollection(Gallery::PHOTOS);
@@ -134,13 +136,13 @@ class WebsitePerformanceTest extends TestCase
         $this->assertMatchesRegularExpression('/<link rel="preload" as="image" href="[^"]+" media="\(max-width: 768px\)" fetchpriority="high"/', $html);
         $this->assertStringContainsString('bg-(image:--bg-small) min-[769px]:bg-(image:--bg)', $html);
 
-        Storage::fake('public');
+        Storage::fake(ProtectedImages::DISK);
         $location = Location::factory()->create(['slug' => 'new-cairo', 'is_active' => true]);
         $location->addMedia(UploadedFile::fake()->image('cairo.jpg', 1600, 900))->toMediaCollection(Location::FEATURED_IMAGE);
 
         $html = $this->get(route('locations.show', 'new-cairo'))->assertOk()->getContent();
         $small = Image::url($location->getFirstMedia(Location::FEATURED_IMAGE), 'card');
-        $this->assertStringContainsString('href="'.$small.'" media="(max-width: 768px)"', $html);
+        $this->assertStringContainsString('href="'.e($small).'" media="(max-width: 768px)"', $html); // as written in HTML (&amp;)
     }
 
     public function test_the_wishlist_keeps_a_screen_of_room_so_the_footer_does_not_jump(): void

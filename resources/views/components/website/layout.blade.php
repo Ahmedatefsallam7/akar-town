@@ -57,7 +57,9 @@
         @stack('head')
     </head>
 
-    <body class="min-h-screen overflow-x-clip bg-page font-sans leading-[1.6] text-ink selection:bg-brand selection:text-white rtl:text-right rtl:font-arabic">
+    {{-- Images (AKAR-51): not selectable, draggable or long-pressable; blurred while the page isn't focused (a
+         screenshot tool over it; see js/website/protect.js); not printed. --}}
+    <body class="min-h-screen overflow-x-clip bg-page font-sans leading-[1.6] text-ink selection:bg-brand selection:text-white rtl:text-right rtl:font-arabic [&_img]:select-none [&_img]:[-webkit-touch-callout:none] [&_img]:[-webkit-user-drag:none] [&_img]:transition-[filter] [&_img]:duration-200 data-unfocused:[&_img]:blur-xl print:[&_img]:invisible">
         {{ $before ?? '' }}
 
         {{-- Outside the page wrap: the home footer reveal moves and scales the wrap, which would take a fixed navbar

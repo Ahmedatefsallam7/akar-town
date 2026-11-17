@@ -5,6 +5,8 @@ namespace Modules\Projects\Models;
 use App\Models\Concerns\HasLocalization;
 use App\Models\Concerns\HasSearchName;
 use App\Models\Concerns\HasUniqueSlug;
+use App\Support\Images\MediaSizes;
+use App\Support\Images\ProtectedImages;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -18,7 +20,6 @@ use Modules\Projects\Database\Factories\ProjectFactory;
 use Modules\Sliders\Models\SliderItem;
 use Modules\Units\Models\Unit;
 use Modules\Users\Models\User;
-use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -176,19 +177,14 @@ class Project extends Model implements HasMedia
      */
     public function registerMediaCollections(): void
     {
-        $crop = function () {
-            $this->addMediaConversion('thumb')->fit(Fit::Crop, 160, 160)->format('webp')->nonQueued();
-            $this->addMediaConversion('large')->fit(Fit::Max, 1920, 1920)->format('webp')->queued();
-            // The cards' size (lists, home grid, wishlist).
-            $this->addMediaConversion('card')->fit(Fit::Max, 900, 900)->format('webp')->queued();
-        };
-        // Logos and plans are shown whole, never cropped.
-        $whole = fn () => $this->addMediaConversion('thumb')->fit(Fit::Max, 160, 160)->format('webp')->nonQueued();
+        // Protected images (AKAR-51): the private disk, the website's sizes watermarked (MediaSizes).
+        $photo = fn () => MediaSizes::photo($this);
+        $disk = ProtectedImages::DISK;
 
-        $this->addMediaCollection(self::FEATURED_IMAGE)->useDisk('public')->singleFile()->registerMediaConversions($crop);
-        $this->addMediaCollection(self::LOGO)->useDisk('public')->singleFile()->registerMediaConversions($whole);
-        $this->addMediaCollection(self::GALLERY)->useDisk('public')->registerMediaConversions($crop);
-        $this->addMediaCollection(self::MASTER_PLAN)->useDisk('public')->singleFile()->registerMediaConversions($whole);
-        $this->addMediaCollection(self::ABOUT_IMAGE)->useDisk('public')->singleFile()->registerMediaConversions($crop);
+        $this->addMediaCollection(self::FEATURED_IMAGE)->useDisk($disk)->singleFile()->registerMediaConversions($photo);
+        $this->addMediaCollection(self::LOGO)->useDisk($disk)->singleFile()->registerMediaConversions(fn () => MediaSizes::logo($this));
+        $this->addMediaCollection(self::GALLERY)->useDisk($disk)->registerMediaConversions($photo);
+        $this->addMediaCollection(self::MASTER_PLAN)->useDisk($disk)->singleFile()->registerMediaConversions(fn () => MediaSizes::plan($this));
+        $this->addMediaCollection(self::ABOUT_IMAGE)->useDisk($disk)->singleFile()->registerMediaConversions($photo);
     }
 }

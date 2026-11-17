@@ -47,7 +47,7 @@
     $contact = 'flex items-center gap-[10px] rounded-[10px] border border-white/8 bg-white/4 px-4 py-[11px] font-sans text-[12.5px] font-medium text-white/75 transition-[border-color,background,color] duration-220 hover:border-white/22 hover:bg-white/8 hover:text-white [&_svg]:shrink-0 [&_svg]:opacity-55 hover:[&_svg]:opacity-85';
 @endphp
 
-<x-website.layout :title="$p['title']" :description="$p['short']" :image="$p['images'][0] ?? null">
+<x-website.layout :title="$p['title']" :description="$p['short']" :image="$p['share']">
     <div
         x-data="projectPage(@js(['count' => $count]))"
         @keydown.window="key($event)"

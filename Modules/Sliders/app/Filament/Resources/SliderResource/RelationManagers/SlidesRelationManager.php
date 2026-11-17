@@ -92,9 +92,12 @@ class SlidesRelationManager extends RelationManager
             ->columns([
                 ImageColumn::make('image')
                     ->label(__('admin.table.image'))
-                    // The file's path on the public disk (Filament builds the link), so it works with a relative storage URL.
-                    ->state(fn (SliderItem $record) => $record->project?->getFirstMedia(Project::FEATURED_IMAGE)?->getPathRelativeToRoot('thumb'))
-                    ->disk('public')
+                    // The project photo's protected link (AKAR-51), full: Filament reads a relative one as a file path.
+                    ->state(function (SliderItem $record) {
+                        $url = $record->project?->getFirstMedia(Project::FEATURED_IMAGE)?->getUrl('thumb');
+
+                        return $url ? url($url) : null;
+                    })
                     ->imageSize(40)
                     ->square(),
                 TextColumn::make('project_title')

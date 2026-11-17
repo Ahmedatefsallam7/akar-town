@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Performance;
 
+use App\Support\Images\ProtectedImages;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
@@ -121,7 +122,7 @@ class NoNPlusOneTest extends TestCase
 
     public function test_locations_list_with_images(): void
     {
-        Storage::fake('public');
+        Storage::fake(ProtectedImages::DISK);
         $this->actingAs($this->createAdmin());
         $withImage = fn (Location $location) => $location->addMedia(UploadedFile::fake()->image('cover.jpg', 40, 40))->toMediaCollection(Location::FEATURED_IMAGE);
         $withImage(Location::factory()->create(['neighbourhoods' => ['A']]));
@@ -131,7 +132,7 @@ class NoNPlusOneTest extends TestCase
 
     public function test_developers_list_with_logos_images_and_locations(): void
     {
-        Storage::fake('public');
+        Storage::fake(ProtectedImages::DISK);
         $this->actingAs($this->createAdmin());
         $root = Lookup::create(['slug' => 'locations', 'name_en' => 'Locations']);
         $egypt = $root->children()->create(['slug' => 'egypt', 'name_en' => 'Egypt']);
@@ -146,7 +147,7 @@ class NoNPlusOneTest extends TestCase
 
     public function test_projects_list_with_logos_developers_currencies_and_locations(): void
     {
-        Storage::fake('public');
+        Storage::fake(ProtectedImages::DISK);
         $this->actingAs($this->createAdmin());
         $root = Lookup::create(['slug' => 'locations', 'name_en' => 'Locations']);
         $egypt = $root->children()->create(['slug' => 'egypt', 'name_en' => 'Egypt']);
@@ -160,7 +161,7 @@ class NoNPlusOneTest extends TestCase
 
     public function test_galleries_list_with_images_and_projects(): void
     {
-        Storage::fake('public');
+        Storage::fake(ProtectedImages::DISK);
         $this->actingAs($this->createAdmin());
         $gallery = fn () => Gallery::factory()->create(['project_id' => Project::factory()->create()->id])
             ->addMedia(UploadedFile::fake()->image('cover.jpg', 40, 40))->toMediaCollection(Gallery::FEATURED_IMAGE);
@@ -171,7 +172,7 @@ class NoNPlusOneTest extends TestCase
 
     public function test_units_list_with_images_projects_offering_types_and_locations(): void
     {
-        Storage::fake('public');
+        Storage::fake(ProtectedImages::DISK);
         $this->actingAs($this->createAdmin());
         $root = Lookup::create(['slug' => 'locations', 'name_en' => 'Locations']);
         $egypt = $root->children()->create(['slug' => 'egypt', 'name_en' => 'Egypt']);
@@ -188,7 +189,7 @@ class NoNPlusOneTest extends TestCase
 
     public function test_hero_slides_tab(): void
     {
-        Storage::fake('public');
+        Storage::fake(ProtectedImages::DISK);
         $this->actingAs($this->createAdmin());
         $hero = Slider::factory()->hero()->create();
         $slide = function () use ($hero) {
@@ -224,7 +225,7 @@ class NoNPlusOneTest extends TestCase
 
     public function test_sell_requests_list(): void
     {
-        Storage::fake('public');
+        Storage::fake(ProtectedImages::DISK);
         $this->actingAs($this->createAdmin());
         $request = fn () => UnitRequest::factory()->create()
             ->addMedia(UploadedFile::fake()->image('flat.jpg', 40, 40))->toMediaCollection(UnitRequest::FEATURED_IMAGE);

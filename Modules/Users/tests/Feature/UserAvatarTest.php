@@ -3,6 +3,7 @@
 namespace Modules\Users\Tests\Feature;
 
 use App\Filament\Forms\ImageRules;
+use App\Support\Images\ProtectedImages;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -51,7 +52,7 @@ class UserAvatarTest extends TestCase
         $user = User::where('email', 'sara@example.com')->sole();
         $this->assertStringStartsWith(User::AVATAR_DIRECTORY.'/', $user->avatar);
         Storage::disk(User::AVATAR_DISK)->assertExists($user->avatar);
-        $this->assertSame(Storage::disk(User::AVATAR_DISK)->url($user->avatar), $user->getFilamentAvatarUrl());
+        $this->assertSame(ProtectedImages::url($user->avatar), $user->getFilamentAvatarUrl());
     }
 
     public function test_photo_is_optional(): void

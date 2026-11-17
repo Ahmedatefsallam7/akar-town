@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Support\Images\ProtectedImages;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -27,7 +28,7 @@ class SeedersTest extends TestCase
 
         // A temporary storage folder: the demo photo cache (storage/app/demo) gets the fake photos, not the real one.
         $this->app->useStoragePath(sys_get_temp_dir().'/seeders-test-'.getmypid());
-        Storage::fake('public');
+        Storage::fake(ProtectedImages::DISK);
         Storage::fake('local');
 
         $photo = imagecreatetruecolor(40, 30);

@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Website;
 
+use App\Support\Images\ProtectedImages;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Storage;
 use Modules\GeneralSettings\Settings\AboutUsSettings;
 use Modules\GeneralSettings\Settings\SiteSettings;
 use Tests\TestCase;
@@ -72,7 +72,7 @@ class AboutTest extends TestCase
         $about->save();
 
         $this->get(route('about'))
-            ->assertSee(Storage::disk('public')->url('settings/images/story.jpg'), false)
+            ->assertSee(ProtectedImages::url('settings/images/story.jpg'))
             ->assertDontSee('about-story.webp');
     }
 

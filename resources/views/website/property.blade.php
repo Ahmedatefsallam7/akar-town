@@ -39,7 +39,7 @@
     $details = array_chunk($p['details'], 2, true);
 @endphp
 
-<x-website.layout :title="$p['title']" :description="$p['short']" :image="$p['images'][0] ?? null">
+<x-website.layout :title="$p['title']" :description="$p['short']" :image="$p['share']">
     <div
         x-data="propertyPage(@js(['count' => $count, 'latitude' => $p['latitude'], 'longitude' => $p['longitude'], 'place' => $p['place']]))"
        

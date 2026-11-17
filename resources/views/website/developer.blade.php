@@ -171,7 +171,7 @@
                         <div {!! $intersect !!} class="{{ $reveal }} rounded-2xl border border-ink-10 bg-white p-7 text-center [transition:opacity_0.9s,transform_0.9s,border-color_0.25s,box-shadow_0.25s] hover:border-[rgba(200,16,46,0.25)] hover:shadow-[0_8px_32px_rgba(200,16,46,0.08)] dark:border-white/8 dark:bg-[#1a1916]" style="transition-delay: {{ $loop->index * 0.12 }}s">
                             <span class="mx-auto mb-5 grid size-14 place-items-center overflow-hidden rounded-xl bg-[rgba(200,16,46,0.08)]" aria-hidden="true">
                                 @if ($card['icon'] ?? null)
-                                    <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($card['icon']) }}" alt="" loading="lazy" class="size-9 object-contain" />
+                                    <img src="{{ \App\Support\Images\ProtectedImages::url($card['icon']) }}" alt="" loading="lazy" class="size-9 object-contain" />
                                 @else
                                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="text-brand"><polyline points="20 6 9 17 4 12" /></svg>
                                 @endif

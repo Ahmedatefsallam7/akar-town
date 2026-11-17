@@ -2,6 +2,7 @@
 
 namespace Modules\Developers\Tests\Feature;
 
+use App\Support\Images\ProtectedImages;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -263,7 +264,7 @@ class DeveloperResourceTest extends TestCase
 
     public function test_logo_and_featured_image_are_saved_with_small_webp_copies_for_the_list(): void
     {
-        Storage::fake('public');
+        Storage::fake(ProtectedImages::DISK);
         $this->actingAs($this->createAdmin());
 
         Livewire::test(CreateDeveloper::class)
@@ -279,18 +280,18 @@ class DeveloperResourceTest extends TestCase
         foreach ([Developer::LOGO, Developer::FEATURED_IMAGE] as $collection) {
             $media = $developer->getFirstMedia($collection);
             $this->assertNotNull($media, "{$collection} missing");
-            Storage::disk('public')->assertExists($media->getPathRelativeToRoot('thumb'));
+            Storage::disk(ProtectedImages::DISK)->assertExists($media->getPathRelativeToRoot('thumb'));
             $this->assertStringEndsWith('.webp', $media->getPathRelativeToRoot('thumb'));
         }
 
         // The logo is never cropped: a wide logo keeps its shape.
-        [$width, $height] = getimagesize(Storage::disk('public')->path($developer->getFirstMedia(Developer::LOGO)->getPathRelativeToRoot('thumb')));
+        [$width, $height] = getimagesize(Storage::disk(ProtectedImages::DISK)->path($developer->getFirstMedia(Developer::LOGO)->getPathRelativeToRoot('thumb')));
         $this->assertSame([160, 80], [$width, $height]);
     }
 
     public function test_only_images_are_accepted_with_size_limits(): void
     {
-        Storage::fake('public');
+        Storage::fake(ProtectedImages::DISK);
         $this->actingAs($this->createAdmin());
 
         Livewire::test(CreateDeveloper::class)
@@ -304,15 +305,15 @@ class DeveloperResourceTest extends TestCase
 
     public function test_images_stay_in_the_trash_and_go_with_a_permanent_delete(): void
     {
-        Storage::fake('public');
+        Storage::fake(ProtectedImages::DISK);
         $developer = Developer::factory()->create();
         $path = $developer->addMedia(UploadedFile::fake()->image('logo.png'))->toMediaCollection(Developer::LOGO)->getPathRelativeToRoot();
 
         $developer->delete();
-        Storage::disk('public')->assertExists($path);
+        Storage::disk(ProtectedImages::DISK)->assertExists($path);
 
         $developer->forceDelete();
-        Storage::disk('public')->assertMissing($path);
+        Storage::disk(ProtectedImages::DISK)->assertMissing($path);
     }
 
     public function test_editing_updates_fields(): void

@@ -16,7 +16,7 @@ class EnsureSiteIsLive
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->is('admin', 'admin/*', 'locale/*', 'up') || $this->isAdminLivewireRequest($request) || app(SiteSettings::class)->is_live) {
+        if ($request->is('admin', 'admin/*', 'locale/*', 'up', 'images/*') || $this->isAdminLivewireRequest($request) || app(SiteSettings::class)->is_live) {
             return $next($request);
         }
 

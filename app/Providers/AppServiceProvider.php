@@ -2,10 +2,13 @@
 
 namespace App\Providers;
 
+use App\Support\Images\ProtectedImages;
+use DateTimeInterface;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -38,6 +41,12 @@ class AppServiceProvider extends ServiceProvider
         FileUpload::configureUsing(fn (FileUpload $field) => $field->getUploadedFileNameForStorageUsing(
             fn (TemporaryUploadedFile $file) => Str::ulid().'.'.($file->guessExtension() ?? 'bin'),
         ), isImportant: true);
+
+        // Protected images (AKAR-51): a file on the private "media" disk shown by the admin's upload fields gets the same
+        // short-lived signed link as on the website.
+        Storage::disk(ProtectedImages::DISK)->buildTemporaryUrlsUsing(
+            fn (string $path, DateTimeInterface $expiration) => ProtectedImages::url($path, max(60, $expiration->getTimestamp() - time())),
+        );
 
         // The website declares both fonts on every page (English pages show "عر"), but only Arabic pages preload the
         // Arabic one: an English page downloads it only when it needs those few letters.

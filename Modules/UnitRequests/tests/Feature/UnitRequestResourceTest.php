@@ -2,6 +2,7 @@
 
 namespace Modules\UnitRequests\Tests\Feature;
 
+use App\Support\Images\ProtectedImages;
 use Filament\Tables\Filters\QueryBuilder\Constraints\NumberConstraint\Operators\IsMinOperator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -29,7 +30,7 @@ class UnitRequestResourceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        Storage::fake('public');
+        Storage::fake(ProtectedImages::DISK);
     }
 
     /**

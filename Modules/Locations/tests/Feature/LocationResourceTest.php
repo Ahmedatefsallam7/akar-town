@@ -2,6 +2,7 @@
 
 namespace Modules\Locations\Tests\Feature;
 
+use App\Support\Images\ProtectedImages;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -307,7 +308,7 @@ class LocationResourceTest extends TestCase
 
     public function test_the_featured_image_is_saved_with_a_small_webp_for_the_list(): void
     {
-        Storage::fake('public');
+        Storage::fake(ProtectedImages::DISK);
         $this->actingAs($this->createAdmin());
 
         Livewire::test(CreateLocation::class)
@@ -317,14 +318,14 @@ class LocationResourceTest extends TestCase
 
         $media = Location::sole()->getFirstMedia(Location::FEATURED_IMAGE);
         $this->assertNotNull($media);
-        Storage::disk('public')->assertExists($media->getPathRelativeToRoot());
-        Storage::disk('public')->assertExists($media->getPathRelativeToRoot('thumb'));
+        Storage::disk(ProtectedImages::DISK)->assertExists($media->getPathRelativeToRoot());
+        Storage::disk(ProtectedImages::DISK)->assertExists($media->getPathRelativeToRoot('thumb'));
         $this->assertStringEndsWith('.webp', $media->getPathRelativeToRoot('thumb'));
     }
 
     public function test_only_images_up_to_5_mb_are_accepted(): void
     {
-        Storage::fake('public');
+        Storage::fake(ProtectedImages::DISK);
         $this->actingAs($this->createAdmin());
 
         Livewire::test(CreateLocation::class)
@@ -340,16 +341,16 @@ class LocationResourceTest extends TestCase
 
     public function test_the_image_stays_in_the_trash_and_goes_with_a_permanent_delete(): void
     {
-        Storage::fake('public');
+        Storage::fake(ProtectedImages::DISK);
         $location = Location::factory()->create();
         $media = $location->addMedia(UploadedFile::fake()->image('cover.jpg'))->toMediaCollection(Location::FEATURED_IMAGE);
         $path = $media->getPathRelativeToRoot();
 
         $location->delete();
-        Storage::disk('public')->assertExists($path);
+        Storage::disk(ProtectedImages::DISK)->assertExists($path);
 
         $location->forceDelete();
-        Storage::disk('public')->assertMissing($path);
+        Storage::disk(ProtectedImages::DISK)->assertMissing($path);
     }
 
     public function test_a_lookup_value_a_location_uses_cannot_be_deleted_nor_anything_above_it(): void

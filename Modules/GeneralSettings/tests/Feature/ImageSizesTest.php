@@ -9,6 +9,7 @@ use App\Support\Images\ImageSizes;
 use App\Support\Images\ImageSizesExport;
 use App\Support\Images\ImageText;
 use App\Support\Images\ImageValidation;
+use App\Support\Images\ProtectedImages;
 use App\Support\Website\SiteImages;
 use Filament\Actions\Testing\TestAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -300,7 +301,7 @@ class ImageSizesTest extends TestCase
 
     public function test_the_share_image_is_uploaded_cropped_and_used_when_a_page_is_shared(): void
     {
-        Storage::fake('public');
+        Storage::fake(ProtectedImages::DISK);
         $this->actingAs($this->createAdmin());
 
         // The website is open (it starts closed in the tests).
@@ -316,8 +317,8 @@ class ImageSizesTest extends TestCase
             ->assertHasNoFormErrors();
         $path = app(WebsiteImagesSettings::class)->refresh()->share_image;
 
-        $this->get(route('home'))->assertSee(Storage::disk('public')->url($path), false)->assertSee('summary_large_image', false);
-        Storage::disk('public')->assertMissing(SiteImages::smallPath($path));
+        $this->get(route('home'))->assertSee(ProtectedImages::url($path, ProtectedImages::SHARE_LIFETIME))->assertSee('summary_large_image', false);
+        Storage::disk(ProtectedImages::DISK)->assertMissing(SiteImages::smallPath($path));
 
         // Another shape is refused.
         Livewire::test(WebsiteImagesSettingsPage::class)

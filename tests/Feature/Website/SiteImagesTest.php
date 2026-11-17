@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Website;
 
+use App\Support\Images\ProtectedImages;
 use App\Support\Website\SiteImages;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
@@ -19,7 +20,7 @@ class SiteImagesTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        Storage::fake('public');
+        Storage::fake(ProtectedImages::DISK);
 
         $site = app(SiteSettings::class);
         $site->is_live = true;
@@ -31,8 +32,8 @@ class SiteImagesTest extends TestCase
         $images = app(WebsiteImagesSettings::class);
         foreach ($paths as $key => $path) {
             $images->{$key} = $path;
-            Storage::disk('public')->put($path, 'x');
-            Storage::disk('public')->put(SiteImages::smallPath($path), 'x');
+            Storage::disk(ProtectedImages::DISK)->put($path, 'x');
+            Storage::disk(ProtectedImages::DISK)->put(SiteImages::smallPath($path), 'x');
         }
         $images->save();
     }
@@ -58,7 +59,8 @@ class SiteImagesTest extends TestCase
             'footer_background' => 'settings/images/footer.jpg',
             'logo' => 'settings/images/logo.png',
         ]);
-        $url = fn (string $path) => Storage::disk('public')->url($path);
+        // As written in the page (the link's & is &amp; in HTML).
+        $url = fn (string $path) => e(ProtectedImages::url($path));
 
         $this->get(route('contact'))->assertOk()
             ->assertSee([$url('settings/images/contact.jpg'), $url('settings/images/contact-small.webp'), $url('settings/images/footer.jpg'), $url('settings/images/footer-small.webp'), $url('settings/images/logo.png')], false)
@@ -73,9 +75,9 @@ class SiteImagesTest extends TestCase
         $images = app(WebsiteImagesSettings::class);
         $images->about_hero = 'settings/images/about.jpg';
         $images->save();
-        Storage::disk('public')->put('settings/images/about.jpg', 'x');
+        Storage::disk(ProtectedImages::DISK)->put('settings/images/about.jpg', 'x');
 
-        $full = Storage::disk('public')->url('settings/images/about.jpg');
+        $full = ProtectedImages::url('settings/images/about.jpg');
         $this->assertSame([$full, $full], SiteImages::get('about_hero'));
     }
 }

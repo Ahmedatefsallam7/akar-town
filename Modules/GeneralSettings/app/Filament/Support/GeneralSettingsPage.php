@@ -5,6 +5,7 @@ namespace Modules\GeneralSettings\Filament\Support;
 use App\Filament\Concerns\InteractsWithPermissionModule;
 use App\Filament\Contracts\HasPermissionModule;
 use App\Filament\Forms\ImageRules;
+use App\Support\Images\ProtectedImages;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
@@ -76,7 +77,7 @@ abstract class GeneralSettingsPage extends SettingsPage implements HasPermission
     {
         $removed = array_diff($this->iconsBeforeSave, static::iconPaths(app(static::getSettings())->toArray()));
 
-        Storage::disk('public')->delete(array_values($removed));
+        Storage::disk(ProtectedImages::DISK)->delete(array_values($removed));
     }
 
     /**
@@ -128,9 +129,9 @@ abstract class GeneralSettingsPage extends SettingsPage implements HasPermission
                     // Sizes, formats and hints from Settings → Image Sizes (AKAR-50); never SVG (it can carry scripts).
                     ImageRules::apply(FileUpload::make('icon')
                         ->label(__('admin.settings.fields.icon'))
-                        ->disk('public')
+                        ->disk(ProtectedImages::DISK)
                         ->directory(self::ICONS_DIRECTORY)
-                        ->visibility('public'), 'card_icon')
+                        ->visibility('private'), 'card_icon')
                         ->columnSpanFull(),
                 ] : []),
                 static::textEn('header', 'header'),

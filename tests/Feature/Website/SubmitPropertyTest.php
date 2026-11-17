@@ -6,6 +6,7 @@ use App\Jobs\SendLeadToCrm;
 use App\Livewire\Website\SubmitProperty;
 use App\Support\Images\ImageSizes;
 use App\Support\Images\ImageText;
+use App\Support\Images\ProtectedImages;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Queue;
@@ -39,7 +40,7 @@ class SubmitPropertyTest extends TestCase
     {
         parent::setUp();
         Queue::fake();
-        Storage::fake('public');
+        Storage::fake(ProtectedImages::DISK);
         RateLimiter::clear('submit-property:127.0.0.1');
 
         $site = app(SiteSettings::class);

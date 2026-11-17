@@ -2,6 +2,7 @@
 
 namespace Modules\Sliders\Tests\Feature;
 
+use App\Support\Images\ProtectedImages;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -224,17 +225,17 @@ class SliderResourceTest extends TestCase
 
     public function test_slides_show_their_projects_image(): void
     {
-        Storage::fake('public');
+        Storage::fake(ProtectedImages::DISK);
         $this->actingAs($this->createAdmin());
         $hero = Slider::factory()->hero()->create();
         $project = Project::factory()->create();
         $media = $project->addMedia(UploadedFile::fake()->image('cover.jpg'))->toMediaCollection(Project::FEATURED_IMAGE);
         SliderItem::factory()->create(['slider_id' => $hero->id, 'project_id' => $project->id]);
 
-        // A relative storage URL must not be prefixed twice ("/storage//storage/...").
+        // The photo's protected link (AKAR-51).
         Livewire::test(SlidesRelationManager::class, ['ownerRecord' => $hero, 'pageClass' => ViewSlider::class])
-            ->assertSee(Storage::disk('public')->url($media->getPathRelativeToRoot('thumb')), false)
-            ->assertDontSee('/storage//storage', false);
+            ->assertSee(ProtectedImages::url($media->getPathRelativeToRoot('thumb')))
+            ->assertDontSee('/storage/', false);
     }
 
     public function test_view_only_users_cannot_change_slides(): void

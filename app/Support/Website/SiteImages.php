@@ -2,6 +2,7 @@
 
 namespace App\Support\Website;
 
+use App\Support\Images\ProtectedImages;
 use Illuminate\Support\Facades\Storage;
 use Modules\GeneralSettings\Settings\WebsiteImagesSettings;
 use Spatie\LaravelSettings\Exceptions\MissingSettings;
@@ -35,10 +36,10 @@ class SiteImages
             return [asset('images/website/'.$full), asset('images/website/'.$small)];
         }
 
-        $disk = Storage::disk('public');
+        // Protected (AKAR-51): short-lived signed links to the private disk.
         $small = static::smallPath($path);
 
-        return [$disk->url($path), $disk->exists($small) ? $disk->url($small) : $disk->url($path)];
+        return [ProtectedImages::url($path), ProtectedImages::url(Storage::disk(ProtectedImages::DISK)->exists($small) ? $small : $path)];
     }
 
     /** The uploaded logo's URL (empty: the built-in SVG logo is used). */
@@ -46,7 +47,7 @@ class SiteImages
     {
         $path = self::setting('logo');
 
-        return $path ? Storage::disk('public')->url($path) : null;
+        return $path ? ProtectedImages::url($path) : null;
     }
 
     /**
@@ -56,7 +57,8 @@ class SiteImages
     {
         $path = self::setting('share_image');
 
-        return $path ? Storage::disk('public')->url($path) : asset('images/website/about-hero.webp');
+        // Fetched later by social media's servers: a link that works for a week.
+        return $path ? ProtectedImages::url($path, ProtectedImages::SHARE_LIFETIME) : asset('images/website/about-hero.webp');
     }
 
     private static function setting(string $key): ?string

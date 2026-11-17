@@ -4,6 +4,7 @@ namespace Modules\GeneralSettings\Filament\Clusters\GeneralSettings\Pages;
 
 use App\Filament\Forms\ImageRules;
 use App\Support\Images\ImageSizes;
+use App\Support\Images\ProtectedImages;
 use App\Support\Website\SiteImages;
 use Filament\Forms\Components\FileUpload;
 use Filament\Schemas\Components\Section;
@@ -68,9 +69,9 @@ class WebsiteImagesSettingsPage extends GeneralSettingsPage
     {
         return ImageRules::apply(FileUpload::make($key)
             ->label(__("admin.settings.fields.{$key}"))
-            ->disk('public')
+            ->disk(ProtectedImages::DISK)
             ->directory(self::IMAGES_DIRECTORY)
-            ->visibility('public'), self::SIZES_KEY[$key] ?? $key, $note);
+            ->visibility('private'), self::SIZES_KEY[$key] ?? $key, $note);
     }
 
     protected function beforeSave(): void
@@ -84,7 +85,7 @@ class WebsiteImagesSettingsPage extends GeneralSettingsPage
         parent::afterSave(); // deletes the replaced / removed photos
 
         $now = array_filter(app(WebsiteImagesSettings::class)->toArray());
-        $disk = Storage::disk('public');
+        $disk = Storage::disk(ProtectedImages::DISK);
 
         foreach (array_diff($this->photosBeforeSave, $now) as $removed) {
             $disk->delete(SiteImages::smallPath($removed));

@@ -2,6 +2,7 @@
 
 namespace Modules\GeneralSettings\Database\Seeders;
 
+use App\Support\Images\ProtectedImages;
 use Database\Seeders\Concerns\SeedsDemoData;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Storage;
@@ -107,7 +108,7 @@ class GeneralSettingsDatabaseSeeder extends Seeder
     private function icon(int $i): string
     {
         $path = GeneralSettingsPage::ICONS_DIRECTORY."/demo-icon-{$i}.png";
-        if (! Storage::disk('public')->exists($path)) {
+        if (! Storage::disk(ProtectedImages::DISK)->exists($path)) {
             $image = imagecreatetruecolor(240, 200);
             imagesavealpha($image, true);
             imagefill($image, 0, 0, imagecolorallocatealpha($image, 0, 0, 0, 127));
@@ -117,7 +118,7 @@ class GeneralSettingsDatabaseSeeder extends Seeder
             imagefilledellipse($image, 120, 100, 40, 40, imagecolorallocate($image, 200, 16, 46));
             ob_start();
             imagepng($image);
-            Storage::disk('public')->put($path, ob_get_clean());
+            Storage::disk(ProtectedImages::DISK)->put($path, ob_get_clean());
         }
 
         return $path;

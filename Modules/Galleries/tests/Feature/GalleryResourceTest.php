@@ -2,6 +2,7 @@
 
 namespace Modules\Galleries\Tests\Feature;
 
+use App\Support\Images\ProtectedImages;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -27,7 +28,7 @@ class GalleryResourceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        Storage::fake('public');
+        Storage::fake(ProtectedImages::DISK);
     }
 
     public function test_users_without_the_galleries_permission_are_forbidden(): void
@@ -249,10 +250,10 @@ class GalleryResourceTest extends TestCase
         $path = $gallery->addMedia(UploadedFile::fake()->create('brochure.pdf', 50, 'application/pdf'))->toMediaCollection(Gallery::ATTACHMENTS)->getPathRelativeToRoot();
 
         $gallery->delete();
-        Storage::disk('public')->assertExists($path);
+        Storage::disk(ProtectedImages::DISK)->assertExists($path);
 
         $gallery->forceDelete();
-        Storage::disk('public')->assertMissing($path);
+        Storage::disk(ProtectedImages::DISK)->assertMissing($path);
     }
 
     public function test_the_view_page_is_read_only_with_edit_and_delete(): void

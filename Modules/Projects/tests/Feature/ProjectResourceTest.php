@@ -2,6 +2,7 @@
 
 namespace Modules\Projects\Tests\Feature;
 
+use App\Support\Images\ProtectedImages;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -34,7 +35,7 @@ class ProjectResourceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        Storage::fake('public');
+        Storage::fake(ProtectedImages::DISK);
 
         $root = Lookup::create(['slug' => LocationTree::ROOT_SLUG, 'name_en' => 'Locations', 'name_ar' => 'المواقع']);
         $add = fn (Lookup $parent, string $name) => $parent->children()->create(['slug' => str($name)->slug(), 'name_en' => $name, 'name_ar' => "ع {$name}"]);
@@ -357,11 +358,11 @@ class ProjectResourceTest extends TestCase
             ->filterTable('trashed', true)
             ->assertCanSeeTableRecords([$project]);
         $this->assertDatabaseHas('lookupables', ['lookupable_id' => $project->id]);
-        Storage::disk('public')->assertExists($path);
+        Storage::disk(ProtectedImages::DISK)->assertExists($path);
 
         $project->fresh()->forceDelete();
         $this->assertDatabaseMissing('lookupables', ['lookupable_id' => $project->id]);
-        Storage::disk('public')->assertMissing($path);
+        Storage::disk(ProtectedImages::DISK)->assertMissing($path);
     }
 
     public function test_lookup_values_a_project_uses_cannot_be_deleted(): void

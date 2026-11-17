@@ -3,6 +3,9 @@
 // starts right after the browser reports the first paint (and its biggest element), or after 1.5 s at the latest.
 // Every page opens at its top, also on a reload (front-end review), not where the visitor had scrolled to. A link to
 // a part of a page (#contact) still goes there.
+// Image protection (AKAR-51) starts at once, not with the rest of the app.
+import './website/protect'
+
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual'
 if (!location.hash) window.scrollTo(0, 0)
 

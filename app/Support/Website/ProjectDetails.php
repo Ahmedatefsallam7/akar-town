@@ -73,6 +73,8 @@ class ProjectDetails
             'imageSmall' => Image::orPlaceholder($photos->first(), 'card'),
             'thumb' => Image::orPlaceholder($photos->first(), 'thumb'),
             'images' => Image::photos($photos),
+            // Shown when the page is shared on social media (AKAR-51: a week-long link to the watermarked card size).
+            'share' => Image::shareUrl($photos->first()),
             'thumbs' => Image::photos($photos, 'thumb'),
         ];
     }

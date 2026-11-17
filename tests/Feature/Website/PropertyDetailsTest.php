@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Website;
 
+use App\Support\Images\ProtectedImages;
 use App\Support\Website\Image;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -111,7 +112,7 @@ class PropertyDetailsTest extends TestCase
 
     public function test_the_units_own_floor_plan_and_master_plan_show_only_when_it_has_them(): void
     {
-        Storage::fake('public');
+        Storage::fake(ProtectedImages::DISK);
         $project = Project::factory()->create();
         $project->addMedia(UploadedFile::fake()->image('project-master.png'))->toMediaCollection(Project::MASTER_PLAN);
         $unit = Unit::factory()->create(['project_id' => $project->id]);
@@ -121,13 +122,13 @@ class PropertyDetailsTest extends TestCase
 
         $this->get(route('properties.show', $unit->slug))
             ->assertOk()
-            ->assertSeeInOrder(['Floor Plan', 'floor.png', 'Master Plan', 'unit-master.png'])
-            ->assertDontSee('project-master.png');
+            ->assertSeeInOrder(['Floor Plan', 'floor-large.webp', 'Master Plan', 'unit-master-large.webp'])
+            ->assertDontSee('project-master');
 
         // Without plans of its own, neither section shows (not even the project's master plan).
         $this->get(route('properties.show', $other->slug))
             ->assertOk()
-            ->assertDontSee(['View floor plan fullscreen', 'View master plan fullscreen', 'project-master.png']);
+            ->assertDontSee(['View floor plan fullscreen', 'View master plan fullscreen', 'project-master']);
     }
 
     public function test_a_property_without_photos_shows_the_placeholder_and_no_photo_counter(): void
@@ -213,7 +214,6 @@ class PropertyDetailsTest extends TestCase
 
         $this->assertSame($few, $count(), json_encode(array_count_values(array_column(DB::getQueryLog(), 'query'))));
     }
-
 
     public function test_the_project_and_the_compound_are_separate_rows(): void
     {

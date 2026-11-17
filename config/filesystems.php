@@ -49,6 +49,16 @@ return [
             'report' => false,
         ],
 
+        // Every uploaded image (media library, settings, team photos): private, shown through signed links only
+        // (AKAR-51, App\Support\Images\ProtectedImages), never under /storage.
+        'media' => [
+            'driver' => 'local',
+            'root' => storage_path('app/media'),
+            'visibility' => 'private',
+            'throw' => false,
+            'report' => false,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

@@ -2,6 +2,7 @@
 
 namespace Modules\GeneralSettings\Tests\Feature;
 
+use App\Support\Images\ProtectedImages;
 use App\Support\Website\SiteImages;
 use Filament\Forms\Components\Repeater;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -179,7 +180,7 @@ class GeneralSettingsTest extends TestCase
 
     public function test_the_about_us_story_photo_is_an_uploaded_image_and_a_replaced_or_removed_one_is_deleted(): void
     {
-        Storage::fake('public');
+        Storage::fake(ProtectedImages::DISK);
         $this->actingAs($this->createAdmin());
 
         Livewire::test(AboutUsSettingsPage::class)
@@ -193,27 +194,27 @@ class GeneralSettingsTest extends TestCase
             ->assertHasNoFormErrors();
         $first = app(AboutUsSettings::class)->refresh()->story_image;
         $this->assertStringStartsWith('settings/images/', $first);
-        Storage::disk('public')->assertExists($first);
+        Storage::disk(ProtectedImages::DISK)->assertExists($first);
 
         Livewire::test(AboutUsSettingsPage::class)
             ->fillForm(['story_image' => [UploadedFile::fake()->image('second.webp', 800, 800)]])
             ->call('save')
             ->assertHasNoFormErrors();
         $second = app(AboutUsSettings::class)->refresh()->story_image;
-        Storage::disk('public')->assertExists($second);
-        Storage::disk('public')->assertMissing($first);
+        Storage::disk(ProtectedImages::DISK)->assertExists($second);
+        Storage::disk(ProtectedImages::DISK)->assertMissing($first);
 
         Livewire::test(AboutUsSettingsPage::class)
             ->fillForm(['story_image' => null])
             ->call('save')
             ->assertHasNoFormErrors();
         $this->assertNull(app(AboutUsSettings::class)->refresh()->story_image);
-        Storage::disk('public')->assertMissing($second);
+        Storage::disk(ProtectedImages::DISK)->assertMissing($second);
     }
 
     public function test_a_website_photo_gets_a_phone_copy_and_a_replaced_one_is_deleted_with_it(): void
     {
-        Storage::fake('public');
+        Storage::fake(ProtectedImages::DISK);
         $this->actingAs($this->createAdmin());
 
         Livewire::test(WebsiteImagesSettingsPage::class)
@@ -221,24 +222,24 @@ class GeneralSettingsTest extends TestCase
             ->call('save')
             ->assertHasNoFormErrors();
         $first = app(WebsiteImagesSettings::class)->refresh()->contact_hero;
-        Storage::disk('public')->assertExists([$first, SiteImages::smallPath($first)]);
-        $this->assertSame(900, getimagesize(Storage::disk('public')->path(SiteImages::smallPath($first)))[0]);
+        Storage::disk(ProtectedImages::DISK)->assertExists([$first, SiteImages::smallPath($first)]);
+        $this->assertSame(900, getimagesize(Storage::disk(ProtectedImages::DISK)->path(SiteImages::smallPath($first)))[0]);
 
         Livewire::test(WebsiteImagesSettingsPage::class)
             ->fillForm(['contact_hero' => [UploadedFile::fake()->image('new.webp', 1600, 900)]])
             ->call('save')
             ->assertHasNoFormErrors();
         $second = app(WebsiteImagesSettings::class)->refresh()->contact_hero;
-        Storage::disk('public')->assertExists([$second, SiteImages::smallPath($second)]);
-        Storage::disk('public')->assertMissing([$first, SiteImages::smallPath($first)]);
+        Storage::disk(ProtectedImages::DISK)->assertExists([$second, SiteImages::smallPath($second)]);
+        Storage::disk(ProtectedImages::DISK)->assertMissing([$first, SiteImages::smallPath($first)]);
 
         Livewire::test(WebsiteImagesSettingsPage::class)->fillForm(['contact_hero' => null])->call('save')->assertHasNoFormErrors();
-        Storage::disk('public')->assertMissing([$second, SiteImages::smallPath($second)]);
+        Storage::disk(ProtectedImages::DISK)->assertMissing([$second, SiteImages::smallPath($second)]);
     }
 
     public function test_a_website_photo_must_have_its_places_shape_and_be_wide_enough(): void
     {
-        Storage::fake('public');
+        Storage::fake(ProtectedImages::DISK);
         $this->actingAs($this->createAdmin());
         $save = fn (int $width, int $height) => Livewire::test(WebsiteImagesSettingsPage::class)
             ->fillForm(['page_header' => [UploadedFile::fake()->image('header.jpg', $width, $height)]])
@@ -255,7 +256,7 @@ class GeneralSettingsTest extends TestCase
 
     public function test_the_logo_is_a_png_or_webp_without_svg(): void
     {
-        Storage::fake('public');
+        Storage::fake(ProtectedImages::DISK);
         $this->actingAs($this->createAdmin());
 
         Livewire::test(WebsiteImagesSettingsPage::class)
@@ -311,7 +312,7 @@ class GeneralSettingsTest extends TestCase
 
     public function test_a_card_icon_is_an_uploaded_image_and_a_replaced_one_is_deleted(): void
     {
-        Storage::fake('public');
+        Storage::fake(ProtectedImages::DISK);
         $this->actingAs($this->createAdmin());
         $undoRepeaterFake = Repeater::fake();
         $card = fn ($icon) => ['icon' => $icon, 'header_en' => 'Expert Guidance', 'header_ar' => 'إرشاد الخبراء', 'body_en' => 'We guide you.', 'body_ar' => 'نرشدك.'];
@@ -321,7 +322,7 @@ class GeneralSettingsTest extends TestCase
             ->call('save')
             ->assertHasNoFormErrors();
         $first = app(HomeSettings::class)->refresh()->why_choose_cards[0]['icon'];
-        Storage::disk('public')->assertExists($first);
+        Storage::disk(ProtectedImages::DISK)->assertExists($first);
 
         Livewire::test(HomeSettingsPage::class)
             ->fillForm(['why_choose_cards' => [$card([UploadedFile::fake()->image('second.webp', 64, 64)])]])
@@ -329,8 +330,8 @@ class GeneralSettingsTest extends TestCase
             ->assertHasNoFormErrors();
         $second = app(HomeSettings::class)->refresh()->why_choose_cards[0]['icon'];
 
-        Storage::disk('public')->assertExists($second);
-        Storage::disk('public')->assertMissing($first);
+        Storage::disk(ProtectedImages::DISK)->assertExists($second);
+        Storage::disk(ProtectedImages::DISK)->assertMissing($first);
 
         Livewire::test(HomeSettingsPage::class)
             ->fillForm(['why_choose_cards' => [$card([UploadedFile::fake()->create('icon.svg', 5, 'image/svg+xml')])]])

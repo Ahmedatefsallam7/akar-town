@@ -5,6 +5,7 @@ namespace Modules\UnitRequests\Models;
 use App\Jobs\SendLeadToCrm;
 use App\Models\Concerns\HasLocalization;
 use App\Support\Crm\CrmLead;
+use App\Support\Images\ProtectedImages;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -111,9 +112,9 @@ class UnitRequest extends Model implements CrmLead, HasMedia
 
     public function registerMediaCollections(): void
     {
-        $this->addMediaCollection(self::FEATURED_IMAGE)->useDisk('public')->singleFile()
+        $this->addMediaCollection(self::FEATURED_IMAGE)->useDisk(ProtectedImages::DISK)->singleFile()
             ->registerMediaConversions(fn () => $this->addMediaConversion('thumb')->fit(Fit::Crop, 160, 160)->format('webp')->nonQueued());
-        $this->addMediaCollection(self::PHOTOS)->useDisk('public')
+        $this->addMediaCollection(self::PHOTOS)->useDisk(ProtectedImages::DISK)
             ->registerMediaConversions(fn () => $this->addMediaConversion('thumb')->fit(Fit::Crop, 160, 160)->format('webp')->nonQueued());
     }
 

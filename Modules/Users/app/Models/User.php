@@ -2,6 +2,7 @@
 
 namespace Modules\Users\Models;
 
+use App\Support\Images\ProtectedImages;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasAvatar;
@@ -139,13 +140,14 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasName
     /**
      * Disk and folder for avatars (public, so the browser can load them directly).
      */
-    public const AVATAR_DISK = 'public';
+    /** Team photos are protected like the website's images (AKAR-51). */
+    public const AVATAR_DISK = ProtectedImages::DISK;
 
     public const AVATAR_DIRECTORY = 'avatars';
 
     public function getFilamentAvatarUrl(): ?string
     {
-        return $this->avatar ? Storage::disk(self::AVATAR_DISK)->url($this->avatar) : null;
+        return $this->avatar ? ProtectedImages::url($this->avatar) : null;
     }
 
     public function getFilamentName(): string

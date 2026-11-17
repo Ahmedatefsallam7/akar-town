@@ -427,7 +427,7 @@ class UserResource extends Resource implements HasPermissionModule
             ->avatar(), 'user_avatar')
             ->disk(User::AVATAR_DISK)
             ->directory(User::AVATAR_DIRECTORY)
-            ->visibility('public')
+            ->visibility('private')
             ->extraAttributes([
                 'class' => '[&_.filepond--item]:cursor-zoom-in',
                 // Clicking the photo (not its remove/upload buttons) opens it large.

@@ -3,6 +3,7 @@
 namespace Modules\GeneralSettings\Filament\Clusters\GeneralSettings\Pages;
 
 use App\Filament\Forms\ImageRules;
+use App\Support\Images\ProtectedImages;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
@@ -44,9 +45,9 @@ class AboutUsSettingsPage extends GeneralSettingsPage
                     // Sizes, formats and hints from Settings → Image Sizes (AKAR-50); never SVG (it can carry scripts).
                     ImageRules::apply(FileUpload::make('story_image')
                         ->label(__('admin.settings.fields.story_image'))
-                        ->disk('public')
+                        ->disk(ProtectedImages::DISK)
                         ->directory(self::IMAGES_DIRECTORY)
-                        ->visibility('public'), 'about_story')
+                        ->visibility('private'), 'about_story')
                         ->columnSpanFull(),
                 ])
                 ->columns(2)

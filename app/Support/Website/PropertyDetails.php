@@ -93,6 +93,8 @@ class PropertyDetails
             'floorPlan' => Image::url($unit->getFirstMedia(Unit::FLOOR_PLAN)),
             'masterPlan' => Image::url($unit->getFirstMedia(Unit::MASTER_PLAN)),
             'images' => $photos->map(fn (Media $media) => Image::url($media))->all(),
+            // Shown when the page is shared on social media (AKAR-51: a week-long link to the watermarked card size).
+            'share' => Image::shareUrl($photos->first()),
             'thumbs' => $photos->map(fn (Media $media) => Image::url($media, 'thumb'))->all(),
             // Each photo's sizes, so phones don't download the 1920px one.
             'srcsets' => $photos->map(fn (Media $media) => Image::srcset($media))->all(),

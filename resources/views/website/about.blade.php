@@ -56,7 +56,7 @@
                 <div class="relative">
                     <div class="pointer-events-none absolute -inset-4 animate-ring-pulse rounded-full border border-[rgba(200,16,46,0.22)]" aria-hidden="true"></div>
                     <div class="group/photo relative size-[clamp(300px,36vw,460px)] shrink-0 overflow-hidden rounded-full max-[860px]:size-[clamp(260px,72vw,380px)]">
-                        <img src="{{ $about->story_image ? \Illuminate\Support\Facades\Storage::disk('public')->url($about->story_image) : asset('images/website/about-story.webp') }}" alt="{{ __('Luxury property in Egypt') }}" loading="lazy" width="460" height="460" class="block size-full object-cover transition-transform duration-440 ease-out-ex group-hover/photo:scale-106" />
+                        <img src="{{ $about->story_image ? \App\Support\Images\ProtectedImages::url($about->story_image) : asset('images/website/about-story.webp') }}" alt="{{ __('Luxury property in Egypt') }}" loading="lazy" width="460" height="460" class="block size-full object-cover transition-transform duration-440 ease-out-ex group-hover/photo:scale-106" />
                     </div>
                     <div class="absolute right-[-16px] bottom-3 flex flex-col items-center gap-0.5 rounded-full border border-ink-10 bg-white px-5 py-3 whitespace-nowrap shadow-[0_8px_32px_rgba(13,13,13,0.1)] max-[860px]:right-0 max-[860px]:bottom-2 dark:border-white/10 dark:bg-[#1a1916]">
                         <span dir="ltr" class="font-sans text-[28px] leading-none font-light tracking-[-0.025em] text-brand">{{ $about->years_of_excellence }}+</span>
@@ -98,7 +98,7 @@
                         <div {!! $intersect !!} class="{{ $reveal }} rounded-2xl border border-ink-10 bg-white p-7 [transition:opacity_0.9s,transform_0.9s,border-color_0.25s,box-shadow_0.25s] hover:border-[rgba(200,16,46,0.25)] hover:shadow-[0_8px_32px_rgba(200,16,46,0.08)] dark:border-white/8 dark:bg-[#1a1916]" style="transition-delay: {{ $loop->index * 0.12 }}s">
                             <span class="mb-5 grid size-14 place-items-center overflow-hidden rounded-xl bg-[rgba(200,16,46,0.08)]" aria-hidden="true">
                                 @if ($value['icon'] ?? null)
-                                    <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($value['icon']) }}" alt="" loading="lazy" class="size-9 object-contain" />
+                                    <img src="{{ \App\Support\Images\ProtectedImages::url($value['icon']) }}" alt="" loading="lazy" class="size-9 object-contain" />
                                 @else
                                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="text-brand"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
                                 @endif

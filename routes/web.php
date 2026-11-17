@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ProtectedImageController;
 use App\Http\Controllers\Website\CareersController;
 use App\Http\Controllers\Website\CompareController;
 use App\Http\Controllers\Website\DevelopersController;
@@ -12,6 +13,9 @@ use App\Support\Website\Datasheet;
 use Illuminate\Support\Facades\Route;
 use Modules\WebsiteUsers\Http\Middleware\EnsureWebsiteUserIsActive;
 use Modules\WebsiteUsers\Models\WebsiteUser;
+
+// The website's images (AKAR-51): private files shown through short-lived signed links, see ProtectedImages.
+Route::get('/images/{path}', ProtectedImageController::class)->where('path', '.*')->name('images.show');
 
 // Public website. Pages are built one by one from the design; the ones not built yet show the layout only.
 Route::get('/', HomeController::class)->name('home');

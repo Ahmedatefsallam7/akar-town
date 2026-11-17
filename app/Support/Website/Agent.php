@@ -2,7 +2,7 @@
 
 namespace App\Support\Website;
 
-use Illuminate\Support\Facades\Storage;
+use App\Support\Images\ProtectedImages;
 use Modules\Users\Models\User;
 
 /**
@@ -34,7 +34,7 @@ class Agent
             'name' => $name,
             'initials' => collect(preg_split('/\s+/u', trim($name)))->filter()->take(2)->map(fn (string $word) => mb_strtoupper(mb_substr($word, 0, 1)))->implode(''),
             'role' => $user->{'job_title_'.app()->getLocale()} ?: ($user->job_title_en ?: $user->job_title_ar),
-            'photo' => $user->avatar ? Storage::disk(User::AVATAR_DISK)->url($user->avatar) : null,
+            'photo' => $user->avatar ? ProtectedImages::url($user->avatar) : null,
             'phone' => $user->phone,
             'whatsapp' => $user->whatsapp ? 'https://wa.me/'.preg_replace('/\D/', '', $user->whatsapp) : null,
             'email' => $user->email,

@@ -2,12 +2,14 @@
 
 namespace App\Support\Website;
 
+use App\Support\Images\MediaSizes;
+use App\Support\Images\ProtectedImages;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 /**
- * Image URLs for the website: a WebP size when it has been made ("card" ~900px for cards, "large" 1920px for full
- * views), otherwise the original upload. Photos that are missing (a unit, project or location without any) show the
- * placeholder: the design's villa sketch.
+ * Image URLs for the website: the WebP sizes made for it ("card" ~900px for cards, "large" for full views), with the
+ * watermark, through short-lived protected links (AKAR-51, see ProtectedImages). Never the uploaded original: until
+ * its sizes are made (a minute after an upload) and for a missing photo, the placeholder (the design's villa sketch).
  */
 class Image
 {
@@ -50,7 +52,7 @@ class Image
     }
 
     /**
-     * The asked size, else the large one, else the original (sizes are made in the background after an upload).
+     * The asked size, else the large one; the placeholder while they're being made (never the original).
      */
     public static function url(?Media $media, string $conversion = 'large'): ?string
     {
@@ -58,17 +60,24 @@ class Image
             return null;
         }
 
-        foreach (array_unique([$conversion, 'large']) as $size) {
-            if ($media->hasGeneratedConversion($size)) {
-                return $media->getUrl($size);
-            }
-        }
+        $size = static::madeSize($media, $conversion);
 
-        return $media->getUrl();
+        return $size ? $media->getUrl($size) : static::placeholder();
     }
 
     /**
-     * The file on disk of the same image Image::url() would show (for server-side PDFs).
+     * The photo shown when a page is shared (social media, chat apps): the cards' size, with a link that works for a
+     * week, since their servers fetch it later. Null while it's being made.
+     */
+    public static function shareUrl(?Media $media): ?string
+    {
+        $size = $media ? static::madeSize($media, 'card') : null;
+
+        return $size ? ProtectedImages::url($media->getPathRelativeToRoot($size), ProtectedImages::SHARE_LIFETIME) : null;
+    }
+
+    /**
+     * The file on disk of the same image Image::url() would show (for server-side PDFs); null while it's being made.
      */
     public static function path(?Media $media, string $conversion = 'large'): ?string
     {
@@ -76,12 +85,26 @@ class Image
             return null;
         }
 
+        $size = static::madeSize($media, $conversion);
+        if (! $size) {
+            return null;
+        }
+
+        // With the watermark on (AKAR-51), the PDF gets it too.
+        return $media->conversions_disk === ProtectedImages::DISK ? MediaSizes::fileToSend($media->getPathRelativeToRoot($size)) : $media->getPath($size);
+    }
+
+    /**
+     * The asked size if it's made, else the large one, else null.
+     */
+    private static function madeSize(Media $media, string $conversion): ?string
+    {
         foreach (array_unique([$conversion, 'large']) as $size) {
             if ($media->hasGeneratedConversion($size)) {
-                return $media->getPath($size);
+                return $size;
             }
         }
 
-        return $media->getPath();
+        return null;
     }
 }

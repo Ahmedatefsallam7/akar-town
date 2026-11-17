@@ -63,7 +63,7 @@
                         <li class="flex items-start gap-3">
                             <span class="grid size-10 flex-none place-items-center overflow-hidden rounded-xl bg-white/6" aria-hidden="true">
                                 @if ($point['icon'] ?? null)
-                                    <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($point['icon']) }}" alt="" loading="lazy" class="size-6 object-contain" />
+                                    <img src="{{ \App\Support\Images\ProtectedImages::url($point['icon']) }}" alt="" loading="lazy" class="size-6 object-contain" />
                                 @else
                                     <span class="size-1.5 rounded-full bg-brand"></span>
                                 @endif
