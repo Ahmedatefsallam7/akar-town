@@ -218,13 +218,13 @@
                             <span class="{{ $label }}">{{ __('Photos') }}</span>
                             <div class="relative cursor-pointer rounded-[10px] border-[1.5px] border-dashed border-black/15 px-4 pt-[22px] pb-4 text-center transition-[border-color,background] duration-200 hover:border-brand hover:bg-[rgba(200,16,46,0.03)] dark:border-white/12">
                                 @if (count($photos) < \Modules\UnitRequests\Models\UnitRequest::MAX_PHOTOS)
-                                    <input type="file" wire:model="photos" multiple accept="image/jpeg,image/png,image/webp" class="absolute inset-0 size-full cursor-pointer opacity-0" aria-label="{{ __('Upload property photos') }}" />
+                                    <input type="file" wire:model="photos" multiple accept="{{ implode(',', \App\Support\Images\ImageValidation::mimeTypes('sell_request_photos')) }}" class="absolute inset-0 size-full cursor-pointer opacity-0" aria-label="{{ __('Upload property photos') }}" />
                                 @endif
                                 <div class="mb-2 flex justify-center text-black/28 dark:text-[rgba(237,232,223,0.22)]" aria-hidden="true">
                                     <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
                                 </div>
                                 <div class="text-[13px] font-semibold text-ink rtl:font-arabic dark:text-[#ede8df]">{{ __('Click or drag photos here') }}</div>
-                                <div class="mt-0.5 text-[11.5px] text-black/38 rtl:font-arabic dark:text-[rgba(237,232,223,0.35)]">{{ __('JPG, PNG, WEBP · Up to 10 images') }}</div>
+                                <div class="mt-0.5 text-[11.5px] text-black/38 rtl:font-arabic dark:text-[rgba(237,232,223,0.35)]">{{ __(':formats · Up to :mb MB each · Up to :count images', ['formats' => \App\Support\Images\ImageText::formats($photo['formats']), 'mb' => $photo['mb'], 'count' => \Modules\UnitRequests\Models\UnitRequest::MAX_PHOTOS]) }}</div>
                                 <div wire:loading wire:target="photos" class="mt-2 text-[11.5px] text-black/45 rtl:font-arabic dark:text-white/45">{{ __('Uploading…') }}</div>
                                 @if ($photos)
                                     <div class="relative z-1 mt-[14px] flex flex-wrap justify-center gap-2">

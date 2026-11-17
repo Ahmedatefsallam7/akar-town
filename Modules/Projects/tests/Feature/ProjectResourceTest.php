@@ -56,7 +56,7 @@ class ProjectResourceTest extends TestCase
     private function images(): array
     {
         return [
-            'featured_image' => [UploadedFile::fake()->image('cover.jpg', 800, 600)],
+            'featured_image' => [UploadedFile::fake()->image('cover.jpg', 1280, 720)],
             'logo' => [UploadedFile::fake()->image('logo.png', 300, 100)],
         ];
     }
@@ -129,8 +129,8 @@ class ProjectResourceTest extends TestCase
                 'amenities' => [$this->value['amenities']['pool']->id, $this->value['amenities']['gym']->id],
                 'views' => [$this->value['views']['sea']->id],
                 'sales_payment' => [$this->value['paymentmethod']['cash']->id],
-                'gallery' => [UploadedFile::fake()->image('a.jpg'), UploadedFile::fake()->image('b.jpg')],
-                'master_plan' => [UploadedFile::fake()->image('plan.png')],
+                'gallery' => [UploadedFile::fake()->image('a.jpg', 1200, 800), UploadedFile::fake()->image('b.jpg', 1200, 800)],
+                'master_plan' => [UploadedFile::fake()->image('plan.png', 1200, 1200)],
                 'video_embed' => '<iframe width="560" height="315" src="https://www.youtube.com/embed/abc123" title="Video" allowfullscreen></iframe>',
             ]))
             ->call('create')

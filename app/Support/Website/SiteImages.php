@@ -49,6 +49,16 @@ class SiteImages
         return $path ? Storage::disk('public')->url($path) : null;
     }
 
+    /**
+     * The image shown when a page is shared on social media (Settings → Website Images; empty: the about page's photo).
+     */
+    public static function share(): string
+    {
+        $path = self::setting('share_image');
+
+        return $path ? Storage::disk('public')->url($path) : asset('images/website/about-hero.webp');
+    }
+
     private static function setting(string $key): ?string
     {
         try {

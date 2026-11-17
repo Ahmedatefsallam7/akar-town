@@ -105,7 +105,7 @@
             {{-- Photo + social links --}}
             <div {!! $intersect !!} class="{{ $reveal }} relative z-0 max-[960px]:mx-auto max-[960px]:mb-[72px] max-[960px]:w-full max-[960px]:max-w-[520px]">
                 <div class="pointer-events-none absolute -top-3.5 right-3.5 bottom-3.5 -left-3.5 z-0 rounded-[20px] border border-[rgba(200,16,46,0.22)] dark:border-[rgba(200,16,46,0.12)] rtl:right-[-14px] rtl:left-3.5 max-[960px]:hidden" aria-hidden="true"></div>
-                <div class="group/photo relative z-1 aspect-[4/3] overflow-hidden rounded-2xl bg-ink-10 after:pointer-events-none after:absolute after:inset-0 after:z-2 after:bg-[linear-gradient(to_bottom,transparent_45%,rgba(7,6,10,0.5)_100%)]">
+                <div class="group/photo relative z-1 {{ \App\Support\Images\ImageSizes::shapeClass('developer_photo') }} overflow-hidden rounded-2xl bg-ink-10 after:pointer-events-none after:absolute after:inset-0 after:z-2 after:bg-[linear-gradient(to_bottom,transparent_45%,rgba(7,6,10,0.5)_100%)]">
                     @if ($storyPhoto)
                         <img src="{{ $storyPhoto }}" alt="{{ __('A project by :name', ['name' => $name]) }}" loading="lazy" class="block size-full object-cover transition-transform duration-440 ease-out-ex group-hover/photo:scale-104" />
                     @endif

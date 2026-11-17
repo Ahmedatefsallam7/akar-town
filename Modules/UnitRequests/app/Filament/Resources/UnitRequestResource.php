@@ -3,6 +3,7 @@
 namespace Modules\UnitRequests\Filament\Resources;
 
 use App\Filament\Contracts\HasPermissionModule;
+use App\Filament\Forms\ImageRules;
 use App\Filament\Forms\MapPicker;
 use App\Filament\Helpers\CrmHelper;
 use App\Filament\Helpers\TableHelper;
@@ -232,31 +233,16 @@ class UnitRequestResource extends Resource implements HasPermissionModule
                         Tab::make(__('admin.tabs.media'))
                             ->icon('heroicon-o-photo')
                             ->schema([
-                                SpatieMediaLibraryFileUpload::make('featured_image')
+                                // Sizes, formats and hints from Settings → Image Sizes (AKAR-50).
+                                ImageRules::apply(SpatieMediaLibraryFileUpload::make('featured_image')
                                     ->label(__('admin.table.featured_image'))
-                                    ->collection(UnitRequest::FEATURED_IMAGE)
-                                    ->image()
-                                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
-                                    ->maxSize(5120)
-                                    ->helperText(__('admin.galleries.image_help', ['size' => 5]))
-                                    ->imageResizeMode('contain')
-                                    ->imageResizeTargetWidth('1920')
-                                    ->imageResizeTargetHeight('1920')
-                                    ->imageResizeUpscale(false),
-                                SpatieMediaLibraryFileUpload::make('photos')
+                                    ->collection(UnitRequest::FEATURED_IMAGE), 'sell_request_featured'),
+                                ImageRules::apply(SpatieMediaLibraryFileUpload::make('photos')
                                     ->label(__('admin.unit_requests.photos'))
                                     ->collection(UnitRequest::PHOTOS)
                                     ->multiple()
                                     ->reorderable()
-                                    ->maxFiles(UnitRequest::MAX_PHOTOS)
-                                    ->image()
-                                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
-                                    ->maxSize(5120)
-                                    ->helperText(__('admin.unit_requests.photos_help', ['count' => UnitRequest::MAX_PHOTOS, 'size' => 5]))
-                                    ->imageResizeMode('contain')
-                                    ->imageResizeTargetWidth('1920')
-                                    ->imageResizeTargetHeight('1920')
-                                    ->imageResizeUpscale(false),
+                                    ->maxFiles(UnitRequest::MAX_PHOTOS), 'sell_request_photos', __('admin.unit_requests.photos_count', ['count' => UnitRequest::MAX_PHOTOS])),
                             ]),
                         Tab::make(__('admin.tabs.admin'))
                             ->icon('heroicon-o-lock-closed')

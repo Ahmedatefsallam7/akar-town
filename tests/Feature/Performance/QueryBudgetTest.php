@@ -15,6 +15,8 @@ use Modules\Galleries\Filament\Resources\GalleryResource;
 use Modules\Galleries\Models\Gallery;
 use Modules\GeneralSettings\Filament\Clusters\GeneralSettings\Pages\AboutUsSettingsPage;
 use Modules\GeneralSettings\Filament\Clusters\GeneralSettings\Pages\HomeSettingsPage;
+use Modules\GeneralSettings\Filament\Clusters\GeneralSettings\Pages\ImageSizesPage;
+use Modules\GeneralSettings\Filament\Clusters\GeneralSettings\Pages\WebsiteImagesSettingsPage;
 use Modules\Inquiry\Filament\Resources\InquiryResource;
 use Modules\Inquiry\Filament\Resources\MeetingResource;
 use Modules\Inquiry\Models\Inquiry;
@@ -73,6 +75,8 @@ class QueryBudgetTest extends TestCase
         'sliders.index' => 2,     // page (not paginated: a fixed handful of blocks), count
         'settings.home' => 1,     // the page's settings (one query per group)
         'settings.about_us' => 1, // the page's settings
+        'settings.image_sizes' => 0, // every image's sizes come from the cache
+        'settings.website_images' => 1, // the page's settings (the sizes: cache)
         'sliders.view' => 1,      // slider (the slides tab loads on its own)
         'contact_us.index' => 2,  // count, page
         'contact_us.view' => 1,   // message
@@ -149,6 +153,8 @@ class QueryBudgetTest extends TestCase
             'website_users.edit' => WebsiteUserResource::getUrl('edit', ['record' => $websiteUser]),
             'possible_leads.index' => PossibleLeadResource::getUrl('index'),
             'settings.about_us' => AboutUsSettingsPage::getUrl(),
+            'settings.image_sizes' => ImageSizesPage::getUrl(),
+            'settings.website_images' => WebsiteImagesSettingsPage::getUrl(),
         ];
 
         $actual = [];

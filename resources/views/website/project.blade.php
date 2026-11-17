@@ -47,7 +47,7 @@
     $contact = 'flex items-center gap-[10px] rounded-[10px] border border-white/8 bg-white/4 px-4 py-[11px] font-sans text-[12.5px] font-medium text-white/75 transition-[border-color,background,color] duration-220 hover:border-white/22 hover:bg-white/8 hover:text-white [&_svg]:shrink-0 [&_svg]:opacity-55 hover:[&_svg]:opacity-85';
 @endphp
 
-<x-website.layout :title="$p['title']" :description="$p['short']">
+<x-website.layout :title="$p['title']" :description="$p['short']" :image="$p['images'][0] ?? null">
     <div
         x-data="projectPage(@js(['count' => $count]))"
         @keydown.window="key($event)"
@@ -230,7 +230,7 @@
                             @if ($i > 0) x-cloak style="display: none" @endif
                             class="grid animate-panel-in grid-cols-2 items-start gap-[clamp(36px,6vw,88px)] max-[900px]:grid-cols-1 max-[900px]:gap-9"
                         >
-                            <div class="group relative aspect-[4/3] overflow-hidden rounded-[20px] after:pointer-events-none after:absolute after:inset-0 after:z-1 after:bg-[linear-gradient(transparent_45%,rgba(0,0,0,0.42)_100%)] max-[560px]:aspect-[3/2]">
+                            <div class="group relative {{ \App\Support\Images\ImageSizes::shapeClass('project_gallery') }} overflow-hidden rounded-[20px] after:pointer-events-none after:absolute after:inset-0 after:z-1 after:bg-[linear-gradient(transparent_45%,rgba(0,0,0,0.42)_100%)]">
                                 <img src="{{ $type['image'] }}" alt="{{ $type['name'] }}" loading="lazy" class="block size-full object-cover transition-transform duration-490 ease-out-ex group-hover:scale-104" />
                                 <span class="absolute bottom-4 left-4 z-2 inline-flex items-center rounded-full border border-white/10 bg-[rgba(7,6,10,0.74)] px-[13px] py-1.5 font-sans text-[9.5px] font-bold tracking-[0.16em] text-white/82 uppercase backdrop-blur-[18px] rtl:right-4 rtl:left-auto rtl:font-arabic rtl:tracking-normal">{{ $type['name'] }}@if ($type['area']) · {{ $type['area'] }} {{ __('m²') }}@endif</span>
                             </div>
@@ -330,7 +330,7 @@
                             </div>
 
                             <div {!! $intersect !!} class="{{ $reveal }} delay-60 group relative overflow-hidden rounded-[20px]">
-                                <img src="{{ $p['images'][1] ?? $p['image'] }}" alt="{{ $p['place'] ?: $p['title'] }}" loading="lazy" class="block aspect-[4/3] w-full object-cover brightness-88 saturate-78 transition-[transform,filter] duration-440 ease-out-ex group-hover:scale-103 group-hover:brightness-92 group-hover:saturate-88" />
+                                <img src="{{ $p['images'][1] ?? $p['image'] }}" alt="{{ $p['place'] ?: $p['title'] }}" loading="lazy" class="block {{ \App\Support\Images\ImageSizes::shapeClass('project_location') }} w-full object-cover brightness-88 saturate-78 transition-[transform,filter] duration-440 ease-out-ex group-hover:scale-103 group-hover:brightness-92 group-hover:saturate-88" />
                                 <div class="pointer-events-none absolute inset-0 z-1 bg-[linear-gradient(transparent_40%,rgba(7,6,10,0.72)_100%)]" aria-hidden="true"></div>
                                 <div class="absolute inset-x-5 bottom-5 z-2 flex flex-wrap items-center justify-between gap-[10px]">
                                     @if ($p['place'])

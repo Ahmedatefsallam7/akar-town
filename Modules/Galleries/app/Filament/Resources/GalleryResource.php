@@ -3,6 +3,7 @@
 namespace Modules\Galleries\Filament\Resources;
 
 use App\Filament\Contracts\HasPermissionModule;
+use App\Filament\Forms\ImageRules;
 use App\Filament\Helpers\TableHelper;
 use App\Filament\Traits\HasResourceTranslations;
 use App\Rules\VideoUrl;
@@ -110,16 +111,15 @@ class GalleryResource extends Resource implements HasPermissionModule
                             ->disabled(fn (?Gallery $record) => $record?->isUsedByUnits() ?? false)
                             ->hint(fn (?Gallery $record) => $record?->isUsedByUnits() ? __('admin.galleries.project_locked') : null),
                     ]),
-                static::mediaSection('featured_image', 'heroicon-o-star', static::images(Gallery::FEATURED_IMAGE, 5120, 1920)),
-                static::mediaSection('images_360', 'heroicon-o-globe-alt', static::images(Gallery::IMAGES_360, 20480)
+                static::mediaSection('featured_image', 'heroicon-o-star', static::images(Gallery::FEATURED_IMAGE, 'gallery_featured')),
+                static::mediaSection('images_360', 'heroicon-o-globe-alt', static::images(Gallery::IMAGES_360, 'gallery_360')
                     ->multiple()
-                    ->reorderable()
-                    ->helperText(__('admin.galleries.images_360_help', ['size' => 20]))),
-                static::mediaSection('photos', 'heroicon-o-photo', static::images(Gallery::PHOTOS, 10240, 1920)
+                    ->reorderable()),
+                static::mediaSection('photos', 'heroicon-o-photo', static::images(Gallery::PHOTOS, 'gallery_photos')
                     ->multiple()
                     ->reorderable()
                     ->panelLayout('grid')),
-                static::mediaSection('floor_plans', 'heroicon-o-square-3-stack-3d', static::images(Gallery::FLOOR_PLANS, 10240, 3000)
+                static::mediaSection('floor_plans', 'heroicon-o-square-3-stack-3d', static::images(Gallery::FLOOR_PLANS, 'gallery_floor_plans')
                     ->multiple()
                     ->reorderable()
                     ->panelLayout('grid')),
@@ -235,21 +235,11 @@ class GalleryResource extends Resource implements HasPermissionModule
     }
 
     /**
-     * JPG/PNG/WebP. With $resizeTo, big images are scaled down in the browser before upload (360° images keep their
-     * full size: the panorama viewer needs it).
+     * An image field set from its sizes (Settings → Image Sizes, AKAR-50): formats, file size, smallest size, the
+     * hint under it (360° images keep their full size: the panorama viewer needs it).
      */
-    private static function images(string $collection, int $maxKb, ?int $resizeTo = null): SpatieMediaLibraryFileUpload
+    private static function images(string $collection, string $sizes): SpatieMediaLibraryFileUpload
     {
-        return SpatieMediaLibraryFileUpload::make($collection)
-            ->collection($collection)
-            ->image()
-            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
-            ->maxSize($maxKb)
-            ->helperText(__('admin.galleries.image_help', ['size' => $maxKb / 1024]))
-            ->when($resizeTo, fn (SpatieMediaLibraryFileUpload $field) => $field
-                ->imageResizeMode('contain')
-                ->imageResizeTargetWidth((string) $resizeTo)
-                ->imageResizeTargetHeight((string) $resizeTo)
-                ->imageResizeUpscale(false));
+        return ImageRules::apply(SpatieMediaLibraryFileUpload::make($collection)->collection($collection), $sizes);
     }
 }

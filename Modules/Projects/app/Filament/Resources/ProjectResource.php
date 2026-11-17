@@ -3,6 +3,7 @@
 namespace Modules\Projects\Filament\Resources;
 
 use App\Filament\Contracts\HasPermissionModule;
+use App\Filament\Forms\ImageRules;
 use App\Filament\Forms\MapPicker;
 use App\Filament\Forms\SeoFields;
 use App\Filament\Helpers\TableHelper;
@@ -262,16 +263,16 @@ class ProjectResource extends Resource implements HasPermissionModule
                         Tab::make(__('admin.tabs.media'))
                             ->icon('heroicon-o-photo')
                             ->schema([
-                                static::image('featured_image', Project::FEATURED_IMAGE)->required(),
-                                static::image('logo', Project::LOGO)->required(),
-                                static::image('gallery', Project::GALLERY)
+                                static::image('featured_image', Project::FEATURED_IMAGE, 'project_featured')->required(),
+                                static::image('logo', Project::LOGO, 'project_logo')->required(),
+                                static::image('gallery', Project::GALLERY, 'project_gallery')
                                     ->multiple()
                                     ->reorderable()
                                     ->maxFiles(30)
                                     ->panelLayout('grid')
                                     ->columnSpanFull(),
-                                static::image('master_plan', Project::MASTER_PLAN),
-                                static::image('about_image', Project::ABOUT_IMAGE),
+                                static::image('master_plan', Project::MASTER_PLAN, 'project_master_plan'),
+                                static::image('about_image', Project::ABOUT_IMAGE, 'project_about'),
                                 Textarea::make('video_embed')
                                     ->label(__('admin.projects.video_embed'))
                                     ->helperText(__('admin.projects.video_embed_help'))
@@ -459,21 +460,14 @@ class ProjectResource extends Resource implements HasPermissionModule
     }
 
     /**
-     * Images: JPG/PNG/WebP up to 5 MB, big photos scaled down in the browser before upload.
+     * An image field set from its sizes (Settings → Image Sizes, AKAR-50): formats, file size, smallest size, the
+     * hint under it.
      */
-    private static function image(string $name, string $collection): SpatieMediaLibraryFileUpload
+    private static function image(string $name, string $collection, string $sizes): SpatieMediaLibraryFileUpload
     {
-        return SpatieMediaLibraryFileUpload::make($name)
+        return ImageRules::apply(SpatieMediaLibraryFileUpload::make($name)
             ->label(__("admin.projects.{$name}"))
-            ->collection($collection)
-            ->image()
-            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
-            ->maxSize(5120)
-            ->helperText(__('admin.projects.image_help'))
-            ->imageResizeMode('contain')
-            ->imageResizeTargetWidth('1920')
-            ->imageResizeTargetHeight('1920')
-            ->imageResizeUpscale(false);
+            ->collection($collection), $sizes);
     }
 
     /**

@@ -114,10 +114,10 @@ class UnitResourceTest extends TestCase
                 'unit_status_id' => $this->id('unitstatus', 'available'), 'property_usage_id' => $this->id('propertyusage', 'residential'),
                 'property_type_id' => $this->id('unittype', 'apartment'),
                 'short_description_en' => 'Card text.', 'description_en' => '<p>Body</p>',
-                'featured_image' => [UploadedFile::fake()->image('cover.jpg')],
-                'images_360' => [UploadedFile::fake()->image('pano.jpg', 2000, 1000)],
-                'floor_plan' => [UploadedFile::fake()->image('plan.png')],
-                'master_plan' => [UploadedFile::fake()->image('master.png')],
+                'featured_image' => [UploadedFile::fake()->image('cover.jpg', 1200, 800)],
+                'images_360' => [UploadedFile::fake()->image('pano.jpg', 4000, 2000)],
+                'floor_plan' => [UploadedFile::fake()->image('plan.png', 1200, 1200)],
+                'master_plan' => [UploadedFile::fake()->image('master.png', 1200, 1200)],
                 'video_url' => 'https://youtu.be/abc',
             ])
             ->call('create')

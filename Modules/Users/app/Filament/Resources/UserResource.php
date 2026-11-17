@@ -3,6 +3,7 @@
 namespace Modules\Users\Filament\Resources;
 
 use App\Filament\Contracts\HasPermissionModule;
+use App\Filament\Forms\ImageRules;
 use App\Filament\Helpers\TableHelper;
 use App\Filament\Schemas\Tab;
 use App\Filament\Support\PrefixSearch;
@@ -420,17 +421,10 @@ class UserResource extends Resource implements HasPermissionModule
      */
     public static function avatarField(): FileUpload
     {
-        return FileUpload::make('avatar')
+        // Sizes, formats and hints from Settings → Image Sizes (AKAR-50).
+        return ImageRules::apply(FileUpload::make('avatar')
             ->label(__('admin.users.avatar'))
-            ->avatar()
-            ->image()
-            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
-            ->maxSize(2048)
-            ->helperText(__('admin.users.avatar_help'))
-            ->imageCropAspectRatio('1:1')
-            ->imageResizeMode('cover')
-            ->imageResizeTargetWidth('512')
-            ->imageResizeTargetHeight('512')
+            ->avatar(), 'user_avatar')
             ->disk(User::AVATAR_DISK)
             ->directory(User::AVATAR_DIRECTORY)
             ->visibility('public')

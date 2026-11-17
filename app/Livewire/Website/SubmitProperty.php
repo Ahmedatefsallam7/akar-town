@@ -4,6 +4,9 @@ namespace App\Livewire\Website;
 
 use App\Livewire\Website\Concerns\FillsContactFromAccount;
 use App\Support\Crm\LeadContact;
+use App\Support\Images\ImageSizes;
+use App\Support\Images\ImageText;
+use App\Support\Images\ImageValidation;
 use App\Support\Website\SearchOptions;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\RateLimiter;
@@ -12,6 +15,7 @@ use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
+use Modules\GeneralSettings\Settings\SubmitPropertySettings;
 use Modules\Lookups\Models\Lookup;
 use Modules\Lookups\Support\LocationTree;
 use Modules\PossibleLeads\Support\Visitor;
@@ -142,7 +146,10 @@ class SubmitProperty extends Component
             'bathrooms' => ['nullable', 'integer', 'min:0', 'max:20'],
             'unitArea' => ['required', 'integer', 'min:1', 'max:1000000'],
             'photos' => ['array', 'max:'.UnitRequest::MAX_PHOTOS],
-            'photos.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            // The formats, file size and smallest size set for sell request photos (Settings → Image Sizes, AKAR-50).
+            'photos.*' => ImageValidation::rules('sell_request_photos'),
+        ], messages: [
+            'photos.*.dimensions' => ImageText::tooSmall('sell_request_photos'),
         ], attributes: [
             'fullName' => __('Full name'),
             'phone' => __('Phone'),
@@ -249,7 +256,7 @@ class SubmitProperty extends Component
 
     public function render(): View
     {
-        $settings = app(\Modules\GeneralSettings\Settings\SubmitPropertySettings::class);
+        $settings = app(SubmitPropertySettings::class);
         $locale = app()->getLocale();
 
         return view('livewire.website.submit-property', [
@@ -257,6 +264,7 @@ class SubmitProperty extends Component
             'levels' => $this->ready && ! $this->manual ? $this->levels() : [],
             'intro' => $settings->{"why_list_mini_description_{$locale}"},
             'points' => array_values(array_filter($settings->points, fn (array $point) => filled($point["header_{$locale}"] ?? null))),
+            'photo' => ImageSizes::field('sell_request_photos'),
         ]);
     }
 }

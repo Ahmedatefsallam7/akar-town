@@ -24,7 +24,7 @@
     {{ $attributes->class('group/card flex translate-y-6 cursor-pointer flex-col overflow-hidden rounded-[18px] border border-ink-10 bg-white opacity-0 [transition:opacity_0.65s_var(--ease-out-ex),translate_0.65s_var(--ease-out-ex),border-color_0.35s,box-shadow_0.35s_var(--ease-out-ex)] hover:border-[rgba(200,16,46,0.15)] dark:border-[rgba(237,232,223,0.07)] dark:bg-[rgb(28,25,18)] dark:hover:border-[rgba(212,20,44,0.25)] dark:hover:shadow-[0_20px_60px_rgba(0,0,0,0.5)]') }}
     :class="{ 'translate-y-0 opacity-100': shown, 'translate-y-6 opacity-0': ! shown }"
 >
-    <div class="relative aspect-[16/10] shrink-0 overflow-hidden">
+    <div class="relative {{ \App\Support\Images\ImageSizes::shapeClass('project_card') }} shrink-0 overflow-hidden">
         @if ($card['image'])
             <img src="{{ $card['image'] }}" alt="{{ $card['title'] }}" loading="lazy" class="size-full object-cover transition-transform duration-320 ease-out-ex group-hover/card:scale-106" />
         @else

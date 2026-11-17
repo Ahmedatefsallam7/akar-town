@@ -4,6 +4,7 @@ namespace Modules\GeneralSettings\Filament\Support;
 
 use App\Filament\Concerns\InteractsWithPermissionModule;
 use App\Filament\Contracts\HasPermissionModule;
+use App\Filament\Forms\ImageRules;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
@@ -124,16 +125,12 @@ abstract class GeneralSettingsPage extends SettingsPage implements HasPermission
             ->label(__("admin.settings.sections.{$label}"))
             ->schema([
                 ...($withIcon ? [
-                    FileUpload::make('icon')
+                    // Sizes, formats and hints from Settings → Image Sizes (AKAR-50); never SVG (it can carry scripts).
+                    ImageRules::apply(FileUpload::make('icon')
                         ->label(__('admin.settings.fields.icon'))
-                        ->helperText(__('admin.settings.fields.icon_help'))
-                        ->image()
                         ->disk('public')
                         ->directory(self::ICONS_DIRECTORY)
-                        ->visibility('public')
-                        // No SVG: an uploaded SVG can carry scripts.
-                        ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/webp'])
-                        ->maxSize(1024)
+                        ->visibility('public'), 'card_icon')
                         ->columnSpanFull(),
                 ] : []),
                 static::textEn('header', 'header'),

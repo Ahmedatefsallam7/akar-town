@@ -27,6 +27,9 @@ class WebsiteImagesSettings extends Settings
 
     public ?string $footer_background;
 
+    /** The image shown when a page is shared on social media (1200 × 630; empty: the logo). */
+    public ?string $share_image;
+
     public static function group(): string
     {
         return 'website_images';

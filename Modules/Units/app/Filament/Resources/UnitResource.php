@@ -3,6 +3,7 @@
 namespace Modules\Units\Filament\Resources;
 
 use App\Filament\Contracts\HasPermissionModule;
+use App\Filament\Forms\ImageRules;
 use App\Filament\Forms\MapPicker;
 use App\Filament\Forms\SeoFields;
 use App\Filament\Helpers\TableHelper;
@@ -301,7 +302,7 @@ class UnitResource extends Resource implements HasPermissionModule
                         Tab::make(__('admin.tabs.media'))
                             ->icon('heroicon-o-photo')
                             ->schema([
-                                static::image('featured_image', Unit::FEATURED_IMAGE, 5120, 1920),
+                                static::image('featured_image', Unit::FEATURED_IMAGE, 'unit_featured'),
                                 Select::make('gallery_id')
                                     ->label(__('admin.units.gallery'))
                                     ->helperText(__('admin.units.gallery_help'))
@@ -312,12 +313,11 @@ class UnitResource extends Resource implements HasPermissionModule
                                     ->getOptionLabelFromRecordUsing(fn (Gallery $record) => $record->getLocalized('name'))
                                     ->searchable()
                                     ->preload(),
-                                static::image('images_360', Unit::IMAGES_360, 20480)
+                                static::image('images_360', Unit::IMAGES_360, 'unit_360')
                                     ->multiple()
-                                    ->reorderable()
-                                    ->helperText(__('admin.galleries.images_360_help', ['size' => 20])),
-                                static::image('floor_plan', Unit::FLOOR_PLAN, 10240, 3000),
-                                static::image('master_plan', Unit::MASTER_PLAN, 10240, 3000),
+                                    ->reorderable(),
+                                static::image('floor_plan', Unit::FLOOR_PLAN, 'unit_floor_plan'),
+                                static::image('master_plan', Unit::MASTER_PLAN, 'unit_master_plan'),
                                 TextInput::make('video_url')
                                     ->label(__('admin.units.video_url'))
                                     ->url()
@@ -552,22 +552,14 @@ class UnitResource extends Resource implements HasPermissionModule
     }
 
     /**
-     * JPG/PNG/WebP. With $resizeTo, big images are scaled down in the browser before upload.
+     * An image field set from its sizes (Settings → Image Sizes, AKAR-50): formats, file size, smallest size, the
+     * hint under it.
      */
-    private static function image(string $name, string $collection, int $maxKb, ?int $resizeTo = null): SpatieMediaLibraryFileUpload
+    private static function image(string $name, string $collection, string $sizes): SpatieMediaLibraryFileUpload
     {
-        return SpatieMediaLibraryFileUpload::make($name)
+        return ImageRules::apply(SpatieMediaLibraryFileUpload::make($name)
             ->label(__("admin.units.{$name}"))
-            ->collection($collection)
-            ->image()
-            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
-            ->maxSize($maxKb)
-            ->helperText(__('admin.galleries.image_help', ['size' => $maxKb / 1024]))
-            ->when($resizeTo, fn (SpatieMediaLibraryFileUpload $field) => $field
-                ->imageResizeMode('contain')
-                ->imageResizeTargetWidth((string) $resizeTo)
-                ->imageResizeTargetHeight((string) $resizeTo)
-                ->imageResizeUpscale(false));
+            ->collection($collection), $sizes);
     }
 
     /**

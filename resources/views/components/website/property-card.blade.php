@@ -22,7 +22,7 @@
     class="group/card relative translate-y-7 cursor-pointer overflow-hidden rounded-[20px] border border-ink-10 bg-white opacity-0 [transition:opacity_0.65s_var(--ease-out-ex),translate_0.65s_var(--ease-out-ex),border-color_0.35s_var(--ease-out-ex),box-shadow_0.35s_var(--ease-out-ex)] hover:border-[rgba(200,16,46,0.2)] dark:border-line dark:bg-surface-2 dark:shadow-[0_2px_16px_rgba(0,0,0,0.35)] dark:hover:border-line-md dark:hover:shadow-[0_8px_32px_rgba(0,0,0,0.55),0_0_0_1px_rgba(212,20,44,0.18)] group-data-[view=list]/grid:grid group-data-[view=list]/grid:grid-cols-[340px_1fr] max-md:group-data-[view=list]/grid:grid-cols-1"
     :class="{ 'translate-y-0 opacity-100': shown, 'translate-y-7 opacity-0': ! shown }"
 >
-    <div class="relative aspect-[4/3] overflow-hidden group-data-[view=list]/grid:aspect-auto group-data-[view=list]/grid:h-full group-data-[view=list]/grid:min-h-[220px] max-md:group-data-[view=list]/grid:h-[220px]">
+    <div class="relative {{ \App\Support\Images\ImageSizes::shapeClass('property_card') }} overflow-hidden group-data-[view=list]/grid:aspect-auto group-data-[view=list]/grid:h-full group-data-[view=list]/grid:min-h-[220px] max-md:group-data-[view=list]/grid:h-[220px]">
         <div class="absolute top-[14px] right-[14px] z-4 flex flex-col items-end gap-1.5 rtl:right-auto rtl:left-[14px] rtl:items-start">
             @if ($card['featured'])
                 <span class="{{ $badge }} {{ $badgeStyles['gold'] }}">{{ __('Featured') }}</span>

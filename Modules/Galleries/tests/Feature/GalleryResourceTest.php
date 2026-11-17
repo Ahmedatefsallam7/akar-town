@@ -84,7 +84,7 @@ class GalleryResourceTest extends TestCase
                 'project_id' => $project->id,
                 'featured_image' => [UploadedFile::fake()->image('cover.jpg', 1200, 800)],
                 'images_360' => [UploadedFile::fake()->image('pano.jpg', 4000, 2000)],
-                'photos' => [UploadedFile::fake()->image('a.jpg'), UploadedFile::fake()->image('b.jpg')],
+                'photos' => [UploadedFile::fake()->image('a.jpg', 1200, 800), UploadedFile::fake()->image('b.jpg', 1200, 800)],
                 'floor_plans' => [UploadedFile::fake()->image('plan.png', 1500, 1000)],
                 'attachments' => [UploadedFile::fake()->create('brochure.pdf', 500, 'application/pdf')],
                 'video_url' => 'https://www.youtube.com/watch?v=abc123',

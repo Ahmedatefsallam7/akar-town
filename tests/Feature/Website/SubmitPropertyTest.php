@@ -4,6 +4,8 @@ namespace Tests\Feature\Website;
 
 use App\Jobs\SendLeadToCrm;
 use App\Livewire\Website\SubmitProperty;
+use App\Support\Images\ImageSizes;
+use App\Support\Images\ImageText;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Queue;
@@ -53,6 +55,26 @@ class SubmitPropertyTest extends TestCase
         $this->newCairo = $this->egypt->children()->create(['slug' => 'new-cairo', 'name_en' => 'New Cairo', 'name_ar' => 'القاهرة الجديدة']);
         $this->fifth = $this->newCairo->children()->create(['slug' => 'fifth-settlement', 'name_en' => 'Fifth Settlement', 'name_ar' => 'التجمع الخامس']);
         Lookup::fixTree();
+    }
+
+    public function test_photos_follow_the_sizes_set_on_image_sizes(): void
+    {
+        // Too small for the default (at least 800 × 600): it would look blurry.
+        $this->filled()
+            ->set('photos', [UploadedFile::fake()->image('tiny.jpg', 400, 300)])
+            ->call('send')
+            ->assertHasErrors(['photos.0' => 'dimensions'])
+            ->assertSee(ImageText::tooSmall('sell_request_photos'));
+
+        // PNG switched off on Settings → Image Sizes (AKAR-50): refused here too, and the hint follows.
+        ImageSizes::save('field:sell_request_photos', ['recommended' => [1920, 1440], 'min' => [800, 600], 'mb' => 5, 'formats' => ['jpg', 'webp']]);
+        $this->filled()
+            ->assertSee('JPG, WebP · Up to 5 MB each')
+            ->set('photos', [UploadedFile::fake()->image('pool.png', 800, 600)])
+            ->call('send')
+            ->assertHasErrors(['photos.0' => 'mimes']);
+
+        $this->assertSame(0, UnitRequest::count());
     }
 
     private function filled(): mixed

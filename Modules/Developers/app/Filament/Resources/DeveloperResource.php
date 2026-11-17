@@ -3,6 +3,7 @@
 namespace Modules\Developers\Filament\Resources;
 
 use App\Filament\Contracts\HasPermissionModule;
+use App\Filament\Forms\ImageRules;
 use App\Filament\Forms\SeoFields;
 use App\Filament\Helpers\TableHelper;
 use App\Filament\Schemas\Tab;
@@ -184,29 +185,13 @@ class DeveloperResource extends Resource implements HasPermissionModule
                         Tab::make(__('admin.developers.media'))
                             ->icon('heroicon-o-photo')
                             ->schema([
-                                SpatieMediaLibraryFileUpload::make('logo')
+                                // Sizes, formats and hints from Settings → Image Sizes (AKAR-50).
+                                ImageRules::apply(SpatieMediaLibraryFileUpload::make('logo')
                                     ->label(__('admin.developers.logo'))
-                                    ->collection(Developer::LOGO)
-                                    ->image()
-                                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
-                                    ->maxSize(2048)
-                                    ->helperText(__('admin.developers.logo_dimensions'))
-                                    // Big files are scaled down in the browser before upload; small ones are kept.
-                                    ->imageResizeMode('contain')
-                                    ->imageResizeTargetWidth('800')
-                                    ->imageResizeTargetHeight('800')
-                                    ->imageResizeUpscale(false),
-                                SpatieMediaLibraryFileUpload::make('featured_image')
+                                    ->collection(Developer::LOGO), 'developer_logo', __('admin.image_sizes.notes.logo')),
+                                ImageRules::apply(SpatieMediaLibraryFileUpload::make('featured_image')
                                     ->label(__('admin.developers.featured_image'))
-                                    ->collection(Developer::FEATURED_IMAGE)
-                                    ->image()
-                                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
-                                    ->maxSize(5120)
-                                    ->helperText(__('admin.developers.featured_image_dimensions'))
-                                    ->imageResizeMode('contain')
-                                    ->imageResizeTargetWidth('1920')
-                                    ->imageResizeTargetHeight('1920')
-                                    ->imageResizeUpscale(false),
+                                    ->collection(Developer::FEATURED_IMAGE), 'developer_featured'),
                             ])
                             ->columns(2),
                         SeoFields::tab([SeoFields::slug()]),

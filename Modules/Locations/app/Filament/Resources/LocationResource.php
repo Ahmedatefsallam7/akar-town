@@ -3,6 +3,7 @@
 namespace Modules\Locations\Filament\Resources;
 
 use App\Filament\Contracts\HasPermissionModule;
+use App\Filament\Forms\ImageRules;
 use App\Filament\Forms\MapPicker;
 use App\Filament\Forms\SeoFields;
 use App\Filament\Helpers\TableHelper;
@@ -156,18 +157,10 @@ class LocationResource extends Resource implements HasPermissionModule
                         Tab::make(__('admin.tabs.media'))
                             ->icon('heroicon-o-photo')
                             ->schema([
-                                SpatieMediaLibraryFileUpload::make('featured_image')
+                                // Sizes, formats and hints from Settings → Image Sizes (AKAR-50).
+                                ImageRules::apply(SpatieMediaLibraryFileUpload::make('featured_image')
                                     ->label(__('admin.table.featured_image'))
-                                    ->collection(Location::FEATURED_IMAGE)
-                                    ->image()
-                                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
-                                    ->maxSize(5120)
-                                    ->helperText(__('admin.locations.image_help'))
-                                    // Big photos are scaled down in the browser before upload; small ones are kept.
-                                    ->imageResizeMode('contain')
-                                    ->imageResizeTargetWidth('1920')
-                                    ->imageResizeTargetHeight('1920')
-                                    ->imageResizeUpscale(false),
+                                    ->collection(Location::FEATURED_IMAGE), 'location_featured'),
                             ]),
                     ]),
             ]);

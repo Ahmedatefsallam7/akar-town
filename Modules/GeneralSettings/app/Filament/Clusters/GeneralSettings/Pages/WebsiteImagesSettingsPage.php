@@ -2,6 +2,8 @@
 
 namespace Modules\GeneralSettings\Filament\Clusters\GeneralSettings\Pages;
 
+use App\Filament\Forms\ImageRules;
+use App\Support\Images\ImageSizes;
 use App\Support\Website\SiteImages;
 use Filament\Forms\Components\FileUpload;
 use Filament\Schemas\Components\Section;
@@ -14,9 +16,9 @@ use Spatie\Image\Image;
 use Throwable;
 
 /**
- * The website's own photos (heroes, headers, backgrounds, logo). Empty fields keep the design's photos. Each photo is
- * cropped to its place's shape and size, and gets a 900 px WebP copy for phones; a replaced or removed photo is deleted
- * with its copy.
+ * The website's own photos (heroes, headers, backgrounds, logo, the image shared on social media). Empty fields keep
+ * the design's photos. Each photo is cropped to its place's shape and size (Settings → Image Sizes), and gets a 900 px
+ * WebP copy for phones; a replaced or removed photo is deleted with its copy.
  */
 class WebsiteImagesSettingsPage extends GeneralSettingsPage
 {
@@ -30,23 +32,11 @@ class WebsiteImagesSettingsPage extends GeneralSettingsPage
     private const PHOTOS = [
         'pages' => ['page_header', 'contact_hero', 'careers_hero', 'about_hero'],
         'backgrounds' => ['why_background', 'footer_background'],
+        'sharing' => ['share_image'],
     ];
 
-    /**
-     * The shape each photo is cropped to and its saved size, for the place it fills: the listing header is a wide strip,
-     * the heroes and backgrounds fill the screen. A photo of another shape would otherwise be zoomed in to fill it.
-     */
-    private const SIZES = [
-        'page_header' => ['3:1', 2400, 800],
-        'contact_hero' => ['16:9', 2400, 1350],
-        'careers_hero' => ['16:9', 2400, 1350],
-        'about_hero' => ['16:9', 2400, 1350],
-        'why_background' => ['16:9', 2400, 1350],
-        'footer_background' => ['16:9', 2400, 1350],
-    ];
-
-    /** The narrowest photo accepted (they span the screen's width). */
-    private const MIN_WIDTH = 1200;
+    /** A field's sizes on Settings → Image Sizes (the logo's key there is "site_logo"). */
+    private const SIZES_KEY = ['logo' => 'site_logo'];
 
     /** Photos in use before the save. */
     private array $photosBeforeSave = [];
@@ -60,50 +50,27 @@ class WebsiteImagesSettingsPage extends GeneralSettingsPage
     {
         return $schema->components([
             Section::make(__('admin.settings.sections.logo'))
-                ->schema([
-                    static::photo('logo', 1024)
-                        // A logo needs its transparent background: PNG or WebP only (no SVG: it can carry scripts).
-                        ->acceptedFileTypes(['image/png', 'image/webp'])
-                        ->helperText(__('admin.settings.fields.logo_help')),
-                ])
+                // A logo needs its transparent background: PNG or WebP only (no SVG: it can carry scripts).
+                ->schema([static::photo('logo', __('admin.settings.fields.logo_help'))])
                 ->columnSpanFull(),
             ...collect(self::PHOTOS)->map(fn (array $keys, string $section) => Section::make(__("admin.settings.sections.{$section}"))
+                ->description($section === 'sharing' ? __('admin.settings.fields.share_image_help') : null)
                 ->schema(array_map(fn (string $key) => static::photo($key), $keys))
                 ->columns(2)
                 ->columnSpanFull())->values()->all(),
         ]);
     }
 
-    private static function photo(string $key, int $maxKb = 5120): FileUpload
+    /**
+     * A photo field: its sizes, formats, hint and crop from Settings → Image Sizes (AKAR-50).
+     */
+    private static function photo(string $key, ?string $note = null): FileUpload
     {
-        $field = FileUpload::make($key)
+        return ImageRules::apply(FileUpload::make($key)
             ->label(__("admin.settings.fields.{$key}"))
-            ->image()
             ->disk('public')
             ->directory(self::IMAGES_DIRECTORY)
-            ->visibility('public')
-            ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/webp'])
-            ->maxSize($maxKb);
-
-        if (! isset(self::SIZES[$key])) {
-            // The logo keeps its own shape, at most 800 px wide.
-            return $field->imageResizeMode('contain')->imageResizeTargetWidth('800')->imageResizeTargetHeight('800')->imageResizeUpscale(false);
-        }
-
-        [$ratio, $width, $height] = self::SIZES[$key];
-
-        return $field
-            ->helperText(__('admin.settings.fields.website_image_help', ['size' => "{$width} × {$height}"]))
-            // A smaller photo would be stretched across the screen and look blurry.
-            ->rules(['dimensions:min_width='.self::MIN_WIDTH])
-            ->validationMessages(['dimensions' => __('admin.settings.fields.website_image_too_small', ['width' => self::MIN_WIDTH])])
-            // Cropped to the place's shape (the editor lets the admin pick the part to keep), then saved at its size.
-            ->imageCropAspectRatio($ratio)
-            ->imageEditor()
-            ->imageEditorAspectRatioOptions([$ratio])
-            ->imageResizeMode('cover')
-            ->imageResizeTargetWidth((string) $width)
-            ->imageResizeTargetHeight((string) $height);
+            ->visibility('public'), self::SIZES_KEY[$key] ?? $key, $note);
     }
 
     protected function beforeSave(): void
@@ -130,15 +97,16 @@ class WebsiteImagesSettingsPage extends GeneralSettingsPage
             try {
                 // A photo not in its place's shape (e.g. saved before the crop, or the browser couldn't crop it) is
                 // cropped from the centre to it, so the page doesn't zoom into a corner of it.
-                [$ratio, $width, $height] = self::SIZES[$key];
+                [$width, $height] = ImageSizes::field($key)['recommended'];
                 [$w, $h] = getimagesize($disk->path($path)) ?: [0, 0];
                 if ($w && $h && abs($w / $h - $width / $height) > 0.02) {
                     Image::load($disk->path($path))->fit(Fit::Crop, min($width, $w), (int) round(min($width, $w) * $height / $width))->save();
                     $disk->delete(SiteImages::smallPath($path));
                 }
 
+                // A 900 px copy for phones (the share image isn't shown on the site: no copy).
                 $small = SiteImages::smallPath($path);
-                if (! $disk->exists($small)) {
+                if ($key !== 'share_image' && ! $disk->exists($small)) {
                     Image::load($disk->path($path))->width(900)->quality(75)->format('webp')->save($disk->path($small));
                 }
             } catch (Throwable $e) {

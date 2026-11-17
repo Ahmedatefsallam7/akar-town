@@ -39,7 +39,7 @@
     $details = array_chunk($p['details'], 2, true);
 @endphp
 
-<x-website.layout :title="$p['title']" :description="$p['short']">
+<x-website.layout :title="$p['title']" :description="$p['short']" :image="$p['images'][0] ?? null">
     <div
         x-data="propertyPage(@js(['count' => $count, 'latitude' => $p['latitude'], 'longitude' => $p['longitude'], 'place' => $p['place']]))"
        
@@ -122,7 +122,7 @@
             </div>
 
             <div class="flex animate-slide-in flex-col py-9 pr-[52px] pl-0 rtl:pr-0 rtl:pl-[52px] max-[960px]:px-6! max-[960px]:pt-0! max-[960px]:pb-10!">
-                <div x-ref="gallery" class="relative aspect-[16/10] overflow-hidden rounded-xl bg-[rgb(17,17,17)] select-none">
+                <div x-ref="gallery" class="relative {{ \App\Support\Images\ImageSizes::shapeClass('property_page_photo') }} overflow-hidden rounded-xl bg-[rgb(17,17,17)] select-none">
                     @forelse ($p['images'] as $i => $image)
                         {{-- Only the first photo loads with the page (first, as the page's biggest thing); the next ones as
                              the slider reaches them (property.js). Phones take the card size. --}}

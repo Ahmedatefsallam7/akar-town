@@ -22,7 +22,7 @@
     :class="removing.includes({{ $fav }}) && 'animate-card-out'"
     class="group flex flex-col overflow-hidden rounded-2xl border border-ink-10 bg-paper transition-[transform,box-shadow,border-color] duration-210 ease-out-ex hover:border-ink-30 dark:border-line dark:bg-surface-2 dark:hover:border-line-md dark:hover:shadow-[0_20px_48px_rgba(0,0,0,0.4)]"
 >
-    <div class="relative aspect-[16/10] shrink-0 overflow-hidden bg-ink-10">
+    <div class="relative {{ \App\Support\Images\ImageSizes::shapeClass('wishlist_card') }} shrink-0 overflow-hidden bg-ink-10">
         <img src="{{ $item['image'] ?? \App\Support\Website\Image::placeholder() }}" alt="{{ $item['title'] }}" loading="lazy" class="size-full object-cover transition-transform duration-290 ease-smooth group-hover:scale-104" />
         <button
             type="button"

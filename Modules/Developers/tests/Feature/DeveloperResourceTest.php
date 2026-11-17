@@ -269,7 +269,7 @@ class DeveloperResourceTest extends TestCase
         Livewire::test(CreateDeveloper::class)
             ->fillForm($this->validData([
                 'logo' => [UploadedFile::fake()->image('logo.png', 400, 200)],
-                'featured_image' => [UploadedFile::fake()->image('cover.jpg', 1600, 600)],
+                'featured_image' => [UploadedFile::fake()->image('cover.jpg', 1600, 900)],
             ]))
             ->call('create')
             ->assertHasNoFormErrors();

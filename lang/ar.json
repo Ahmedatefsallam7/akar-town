@@ -776,7 +776,6 @@
     "Unit Area": "مساحة الوحدة",
     "Upload property photos": "ارفع صور العقار",
     "Click or drag photos here": "اضغط أو اسحب الصور هنا",
-    "JPG, PNG, WEBP · Up to 10 images": "JPG أو PNG أو WEBP · حتى 10 صور",
     "Remove photo": "حذف الصورة",
     ":type for Sale in :place": ":type للبيع في :place",
     ":type for Rent in :place": ":type للإيجار في :place",
@@ -915,5 +914,11 @@
     "United Kingdom": "بريطانيا",
     "Choose your country": "اختر دولتك",
     "Search a country or code": "ابحث عن دولة أو كود",
-    "No country found": "لا توجد دولة بهذا الاسم"
+    "No country found": "لا توجد دولة بهذا الاسم",
+    ":formats · Up to :mb MB each · Up to :count images": ":formats · حتى :mb ميجا للصورة · حتى :count صور",
+    "This image is too small: it must be at least :size, or it would look blurry. Please upload a larger one.": "الصورة دي صغيرة: لازم تكون :size على الأقل، وإلا هتظهر مش واضحة. ارفع صورة أكبر.",
+    "This image is too big: at most :max megapixels (e.g. 8000 × 6000). Please make it smaller.": "الصورة دي كبيرة جداً: الحد الأقصى :max ميجابكسل (زي 8000 × 6000). صغّرها وارفعها تاني.",
+    ":width px wide": ":width بكسل عرض",
+    ":height px high": ":height بكسل طول",
+    "Any size": "أي مقاس"
 }

@@ -4,10 +4,14 @@
     revealFooter (home): the page content and its footer spacer scroll over the fixed footer, which they reveal at
     the end; other pages end with a normal footer, as in the design.
 --}}
-@props(['title' => null, 'description' => null, 'transparentNav' => false, 'revealFooter' => false, 'intro' => false])
+@props(['title' => null, 'description' => null, 'image' => null, 'transparentNav' => false, 'revealFooter' => false, 'intro' => false])
 
 @php
     $dark = request()->cookie('theme') === 'dark';
+    $pageTitle = $title ? $title.' — '.__('Akar Town') : __('Akar Town — Exclusive Real Estate');
+    $pageDescription = $description ?? __("Akar Town — Discover exceptional luxury properties across Egypt's finest locations.");
+    // The placeholder sketch (SVG) can't be shown by social media: the share image is used instead.
+    $shareImage = url($image && ! str_ends_with($image, '.svg') ? $image : \App\Support\Website\SiteImages::share());
 @endphp
 
 <!DOCTYPE html>
@@ -30,8 +34,18 @@
         @if ($account = auth('website')->user())
             <meta name="account-favourites" content="{{ json_encode(\App\Support\Website\Favourites::of($account)) }}" data-url="{{ route('account.favourites', absolute: false) }}" />
         @endif
-        <title>{{ $title ? $title.' — '.__('Akar Town') : __('Akar Town — Exclusive Real Estate') }}</title>
-        <meta name="description" content="{{ $description ?? __("Akar Town — Discover exceptional luxury properties across Egypt's finest locations.") }}" />
+        <title>{{ $pageTitle }}</title>
+        <meta name="description" content="{{ $pageDescription }}" />
+        {{-- What social media and chat apps show when the page is shared (AKAR-50): the page's own photo (a property,
+             a project), else the share image from Settings → Website Images. --}}
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="{{ __('Akar Town') }}" />
+        <meta property="og:title" content="{{ $pageTitle }}" />
+        <meta property="og:description" content="{{ $pageDescription }}" />
+        <meta property="og:url" content="{{ url()->current() }}" />
+        <meta property="og:locale" content="{{ app()->getLocale() === 'ar' ? 'ar_EG' : 'en_US' }}" />
+        <meta property="og:image" content="{{ $shareImage }}" />
+        <meta name="twitter:card" content="summary_large_image" />
         <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}" />
 
         {{-- Both fonts are declared on every page (Arabic pages show English, English ones may show Arabic text); a

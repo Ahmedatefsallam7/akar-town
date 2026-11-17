@@ -7,6 +7,7 @@
 @source '../views/website';
 @source '../views/components/website';
 @source '../js/website';
+@source '../../app/Support/Images';
 
 /* As in the design, hover styles also apply on touch screens (a tap shows them), e.g. the cards' action buttons. */
 @custom-variant hover (&:hover);

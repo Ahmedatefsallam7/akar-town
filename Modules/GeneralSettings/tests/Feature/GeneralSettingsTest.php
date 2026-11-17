@@ -188,7 +188,7 @@ class GeneralSettingsTest extends TestCase
             ->assertHasFormErrors(['story_image']);
 
         Livewire::test(AboutUsSettingsPage::class)
-            ->fillForm(['story_image' => [UploadedFile::fake()->image('first.jpg', 400, 400)]])
+            ->fillForm(['story_image' => [UploadedFile::fake()->image('first.jpg', 800, 800)]])
             ->call('save')
             ->assertHasNoFormErrors();
         $first = app(AboutUsSettings::class)->refresh()->story_image;
@@ -196,7 +196,7 @@ class GeneralSettingsTest extends TestCase
         Storage::disk('public')->assertExists($first);
 
         Livewire::test(AboutUsSettingsPage::class)
-            ->fillForm(['story_image' => [UploadedFile::fake()->image('second.webp', 400, 400)]])
+            ->fillForm(['story_image' => [UploadedFile::fake()->image('second.webp', 800, 800)]])
             ->call('save')
             ->assertHasNoFormErrors();
         $second = app(AboutUsSettings::class)->refresh()->story_image;

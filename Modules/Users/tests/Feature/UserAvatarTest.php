@@ -2,6 +2,7 @@
 
 namespace Modules\Users\Tests\Feature;
 
+use App\Filament\Forms\ImageRules;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -186,6 +187,6 @@ class UserAvatarTest extends TestCase
     {
         $this->get(UserResource::getUrl('create'))
             ->assertOk()
-            ->assertSee(__('admin.users.avatar_help'));
+            ->assertSee(ImageRules::hint('user_avatar'), escape: false);
     }
 }

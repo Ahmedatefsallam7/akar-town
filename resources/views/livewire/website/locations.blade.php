@@ -22,7 +22,7 @@
                         href="{{ $card['url'] }}"
                         class="group/loc relative block cursor-pointer overflow-hidden rounded-[20px] no-underline transition-transform duration-220 ease-out-ex after:absolute after:inset-x-0 after:bottom-0 after:z-5 after:h-[3px] after:origin-left after:scale-x-0 after:bg-brand after:transition-transform after:duration-240 after:ease-out-ex hover:-translate-y-2 hover:after:scale-x-100 rtl:after:origin-right"
                     >
-                        <div class="relative aspect-square overflow-hidden bg-ink-10 max-[700px]:aspect-video">
+                        <div class="relative {{ \App\Support\Images\ImageSizes::shapeClass('location_card') }} overflow-hidden bg-ink-10">
                             @if ($card['image'])
                                 <img src="{{ $card['image'] }}" alt="{{ $card['name'] }}" loading="lazy" class="block size-full object-cover transition-transform duration-390 ease-smooth group-hover/loc:scale-109" />
                             @endif
