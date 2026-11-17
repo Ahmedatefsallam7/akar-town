@@ -1,58 +1,68 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Akar Town
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A real-estate website (properties, projects, developers, locations) with its admin panel. English and Arabic.
 
-## About Laravel
+**Stack:** Laravel 13 · Filament 5 (admin) · Livewire 4 + Alpine + Tailwind v4 (website, TALL only) · nwidart modules ·
+spatie medialibrary and laravel-settings · MySQL.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Run it locally
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+```sh
+docker compose up -d                      # app (PHP), web (nginx), db, redis, phpmyadmin
+docker exec akar-town-app php artisan migrate
+npm install && npm run build              # website and admin CSS/JS (run on your machine)
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+| URL | What |
+| --- | --- |
+| <http://localhost:8090> | Website |
+| <http://localhost:8090/admin> | Admin panel |
+| <http://localhost:8091> | phpMyAdmin (database on port 3307) |
 
-## Contributing
+- Run artisan, composer and the tests **inside the container** (`docker exec akar-town-app …`). The container and your
+  machine have their own `vendor/`: a new Composer package goes in both.
+- Tests: `docker exec akar-town-app php artisan test --compact`
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Where things live
 
-## Code of Conduct
+The **admin** is split into modules (one per business area). The **website** is one layer in `app/` and `resources/`,
+reading the modules' models.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+| Folder | What's in it |
+| --- | --- |
+| `Modules/<Name>/` | One business area: its model, migrations, seeders, admin resource (`app/Filament`), tests. Modules: Units (properties), Projects, Developers, Locations, Galleries, Lookups, Users, WebsiteUsers, UnitRequests (sell requests), Inquiry (contact + meetings), Careers, PossibleLeads, Sliders, GeneralSettings (the settings pages) |
+| `app/Http/Controllers/Website/` | Website pages that need a controller (the others are `Route::view` in `routes/web.php`) |
+| `app/Livewire/Website/` | The website's interactive parts (search, forms, sign-in window); shared pieces in `Concerns/` |
+| `app/Support/Website/` | What a website page shows, ready for the view: `XCards` (lists), `XDetails` (one record), `XSearch` (filters), `XPdf` (brochures) |
+| `resources/views/website/`, `components/website/`, `livewire/website/` | The website's views |
+| `app/Support/Images/` | Every image's sizes (Settings → Image Sizes), how they're written, how an upload is checked |
+| `app/Support/Crm/` | Sending leads to the CRM |
+| `app/Filament/` | What admin modules share: `Concerns/` (traits), `Support/` (helpers), `Forms/` (field builders), `Contracts/` |
+| `app/Models/Concerns/` | Traits shared by models (slug, translations, search name) |
+| `app/Rules/` | Validation rules |
+| `lang/` | `ar.json`: website texts (`__('English text')`). `en/admin.php`, `ar/admin.php`: admin texts |
 
-## Security Vulnerabilities
+Naming: traits go in a `Concerns/` folder, helpers in a `Support/` folder.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## How to add…
 
-## License
+- **An admin area:** `php artisan module:make Name` (keep the whole scaffold, even empty folders). Its Filament resource
+  in `Modules/Name/app/Filament/Resources` is found by itself. Use `HasResourceTranslations` for its labels and
+  permission: it then appears in the roles form, and the Admin role gets it after `migrate`.
+- **A website page:** a route in `routes/web.php`, the data in `app/Support/Website/`, the view in
+  `resources/views/website/`, interactive parts as Livewire components in `app/Livewire/Website/`.
+- **An image upload field:** add the field (and the places that show it) to `App\Support\Images\ImageSizes`, then wrap
+  the admin field in `ImageRules::apply($field, 'key')` (a test fails if you forget). A website form validates with
+  `ImageValidation::rules('key')`. Its sizes then show on Settings → Image Sizes, where an admin can change them.
+- **Text:** never hard-code it. Admin: `__('admin.…')` in `lang/{en,ar}/admin.php`. Website: `__('English text')` plus
+  the Arabic in `lang/ar.json`.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Rules of the project
+
+- **Website = TALL only:** Tailwind utilities, Alpine, Livewire. No hand-written CSS, no inline `style=` values, no
+  JavaScript outside the Vite entries.
+- **Every change ships with tests** (`Modules/*/tests`, `tests/Feature`). Pages have query budgets
+  (`tests/Feature/Performance`): a change that adds queries fails them.
+- **Fast with big data:** no N+1 queries, cache what every page reads, paginate.
+- **Going live (cPanel):** no Node, Redis or Supervisor on the server, so build the assets locally, and use the
+  database for the cache and the queue.
