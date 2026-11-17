@@ -2,10 +2,10 @@
 
 namespace Modules\Galleries\Filament\Resources;
 
+use App\Filament\Concerns\HasResourceTranslations;
 use App\Filament\Contracts\HasPermissionModule;
 use App\Filament\Forms\ImageRules;
-use App\Filament\Helpers\TableHelper;
-use App\Filament\Traits\HasResourceTranslations;
+use App\Filament\Support\TableHelper;
 use App\Rules\VideoUrl;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;

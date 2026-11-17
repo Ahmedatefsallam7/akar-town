@@ -2,8 +2,8 @@
 
 namespace Modules\Lookups\Filament\Resources;
 
+use App\Filament\Concerns\HasResourceTranslations;
 use App\Filament\Contracts\HasPermissionModule;
-use App\Filament\Traits\HasResourceTranslations;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;

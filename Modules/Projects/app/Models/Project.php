@@ -2,9 +2,9 @@
 
 namespace Modules\Projects\Models;
 
+use App\Models\Concerns\HasLocalization;
 use App\Models\Concerns\HasSearchName;
 use App\Models\Concerns\HasUniqueSlug;
-use App\Traits\HasLocalization;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

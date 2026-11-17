@@ -2,9 +2,9 @@
 
 namespace Modules\Users\Filament\Resources;
 
+use App\Filament\Concerns\HasResourceTranslations;
 use App\Filament\Contracts\HasPermissionModule;
-use App\Filament\Helpers\TableHelper;
-use App\Filament\Traits\HasResourceTranslations;
+use App\Filament\Support\TableHelper;
 use Closure;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;

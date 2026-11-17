@@ -2,12 +2,12 @@
 
 namespace Modules\Users\Filament\Resources;
 
+use App\Filament\Concerns\HasResourceTranslations;
 use App\Filament\Contracts\HasPermissionModule;
 use App\Filament\Forms\ImageRules;
-use App\Filament\Helpers\TableHelper;
 use App\Filament\Schemas\Tab;
 use App\Filament\Support\PrefixSearch;
-use App\Filament\Traits\HasResourceTranslations;
+use App\Filament\Support\TableHelper;
 use Filament\Actions\BulkAction;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;

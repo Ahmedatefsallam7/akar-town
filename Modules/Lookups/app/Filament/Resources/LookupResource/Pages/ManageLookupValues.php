@@ -2,7 +2,7 @@
 
 namespace Modules\Lookups\Filament\Resources\LookupResource\Pages;
 
-use App\Filament\Helpers\TableHelper;
+use App\Filament\Support\TableHelper;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;

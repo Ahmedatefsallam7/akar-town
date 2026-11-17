@@ -2,7 +2,7 @@
 
 namespace Modules\Inquiry\Filament\Resources\InquiryResource\Pages;
 
-use App\Filament\Helpers\CrmHelper;
+use App\Filament\Support\CrmHelper;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Notifications\Notification;

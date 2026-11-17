@@ -2,11 +2,11 @@
 
 namespace Modules\Inquiry\Filament\Resources;
 
+use App\Filament\Concerns\HasResourceTranslations;
 use App\Filament\Contracts\HasPermissionModule;
-use App\Filament\Helpers\CrmHelper;
-use App\Filament\Helpers\TableHelper;
+use App\Filament\Support\CrmHelper;
 use App\Filament\Support\PrefixSearch;
-use App\Filament\Traits\HasResourceTranslations;
+use App\Filament\Support\TableHelper;
 use App\Support\Crm\LeadContact;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;

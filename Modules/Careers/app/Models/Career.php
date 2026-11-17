@@ -2,8 +2,8 @@
 
 namespace Modules\Careers\Models;
 
+use App\Models\Concerns\HasLocalization;
 use App\Models\Concerns\HasUniqueSlug;
-use App\Traits\HasLocalization;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

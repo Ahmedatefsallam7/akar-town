@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Helpers;
+namespace App\Filament\Support;
 
 use App\Jobs\SendLeadToCrm;
 use Filament\Actions\Action;

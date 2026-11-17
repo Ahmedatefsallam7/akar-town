@@ -2,7 +2,7 @@
 
 namespace Modules\Sliders\Models;
 
-use App\Traits\HasLocalization;
+use App\Models\Concerns\HasLocalization;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;

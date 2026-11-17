@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Helpers;
+namespace App\Filament\Support;
 
 use Closure;
 use Filament\Actions\Action;

@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Filament\Traits;
+namespace App\Filament\Concerns;
 
-use App\Filament\Concerns\InteractsWithPermissionModule;
 use App\Filament\Support\NavigationBadges;
 use BackedEnum;
 use Illuminate\Auth\Access\Response;

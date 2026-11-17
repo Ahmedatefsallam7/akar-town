@@ -3,8 +3,8 @@
 namespace Modules\Inquiry\Models;
 
 use App\Jobs\SendLeadToCrm;
+use App\Models\Concerns\HasLocalization;
 use App\Support\Crm\CrmLead;
-use App\Traits\HasLocalization;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

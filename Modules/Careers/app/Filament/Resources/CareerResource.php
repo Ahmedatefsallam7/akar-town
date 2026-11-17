@@ -2,11 +2,11 @@
 
 namespace Modules\Careers\Filament\Resources;
 
+use App\Filament\Concerns\HasResourceTranslations;
 use App\Filament\Contracts\HasPermissionModule;
 use App\Filament\Forms\SeoFields;
-use App\Filament\Helpers\TableHelper;
 use App\Filament\Schemas\Tab;
-use App\Filament\Traits\HasResourceTranslations;
+use App\Filament\Support\TableHelper;
 use Carbon\Carbon;
 use Closure;
 use Filament\Forms\Components\DatePicker;

@@ -2,7 +2,7 @@
 
 namespace Modules\Lookups\Models;
 
-use App\Traits\HasLocalization;
+use App\Models\Concerns\HasLocalization;
 use Askedio\SoftCascade\Traits\SoftCascadeTrait;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;

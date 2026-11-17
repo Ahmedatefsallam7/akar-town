@@ -2,14 +2,14 @@
 
 namespace Modules\UnitRequests\Filament\Resources;
 
+use App\Filament\Concerns\HasResourceTranslations;
 use App\Filament\Contracts\HasPermissionModule;
 use App\Filament\Forms\ImageRules;
 use App\Filament\Forms\MapPicker;
-use App\Filament\Helpers\CrmHelper;
-use App\Filament\Helpers\TableHelper;
 use App\Filament\Schemas\Tab;
+use App\Filament\Support\CrmHelper;
 use App\Filament\Support\PrefixSearch;
-use App\Filament\Traits\HasResourceTranslations;
+use App\Filament\Support\TableHelper;
 use App\Support\Crm\LeadContact;
 use Closure;
 use Filament\Actions\Action;

@@ -2,11 +2,11 @@
 
 namespace Modules\WebsiteUsers\Filament\Resources;
 
+use App\Filament\Concerns\HasResourceTranslations;
 use App\Filament\Contracts\HasPermissionModule;
-use App\Filament\Helpers\TableHelper;
 use App\Filament\Support\NavigationBadges;
 use App\Filament\Support\PrefixSearch;
-use App\Filament\Traits\HasResourceTranslations;
+use App\Filament\Support\TableHelper;
 use Filament\Actions\Action;
 use Filament\Resources\Resource;
 use Filament\Tables\Columns\TextColumn;

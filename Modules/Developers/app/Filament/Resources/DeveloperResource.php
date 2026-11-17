@@ -2,12 +2,12 @@
 
 namespace Modules\Developers\Filament\Resources;
 
+use App\Filament\Concerns\HasResourceTranslations;
 use App\Filament\Contracts\HasPermissionModule;
 use App\Filament\Forms\ImageRules;
 use App\Filament\Forms\SeoFields;
-use App\Filament\Helpers\TableHelper;
 use App\Filament\Schemas\Tab;
-use App\Filament\Traits\HasResourceTranslations;
+use App\Filament\Support\TableHelper;
 use App\Support\SmartSearch;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Textarea;
