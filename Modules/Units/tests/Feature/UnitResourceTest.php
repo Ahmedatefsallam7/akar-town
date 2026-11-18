@@ -212,40 +212,62 @@ class UnitResourceTest extends TestCase
             ->assertHasNoFormErrors();
     }
 
-    public function test_a_unit_picks_only_its_projects_galleries_or_galleries_with_no_project(): void
+    public function test_any_gallery_can_be_picked_on_create_and_edit_its_projects_first(): void
     {
+        // AKAR-54: every gallery, the unit's project's listed first, each with its project's name.
         $this->actingAs($this->createAdmin());
         $project = $this->project();
         $other = $this->project();
-        $own = Gallery::factory()->create(['project_id' => $project->id]);
-        $foreign = Gallery::factory()->create(['project_id' => $other->id]);
-        $shared = Gallery::factory()->create();
+        $own = Gallery::factory()->create(['project_id' => $project->id, 'name_en' => 'Zeta Gallery']);
+        $crown = Gallery::factory()->create(['project_id' => $other->id, 'name_en' => 'The Crown Tower Gallery', 'name_ar' => 'معرض برج التاج']);
+        $shared = Gallery::factory()->create(['name_en' => 'Alpha Gallery']);
 
-        Livewire::test(CreateUnit::class)
-            ->fillForm(['name_en' => 'U1', 'name_ar' => 'و1', 'project_id' => $project->id, 'gallery_id' => $foreign->id])
-            ->call('create')
-            ->assertHasFormErrors(['gallery_id']);
+        // The project's own first, then the others by name ("Alpha…", "The Crown…").
+        $this->assertSame([$own->id, $shared->id, $crown->id], array_keys(UnitResource::galleryOptions($project->id)));
+        $this->assertSame($shared->id, array_key_first(UnitResource::galleryOptions(null))); // no project: galleries with none first
+        $this->assertStringContainsString('The Crown Tower Gallery — ', UnitResource::galleryOptions($project->id)[$crown->id]);
 
+        // Another project's gallery on create; then edited: removed, another one picked and saved.
         Livewire::test(CreateUnit::class)
-            ->fillForm(['name_en' => 'U2', 'name_ar' => 'و2', 'project_id' => $project->id, 'gallery_id' => $own->id])
-            ->call('create')
-            ->assertHasNoFormErrors();
-
-        Livewire::test(CreateUnit::class)
-            ->fillForm(['name_en' => 'U3', 'name_ar' => 'و3', 'gallery_id' => $own->id])
-            ->call('create')
-            ->assertHasFormErrors(['gallery_id']);
-
-        Livewire::test(CreateUnit::class)
-            ->fillForm(['name_en' => 'U4', 'name_ar' => 'و4', 'gallery_id' => $shared->id])
+            ->fillForm(['name_en' => 'U1', 'name_ar' => 'و1', 'project_id' => $project->id, 'gallery_id' => $crown->id])
             ->call('create')
             ->assertHasNoFormErrors();
+        $unit = Unit::query()->where('name_en', 'U1')->sole();
+        $this->assertSame($crown->id, $unit->gallery_id);
 
-        // Moving the unit to another project drops a gallery that doesn't fit any more.
+        Livewire::test(EditUnit::class, ['record' => $unit->getRouteKey()])
+            ->fillForm(['gallery_id' => null])
+            ->fillForm(['gallery_id' => $shared->id])
+            ->call('save')
+            ->assertHasNoFormErrors();
+        $this->assertSame($shared->id, $unit->fresh()->gallery_id);
+
+        // A gallery that doesn't exist is refused; moving the unit to another project keeps its gallery.
         Livewire::test(CreateUnit::class)
-            ->fillForm(['project_id' => $project->id, 'gallery_id' => $own->id])
+            ->fillForm(['name_en' => 'U2', 'name_ar' => 'و2', 'gallery_id' => 999999])
+            ->call('create')
+            ->assertHasFormErrors(['gallery_id']);
+        Livewire::test(CreateUnit::class)
+            ->fillForm(['project_id' => $project->id, 'gallery_id' => $crown->id])
             ->fillForm(['project_id' => $other->id])
-            ->assertSchemaStateSet(['gallery_id' => null]);
+            ->assertSchemaStateSet(['gallery_id' => $crown->id]);
+    }
+
+    public function test_galleries_are_searched_on_the_server_by_any_part_of_either_name(): void
+    {
+        $project = $this->project();
+        $crown = Gallery::factory()->create(['name_en' => 'The Crown Tower Gallery', 'name_ar' => 'معرض برج التاج']);
+        Gallery::factory()->count(120)->create(); // hundreds of galleries: a page of them, the rest found by search
+        $late = Gallery::factory()->create(['name_en' => 'Zz Newly Added Gallery', 'name_ar' => 'معرض جديد']);
+
+        foreach (['crown', 'CROWN', 'own Tow', 'برج', 'التاج'] as $search) {
+            $this->assertSame([$crown->id], array_keys(UnitResource::galleryOptions($project->id, $search)), $search);
+        }
+        $this->assertSame([$late->id], array_keys(UnitResource::galleryOptions($project->id, 'newly')));
+        // "No options" only when no gallery has that name ("%" is a letter here, not a wildcard).
+        $this->assertSame([], UnitResource::galleryOptions($project->id, 'no such gallery'));
+        $this->assertSame([], UnitResource::galleryOptions($project->id, '%'));
+        $this->assertCount(50, UnitResource::galleryOptions($project->id));
     }
 
     public function test_every_price_change_is_kept_with_who_made_it(): void

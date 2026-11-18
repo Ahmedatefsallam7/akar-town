@@ -996,7 +996,7 @@ return [
         'image' => 'Image',
         'featured_image' => 'Featured Image',
         'gallery' => 'Gallery',
-        'gallery_help' => 'Shared media from Galleries: the project\'s galleries, or galleries with no project for a standalone unit.',
+        'gallery_help' => 'Shared media from Galleries: any gallery, the project\'s own listed first. Type to search by name (English or Arabic).',
         'images_360' => '360° Images',
         'floor_plan' => 'Floor Plan',
         'master_plan' => 'Master Plan',

@@ -310,16 +310,18 @@ class UnitResource extends Resource implements HasPermissionModule
                             ->icon('heroicon-o-photo')
                             ->schema([
                                 static::image('featured_image', Unit::FEATURED_IMAGE, 'unit_featured'),
+                                // Any gallery (AKAR-54), its project's first, each with its project's name; searched on the
+                                // server by its English or Arabic name.
                                 Select::make('gallery_id')
                                     ->label(__('admin.units.gallery'))
                                     ->helperText(__('admin.units.gallery_help'))
-                                    // Its project's galleries, or galleries with no project for a unit without one.
-                                    ->relationship('gallery', 'name_en', fn (Builder $query, Get $get) => filled($get('project_id'))
-                                        ? $query->where('project_id', $get('project_id'))
-                                        : $query->whereNull('project_id'))
-                                    ->getOptionLabelFromRecordUsing(fn (Gallery $record) => $record->getLocalized('name'))
                                     ->searchable()
-                                    ->preload(),
+                                    ->options(fn (Get $get) => static::galleryOptions($get('project_id')))
+                                    ->getSearchResultsUsing(fn (string $search, Get $get) => static::galleryOptions($get('project_id'), $search))
+                                    // Read from the listed choices when it's one of them (no query), else from the database.
+                                    ->getOptionLabelUsing(fn ($value, Get $get) => static::galleryOptions($get('project_id'))[(int) $value]
+                                        ?? static::galleryLabel(Gallery::query()->with('project:id,title_en,title_ar')->find($value)))
+                                    ->exists('galleries', 'id'),
                                 static::image('images_360', Unit::IMAGES_360, 'unit_360')
                                     ->multiple()
                                     ->reorderable(),
@@ -517,11 +519,53 @@ class UnitResource extends Resource implements HasPermissionModule
             }
         }
 
-        // The gallery must belong to the new project (or to none).
-        $gallery = filled($get('gallery_id')) ? Gallery::find($get('gallery_id')) : null;
-        if ($gallery && $gallery->project_id !== $projectId) {
-            $set('gallery_id', null);
+    }
+
+    /** How many galleries the gallery field lists at a time (search for the others). */
+    private const GALLERY_OPTIONS = 50;
+
+    /**
+     * The gallery field's choices (AKAR-54): every gallery, the unit's project's first (or, without a project, the
+     * galleries with none), matching a part of the English or Arabic name in any case.
+     *
+     * @return array<int, string>
+     */
+    public static function galleryOptions(mixed $projectId, ?string $search = null): array
+    {
+        $projectId = filled($projectId) ? (int) $projectId : null;
+        $search = trim((string) $search);
+
+        // One query: the galleries with their project's title (joined), once per request for the same choices.
+        return once(fn () => Gallery::query()
+            ->leftJoin('projects', 'projects.id', '=', 'galleries.project_id')
+            ->select('galleries.id', 'galleries.name_en', 'galleries.name_ar', 'galleries.project_id', 'projects.title_en as project_title_en', 'projects.title_ar as project_title_ar')
+            ->when($search !== '', function (Builder $query) use ($search) {
+                // "%" and "_" typed are letters, not wildcards ("!" escapes them, the same on every database).
+                $like = '%'.str_replace(['!', '%', '_'], ['!!', '!%', '!_'], mb_strtolower($search)).'%';
+                $query->where(fn (Builder $query) => $query
+                    ->whereRaw("lower(galleries.name_en) like ? escape '!'", [$like])
+                    ->orWhereRaw("lower(galleries.name_ar) like ? escape '!'", [$like]));
+            })
+            ->orderByRaw($projectId ? 'case when galleries.project_id = ? then 0 else 1 end' : 'case when galleries.project_id is null then 0 else 1 end', $projectId ? [$projectId] : [])
+            ->orderBy('galleries.name_en')
+            ->limit(self::GALLERY_OPTIONS)
+            ->get()
+            ->mapWithKeys(fn (Gallery $gallery) => [$gallery->id => static::galleryLabel($gallery->setRelation('project', $gallery->project_id
+                ? (new Project)->forceFill(['title_en' => $gallery->project_title_en, 'title_ar' => $gallery->project_title_ar])
+                : null))])
+            ->all());
+    }
+
+    /**
+     * "The Crown Tower Gallery — The Crown Tower" (or "— Standalone" for a gallery with no project).
+     */
+    public static function galleryLabel(?Gallery $gallery): ?string
+    {
+        if (! $gallery) {
+            return null;
         }
+
+        return $gallery->getLocalized('name').' — '.($gallery->project?->getLocalized('title') ?? __('admin.units.standalone'));
     }
 
     /**
