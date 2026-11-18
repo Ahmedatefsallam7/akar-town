@@ -45,7 +45,7 @@ class UsersDemoSeeder extends Seeder
                 'phone' => '0100'.str_pad((string) (2000000 + $user->id), 7, '0', STR_PAD_LEFT),
                 'phone_verified_at' => now(),
                 'email_verified_at' => now(),
-                'avatar' => $this->avatar(User::AVATAR_DIRECTORY, $i),
+                'avatar' => $this->avatar(User::AVATAR_DIRECTORY, $i, User::AVATAR_DISK),
                 // The agent card on the website.
                 'job_title_en' => ['Senior Property Consultant', 'Sales Manager', 'Property Consultant'][$i % 3],
                 'job_title_ar' => ['مستشار عقاري أول', 'مدير المبيعات', 'مستشار عقاري'][$i % 3],

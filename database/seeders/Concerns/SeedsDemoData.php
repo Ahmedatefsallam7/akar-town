@@ -314,21 +314,21 @@ trait SeedsDemoData
     }
 
     /**
-     * A portrait copied to the public disk as a 512×512 square (as the admin's avatar field saves it); returns its
-     * path there.
+     * A portrait copied to a disk as a 512×512 square (as the admin's avatar field saves it); returns its path there.
+     * Team photos go to the private disk (AKAR-51), website users' to the public one.
      */
-    protected function avatar(string $directory, int $i): string
+    protected function avatar(string $directory, int $i, string $disk = 'public'): string
     {
         $id = self::PORTRAITS[$i % count(self::PORTRAITS)];
         $target = "{$directory}/demo-{$id}.jpg";
-        if (! Storage::disk('public')->exists($target)) {
+        if (! Storage::disk($disk)->exists($target)) {
             $photo = imagecreatefromjpeg($this->photo($id));
             $side = min(imagesx($photo), imagesy($photo));
             $square = imagecreatetruecolor(512, 512);
             imagecopyresampled($square, $photo, 0, 0, intdiv(imagesx($photo) - $side, 2), intdiv(imagesy($photo) - $side, 2), 512, 512, $side, $side);
             ob_start();
             imagejpeg($square, null, 82);
-            Storage::disk('public')->put($target, ob_get_clean());
+            Storage::disk($disk)->put($target, ob_get_clean());
         }
 
         return $target;

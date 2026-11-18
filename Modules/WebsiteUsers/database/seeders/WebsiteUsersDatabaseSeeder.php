@@ -45,7 +45,7 @@ class WebsiteUsersDatabaseSeeder extends Seeder
                 'email_verified_at' => $user->email_verified_at ?? now()->subDays(30),
                 'phone_verified_at' => $user->phone_verified_at ?? now()->subDays(30),
                 'last_login_at' => $user->last_login_at ?? now()->subDays($i),
-                'avatar' => $user->avatar ?? $this->avatar('website-users', $i),
+                'avatar' => $user->avatar ?? $this->avatar('website-users', $i, WebsiteUser::AVATAR_DISK),
             ]))->save();
 
             if (! $user->favourites()->exists()) {
