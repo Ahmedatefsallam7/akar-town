@@ -176,7 +176,7 @@ class PerformanceSeeder extends Seeder
                     'project_id' => $project?->id,
                     'offering_type_id' => $offering[$n % count($offering)], 'property_type_id' => $unitType[$n % count($unitType)],
                     'finishing_type_id' => $finishing[$n % count($finishing)], 'unit_status_id' => $status[$n % count($status)],
-                    'price' => 800_000 + ($n % 400) * 25_000, 'area' => 50 + $n % 350, 'bedrooms' => $n % 6, 'bathrooms' => 1 + $n % 4,
+                    'price' => 800_000 + ($n % 400) * 25_000, 'land_area' => 50 + $n % 350, 'built_up_area' => (int) round((50 + $n % 350) * 0.8), 'bedrooms' => $n % 6, 'bathrooms' => 1 + $n % 4,
                     'floor' => $n % 20, 'down_payment' => 10 + $n % 15, 'installment_years_from' => 3, 'installment_years_to' => 7,
                     'delivery_date' => $now->copy()->addDays($n % 1200)->toDateString(),
                     'is_published' => $n % 10 !== 0, 'is_featured' => $n % 25 === 0, 'created_at' => $now, 'updated_at' => $now,

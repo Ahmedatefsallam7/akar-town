@@ -12,7 +12,8 @@
     $stats = array_filter([
         __('Bedrooms') => $p['beds'],
         __('Bathrooms') => $p['baths'],
-        __('Area') => $p['area'] ? $p['area'].' '.__('m²') : null,
+        __('Built-Up Area (BUA)') => $p['bua'] ? number_format($p['bua']).' '.__('m²') : null,
+        __('Land Area') => $p['land'] ? number_format($p['land']).' '.__('m²') : null,
         __('Parking') => $p['parking'],
         __('Floors') => $p['floors'],
     ], fn ($value) => $value !== null && $value !== '');

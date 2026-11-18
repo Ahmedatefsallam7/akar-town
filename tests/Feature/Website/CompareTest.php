@@ -36,8 +36,8 @@ class CompareTest extends TestCase
     public function test_the_picked_units_show_side_by_side_with_the_best_values(): void
     {
         $agent = User::factory()->create(['first_name' => 'Sara', 'last_name' => 'Hassan']);
-        $cheap = Unit::factory()->create(['name_en' => 'Cheap Flat', 'price' => 3000000, 'bedrooms' => 2, 'bathrooms' => 2, 'area' => 120, 'floor' => 3]);
-        $big = Unit::factory()->create(['name_en' => 'Big Villa', 'price' => 9000000, 'bedrooms' => 5, 'bathrooms' => 2, 'area' => 450, 'floor' => 1, 'agent_id' => $agent->id]);
+        $cheap = Unit::factory()->create(['name_en' => 'Cheap Flat', 'price' => 3000000, 'bedrooms' => 2, 'bathrooms' => 2, 'land_area' => 120, 'floor' => 3]);
+        $big = Unit::factory()->create(['name_en' => 'Big Villa', 'price' => 9000000, 'bedrooms' => 5, 'bathrooms' => 2, 'land_area' => 450, 'floor' => 1, 'agent_id' => $agent->id]);
         $draft = Unit::factory()->create(['name_en' => 'Draft Unit', 'is_published' => false]);
         $big->lookupsOfType('amenities')->sync([$this->amenity('Private Pool')->id]);
         $cheap->lookupsOfType('amenities')->sync([$this->amenity('Gym')->id]);

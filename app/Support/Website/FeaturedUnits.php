@@ -55,7 +55,9 @@ class FeaturedUnits
                 'location' => LocationTree::place([$unit->country_id, $unit->city_id, $unit->region_id, $unit->area_id, $unit->sub_area_id]),
                 'beds' => $unit->bedrooms,
                 'baths' => $unit->bathrooms,
-                'area' => $unit->area !== null ? rtrim(rtrim(number_format((float) $unit->area, 2, '.', ''), '0'), '.') : null,
+                // One size (AKAR-52): the built-up area, else the land area, labelled.
+                'area' => $unit->shownArea() !== null ? number_format($unit->shownArea()) : null,
+                'areaLabel' => $unit->built_up_area !== null ? __('BUA m²') : __('Land m²'),
                 'price' => $unit->price ? __('EGP :price', ['price' => number_format((float) $unit->price)]) : null,
                 'badges' => array_values(array_filter([
                     ['label' => __('Featured'), 'style' => 'gold'],

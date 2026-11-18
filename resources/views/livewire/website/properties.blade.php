@@ -105,14 +105,17 @@
 
             <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-7 py-6 [scrollbar-width:none] max-md:px-5 [&::-webkit-scrollbar]:hidden">
                 @php($group = 'mb-[22px] border-b border-black/7 pb-[22px] last:mb-0 last:border-b-0 last:pb-0 dark:border-white/8')
-                <div class="{{ $group }}">
-                    <div class="{{ $groupLabel }}">{{ __('Area (m²)') }}</div>
-                    <div class="{{ $range }}">
-                        <input type="number" min="0" wire:model="areaMin" placeholder="{{ __('Min') }}" class="{{ $rangeInput }}" />
-                        <span class="flex shrink-0 items-center border-x border-black/7 bg-black/3 px-2 text-[10px] text-black/28 dark:border-white/8 dark:bg-white/3 dark:text-white/25">—</span>
-                        <input type="number" min="0" wire:model="areaMax" placeholder="{{ __('Max') }}" class="{{ $rangeInput }}" />
+                {{-- The two sizes (AKAR-52), each from – to. --}}
+                @foreach (['bua' => __('Built-Up Area (BUA) (m²)'), 'land' => __('Land Area (m²)')] as $size => $sizeLabel)
+                    <div class="{{ $group }}">
+                        <div class="{{ $groupLabel }}">{{ $sizeLabel }}</div>
+                        <div class="{{ $range }}">
+                            <input type="number" min="1" wire:model="{{ $size }}Min" placeholder="{{ __('Min') }}" class="{{ $rangeInput }}" />
+                            <span class="flex shrink-0 items-center border-x border-black/7 bg-black/3 px-2 text-[10px] text-black/28 dark:border-white/8 dark:bg-white/3 dark:text-white/25">—</span>
+                            <input type="number" min="1" wire:model="{{ $size }}Max" placeholder="{{ __('Max') }}" class="{{ $rangeInput }}" />
+                        </div>
                     </div>
-                </div>
+                @endforeach
                 <div class="{{ $group }}">
                     <div class="{{ $groupLabel }}">{{ __('Floor') }}</div>
                     <div class="{{ $range }}">

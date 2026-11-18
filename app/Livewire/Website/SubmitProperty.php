@@ -68,7 +68,10 @@ class SubmitProperty extends Component
 
     public string $bathrooms = '';
 
-    public string $unitArea = '';
+    /** The two sizes (AKAR-52), m²: at least one. */
+    public string $builtUpArea = '';
+
+    public string $landArea = '';
 
     /** @var list<TemporaryUploadedFile> */
     public array $photos = [];
@@ -84,7 +87,7 @@ class SubmitProperty extends Component
     public function again(): void
     {
         $this->resetValidation();
-        $this->reset('type', 'listing', 'compound', 'place', 'manual', 'fullAddress', 'price', 'bedrooms', 'bathrooms', 'unitArea', 'photos', 'sent');
+        $this->reset('type', 'listing', 'compound', 'place', 'manual', 'fullAddress', 'price', 'bedrooms', 'bathrooms', 'builtUpArea', 'landArea', 'photos', 'sent');
     }
 
     /** A level changed: the levels under it are chosen again. */
@@ -144,12 +147,15 @@ class SubmitProperty extends Component
             'price' => ['required', 'integer', 'min:1', 'max:100000000000'],
             'bedrooms' => ['nullable', 'integer', 'min:0', 'max:20'],
             'bathrooms' => ['nullable', 'integer', 'min:0', 'max:20'],
-            'unitArea' => ['required', 'integer', 'min:1', 'max:1000000'],
+            'builtUpArea' => ['required_without:landArea', 'nullable', 'integer', 'min:1', 'max:1000000'],
+            'landArea' => ['required_without:builtUpArea', 'nullable', 'integer', 'min:1', 'max:1000000'],
             'photos' => ['array', 'max:'.UnitRequest::MAX_PHOTOS],
             // The formats, file size and smallest size set for sell request photos (Settings → Image Sizes, AKAR-50).
             'photos.*' => ImageValidation::rules('sell_request_photos'),
         ], messages: [
             'photos.*.dimensions' => ImageText::tooSmall('sell_request_photos'),
+            'builtUpArea.required_without' => __('Enter the built-up area or the land area.'),
+            'landArea.required_without' => __('Enter the built-up area or the land area.'),
         ], attributes: [
             'fullName' => __('Full name'),
             'phone' => __('Phone'),
@@ -162,7 +168,8 @@ class SubmitProperty extends Component
             'price' => __('Price'),
             'bedrooms' => __('Bedrooms'),
             'bathrooms' => __('Bathrooms'),
-            'unitArea' => __('Unit Area'),
+            'builtUpArea' => __('Built-Up Area (BUA)'),
+            'landArea' => __('Land Area'),
             'photos' => __('Photos'),
             'photos.*' => __('Photos'),
         ]);
@@ -218,7 +225,8 @@ class SubmitProperty extends Component
             ...$place,
             'address' => collect([trim($this->compound), $this->manual ? trim($this->fullAddress) : null])->filter()->implode(' — ') ?: null,
             'price' => (int) $this->price,
-            'area' => (int) $this->unitArea,
+            'built_up_area' => filled($this->builtUpArea) ? (int) $this->builtUpArea : null,
+            'land_area' => filled($this->landArea) ? (int) $this->landArea : null,
             'bedrooms' => $this->bedrooms === '' ? null : (int) $this->bedrooms,
             'bathrooms' => $this->bathrooms === '' ? null : (int) $this->bathrooms,
             'visitor_id' => Visitor::id(request()),

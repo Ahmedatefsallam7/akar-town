@@ -205,14 +205,17 @@
                             </div>
                         </div>
 
-                        <div class="{{ $field }}">
-                            <label for="sp-area" class="{{ $label }}">{{ __('Unit Area') }}</label>
-                            <div class="relative" dir="ltr">
-                                <input id="sp-area" type="number" min="0" wire:model="unitArea" class="{{ $input }} pe-[46px]" placeholder="0" />
-                                <span class="{{ $affix }} right-[14px] text-[12px] font-semibold tracking-normal">{{ __('m²') }}</span>
+                        {{-- The two sizes (AKAR-52): at least one. --}}
+                        @foreach (['builtUpArea' => ['sp-bua', __('Built-Up Area (BUA)')], 'landArea' => ['sp-land', __('Land Area')]] as $model => [$id, $sizeLabel])
+                            <div class="{{ $field }}">
+                                <label for="{{ $id }}" class="{{ $label }}">{{ $sizeLabel }}</label>
+                                <div class="relative" dir="ltr">
+                                    <input id="{{ $id }}" type="number" min="1" wire:model="{{ $model }}" class="{{ $input }} pe-[46px]" placeholder="0" />
+                                    <span class="{{ $affix }} right-[14px] text-[12px] font-semibold tracking-normal">{{ __('m²') }}</span>
+                                </div>
+                                @error($model) <span class="{{ $error }}">{{ $message }}</span> @enderror
                             </div>
-                            @error('unitArea') <span class="{{ $error }}">{{ $message }}</span> @enderror
-                        </div>
+                        @endforeach
 
                         <div class="{{ $field }}">
                             <span class="{{ $label }}">{{ __('Photos') }}</span>

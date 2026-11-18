@@ -169,10 +169,17 @@ class UnitRequestResource extends Resource implements HasPermissionModule
                                     ->minValue(0)
                                     ->maxValue(self::MAX_PRICE)
                                     ->suffix('EGP'),
-                                TextInput::make('area')
-                                    ->label(__('admin.units.area'))
+                                // The same two sizes as a property (AKAR-52).
+                                TextInput::make('built_up_area')
+                                    ->label(__('admin.units.built_up_area'))
                                     ->integer()
-                                    ->minValue(0)
+                                    ->minValue(1)
+                                    ->maxValue(self::MAX_AREA)
+                                    ->suffix(__('admin.projects.square_meters')),
+                                TextInput::make('land_area')
+                                    ->label(__('admin.units.land_area'))
+                                    ->integer()
+                                    ->minValue(1)
                                     ->maxValue(self::MAX_AREA)
                                     ->suffix(__('admin.projects.square_meters')),
                                 TextInput::make('bedrooms')
@@ -319,8 +326,13 @@ class UnitRequestResource extends Resource implements HasPermissionModule
                     ->boolean()
                     ->alignment('center')
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('area')
-                    ->label(__('admin.units.area'))
+                TextColumn::make('built_up_area')
+                    ->label(__('admin.units.built_up_area_short'))
+                    ->numeric()
+                    ->placeholder('—')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('land_area')
+                    ->label(__('admin.units.land_area'))
                     ->numeric()
                     ->placeholder('—')
                     ->toggleable(isToggledHiddenByDefault: true),

@@ -72,12 +72,18 @@ class Unit extends Model implements HasMedia
         'property_usage_id' => 'propertyusage',
     ];
 
+    /**
+     * The size shown when there's room for one (cards, quick search, sorting): the built-up area, else the land area
+     * (AKAR-52). In queries, the "shown_area" column the database keeps (indexed); for a unit, shownArea().
+     */
+    public const SHOWN_AREA = 'shown_area';
+
     protected $fillable = [
         'name_en', 'name_ar', 'slug', 'project_id', 'agent_id',
         'offering_type_id', 'property_type_id', 'property_usage_id', 'finishing_type_id', 'furnishing_status_id', 'unit_status_id', 'ownership_type_id',
         'country_id', 'city_id', 'region_id', 'area_id', 'sub_area_id', 'neighbourhood', 'address', 'latitude', 'longitude',
         'is_published', 'is_featured', 'order',
-        'price', 'area', 'bedrooms', 'bathrooms', 'floor', 'parking_spaces', 'building_floors', 'building_year', 'down_payment', 'installment_years_from', 'installment_years_to', 'delivery_date',
+        'price', 'land_area', 'built_up_area', 'bedrooms', 'bathrooms', 'floor', 'parking_spaces', 'building_floors', 'building_year', 'down_payment', 'installment_years_from', 'installment_years_to', 'delivery_date',
         'short_description_en', 'short_description_ar', 'description_en', 'description_ar',
         'gallery_id', 'video_url',
         'meta_title_en', 'meta_title_ar', 'meta_description_en', 'meta_description_ar', 'meta_keywords_en', 'meta_keywords_ar',
@@ -85,7 +91,8 @@ class Unit extends Model implements HasMedia
 
     protected $casts = [
         'price' => 'integer',
-        'area' => 'integer',
+        'land_area' => 'integer',
+        'built_up_area' => 'integer',
         'bedrooms' => 'integer',
         'bathrooms' => 'integer',
         'floor' => 'integer',
@@ -131,6 +138,11 @@ class Unit extends Model implements HasMedia
     public function priceHistories(): HasMany
     {
         return $this->hasMany(UnitPriceHistory::class)->latest('id');
+    }
+
+    public function shownArea(): ?int
+    {
+        return $this->built_up_area ?? $this->land_area;
     }
 
     public function registerMediaCollections(): void

@@ -133,7 +133,7 @@ class HomeTest extends TestCase
     {
         $types = Lookup::create(['slug' => 'offeringtype', 'name_en' => 'Offering Type']);
         $primary = $types->children()->create(['slug' => 'primary', 'name_en' => 'Primary', 'name_ar' => 'أولي']);
-        Unit::factory()->create(['name_en' => 'Garden Villa', 'is_featured' => true, 'price' => 45000000, 'area' => 650, 'bedrooms' => 4, 'bathrooms' => 5, 'offering_type_id' => $primary->id]);
+        Unit::factory()->create(['name_en' => 'Garden Villa', 'is_featured' => true, 'price' => 45000000, 'land_area' => 650, 'bedrooms' => 4, 'bathrooms' => 5, 'offering_type_id' => $primary->id]);
         Unit::factory()->create(['name_en' => 'Not Featured', 'is_featured' => false]);
         Unit::factory()->create(['name_en' => 'Unpublished', 'is_featured' => true, 'is_published' => false]);
 

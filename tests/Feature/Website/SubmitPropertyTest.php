@@ -58,6 +58,20 @@ class SubmitPropertyTest extends TestCase
         Lookup::fixTree();
     }
 
+    public function test_at_least_one_size_is_asked_for_and_both_are_kept(): void
+    {
+        // Neither size: one is needed (AKAR-52).
+        $this->filled()->set(['landArea' => '', 'builtUpArea' => ''])->call('send')
+            ->assertHasErrors(['builtUpArea' => 'required_without', 'landArea' => 'required_without'])
+            ->assertSee('Enter the built-up area or the land area.');
+        // Above zero only.
+        $this->filled()->set(['landArea' => '0'])->call('send')->assertHasErrors(['landArea' => 'min']);
+
+        // The built-up area alone is enough; both are kept.
+        $this->filled()->set(['landArea' => '', 'builtUpArea' => '220'])->call('send')->assertHasNoErrors();
+        $this->assertSame([220, null], [UnitRequest::sole()->built_up_area, UnitRequest::sole()->land_area]);
+    }
+
     public function test_photos_follow_the_sizes_set_on_image_sizes(): void
     {
         // Too small for the default (at least 800 × 600): it would look blurry.
@@ -93,7 +107,7 @@ class SubmitPropertyTest extends TestCase
                 'price' => '4500000',
                 'bedrooms' => '3',
                 'bathrooms' => '2',
-                'unitArea' => '180',
+                'landArea' => '180',
             ]);
     }
 
@@ -173,7 +187,7 @@ class SubmitPropertyTest extends TestCase
         $request = UnitRequest::with('lookups')->sole();
         $this->assertSame(
             ['Sara Ali', '+201001234567', 'Villa for Rent in New Cairo', 'فيلا للإيجار في القاهرة الجديدة', $this->newCairo->id, 'Katameya Heights', 4500000, 180, 3, 2, UnitRequest::PENDING],
-            [$request->seller_name, $request->phone, $request->name_en, $request->name_ar, $request->city_id, $request->address, $request->price, $request->area, $request->bedrooms, $request->bathrooms, $request->status],
+            [$request->seller_name, $request->phone, $request->name_en, $request->name_ar, $request->city_id, $request->address, $request->price, $request->land_area, $request->bedrooms, $request->bathrooms, $request->status],
         );
         $this->assertEqualsCanonicalizing(['villa', 'rent'], $request->lookups->pluck('slug')->all());
         $this->assertCount(2, $request->getMedia(UnitRequest::PHOTOS));
@@ -199,7 +213,7 @@ class SubmitPropertyTest extends TestCase
             ->call('open')
             ->set(['type' => 'castle', 'listing' => 'swap', 'phone' => '0100'])
             ->call('send')
-            ->assertHasErrors(['fullName' => 'required', 'phone', 'type', 'listing', 'price' => 'required', 'unitArea' => 'required'])
+            ->assertHasErrors(['fullName' => 'required', 'phone', 'type', 'listing', 'price' => 'required', 'builtUpArea' => 'required_without', 'landArea' => 'required_without'])
             ->assertSet('sent', false);
 
         $this->assertSame(0, UnitRequest::count());
@@ -237,7 +251,7 @@ class SubmitPropertyTest extends TestCase
         Livewire::test(SubmitProperty::class)
             ->assertSet('fullName', 'Omar')
             ->call('open')
-            ->set(['type' => 'villa', 'place.0' => $this->egypt->id, 'place.1' => $this->newCairo->id, 'price' => '100', 'unitArea' => '90'])
+            ->set(['type' => 'villa', 'place.0' => $this->egypt->id, 'place.1' => $this->newCairo->id, 'price' => '100', 'landArea' => '90'])
             ->call('send')
             ->assertHasNoErrors();
 

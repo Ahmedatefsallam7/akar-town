@@ -52,8 +52,12 @@ class UnitsRelationManager extends RelationManager
                 TextColumn::make('price')
                     ->label(__('admin.units.price'))
                     ->formatStateUsing(fn (Unit $record) => UnitResource::money($record)),
-                TextColumn::make('area')
-                    ->label(__('admin.units.area'))
+                TextColumn::make('built_up_area')
+                    ->label(__('admin.units.built_up_area_short'))
+                    ->numeric()
+                    ->suffix(' '.__('admin.projects.square_meters')),
+                TextColumn::make('land_area')
+                    ->label(__('admin.units.land_area'))
                     ->numeric()
                     ->suffix(' '.__('admin.projects.square_meters')),
                 TextColumn::make('bedrooms')

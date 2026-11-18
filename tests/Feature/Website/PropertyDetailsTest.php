@@ -53,7 +53,7 @@ class PropertyDetailsTest extends TestCase
             'parking_spaces' => 2,
             'building_floors' => 2,
             'building_year' => 2024,
-            'area' => 420,
+            'land_area' => 420,
             'price' => 12500000,
             'delivery_date' => '2025-08-01',
             'down_payment' => 20,

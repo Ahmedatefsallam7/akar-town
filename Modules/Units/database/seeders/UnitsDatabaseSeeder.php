@@ -80,7 +80,9 @@ class UnitsDatabaseSeeder extends Seeder
                 'is_featured' => true,
                 'bedrooms' => $beds,
                 'bathrooms' => $baths,
-                'area' => $area,
+                // Both sizes (AKAR-52): the BUA a bit under the land.
+                'land_area' => $area,
+                'built_up_area' => (int) round($area * 0.8),
                 'price' => $price,
                 'offering_type_id' => $this->lookup('offeringtype', 'Primary'),
                 'unit_status_id' => $this->lookup('unitstatus', $status),
@@ -117,7 +119,8 @@ class UnitsDatabaseSeeder extends Seeder
                     'is_featured' => $n === 0,
                     'bedrooms' => $beds,
                     'bathrooms' => $baths,
-                    'area' => $area + $n * 5,
+                    'land_area' => $area + $n * 5,
+                    'built_up_area' => (int) round(($area + $n * 5) * 0.8),
                     'price' => $price + $i * 150000,
                 ]);
             }
@@ -158,7 +161,8 @@ class UnitsDatabaseSeeder extends Seeder
             'is_featured' => $n % 25 === 0,
             'order' => 1000 + $n,
             'price' => 800_000 + ($n % 400) * 25_000,
-            'area' => 50 + $n % 350,
+            'land_area' => 50 + $n % 350,
+            'built_up_area' => (int) round((50 + $n % 350) * 0.8),
             'bedrooms' => 1 + $n % 6,
             'bathrooms' => 1 + $n % 4,
             'floor' => $n % 12,
@@ -209,6 +213,9 @@ class UnitsDatabaseSeeder extends Seeder
                 'latitude' => $project?->latitude ?? 30.0131,
                 'longitude' => $project?->longitude ?? 31.4089,
                 'order' => $i + 1,
+                // Both sizes (AKAR-52): the BUA about 80% of the land, also for units seeded before.
+                'land_area' => 150 + ($i % 10) * 30,
+                'built_up_area' => (int) round(($unit->land_area ?: 150 + ($i % 10) * 30) * 0.8),
                 'floor' => $i % 8,
                 'parking_spaces' => 1 + $i % 2,
                 'building_floors' => 5 + $i % 6,

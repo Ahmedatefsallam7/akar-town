@@ -64,7 +64,7 @@ class UnitRequest extends Model implements CrmLead, HasMedia
         'visitor_id',
         'seller_name', 'email', 'phone',
         'name_en', 'name_ar', 'country_id', 'city_id', 'region_id', 'area_id', 'sub_area_id', 'address', 'latitude', 'longitude',
-        'price', 'area', 'bedrooms', 'bathrooms', 'down_payment', 'installment_years_from', 'installment_years_to',
+        'price', 'land_area', 'built_up_area', 'bedrooms', 'bathrooms', 'down_payment', 'installment_years_from', 'installment_years_to',
         'short_description_en', 'short_description_ar', 'description_en', 'description_ar',
         'status', 'internal_notes',
     ];
@@ -72,7 +72,8 @@ class UnitRequest extends Model implements CrmLead, HasMedia
     protected $casts = [
         'crm_synced_at' => 'datetime',
         'price' => 'integer',
-        'area' => 'integer',
+        'land_area' => 'integer',
+        'built_up_area' => 'integer',
         'bedrooms' => 'integer',
         'bathrooms' => 'integer',
         'down_payment' => 'float',
@@ -140,7 +141,8 @@ class UnitRequest extends Model implements CrmLead, HasMedia
             'description' => collect([
                 'Sell request: '.$this->name_en,
                 $this->price ? 'Price: '.number_format($this->price).' EGP' : null,
-                $this->area ? "Area: {$this->area} m²" : null,
+                $this->built_up_area ? "Built-up area (BUA): {$this->built_up_area} m²" : null,
+                $this->land_area ? "Land area: {$this->land_area} m²" : null,
                 $this->bedrooms ? "Bedrooms: {$this->bedrooms}" : null,
                 $this->address ? "Address: {$this->address}" : null,
                 $this->short_description_en,

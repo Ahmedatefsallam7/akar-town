@@ -86,9 +86,9 @@ class ProjectDetailsTest extends TestCase
 
         $villa = $this->lookup('unittype', 'Villa', 2);
         $studio = $this->lookup('unittype', 'Studio', 1);
-        Unit::factory()->create(['project_id' => $project->id, 'property_type_id' => $villa->id, 'area' => 320, 'price' => 9000000, 'bathrooms' => 4, 'floor' => 1]);
-        Unit::factory()->create(['project_id' => $project->id, 'property_type_id' => $villa->id, 'area' => 450, 'price' => 12000000, 'bathrooms' => 5, 'floor' => 2]);
-        $sample = Unit::factory()->create(['project_id' => $project->id, 'property_type_id' => $studio->id, 'area' => 65, 'price' => 2100000]);
+        Unit::factory()->create(['project_id' => $project->id, 'property_type_id' => $villa->id, 'land_area' => 320, 'price' => 9000000, 'bathrooms' => 4, 'floor' => 1]);
+        Unit::factory()->create(['project_id' => $project->id, 'property_type_id' => $villa->id, 'land_area' => 450, 'price' => 12000000, 'bathrooms' => 5, 'floor' => 2]);
+        $sample = Unit::factory()->create(['project_id' => $project->id, 'property_type_id' => $studio->id, 'land_area' => 65, 'price' => 2100000]);
         $sample->lookupsOfType('amenities')->sync([$this->lookup('amenities', 'Balcony')->id]);
         // Drafts and units without a type: not in the tabs (a typeless published one still counts in the total).
         Unit::factory()->create(['project_id' => $project->id, 'property_type_id' => $villa->id, 'is_published' => false]);

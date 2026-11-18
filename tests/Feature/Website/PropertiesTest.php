@@ -77,9 +77,9 @@ class PropertiesTest extends TestCase
 
     public function test_search_by_name_counts_price_and_area(): void
     {
-        Unit::factory()->create(['name_en' => 'Sky Villa', 'bedrooms' => 3, 'bathrooms' => 2, 'price' => 3000000, 'area' => 200]);
-        Unit::factory()->create(['name_en' => 'Sea Studio', 'bedrooms' => 0, 'bathrooms' => 1, 'price' => 900000, 'area' => 60]);
-        Unit::factory()->create(['name_en' => 'Big House', 'bedrooms' => 7, 'bathrooms' => 6, 'price' => 25000000, 'area' => 900]);
+        Unit::factory()->create(['name_en' => 'Sky Villa', 'bedrooms' => 3, 'bathrooms' => 2, 'price' => 3000000, 'land_area' => 200]);
+        Unit::factory()->create(['name_en' => 'Sea Studio', 'bedrooms' => 0, 'bathrooms' => 1, 'price' => 900000, 'land_area' => 60]);
+        Unit::factory()->create(['name_en' => 'Big House', 'bedrooms' => 7, 'bathrooms' => 6, 'price' => 25000000, 'land_area' => 900]);
 
         $this->assertSame(['Sky Villa'], $this->names(['q' => 'sky']));
         $this->assertSame(['Sky Villa'], $this->names(['beds' => ['3']]));
@@ -88,7 +88,7 @@ class PropertiesTest extends TestCase
         $this->assertSame(['Big House', 'Sea Studio'], $this->names(['baths' => ['1', '5+']]));
         $this->assertSame(['Sea Studio', 'Sky Villa'], $this->names(['price' => ['0-2000000', '2000000-5000000']]));
         $this->assertSame(['Big House'], $this->names(['price' => ['20000000-']]));
-        $this->assertSame(['Sky Villa'], $this->names(['area_min' => '100', 'area_max' => '300']));
+        $this->assertSame(['Sky Villa'], $this->names(['land_min' => '100', 'land_max' => '300']));
         // Junk is ignored, not an error.
         $this->assertCount(3, $this->names(['beds' => ['abc'], 'price' => ['1;drop'], 'type' => ['x']]));
     }
@@ -206,7 +206,6 @@ class PropertiesTest extends TestCase
 
         $this->assertSame($few, $count());
     }
-
 
     public function test_the_compound_filter_offers_compounds_with_properties_and_filters_by_them(): void
     {

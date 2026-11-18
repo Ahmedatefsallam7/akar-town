@@ -16,7 +16,7 @@ class CompareUnits
 
     /**
      * @param  list<string>  $slugs
-     * @return array{units: list<array<string, mixed>>, best: array<string, list<bool>>, amenities: list<string>, maxArea: int, maxFloor: int}
+     * @return array{units: list<array<string, mixed>>, best: array<string, list<bool>>, amenities: list<string>, maxBua: int, maxLand: int, maxFloor: int}
      */
     public static function for(array $slugs): array
     {
@@ -40,6 +40,9 @@ class CompareUnits
             return [
                 ...$card,
                 'priceValue' => $unit->price,
+                // Both sizes, each compared on its own (AKAR-52).
+                'bua' => $unit->built_up_area,
+                'land' => $unit->land_area,
                 'agent' => Agent::from($unit->agent ?? $unit->project?->agent),
                 'amenities' => $unit->lookups->map(fn (Lookup $lookup) => $lookup->getLocalized('name'))->all(),
             ];
@@ -51,11 +54,13 @@ class CompareUnits
                 'price' => static::best($units, 'priceValue', 'min'),
                 'beds' => static::best($units, 'beds', 'max'),
                 'baths' => static::best($units, 'baths', 'max'),
-                'area' => static::best($units, 'area', 'max'),
+                'bua' => static::best($units, 'bua', 'max'),
+                'land' => static::best($units, 'land', 'max'),
                 'floor' => static::best($units, 'floor', 'max'),
             ],
             'amenities' => collect($units)->pluck('amenities')->flatten()->unique()->values()->all(),
-            'maxArea' => (int) collect($units)->max('area'),
+            'maxBua' => (int) collect($units)->max('bua'),
+            'maxLand' => (int) collect($units)->max('land'),
             'maxFloor' => (int) collect($units)->max('floor'),
         ];
     }

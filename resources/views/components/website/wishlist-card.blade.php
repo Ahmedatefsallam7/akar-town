@@ -12,7 +12,7 @@
     $status = $project ? ($item['status'] ? [$item['status'], $styles[$item['statusStyle']] ?? $styles['offplan']] : null) : ($item['status'] ? [$item['status']['label'], $styles[$item['status']['style']] ?? $styles['green']] : null);
     $specs = $project
         ? array_filter([[$item['units'], __('Units')], $item['delivery'] ? [$item['delivery'], __('Delivery')] : null])
-        : array_filter([$item['beds'] ? [$item['beds'], __('Beds')] : null, $item['baths'] !== null ? [$item['baths'], __('Baths')] : null, $item['area'] !== null ? [number_format($item['area']), __('m²')] : null]);
+        : array_filter([$item['beds'] ? [$item['beds'], __('Beds')] : null, $item['baths'] !== null ? [$item['baths'], __('Baths')] : null, $item['area'] !== null ? [number_format($item['area']), $item['areaLabel'] ?? __('m²')] : null]);
     $price = $project ? $item['price'] : ($item['price'] ? __('EGP :price', ['price' => $item['price']]) : null);
     $arrow = '<svg viewBox="0 0 16 14" aria-hidden="true" class="size-[11px] flex-none fill-none stroke-current stroke-2 rtl:-scale-x-100"><path d="M8 0.414C8 1.11 8.69 2.152 9.387 3.027C10.286 4.154 11.357 5.138 12.587 5.889C13.509 6.452 14.628 6.992 15.526 6.992M8 13.586C8 12.889 8.69 11.848 9.387 10.973C10.286 9.846 11.357 8.862 12.587 8.111C13.509 7.548 14.628 7.008 15.526 7.008M15.526 6.999H0.474" stroke-linecap="round" stroke-linejoin="round" /></svg>';
 @endphp

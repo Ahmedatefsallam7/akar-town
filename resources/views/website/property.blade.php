@@ -23,7 +23,9 @@
     $heart = '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>';
     $pin = '<path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>';
     $icons = [
-        'area' => '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/>',
+        // The built-up area: a building; the land area: a plot (AKAR-52).
+        'bua' => '<rect x="5" y="3" width="14" height="18" rx="1"/><path d="M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2"/><path d="M10 21v-3h4v3"/>',
+        'land' => '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/>',
         'beds' => '<path d="M2 9v11"/><path d="M22 9v11"/><path d="M2 19h20"/><path d="M2 13h20"/><path d="M6 13V9a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v4"/>',
         'baths' => '<path d="M9 6 6.5 3.5a1.5 1.5 0 0 0-1-.5C4.683 3 4 3.683 4 4.5V17a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"/><line x1="10" y1="5" x2="8" y2="7"/><line x1="2" y1="12" x2="22" y2="12"/>',
         'parking' => '<rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 4v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>',
@@ -32,7 +34,8 @@
     $stats = array_filter([
         'beds' => $p['beds'] !== null ? [$p['beds'], __('Bedrooms')] : null,
         'baths' => $p['baths'] !== null ? [$p['baths'], __('Bathrooms')] : null,
-        'area' => $p['area'] !== null ? [$p['area'].' '.__('m²'), __('Total Area')] : null,
+        'bua' => $p['bua'] !== null ? [number_format($p['bua']).' '.__('m²'), __('Built-Up Area (BUA)')] : null,
+        'land' => $p['land'] !== null ? [number_format($p['land']).' '.__('m²'), __('Land Area')] : null,
         'parking' => $p['parking'] !== null ? [$p['parking'], __('Parking')] : null,
         'floors' => $p['floors'] !== null ? [$p['floors'], __('Floors')] : null,
     ]);
@@ -88,12 +91,12 @@
                     </p>
                 @endif
                 <div class="mb-7 flex flex-wrap gap-[10px] max-[560px]:gap-2">
-                    @foreach (['area' => $p['area'] !== null ? $p['area'].' '.__('m²') : null, 'beds' => $p['beds'], 'baths' => $p['baths']] as $key => $value)
+                    @foreach (['bua' => $p['bua'] !== null ? number_format($p['bua']).' '.__('m²') : null, 'land' => $p['land'] !== null ? number_format($p['land']).' '.__('m²') : null, 'beds' => $p['beds'], 'baths' => $p['baths']] as $key => $value)
                         @continue($value === null)
                         <div class="flex items-center gap-2 rounded-md border border-ink-10 bg-paper px-4 py-3 text-[13px] font-medium whitespace-nowrap text-ink dark:border-line dark:bg-surface-2 max-[560px]:px-3 max-[560px]:py-[10px] max-[560px]:text-[12px]">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 text-brand" aria-hidden="true">{!! $icons[$key] !!}</svg>
-                            @if ($key === 'area')
-                                <span class="mr-0.5 text-[11px] font-normal text-ink-60 rtl:mr-0 rtl:ml-0.5">{{ __('Area') }}</span>
+                            @if (in_array($key, ['bua', 'land'], true))
+                                <span class="mr-0.5 text-[11px] font-normal text-ink-60 rtl:mr-0 rtl:ml-0.5">{{ $key === 'bua' ? __('BUA') : __('Land') }}</span>
                             @endif
                             <span class="font-bold tracking-[-0.01em]">{{ $value }}</span>
                         </div>

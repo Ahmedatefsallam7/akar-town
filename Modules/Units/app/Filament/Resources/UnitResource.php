@@ -202,10 +202,17 @@ class UnitResource extends Resource implements HasPermissionModule
                                     ->integer()
                                     ->minValue(0)
                                     ->maxValue(self::MAX_PRICE),
-                                TextInput::make('area')
-                                    ->label(__('admin.units.area'))
+                                // Two sizes (AKAR-52); each one optional, above 0. The BUA may be larger than the land.
+                                TextInput::make('built_up_area')
+                                    ->label(__('admin.units.built_up_area'))
                                     ->integer()
-                                    ->minValue(0)
+                                    ->minValue(1)
+                                    ->maxValue(self::MAX_AREA)
+                                    ->suffix(__('admin.projects.square_meters')),
+                                TextInput::make('land_area')
+                                    ->label(__('admin.units.land_area'))
+                                    ->integer()
+                                    ->minValue(1)
                                     ->maxValue(self::MAX_AREA)
                                     ->suffix(__('admin.projects.square_meters')),
                                 TextInput::make('bedrooms')
@@ -378,8 +385,13 @@ class UnitResource extends Resource implements HasPermissionModule
                     ->label(__('admin.units.price'))
                     ->formatStateUsing(fn (Unit $record) => static::money($record))
                     ->sortable(),
-                TextColumn::make('area')
-                    ->label(__('admin.units.area'))
+                TextColumn::make('built_up_area')
+                    ->label(__('admin.units.built_up_area_short'))
+                    ->numeric()
+                    ->suffix(' '.__('admin.projects.square_meters'))
+                    ->sortable(),
+                TextColumn::make('land_area')
+                    ->label(__('admin.units.land_area'))
                     ->numeric()
                     ->suffix(' '.__('admin.projects.square_meters'))
                     ->sortable(),
@@ -406,7 +418,8 @@ class UnitResource extends Resource implements HasPermissionModule
             ->paginated([10, 25, 50, 100])
             ->filters([
                 TableHelper::rangeFilter('price', 'price', 'price', __('admin.units.price')),
-                TableHelper::rangeFilter('area', 'area', 'area', __('admin.units.area')),
+                TableHelper::rangeFilter('built_up_area', 'built_up_area', 'built_up_area', __('admin.units.built_up_area')),
+                TableHelper::rangeFilter('land_area', 'land_area', 'land_area', __('admin.units.land_area')),
                 SelectFilter::make('bedrooms')
                     ->label(__('admin.units.bedrooms'))
                     ->options(static::countOptions()),

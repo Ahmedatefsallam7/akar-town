@@ -131,7 +131,8 @@
                                 </span>
                                 <div class="flex flex-col gap-0.5">
                                     <span class="text-[20px] leading-none font-semibold text-ink tabular-nums" x-text="current.{{ $key }} ?? '—'"></span>
-                                    <span class="text-[10px] font-medium tracking-[0.14em] text-ink-60 uppercase">{{ $label }}</span>
+                                    {{-- The size's label follows the slide: BUA or land (AKAR-52). --}}
+                                    <span class="text-[10px] font-medium tracking-[0.14em] text-ink-60 uppercase" @if ($key === 'area') x-text="current.areaLabel" @endif>{{ $label }}</span>
                                 </div>
                             </div>
                         @endforeach

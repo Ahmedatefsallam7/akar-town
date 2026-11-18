@@ -20,7 +20,8 @@ class UnitRequestFactory extends Factory
             'phone' => '+2010'.fake()->numerify('########'),
             'name_en' => fake()->numberBetween(2, 4).'-Bedroom Apartment '.fake()->unique()->numberBetween(1, 99999),
             'price' => fake()->numberBetween(2, 30) * 500_000,
-            'area' => fake()->numberBetween(80, 400),
+            'land_area' => fake()->numberBetween(80, 400),
+            'built_up_area' => fake()->numberBetween(60, 350),
             'bedrooms' => fake()->numberBetween(1, 5),
             'bathrooms' => fake()->numberBetween(1, 4),
         ];

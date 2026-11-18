@@ -61,13 +61,15 @@ class PropertyDetails
             'developer' => $unit->project?->developer?->getLocalized('name'),
             'project' => $unit->project?->getLocalized('title'),
             'place' => $place,
-            'area' => $unit->area,
+            // The two sizes (AKAR-52); an empty one isn't shown.
+            'bua' => $unit->built_up_area,
+            'land' => $unit->land_area,
             'beds' => $unit->bedrooms,
             'baths' => $unit->bathrooms,
             'parking' => $unit->parking_spaces,
             'floors' => $unit->building_floors !== null ? __('G+:count', ['count' => $unit->building_floors]) : null,
             'price' => $unit->price ? number_format((float) $unit->price) : null,
-            'perMeter' => $unit->price && $unit->area ? number_format($unit->price / $unit->area) : null,
+            'perMeter' => $unit->price && $unit->shownArea() ? number_format($unit->price / $unit->shownArea()) : null,
             'updated' => $unit->updated_at?->translatedFormat('M Y'),
             'views' => $listOf('views'),
             'details' => array_filter([

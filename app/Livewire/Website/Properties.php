@@ -46,11 +46,18 @@ class Properties extends Component
     #[Url]
     public array $area = [];
 
-    #[Url(as: 'area_min', except: '')]
-    public string $areaMin = '';
+    /** The two sizes (AKAR-52): built-up area (BUA) and land area, each from – to. */
+    #[Url(as: 'bua_min', except: '')]
+    public string $buaMin = '';
 
-    #[Url(as: 'area_max', except: '')]
-    public string $areaMax = '';
+    #[Url(as: 'bua_max', except: '')]
+    public string $buaMax = '';
+
+    #[Url(as: 'land_min', except: '')]
+    public string $landMin = '';
+
+    #[Url(as: 'land_max', except: '')]
+    public string $landMax = '';
 
     #[Url(as: 'floor_min', except: '')]
     public string $floorMin = '';
@@ -128,8 +135,10 @@ class Properties extends Component
             'beds' => $this->beds,
             'baths' => $this->baths,
             'area' => $this->area,
-            'area_min' => $this->areaMin,
-            'area_max' => $this->areaMax,
+            'bua_min' => $this->buaMin,
+            'bua_max' => $this->buaMax,
+            'land_min' => $this->landMin,
+            'land_max' => $this->landMax,
             'floor_min' => $this->floorMin,
             'floor_max' => $this->floorMax,
             'status' => $this->status,
@@ -153,7 +162,7 @@ class Properties extends Component
             'total' => $total,
             'more' => $total > count($units) && $this->perPage < self::MAX,
             'cards' => PropertyCards::from($units),
-            'advancedCount' => count(array_filter([$this->areaMin, $this->areaMax, $this->floorMin, $this->floorMax], 'strlen')) + count($this->status) + count($this->amenities),
+            'advancedCount' => count(array_filter([$this->buaMin, $this->buaMax, $this->landMin, $this->landMax, $this->floorMin, $this->floorMax], 'strlen')) + count($this->status) + count($this->amenities),
         ]);
     }
 }

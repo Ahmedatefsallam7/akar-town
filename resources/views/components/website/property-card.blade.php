@@ -67,7 +67,7 @@
             @foreach ([
                 'beds' => [$card['beds'] === 0 ? __('Studio') : $card['beds'], __('Beds')],
                 'baths' => [$card['baths'], __('Baths')],
-                'area' => [$card['area'], __('m²')],
+                'area' => [$card['area'], $card['areaLabel'] ?? __('m²')],
                 'floor' => [$card['floor'], __('Floor')],
             ] as $key => [$value, $label])
                 @continue($key === 'beds' && ! $card['beds'])

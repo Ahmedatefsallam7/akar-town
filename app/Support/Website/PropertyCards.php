@@ -61,7 +61,9 @@ class PropertyCards
                 'location' => LocationTree::place([$unit->country_id, $unit->city_id, $unit->region_id, $unit->area_id, $unit->sub_area_id]),
                 'beds' => $unit->bedrooms,
                 'baths' => $unit->bathrooms,
-                'area' => $unit->area,
+                // One size fits on a card (AKAR-52): the built-up area, else the land area, labelled.
+                'area' => $unit->shownArea(),
+                'areaLabel' => $unit->built_up_area !== null ? __('BUA m²') : __('Land m²'),
                 'floor' => $unit->floor,
                 'image' => $image,
                 'images' => $photos->map(fn (Media $media) => Image::url($media))->values()->all(),

@@ -37,7 +37,7 @@ class WishlistTest extends TestCase
 
     public function test_saved_published_items_show_newest_saved_first(): void
     {
-        $older = Unit::factory()->create(['name_en' => 'Older Villa', 'bedrooms' => 4, 'bathrooms' => 3, 'area' => 320, 'price' => 9000000]);
+        $older = Unit::factory()->create(['name_en' => 'Older Villa', 'bedrooms' => 4, 'bathrooms' => 3, 'land_area' => 320, 'price' => 9000000]);
         $newer = Unit::factory()->create(['name_en' => 'Newer Flat']);
         $draft = Unit::factory()->create(['name_en' => 'Draft Unit', 'is_published' => false]);
         $project = Project::factory()->create(['title_en' => 'Azure Heights']);

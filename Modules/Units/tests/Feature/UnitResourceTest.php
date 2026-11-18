@@ -107,7 +107,7 @@ class UnitResourceTest extends TestCase
                 'country_id' => $this->place['egypt']->id, 'city_id' => $this->place['giza']->id,
                 'neighbourhood' => 'Dokki', 'address' => '12 Tahrir St', 'latitude' => '30.04', 'longitude' => '31.21',
                 'is_featured' => true, 'order' => 3,
-                'price' => 4200000, 'area' => 165, 'bedrooms' => 3, 'bathrooms' => 2, 'floor' => -1,
+                'price' => 4200000, 'land_area' => 165, 'bedrooms' => 3, 'bathrooms' => 2, 'floor' => -1,
                 'parking_spaces' => 2, 'building_floors' => 12, 'building_year' => 2024, 'ownership_type_id' => $this->id('ownershiptype', 'freehold'),
                 'down_payment' => 15, 'installment_years_from' => 2, 'installment_years_to' => 5, 'delivery_date' => '2027-03-01',
                 'amenities' => [$this->id('amenities', 'pool')], 'views' => [$this->id('views', 'sea')],
@@ -127,7 +127,7 @@ class UnitResourceTest extends TestCase
         $unit = Unit::sole();
         $this->assertNull($unit->project_id);
         $this->assertSame('resale-apartment-12', $unit->slug);
-        $this->assertSame([4200000, 165, 3, 2, -1], [$unit->price, $unit->area, $unit->bedrooms, $unit->bathrooms, $unit->floor]);
+        $this->assertSame([4200000, 165, 3, 2, -1], [$unit->price, $unit->land_area, $unit->bedrooms, $unit->bathrooms, $unit->floor]);
         $this->assertSame([2, 12, 2024, $this->id('ownershiptype', 'freehold')], [$unit->parking_spaces, $unit->building_floors, $unit->building_year, $unit->ownership_type_id]);
         $this->assertSame($this->id('offeringtype', 'resale'), $unit->offering_type_id);
         $this->assertSame($this->id('unittype', 'apartment'), $unit->property_type_id);
@@ -328,15 +328,15 @@ class UnitResourceTest extends TestCase
     {
         $this->actingAs($this->createAdmin());
         $project = $this->project(['title_en' => 'Mountain Park']);
-        $small = Unit::factory()->create(['name_en' => 'Studio 1', 'project_id' => $project->id, 'price' => 1500000, 'area' => 60, 'bedrooms' => 1, 'bathrooms' => 1, 'offering_type_id' => $this->id('offeringtype', 'primary')]);
-        $big = Unit::factory()->create(['name_en' => 'Villa 9', 'price' => 9000000, 'area' => 400, 'bedrooms' => 5, 'bathrooms' => 4, 'offering_type_id' => $this->id('offeringtype', 'resale')]);
+        $small = Unit::factory()->create(['name_en' => 'Studio 1', 'project_id' => $project->id, 'price' => 1500000, 'land_area' => 60, 'bedrooms' => 1, 'bathrooms' => 1, 'offering_type_id' => $this->id('offeringtype', 'primary')]);
+        $big = Unit::factory()->create(['name_en' => 'Villa 9', 'price' => 9000000, 'land_area' => 400, 'bedrooms' => 5, 'bathrooms' => 4, 'offering_type_id' => $this->id('offeringtype', 'resale')]);
 
         $this->get(UnitResource::getUrl('index'))
             ->assertSee(['Studio 1', 'Mountain Park', '1,500,000 EGP', 'Primary', __('admin.units.standalone')]);
 
         $list = fn () => Livewire::test(ListUnits::class);
         $list()->filterTable('price', ['max' => 2000000])->assertCanSeeTableRecords([$small])->assertCanNotSeeTableRecords([$big]);
-        $list()->filterTable('area', ['min' => 300])->assertCanSeeTableRecords([$big])->assertCanNotSeeTableRecords([$small]);
+        $list()->filterTable('land_area', ['min' => 300])->assertCanSeeTableRecords([$big])->assertCanNotSeeTableRecords([$small]);
         $list()->filterTable('bedrooms', 5)->assertCanSeeTableRecords([$big])->assertCanNotSeeTableRecords([$small]);
         $list()->filterTable('bathrooms', 1)->assertCanSeeTableRecords([$small])->assertCanNotSeeTableRecords([$big]);
         $list()->filterTable('project_id', $project->id)->assertCanSeeTableRecords([$small])->assertCanNotSeeTableRecords([$big]);
@@ -465,9 +465,9 @@ class UnitResourceTest extends TestCase
         $this->actingAs($this->createAdmin());
 
         Livewire::test(CreateUnit::class)
-            ->fillForm(['name_en' => 'U', 'name_ar' => 'و', 'price' => 9_000_000_000_000_000, 'area' => 99_999_999_999, 'bedrooms' => 500,
+            ->fillForm(['name_en' => 'U', 'name_ar' => 'و', 'price' => 9_000_000_000_000_000, 'land_area' => 99_999_999_999, 'bedrooms' => 500,
                 'down_payment' => 150, 'installment_years_from' => 5, 'installment_years_to' => 2, 'video_url' => 'https://evil.example/x'])
             ->call('create')
-            ->assertHasFormErrors(['price', 'area', 'bedrooms', 'down_payment', 'installment_years_to', 'video_url']);
+            ->assertHasFormErrors(['price', 'land_area', 'bedrooms', 'down_payment', 'installment_years_to', 'video_url']);
     }
 }

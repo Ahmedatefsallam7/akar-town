@@ -42,7 +42,8 @@
         __('Specifications') => array_filter([
             'beds' => $has('beds') ? __('Bedrooms') : null,
             'baths' => $has('baths') ? __('Bathrooms') : null,
-            'area' => $has('area') ? __('Area') : null,
+            'bua' => $has('bua') ? __('Built-Up Area (BUA)') : null,
+            'land' => $has('land') ? __('Land Area') : null,
             'floor' => $units && collect($units)->contains(fn (array $unit) => $unit['floor'] !== null) ? __('Floor') : null,
         ]),
         __('Amenities') => array_combine($amenities, $amenities),
@@ -231,14 +232,14 @@
                                                         @else
                                                             <span class="{{ $text }} text-ink-30">—</span>
                                                         @endif
-                                                    @elseif (in_array($key, ['beds', 'baths', 'area', 'floor'], true))
+                                                    @elseif (in_array($key, ['beds', 'baths', 'bua', 'land', 'floor'], true))
                                                         @php
-                                                            [$unitLabel, $bestLabel] = ['beds' => [__('bd'), __('Most')], 'baths' => [__('ba'), __('Most')], 'area' => [__('m²'), __('Largest')], 'floor' => [__('fl'), __('Highest')]][$key];
-                                                            $max = ['area' => $maxArea, 'floor' => $maxFloor][$key] ?? null;
+                                                            [$unitLabel, $bestLabel] = ['beds' => [__('bd'), __('Most')], 'baths' => [__('ba'), __('Most')], 'bua' => [__('m²'), __('Largest')], 'land' => [__('m²'), __('Largest')], 'floor' => [__('fl'), __('Highest')]][$key];
+                                                            $max = ['bua' => $maxBua, 'land' => $maxLand, 'floor' => $maxFloor][$key] ?? null;
                                                         @endphp
                                                         @if ($unit[$key] !== null)
                                                             <div class="{{ $value }}">
-                                                                {{ $key === 'area' ? number_format($unit[$key]) : $unit[$key] }}<span class="{{ $unitText }}">{{ $unitLabel }}</span>
+                                                                {{ in_array($key, ['bua', 'land'], true) ? number_format($unit[$key]) : $unit[$key] }}<span class="{{ $unitText }}">{{ $unitLabel }}</span>
                                                                 @if ($isBest)
                                                                     <span class="{{ $badge }}">{{ $bestLabel }}</span>
                                                                 @endif

@@ -76,7 +76,7 @@ class UnitRequestResourceTest extends TestCase
             ->fillForm(['seller_name' => '', 'phone' => '', 'name_en' => '', 'status' => null])
             ->call('create')
             ->assertHasFormErrors(['seller_name' => 'required', 'phone' => 'required', 'name_en' => 'required', 'status' => 'required'])
-            ->assertHasNoFormErrors(['email', 'name_ar', 'price', 'area', 'address']);
+            ->assertHasNoFormErrors(['email', 'name_ar', 'price', 'land_area', 'address']);
 
         Livewire::test(CreateUnitRequest::class)
             ->fillForm(['seller_name' => 'Sara', 'phone' => '0100', 'name_en' => 'Flat', 'email' => 'x', 'status' => 'sold', 'installment_years_from' => 8, 'installment_years_to' => 3, 'down_payment' => 150])
@@ -97,7 +97,7 @@ class UnitRequestResourceTest extends TestCase
                 'phone' => '+201001234567',
                 'name_en' => '3-Bedroom Apartment in New Cairo',
                 'price' => 4500000,
-                'area' => 180,
+                'land_area' => 180,
                 'bedrooms' => 3,
                 'amenities' => [$amenities['pool']->id, $amenities['gym']->id],
                 'offering_types' => [$offering['resale']->id],
@@ -107,7 +107,7 @@ class UnitRequestResourceTest extends TestCase
             ->assertHasNoFormErrors();
 
         $request = UnitRequest::sole();
-        $this->assertSame([4500000, 180, UnitRequest::PENDING], [$request->price, $request->area, $request->status]);
+        $this->assertSame([4500000, 180, UnitRequest::PENDING], [$request->price, $request->land_area, $request->status]);
         $this->assertEqualsCanonicalizing([$amenities['pool']->id, $amenities['gym']->id], $request->lookupIds('amenities'));
         $this->assertSame([$offering['resale']->id], $request->lookupIds('offeringtype'));
         $this->assertNotNull($request->getFirstMedia(UnitRequest::FEATURED_IMAGE));
@@ -139,7 +139,7 @@ class UnitRequestResourceTest extends TestCase
 
         $request = UnitRequest::factory()->create([
             'name_en' => 'Garden Villa', 'name_ar' => 'فيلا بحديقة', 'country_id' => $egypt->id, 'city_id' => $cairo->id,
-            'price' => 9000000, 'area' => 320, 'bedrooms' => 4, 'down_payment' => 10, 'installment_years_to' => 6,
+            'price' => 9000000, 'land_area' => 320, 'bedrooms' => 4, 'down_payment' => 10, 'installment_years_to' => 6,
             'description_en' => '<p>Corner villa</p>', 'status' => UnitRequest::CONTACTED,
         ]);
         $request->lookupsOfType('unittype')->sync([$types['villa']->id, $types['apartment']->id]);
@@ -153,7 +153,7 @@ class UnitRequestResourceTest extends TestCase
 
         $unit = Unit::sole();
         $this->assertSame(['Garden Villa', 'فيلا بحديقة', $egypt->id, $cairo->id, 9000000, 320, 4, 6, '<p>Corner villa</p>', false], [
-            $unit->name_en, $unit->name_ar, $unit->country_id, $unit->city_id, $unit->price, $unit->area, $unit->bedrooms,
+            $unit->name_en, $unit->name_ar, $unit->country_id, $unit->city_id, $unit->price, $unit->land_area, $unit->bedrooms,
             $unit->installment_years_to, $unit->description_en, $unit->is_published,
         ]);
         // One value where a property holds one: the first picked (by lookup order); defaults when none picked.
@@ -250,7 +250,7 @@ class UnitRequestResourceTest extends TestCase
 
         Livewire::test(ListUnitRequests::class)
             ->assertTableColumnExists('featured_image')
-            ->assertTableColumnExists('area')
+            ->assertTableColumnExists('land_area')
             ->assertTableColumnExists('bathrooms')
             ->searchTable('Sara Ahmed')
             ->assertCanSeeTableRecords([$cheap])->assertCanNotSeeTableRecords([$dear]);

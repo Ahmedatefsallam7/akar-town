@@ -25,7 +25,7 @@ class PropertySearch
     public const OFF_PLAN = 'us-off-plan';
 
     /**
-     * @param  array{q?: ?string, type?: array, compound?: array, price?: array, beds?: array, baths?: array, area?: array, area_min?: mixed, area_max?: mixed, floor_min?: mixed, floor_max?: mixed, status?: array, amenities?: array, finishing?: array, intent?: ?string, category?: ?string, location?: ?string, project?: mixed, sort?: ?string}  $filters
+     * @param  array{q?: ?string, type?: array, compound?: array, price?: array, beds?: array, baths?: array, area?: array, bua_min?: mixed, bua_max?: mixed, land_min?: mixed, land_max?: mixed, floor_min?: mixed, floor_max?: mixed, status?: array, amenities?: array, finishing?: array, intent?: ?string, category?: ?string, location?: ?string, project?: mixed, sort?: ?string}  $filters
      */
     public static function query(array $filters): Builder
     {
@@ -45,8 +45,10 @@ class PropertySearch
         static::counts($query, 'bedrooms', static::strings($filters['beds'] ?? []));
         static::counts($query, 'bathrooms', static::strings($filters['baths'] ?? []));
         static::ranges($query, 'price', static::strings($filters['price'] ?? []));
-        static::ranges($query, 'area', static::strings($filters['area'] ?? []));
-        static::between($query, 'area', $filters['area_min'] ?? null, $filters['area_max'] ?? null);
+        // Sizes (AKAR-52): the quick ranges on the size the cards show, then each size on its own.
+        static::ranges($query, Unit::SHOWN_AREA, static::strings($filters['area'] ?? []));
+        static::between($query, 'built_up_area', $filters['bua_min'] ?? null, $filters['bua_max'] ?? null);
+        static::between($query, 'land_area', $filters['land_min'] ?? null, $filters['land_max'] ?? null);
         static::between($query, 'floor', $filters['floor_min'] ?? null, $filters['floor_max'] ?? null);
         static::statuses($query, static::strings($filters['status'] ?? []), $filters['intent'] ?? null, $filters['category'] ?? null);
 
@@ -65,7 +67,7 @@ class PropertySearch
         return match ($filters['sort'] ?? null) {
             'price-asc' => $query->orderByRaw('price is null')->orderBy('price'),
             'price-desc' => $query->orderByDesc('price'),
-            'area-desc' => $query->orderByDesc('area'),
+            'area-desc' => $query->orderByDesc(Unit::SHOWN_AREA),
             default => $query->latest(),
         };
     }

@@ -35,7 +35,13 @@ class UnitRequestsDatabaseSeeder extends Seeder
         foreach (UnitRequest::STATUSES as $i => $status) {
             [$name, $email, $phone] = self::PEOPLE[$i % 4];
             $email = str_replace('@', "+{$status}@", $email);
-            if (UnitRequest::query()->where('email', $email)->exists()) {
+            if ($existing = UnitRequest::query()->where('email', $email)->first()) {
+                // Seeded before: only its empty sizes (AKAR-52) are filled in.
+                $existing->forceFill(array_filter([
+                    'land_area' => $existing->land_area ?? 300 + $i * 20,
+                    'built_up_area' => $existing->built_up_area ?? (int) round(($existing->land_area ?? 300 + $i * 20) * 0.8),
+                ]))->saveQuietly();
+
                 continue;
             }
             $request = UnitRequest::query()->createQuietly([
@@ -51,7 +57,8 @@ class UnitRequestsDatabaseSeeder extends Seeder
                 'latitude' => 30.0444,
                 'longitude' => 30.9833,
                 'price' => 9500000 + $i * 500000,
-                'area' => 300 + $i * 20,
+                'land_area' => 300 + $i * 20,
+                'built_up_area' => 240 + $i * 15,
                 'bedrooms' => 4,
                 'bathrooms' => 3,
                 'down_payment' => 30,
@@ -87,7 +94,8 @@ class UnitRequestsDatabaseSeeder extends Seeder
             'latitude' => 30 + ($n % 100) / 100,
             'longitude' => 31 + ($n % 100) / 100,
             'price' => 2_000_000 + ($n % 300) * 50_000,
-            'area' => 90 + $n % 250,
+            'land_area' => 90 + $n % 250,
+            'built_up_area' => (int) round((90 + $n % 250) * 0.8),
             'bedrooms' => 1 + $n % 5,
             'bathrooms' => 1 + $n % 3,
             'down_payment' => 10 + $n % 40,

@@ -48,7 +48,7 @@ class ConvertUnitRequestToUnit
             $unit = Unit::create([
                 ...$request->only([
                     'name_en', 'name_ar', 'country_id', 'city_id', 'region_id', 'area_id', 'sub_area_id', 'address', 'latitude', 'longitude',
-                    'price', 'area', 'bedrooms', 'bathrooms', 'down_payment', 'installment_years_from', 'installment_years_to',
+                    'price', 'land_area', 'built_up_area', 'bedrooms', 'bathrooms', 'down_payment', 'installment_years_from', 'installment_years_to',
                     'short_description_en', 'short_description_ar', 'description_en', 'description_ar',
                 ]),
                 ...$this->singleChoices($request),
