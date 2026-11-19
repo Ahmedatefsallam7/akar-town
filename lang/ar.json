@@ -926,5 +926,10 @@
     "Land m²": "م² أرض",
     "Built-Up Area (BUA) (m²)": "مساحة البناء (م²)",
     "Land Area (m²)": "مساحة الأرض (م²)",
-    "Enter the built-up area or the land area.": "اكتب مساحة البناء أو مساحة الأرض."
+    "Enter the built-up area or the land area.": "اكتب مساحة البناء أو مساحة الأرض.",
+    "Under maintenance": "تحت الصيانة",
+    "We'll be back soon": "سنعود قريباً",
+    "Call us": "اتصل بنا",
+    "Email us": "راسلنا",
+    "Need help in the meantime?": "هل تحتاج إلى مساعدة حتى نعود؟"
 }

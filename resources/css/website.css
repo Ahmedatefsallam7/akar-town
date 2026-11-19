@@ -6,6 +6,7 @@
 
 @source '../views/website';
 @source '../views/components/website';
+@source '../views/errors';
 @source '../js/website';
 @source '../../app/Support/Images';
 
