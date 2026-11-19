@@ -9,13 +9,22 @@ use App\Http\Controllers\Website\HomeController;
 use App\Http\Controllers\Website\LocationsController;
 use App\Http\Controllers\Website\ProjectsController;
 use App\Http\Controllers\Website\PropertiesController;
+use App\Http\Middleware\SetLocale;
 use App\Support\Website\Datasheet;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Modules\WebsiteUsers\Http\Middleware\EnsureWebsiteUserIsActive;
 use Modules\WebsiteUsers\Models\WebsiteUser;
 
 // The website's images (AKAR-51): private files shown through short-lived signed links, see ProtectedImages.
-Route::get('/images/{path}', ProtectedImageController::class)->where('path', '.*')->name('images.show');
+Route::get('/images/{path}', ProtectedImageController::class)
+    ->where('path', '.*')
+    // No session, CSRF or locale: an image needs none of them (the admin is known from its signed link), so a page
+    // with a dozen photos doesn't read and write the sessions table a dozen times.
+    ->withoutMiddleware([StartSession::class, ShareErrorsFromSession::class, PreventRequestForgery::class, SetLocale::class, EnsureWebsiteUserIsActive::class])
+    ->name('images.show');
 
 // Public website. Pages are built one by one from the design; the ones not built yet show the layout only.
 Route::get('/', HomeController::class)->name('home');

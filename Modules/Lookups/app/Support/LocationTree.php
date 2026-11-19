@@ -3,6 +3,7 @@
 namespace Modules\Lookups\Support;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Modules\Lookups\Models\Lookup;
 
 /**
@@ -13,6 +14,14 @@ use Modules\Lookups\Models\Lookup;
 class LocationTree
 {
     public const ROOT_SLUG = 'locations';
+
+    private const CACHE_KEY = 'lookups.location_tree';
+
+    /** Goes up on every change, so this request reads the tree again (see tree()). */
+    private static int $version = 0;
+
+    /** The places of the tree this request read (id => true), to tell a place from any other lookup. */
+    private static ?array $ids = null;
 
     /**
      * Chain columns, top level first (level 1 = country).
@@ -184,30 +193,78 @@ class LocationTree
      */
     private static function tree(): array
     {
-        return once(function () {
-            $root = fn (string $column) => Lookup::query()->select($column)->whereNull('parent_id')->where('slug', self::ROOT_SLUG)->limit(1);
+        // Kept for every request (performance review: one query of the whole tree on most pages), cleared when a
+        // lookup changes (see forget()); an hour at most as a safety net. Cached as plain rows (the cache never holds
+        // objects), made into models once per request. once() keys on the closure's variables, so a new version
+        // means a fresh read without flushing the request's other once() values.
+        $version = static::$version;
 
-            $nodes = Lookup::query()
-                ->where('_lft', '>=', $root('_lft'))
-                ->where('_rgt', '<=', $root('_rgt'))
-                ->orderBy('order')
-                ->orderBy('name_en')
-                ->get(['id', 'parent_id', 'name_en', 'name_ar', 'is_active'])
-                ->keyBy('id');
+        return once(function () use ($version) {
+            $cached = Cache::remember(self::CACHE_KEY, now()->addHour(), static fn () => static::build());
+            $nodes = Lookup::hydrate($cached['rows'])->keyBy('id');
+            static::$ids = $version === static::$version ? array_flip($nodes->keys()->all()) : null;
 
-            $rootId = $nodes->firstWhere('parent_id', null)?->id;
-            $children = $nodes->groupBy('parent_id')->all();
-
-            $levels = [];
-            $walk = function (?int $parentId, int $level) use (&$walk, &$levels, $children) {
-                foreach ($children[$parentId] ?? [] as $node) {
-                    $levels[$node->id] = $level;
-                    $walk($node->id, $level + 1);
-                }
-            };
-            $walk($rootId, 1);
-
-            return ['root' => $rootId, 'nodes' => $nodes, 'children' => $children, 'levels' => $levels];
+            return ['root' => $cached['root'], 'nodes' => $nodes, 'children' => $nodes->groupBy('parent_id')->all(), 'levels' => $cached['levels']];
         });
+    }
+
+    /**
+     * After a location is added, changed, moved or re-ordered: the tree is read again.
+     */
+    public static function forget(): void
+    {
+        Cache::forget(self::CACHE_KEY);
+        static::$version++;
+        static::$ids = null;
+    }
+
+    /**
+     * After a lookup is saved, deleted or restored: the tree is read again only when the lookup is (or was, or goes
+     * under) a place. A role, an amenity or a department leaves it as it is. When the tree isn't read yet in this
+     * request, it's cleared anyway (no query just to decide).
+     */
+    public static function forgetFor(Lookup $lookup): void
+    {
+        $ids = static::$ids;
+        $inTree = fn (mixed $id) => $id !== null && isset($ids[$id]);
+
+        if ($ids === null || ($lookup->slug === self::ROOT_SLUG && $lookup->parent_id === null)
+            || $inTree($lookup->getKey()) || $inTree($lookup->parent_id) || $inTree($lookup->getOriginal('parent_id'))) {
+            static::forget();
+        }
+    }
+
+    /**
+     * The tree as plain rows (for the cache): every location in the admin's order, the root, and each one's level.
+     *
+     * @return array{root: ?int, rows: list<array<string, mixed>>, levels: array<int, int>}
+     */
+    private static function build(): array
+    {
+        $root = fn (string $column) => Lookup::query()->select($column)->whereNull('parent_id')->where('slug', self::ROOT_SLUG)->limit(1);
+
+        $rows = Lookup::query()
+            ->where('_lft', '>=', $root('_lft'))
+            ->where('_rgt', '<=', $root('_rgt'))
+            ->orderBy('order')
+            ->orderBy('name_en')
+            ->toBase()
+            ->get(['id', 'parent_id', 'name_en', 'name_ar', 'is_active'])
+            ->map(fn (object $row) => (array) $row)
+            ->all();
+
+        $rootId = collect($rows)->firstWhere('parent_id', null)['id'] ?? null;
+        $children = collect($rows)->groupBy('parent_id')->all();
+
+        $levels = [];
+        $walk = function (?int $parentId, int $level) use (&$walk, &$levels, $children) {
+            foreach ($children[$parentId] ?? [] as $node) {
+                $levels[$node['id']] = $level;
+                $walk($node['id'], $level + 1);
+            }
+        };
+        $walk($rootId, 1);
+
+        return ['root' => $rootId, 'rows' => $rows, 'levels' => $levels];
     }
 }

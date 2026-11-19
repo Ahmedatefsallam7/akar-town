@@ -73,7 +73,7 @@ class Image
     {
         $size = $media ? static::madeSize($media, 'card') : null;
 
-        return $size ? ProtectedImages::url($media->getPathRelativeToRoot($size), ProtectedImages::SHARE_LIFETIME) : null;
+        return $size ? ProtectedImages::url($media->getPathRelativeToRoot($size), ProtectedImages::SHARE_LIFETIME, forAdmin: false) : null;
     }
 
     /**

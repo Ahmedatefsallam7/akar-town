@@ -58,7 +58,7 @@ class SiteImages
         $path = self::setting('share_image');
 
         // Fetched later by social media's servers: a link that works for a week.
-        return $path ? ProtectedImages::url($path, ProtectedImages::SHARE_LIFETIME) : asset('images/website/about-hero.webp');
+        return $path ? ProtectedImages::url($path, ProtectedImages::SHARE_LIFETIME, forAdmin: false) : asset('images/website/about-hero.webp');
     }
 
     private static function setting(string $key): ?string

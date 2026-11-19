@@ -6,10 +6,13 @@ use App\Support\Website\FooterStats;
 use App\Support\Website\PropertyCards;
 use App\Support\Website\PropertySearch;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Url;
 use Livewire\Component;
+use Modules\Units\Models\Unit;
 
 /**
  * The properties listing (the design's listings.html): filters kept in the URL (so a search can be shared and the
@@ -152,11 +155,19 @@ class Properties extends Component
         ];
         $query = PropertySearch::query($filters);
 
-        // Without filters it's every published unit: the footer's cached count (no count over the whole table).
-        $total = array_filter(Arr::except($filters, 'sort'), 'filled')
-            ? (clone $query)->reorder()->count()
-            : FooterStats::get()['listings'];
-        $units = PropertyCards::eagerLoad($query)->limit($this->perPage)->get();
+        // Without filters it's every published unit: the footer's cached count (no count over the whole table). On a
+        // location's page with no other filter, the count its header already made.
+        $chosen = array_filter(Arr::except($filters, 'sort'), 'filled');
+        $total = match (true) {
+            $chosen === [] => FooterStats::get()['listings'],
+            filled($this->place) && array_keys($chosen) === ['location'] => PropertySearch::countIn($this->place),
+            default => (clone $query)->reorder()->count(),
+        };
+        $units = filled(trim($this->q))
+            // A text search: the page's ids first, checked inside the search index (no row reads), then those few
+            // units (performance review: ~300 ms → ~130 ms with 50,000 properties).
+            ? static::byIds(Unit::query(), (clone $query)->select('units.id')->limit($this->perPage)->pluck('id')->all())
+            : PropertyCards::eagerLoad($query)->limit($this->perPage)->get();
 
         return view('livewire.website.properties', [
             'total' => $total,
@@ -164,5 +175,17 @@ class Properties extends Component
             'cards' => PropertyCards::from($units),
             'advancedCount' => count(array_filter([$this->buaMin, $this->buaMax, $this->landMin, $this->landMax, $this->floorMin, $this->floorMax], 'strlen')) + count($this->status) + count($this->amenities),
         ]);
+    }
+
+    /**
+     * The units with these ids, in this order, with what their cards need.
+     *
+     * @param  list<int>  $ids
+     * @return Collection<int, Unit>
+     */
+    private static function byIds(Builder $query, array $ids): Collection
+    {
+        return $ids === [] ? new Collection : PropertyCards::eagerLoad($query->whereKey($ids))->get()
+            ->sortBy(fn (Unit $unit) => array_search($unit->id, $ids, true))->values();
     }
 }

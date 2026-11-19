@@ -2,6 +2,7 @@
 
 namespace App\Support\Website;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Modules\Developers\Models\Developer;
 use Modules\Locations\Models\Location;
@@ -78,24 +79,57 @@ class SearchOptions
     }
 
     /**
-     * Read once per request: one query for the compounds used, one for their names.
+     * Of these compounds, the ones that hold published records, from the kept list (no query).
      *
+     * @param  'units'|'projects'  $table
+     * @param  list<int>  $compounds
+     * @return list<int>
+     */
+    public static function compoundsUsedOf(string $table, array $compounds): array
+    {
+        return $compounds === [] ? [] : array_values(array_intersect($compounds, array_merge([], ...array_column(static::compoundsIn($table), 'ids'))));
+    }
+
+    /** How long the compounds of a listing are kept (also cleared when a property or a project changes). */
+    private const COMPOUNDS_MINUTES = 10;
+
+    /**
+     * The compounds used, kept a while for every visitor (one query, read from an index, then cached: it was ~90 ms
+     * with 50,000 properties on every listing page), localized per request.
+     *
+     * @param  'units'|'projects'  $table
      * @return array<string, array{ids: list<int>, name: string}>
      */
     private static function compoundsIn(string $table): array
     {
         return once(function () use ($table) {
-            $used = DB::table($table)->where('is_published', true)->whereNull('deleted_at')->whereNotNull('sub_area_id')->distinct()->pluck('sub_area_id');
-
-            return Lookup::query()
-                ->whereIn('id', $used)
+            $rows = Cache::remember(static::compoundsKey($table), now()->addMinutes(self::COMPOUNDS_MINUTES), fn () => Lookup::query()
+                ->whereIn('id', DB::table($table)->select('sub_area_id')->where('is_published', true)->whereNull('deleted_at')->whereNotNull('sub_area_id')->distinct())
                 ->where('is_active', true)
                 ->orderBy('order')->orderBy('name_en')
                 ->get(['id', 'slug', 'name_en', 'name_ar'])
+                ->map(fn (Lookup $compound) => $compound->only(['id', 'slug', 'name_en', 'name_ar']))
+                ->all());
+
+            return collect($rows)
                 ->groupBy('slug')
-                ->map(fn ($same) => ['ids' => $same->pluck('id')->all(), 'name' => $same->first()->getLocalized('name')])
+                ->map(fn ($same) => ['ids' => $same->pluck('id')->all(), 'name' => (new Lookup)->forceFill($same->first())->getLocalized('name')])
                 ->all();
         });
+    }
+
+    /**
+     * After a property or a project is saved or deleted: the Compound filters are read again.
+     */
+    public static function forgetCompounds(): void
+    {
+        Cache::forget(static::compoundsKey('units'));
+        Cache::forget(static::compoundsKey('projects'));
+    }
+
+    private static function compoundsKey(string $table): string
+    {
+        return "website.compounds.{$table}";
     }
 
     /**

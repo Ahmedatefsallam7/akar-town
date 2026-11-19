@@ -59,9 +59,30 @@ class SearchText
 
     /**
      * Letters to change, add or drop to turn one text into the other (Levenshtein, letter by letter, Arabic too).
+     * PHP's own levenshtein() counts bytes, so each letter is first given one byte of its own: the same result, and
+     * fast enough for every name of a big list (performance review: the typo search over 2,300 names ~500 ms → a few).
      */
     public static function distance(string $a, string $b): int
     {
+        if (! preg_match('/[^\x00-\x7F]/', $a.$b)) {
+            return levenshtein($a, $b);
+        }
+
+        $letters = [];
+        $bytes = function (string $text) use (&$letters): string {
+            $out = '';
+            foreach (mb_str_split($text) as $letter) {
+                $out .= $letters[$letter] ??= chr(count($letters));
+            }
+
+            return $out;
+        };
+        [$x, $y] = [$bytes($a), $bytes($b)];
+        if (count($letters) <= 256) {
+            return levenshtein($x, $y);
+        }
+
+        // More than 256 different letters (a very long text): letter by letter.
         $a = mb_str_split($a);
         $b = mb_str_split($b);
         $previous = range(0, count($b));

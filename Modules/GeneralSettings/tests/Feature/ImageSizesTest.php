@@ -317,7 +317,7 @@ class ImageSizesTest extends TestCase
             ->assertHasNoFormErrors();
         $path = app(WebsiteImagesSettings::class)->refresh()->share_image;
 
-        $this->get(route('home'))->assertSee(ProtectedImages::url($path, ProtectedImages::SHARE_LIFETIME))->assertSee('summary_large_image', false);
+        $this->get(route('home'))->assertSee(ProtectedImages::url($path, ProtectedImages::SHARE_LIFETIME, forAdmin: false))->assertSee('summary_large_image', false);
         Storage::disk(ProtectedImages::DISK)->assertMissing(SiteImages::smallPath($path));
 
         // Another shape is refused.

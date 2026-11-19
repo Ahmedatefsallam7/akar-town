@@ -11,7 +11,8 @@ use Illuminate\Support\Facades\URL;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
- * Shows a protected image (AKAR-51, see ProtectedImages). The admin gets any file. A visitor gets only the website's
+ * Shows a protected image (AKAR-51, see ProtectedImages), without a session (no queries). An admin's signed link gets
+ * any file. A visitor gets only the website's
  * sizes, through a valid signed link, and only inside a page of this site: an image opened on its own (a new tab, a
  * pasted address) or shown by another site gets nothing. A link that ran out while one of our pages still asks for it
  * (a photo shown long after the page opened) is answered with a fresh one.
@@ -25,7 +26,9 @@ class ProtectedImageController extends Controller
     {
         abort_if(str_contains($path, '..') || str_contains($path, "\0"), 404);
 
-        $admin = auth('web')->check();
+        // An admin's link (signed with "a", see ProtectedImages::url): any file, while it works. No session is read.
+        $admin = $request->query('a') === '1' && URL::hasValidRelativeSignature($request);
+        abort_if($request->query('a') !== null && ! $admin, 403);
 
         if (! $admin) {
             abort_if(in_array($request->header('Sec-Fetch-Dest'), self::NOT_IN_A_PAGE, true), 403);

@@ -4,6 +4,7 @@ namespace App\Support\Website;
 
 use App\Support\SmartSearch;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Modules\Developers\Models\Developer;
@@ -63,7 +64,7 @@ class GlobalSearch
     private static function find(string $q, int $limit, ?array $near = null): array
     {
         // Only compounds with published properties: one with nothing to open isn't offered.
-        $compoundIds = $near ? static::withProperties($near['compounds']) : PropertySearch::compoundsWithProperties($q);
+        $compoundIds = $near ? SearchOptions::compoundsUsedOf('units', $near['compounds']) : PropertySearch::compoundsWithProperties($q);
         $compounds = Lookup::query()->whereIn('id', $compoundIds ?: [0])->orderBy('order')->orderBy('name_en')->limit($limit)->get(['id', 'parent_id', 'slug', 'name_en', 'name_ar']);
         $counts = $compounds->isEmpty() ? collect() : Unit::query()->where('is_published', true)->whereIn('sub_area_id', $compounds->modelKeys())
             ->groupBy('sub_area_id')->selectRaw('sub_area_id, count(*) as total')->pluck('total', 'sub_area_id');
@@ -75,8 +76,8 @@ class GlobalSearch
             ->where(fn (Builder $query) => $query->whereIn('sub_area_id', $compoundIds ?: [0])
                 ->when(! $near, fn (Builder $query) => $query->orWhere(fn (Builder $query) => SmartSearch::match($query, $q)))))
             ->with($photo(Unit::FEATURED_IMAGE))
-            ->orderByDesc('is_featured')->latest('id')->limit($limit)
-            ->get(['id', 'slug', 'name_en', 'name_ar', 'price', 'country_id', 'city_id', 'region_id', 'area_id', 'sub_area_id']);
+            ->orderByDesc('is_featured')->latest('id');
+        $units = static::firstOf($units, $limit, ['id', 'slug', 'name_en', 'name_ar', 'price', 'country_id', 'city_id', 'region_id', 'area_id', 'sub_area_id']);
 
         $projects = $byName(Project::query()->where('is_published', true)
             ->where(fn (Builder $query) => $query->whereIn('sub_area_id', $compoundIds ?: [0])
@@ -84,8 +85,8 @@ class GlobalSearch
                 ->when($near, fn (Builder $query) => $query->orWhereIn('developer_id', $near['developers'] ?: [0]),
                     fn (Builder $query) => $query->orWhere(fn (Builder $query) => SmartSearch::match($query, $q)))))
             ->with($photo(Project::FEATURED_IMAGE))
-            ->orderByDesc('is_featured')->latest('id')->limit($limit)
-            ->get(['id', 'slug', 'title_en', 'title_ar', 'country_id', 'city_id', 'region_id', 'area_id', 'sub_area_id']);
+            ->orderByDesc('is_featured')->latest('id');
+        $projects = static::firstOf($projects, $limit, ['id', 'slug', 'title_en', 'title_ar', 'country_id', 'city_id', 'region_id', 'area_id', 'sub_area_id']);
 
         $developers = $byName($near
             ? Developer::query()->where('is_published', true)->whereIn('id', $near['developers'] ?: [0])
@@ -140,6 +141,21 @@ class GlobalSearch
     }
 
     /**
+     * The first records of a search, in two steps: their ids, found inside the search index (no row reads over the
+     * whole table), then only those rows (performance review: with 50,000 properties a search read every row).
+     *
+     * @param  list<string>  $columns
+     */
+    private static function firstOf(Builder $query, int $limit, array $columns): Collection
+    {
+        $ids = (clone $query)->limit($limit)->pluck($query->qualifyColumn('id'))->all();
+
+        return $ids === [] ? $query->getModel()->newCollection() : $query->getModel()->newQuery()
+            ->with($query->getEagerLoads())->whereKey($ids)->get($columns)
+            ->sortBy(fn (Model $model) => array_search($model->getKey(), $ids))->values();
+    }
+
+    /**
      * Names close to the text (a small typo): compounds from the tree, developers and locations from their search
      * names (two small lists: published developers, active locations).
      *
@@ -155,15 +171,6 @@ class GlobalSearch
             'developers' => $close(Developer::query()->where('is_published', true)),
             'locations' => $close(Location::query()->where('is_active', true)),
         ];
-    }
-
-    /**
-     * @param  list<int>  $compounds
-     * @return list<int> the ones holding published properties
-     */
-    private static function withProperties(array $compounds): array
-    {
-        return $compounds === [] ? [] : Unit::query()->where('is_published', true)->whereIn('sub_area_id', $compounds)->distinct()->pluck('sub_area_id')->all();
     }
 
     /**

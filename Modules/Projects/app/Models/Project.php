@@ -7,6 +7,7 @@ use App\Models\Concerns\HasSearchName;
 use App\Models\Concerns\HasUniqueSlug;
 use App\Support\Images\MediaSizes;
 use App\Support\Images\ProtectedImages;
+use App\Support\Website\SearchOptions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -175,6 +176,15 @@ class Project extends Model implements HasMedia
      * Small WebP copies for the admin, plus a large one for the website (made in the background; the website uses
      * the original until it exists). Files stay while the project is in the trash; they go with a permanent delete.
      */
+    protected static function booted(): void
+    {
+        // The listings' Compound filter is cached (SearchOptions): read again when a project's compound or status
+        // changes.
+        static::saved(fn (Project $project) => ($project->wasRecentlyCreated || $project->wasChanged(['is_published', 'sub_area_id'])) && SearchOptions::forgetCompounds());
+        static::deleted(fn () => SearchOptions::forgetCompounds());
+        static::restored(fn () => SearchOptions::forgetCompounds());
+    }
+
     public function registerMediaCollections(): void
     {
         // Protected images (AKAR-51): the private disk, the website's sizes watermarked (MediaSizes).

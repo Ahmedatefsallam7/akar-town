@@ -24,6 +24,12 @@ class ProtectedImages
     public const SHARE_LIFETIME = 604800;
 
     /**
+     * An admin's link (any file, originals too) works two hours: admin pages stay open a long time. It is never renewed
+     * once it runs out, so a copied one stops working.
+     */
+    public const ADMIN_LIFETIME = 7200;
+
+    /**
      * Folders of the site's own images (settings, team photos) a visitor may get. Media library files are allowed by
      * their size instead (WEBSITE_SIZES).
      */
@@ -41,9 +47,12 @@ class ProtectedImages
      * The link's end time is rounded to the next quarter hour (plus one), so a page and the next ones share the same
      * links in that time and the browser shows the images from its cache; the file's version is in it too.
      */
-    public static function url(string $path, ?int $lifetime = null): string
+    public static function url(string $path, ?int $lifetime = null, ?bool $forAdmin = null): string
     {
-        $lifetime ??= self::LIFETIME;
+        // An admin's link says so inside its signature ("a"): the image route then needs no session (performance
+        // review: 2 queries per image), and nobody can add it to another link.
+        $forAdmin ??= auth('web')->check();
+        $lifetime = $forAdmin ? max($lifetime ?? 0, self::ADMIN_LIFETIME) : ($lifetime ?? self::LIFETIME);
         $expires = (int) (ceil(now()->getTimestamp() / self::LIFETIME) * self::LIFETIME) + $lifetime;
 
         $path = ltrim($path, '/');
@@ -54,7 +63,7 @@ class ProtectedImages
             .(MediaSizes::watermarkIsOn() && MediaSizes::takesWatermark($path) ? 'w' : '');
 
         // A date, not a number: a number would be read as seconds from now.
-        return URL::temporarySignedRoute('images.show', Carbon::createFromTimestamp($expires), ['path' => $path, 'v' => $version], absolute: false);
+        return URL::temporarySignedRoute('images.show', Carbon::createFromTimestamp($expires), ['path' => $path, 'v' => $version, ...($forAdmin ? ['a' => 1] : [])], absolute: false);
     }
 
     /**

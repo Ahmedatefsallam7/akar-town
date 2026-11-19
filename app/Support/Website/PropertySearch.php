@@ -60,7 +60,7 @@ class PropertySearch
 
         // By slug; an unknown one is ignored, like the other filters.
         $project = $filters['project'] ?? null;
-        if (is_string($project) && $id = Project::query()->where('slug', $project)->where('is_published', true)->value('id')) {
+        if (is_string($project) && $project !== '' && $id = Project::query()->where('slug', $project)->where('is_published', true)->value('id')) {
             $query->where('project_id', $id);
         }
 
@@ -70,6 +70,14 @@ class PropertySearch
             'area-desc' => $query->orderByDesc(Unit::SHOWN_AREA),
             default => $query->latest(),
         };
+    }
+
+    /**
+     * The published properties in a website location (its page's count and its listing's total, once per request).
+     */
+    public static function countIn(string $slug): int
+    {
+        return once(fn () => static::query(['location' => $slug])->reorder()->count());
     }
 
     /**
@@ -190,7 +198,7 @@ class PropertySearch
      */
     public static function inLocation(Builder $query, ?string $slug): void
     {
-        if (blank($slug) || ! $location = Location::query()->where('slug', $slug)->where('is_active', true)->first()) {
+        if (blank($slug) || ! $location = static::activeLocation($slug)) {
             return;
         }
 
@@ -199,22 +207,14 @@ class PropertySearch
     }
 
     /**
-     * Records inside any of the places (a chain column and its value each, e.g. LocationTree::startingWith()); none
-     * matches nothing.
-     *
-     * @param  list<array{column: string, id: int}>  $places
-     */
-    /**
      * The compounds whose name holds the text and that have published properties (a compound with nothing to open
-     * isn't offered to visitors), once per request per text (AKAR-47).
+     * isn't offered to visitors, AKAR-47). From the tree and the kept Compound filter: no query.
      *
      * @return list<int>
      */
     public static function compoundsWithProperties(string $text): array
     {
-        $compounds = LocationTree::compoundsMatching($text);
-
-        return $compounds === [] ? [] : once(fn () => Unit::query()->where('is_published', true)->whereIn('sub_area_id', $compounds)->distinct()->pluck('sub_area_id')->all());
+        return SearchOptions::compoundsUsedOf('units', LocationTree::compoundsMatching($text));
     }
 
     /**
@@ -229,6 +229,20 @@ class PropertySearch
             ->whereNotNull($column)->whereIn('sub_area_id', $compounds ?: [0]);
     }
 
+    /**
+     * An active location by slug, read once per request (a location's page and its listing both need it).
+     */
+    public static function activeLocation(string $slug): ?Location
+    {
+        return once(fn () => Location::query()->where('slug', $slug)->where('is_active', true)->first());
+    }
+
+    /**
+     * Records inside any of the places (a chain column and its value each, e.g. LocationTree::startingWith()); none
+     * matches nothing.
+     *
+     * @param  list<array{column: string, id: int}>  $places
+     */
     public static function inPlaces(Builder $query, array $places): void
     {
         $query->where(function (Builder $query) use ($places) {

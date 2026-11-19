@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Kalnoy\Nestedset\NodeTrait;
 use Mattiverse\Userstamps\Traits\Userstamps;
+use Modules\Lookups\Support\LocationTree;
 use Modules\Lookups\Support\LookupUsage;
 
 /**
@@ -150,6 +151,14 @@ class Lookup extends Model
         return $this->getLocalized('description');
     }
 
+    /**
+     * Rebuilds the tree's positions (a query, no model events), then clears the cached locations tree.
+     */
+    public static function fixTree($root = null): int
+    {
+        return tap(static::query()->fixTree($root), fn () => LocationTree::forget());
+    }
+
     protected static function booted(): void
     {
         static::saving(function (Lookup $lookup) {
@@ -162,5 +171,10 @@ class Lookup extends Model
                 $lookup->slug = Str::slug($lookup->name_en);
             }
         });
+        // The locations tree is cached (LocationTree): read again when a place changes (not a role or an amenity).
+        // The locations tree is cached (LocationTree): read again after any lookup change.
+        static::saved(fn (Lookup $lookup) => LocationTree::forgetFor($lookup));
+        static::deleted(fn (Lookup $lookup) => LocationTree::forgetFor($lookup));
+        static::restored(fn (Lookup $lookup) => LocationTree::forgetFor($lookup));
     }
 }

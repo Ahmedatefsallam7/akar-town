@@ -17,7 +17,9 @@ class LocationsController extends Controller
      */
     public function show(string $slug): View
     {
-        $location = Location::query()->where('slug', $slug)->where('is_active', true)->with('media')->firstOrFail();
+        // The same read as the listing's location filter (once per request).
+        abort_unless($location = PropertySearch::activeLocation($slug), 404);
+        $location->loadMissing('media');
         $description = $location->getLocalized('description');
 
         return view('website.location', [
@@ -26,7 +28,7 @@ class LocationsController extends Controller
             'description' => $description,
             'image' => Image::url($location->getFirstMedia(Location::FEATURED_IMAGE)),
             'imageSmall' => Image::url($location->getFirstMedia(Location::FEATURED_IMAGE), 'card'),
-            'count' => PropertySearch::query(['location' => $location->slug])->reorder()->count(),
+            'count' => PropertySearch::countIn($location->slug),
             'metaTitle' => $location->getLocalized('meta_title') ?: $location->getLocalized('name'),
             'metaDescription' => $location->getLocalized('meta_description') ?: Str::limit(strip_tags((string) $description), 160) ?: null,
         ]);

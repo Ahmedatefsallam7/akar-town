@@ -27,6 +27,15 @@ use Modules\Lookups\Support\LocationTree;
  */
 class ManageLookupValues extends ManageRelatedRecords
 {
+    /**
+     * Re-ordering saves the positions with a query (no model events): the cached locations tree is read again.
+     */
+    public function reorderTable(array $order, int|string|null $draggedRecordKey = null): void
+    {
+        parent::reorderTable($order, $draggedRecordKey);
+        LocationTree::forget();
+    }
+
     protected static string $resource = LookupResource::class;
 
     protected static ?string $relatedResource = LookupResource::class;

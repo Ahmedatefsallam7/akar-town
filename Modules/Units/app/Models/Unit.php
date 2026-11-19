@@ -7,6 +7,7 @@ use App\Models\Concerns\HasSearchName;
 use App\Models\Concerns\HasUniqueSlug;
 use App\Support\Images\MediaSizes;
 use App\Support\Images\ProtectedImages;
+use App\Support\Website\SearchOptions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -222,5 +223,10 @@ class Unit extends Model implements HasMedia
 
         static::deleted(fn (Unit $unit) => static::updateProjectPrices($unit->project_id, $unit->price !== null));
         static::restored(fn (Unit $unit) => static::updateProjectPrices($unit->project_id));
+
+        // The listings' Compound filter is cached (SearchOptions): read again when a unit's compound or status changes.
+        static::saved(fn (Unit $unit) => ($unit->wasRecentlyCreated || $unit->wasChanged(['is_published', 'sub_area_id'])) && SearchOptions::forgetCompounds());
+        static::deleted(fn () => SearchOptions::forgetCompounds());
+        static::restored(fn () => SearchOptions::forgetCompounds());
     }
 }

@@ -8,6 +8,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Once;
 use Livewire\Livewire;
 use Modules\Careers\Filament\Resources\ApplicantResource;
 use Modules\Careers\Filament\Resources\CareerResource;
@@ -53,7 +54,9 @@ class NoNPlusOneTest extends TestCase
 
     private function queriesFor(string $url): int
     {
+        // Both counts start as a real request does: nothing cached and nothing kept from the last one.
         Cache::flush();
+        Once::flush();
 
         return $this->countQueries(fn () => $this->get($url)->assertOk());
     }

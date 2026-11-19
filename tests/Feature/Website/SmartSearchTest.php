@@ -41,6 +41,12 @@ class SmartSearchTest extends TestCase
     {
         $this->assertSame(1, SearchText::distance('madinaty', 'madinsty'));
         $this->assertSame(1, SearchText::distance('مدينتي', 'مدينتب'));
+        // Counted in letters, not bytes (an Arabic letter is two bytes), mixed texts too.
+        $this->assertSame(2, SearchText::distance('مدينتي', 'مدين'));
+        $this->assertSame(3, SearchText::distance('abc', 'مدي'));
+        $this->assertSame(1, SearchText::distance('mivida مدينتي', 'mivida مدينت'));
+        $this->assertSame(0, SearchText::distance('', ''));
+        $this->assertSame(4, SearchText::distance('', 'مدين'));
         $this->assertTrue(SearchText::nearly('Madinaty', 'madinsty'));        // one letter off
         $this->assertTrue(SearchText::nearly('Palm Hills October', 'palm hils')); // a letter missed, two words
         $this->assertTrue(SearchText::nearly('Emaar Misr', 'emar'));           // the start of a word
