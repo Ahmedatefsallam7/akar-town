@@ -8,10 +8,13 @@ spatie medialibrary and laravel-settings · MySQL.
 ## Run it locally
 
 ```sh
-docker compose up -d                      # app (PHP), web (nginx), db, redis, phpmyadmin
+docker compose up -d                      # app (PHP), queue (worker), web (nginx), db, redis, phpmyadmin
 docker exec akar-town-app php artisan migrate
 npm install && npm run build              # website and admin CSS/JS (run on your machine)
 ```
+
+The `queue` container runs queued jobs (image sizes after an upload or a seed, CRM leads, mails) and picks up code
+changes by itself. Its log: `docker logs -f akar-town-queue`.
 
 | URL | What |
 | --- | --- |

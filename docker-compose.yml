@@ -20,6 +20,24 @@ services:
     networks:
       - akar-town-network
 
+  # Queue worker (local only): runs queued jobs as they arrive (image sizes, CRM leads, queued mails).
+  # Same image and same vendor/node_modules as "app" (volumes_from); skips the app's entrypoint (no build or
+  # migrations twice). queue:listen reloads the code for every job, so code changes need no restart.
+  # The live server (cPanel) has no worker: the scheduler runs queue:work every minute (routes/console.php).
+  queue:
+    image: akar-town-app
+    container_name: akar-town-queue
+    restart: unless-stopped
+    working_dir: /var/www
+    entrypoint: ["php", "artisan", "queue:listen", "--tries=3", "--timeout=300", "--sleep=3"]
+    volumes_from:
+      - app
+    depends_on:
+      - app
+      - db
+    networks:
+      - akar-town-network
+
   # Nginx Web Server
   web:
     image: nginx:alpine
