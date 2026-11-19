@@ -8,9 +8,12 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Livewire;
+use Modules\Galleries\Models\Gallery;
 use Modules\GeneralSettings\Settings\SiteSettings;
 use Modules\Lookups\Models\Lookup;
 use Modules\Projects\Models\Project;
+use Modules\Units\Filament\Resources\UnitResource\Pages\EditUnit;
 use Modules\Units\Models\Unit;
 use Modules\Users\Models\User;
 use Tests\TestCase;
@@ -129,6 +132,32 @@ class PropertyDetailsTest extends TestCase
         $this->get(route('properties.show', $other->slug))
             ->assertOk()
             ->assertDontSee(['View floor plan fullscreen', 'View master plan fullscreen', 'project-master']);
+    }
+
+    public function test_the_gallery_picked_in_the_admin_shows_on_the_page_even_from_another_project(): void
+    {
+        // AKAR-54: the property shows the gallery the admin picked, whichever project it belongs to.
+        Storage::fake(ProtectedImages::DISK);
+        $unit = Unit::factory()->create(['project_id' => Project::factory()->create()->id]);
+        $crown = Gallery::factory()->create(['project_id' => Project::factory()->create()->id, 'name_en' => 'The Crown Tower Gallery']);
+        $crown->addMedia(UploadedFile::fake()->image('crown-photo.png'))->toMediaCollection(Gallery::PHOTOS);
+        $other = Gallery::factory()->create();
+        $other->addMedia(UploadedFile::fake()->image('garden-photo.png'))->toMediaCollection(Gallery::PHOTOS);
+
+        $this->actingAs($this->createAdmin());
+        Livewire::test(EditUnit::class, ['record' => $unit->getRouteKey()])
+            ->fillForm(['gallery_id' => $crown->id])
+            ->call('save')
+            ->assertHasNoFormErrors();
+        $this->get(route('properties.show', $unit->slug))->assertOk()->assertSee('crown-photo')->assertDontSee('garden-photo');
+
+        // Removed and another one picked: the page follows.
+        Livewire::test(EditUnit::class, ['record' => $unit->getRouteKey()])
+            ->fillForm(['gallery_id' => null])
+            ->fillForm(['gallery_id' => $other->id])
+            ->call('save')
+            ->assertHasNoFormErrors();
+        $this->get(route('properties.show', $unit->slug))->assertOk()->assertSee('garden-photo')->assertDontSee('crown-photo');
     }
 
     public function test_a_property_without_photos_shows_the_placeholder_and_no_photo_counter(): void

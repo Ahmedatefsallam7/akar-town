@@ -242,11 +242,16 @@ class UnitResourceTest extends TestCase
             ->assertHasNoFormErrors();
         $this->assertSame($shared->id, $unit->fresh()->gallery_id);
 
-        // A gallery that doesn't exist is refused; moving the unit to another project keeps its gallery.
-        Livewire::test(CreateUnit::class)
-            ->fillForm(['name_en' => 'U2', 'name_ar' => 'و2', 'gallery_id' => 999999])
-            ->call('create')
-            ->assertHasFormErrors(['gallery_id']);
+        // A gallery that doesn't exist, or is in the trash (never listed, only a forged request), is refused; moving
+        // the unit to another project keeps its gallery.
+        $trashed = Gallery::factory()->create();
+        $trashed->delete();
+        foreach ([999999, $trashed->id] as $id) {
+            Livewire::test(CreateUnit::class)
+                ->fillForm(['name_en' => 'U2', 'name_ar' => 'و2', 'gallery_id' => $id])
+                ->call('create')
+                ->assertHasFormErrors(['gallery_id']);
+        }
         Livewire::test(CreateUnit::class)
             ->fillForm(['project_id' => $project->id, 'gallery_id' => $crown->id])
             ->fillForm(['project_id' => $other->id])

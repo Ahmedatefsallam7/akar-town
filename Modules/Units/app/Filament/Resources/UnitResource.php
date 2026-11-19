@@ -35,6 +35,7 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Validation\Rules\Exists;
 use Modules\Galleries\Models\Gallery;
 use Modules\Lookups\Filament\Forms\LocationFields;
 use Modules\Lookups\Filament\Forms\LookupFields;
@@ -321,7 +322,8 @@ class UnitResource extends Resource implements HasPermissionModule
                                     // Read from the listed choices when it's one of them (no query), else from the database.
                                     ->getOptionLabelUsing(fn ($value, Get $get) => static::galleryOptions($get('project_id'))[(int) $value]
                                         ?? static::galleryLabel(Gallery::query()->with('project:id,title_en,title_ar')->find($value)))
-                                    ->exists('galleries', 'id'),
+                                    // Not one in the trash (only a forged request could send one: the list never shows them).
+                                    ->exists('galleries', 'id', fn (Exists $rule) => $rule->whereNull('deleted_at')),
                                 static::image('images_360', Unit::IMAGES_360, 'unit_360')
                                     ->multiple()
                                     ->reorderable(),
