@@ -89,19 +89,47 @@ class LocationCards
             ->filter(fn ($group, $level) => $level !== '')
             ->map(fn (Collection $group) => $group->pluck(static::deepestLevel($group->first()))->sort()->values()->all());
 
-        return Cache::remember('website.location_counts.'.md5($levels->toJson()), now()->addMinutes(10), fn () => $levels
-            ->map(fn (array $ids, string $level) => Unit::query()
-                ->where('is_published', true)
-                ->whereIn($level, $ids)
-                ->groupBy($level)
-                ->selectRaw("{$level}, count(*) as total")
-                ->pluck('total', $level)
-                ->all())
-            ->all());
+        $key = 'website.location_counts.'.md5($levels->toJson());
+
+        return Cache::remember($key, now()->addMinutes(10), function () use ($key, $levels) {
+            static::noteCountKey($key);
+
+            return $levels
+                ->map(fn (array $ids, string $level) => Unit::query()
+                    ->where('is_published', true)
+                    ->whereIn($level, $ids)
+                    ->groupBy($level)
+                    ->selectRaw("{$level}, count(*) as total")
+                    ->pluck('total', $level)
+                    ->all())
+                ->all();
+        });
     }
 
     private static function deepestLevel(Location $location): string
     {
         return collect(LocationTree::LEVELS)->reverse()->first(fn (string $column) => filled($location->{$column})) ?? '';
+    }
+
+    /** The list of the location-count keys made (their names depend on the locations shown). */
+    private const COUNT_KEYS = 'website.location_counts.keys';
+
+    /**
+     * Notes a location-count key, so the Refresh button can find it (only when the counts are built: a page view reads
+     * nothing more).
+     */
+    private static function noteCountKey(string $key): void
+    {
+        Cache::put(self::COUNT_KEYS, array_values(array_unique([...Cache::get(self::COUNT_KEYS, []), $key])), now()->addDay());
+    }
+
+    /**
+     * Every location card's count is read again (the admin's Refresh button).
+     */
+    public static function forgetCounts(): void
+    {
+        foreach (Cache::pull(self::COUNT_KEYS, []) as $key) {
+            Cache::forget($key);
+        }
     }
 }

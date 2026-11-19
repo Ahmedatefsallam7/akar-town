@@ -703,7 +703,7 @@ return [
 
     'refresh' => [
         'label' => 'Refresh',
-        'tooltip' => 'Refresh',
+        'tooltip' => 'Refresh the counts and the website data',
         'done' => 'Everything is up to date.',
     ],
 

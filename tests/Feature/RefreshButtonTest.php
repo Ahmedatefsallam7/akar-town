@@ -6,6 +6,8 @@ use App\Livewire\RefreshButton;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Livewire\Livewire;
+use Modules\GeneralSettings\Settings\SiteSettings;
+use Modules\Locations\Models\Location;
 use Modules\Users\Filament\Resources\UserResource;
 use Tests\TestCase;
 
@@ -52,6 +54,29 @@ class RefreshButtonTest extends TestCase
         $this->assertFalse(Cache::has('navigation_badges_non_admin'));
         // Only our counts: other cached things (e.g. login attempt limits) are left alone.
         $this->assertTrue(Cache::has('login-throttle'));
+    }
+
+    public function test_it_also_clears_the_websites_cached_lists_and_numbers(): void
+    {
+        $site = app(SiteSettings::class);
+        $site->is_live = true;
+        $site->save();
+        Location::factory()->create(['is_active' => true]);
+        $this->get(route('locations'))->assertOk(); // builds the location cards' counts
+        foreach (['website.compounds.units', 'website.compounds.projects', 'lookups.location_tree', 'website.footer_counts', 'website.search.popular_compounds'] as $key) {
+            Cache::put($key, ['stale']);
+        }
+        $counts = Cache::get('website.location_counts.keys');
+        $this->assertNotEmpty($counts);
+        Cache::put('login-throttle', 3);
+
+        $this->actingAs($this->createAdmin());
+        Livewire::test(RefreshButton::class)->call('refresh')->assertNotified(__('admin.refresh.done'));
+
+        foreach (['website.compounds.units', 'website.compounds.projects', 'lookups.location_tree', 'website.footer_counts', 'website.search.popular_compounds', 'website.location_counts.keys', ...$counts] as $key) {
+            $this->assertFalse(Cache::has($key), $key);
+        }
+        $this->assertTrue(Cache::has('login-throttle')); // nothing else
     }
 
     public function test_the_utilities_page_is_gone(): void

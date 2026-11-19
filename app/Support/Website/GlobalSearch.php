@@ -29,6 +29,8 @@ class GlobalSearch
 
     public const GROUPS = ['compounds', 'properties', 'projects', 'developers', 'locations'];
 
+    private const POPULAR_KEY = 'website.search.popular_compounds';
+
     /**
      * @return array<string, list<array{title: string, sub: ?string, image: ?string, url: string, badge?: ?string}>> compounds, properties, projects, developers, locations
      */
@@ -181,7 +183,7 @@ class GlobalSearch
      */
     public static function popularCompounds(int $limit = 8): array
     {
-        $ids = Cache::remember('website.search.popular_compounds', now()->addMinutes(10), fn () => Unit::query()
+        $ids = Cache::remember(self::POPULAR_KEY, now()->addMinutes(10), fn () => Unit::query()
             ->where('is_published', true)->whereNotNull('sub_area_id')
             ->groupBy('sub_area_id')->orderByRaw('count(*) desc')->limit($limit)->pluck('sub_area_id')->all());
 
@@ -189,5 +191,13 @@ class GlobalSearch
             ->sortBy(fn (Lookup $compound) => array_search($compound->id, $ids))
             ->map(fn (Lookup $compound) => ['title' => $compound->getLocalized('name'), 'url' => route('properties', ['compound' => [$compound->slug]])])
             ->values()->all();
+    }
+
+    /**
+     * The popular compounds are read again (the admin's Refresh button).
+     */
+    public static function forgetPopular(): void
+    {
+        Cache::forget(self::POPULAR_KEY);
     }
 }

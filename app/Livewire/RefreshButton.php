@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Filament\Support\NavigationBadges;
+use App\Support\Website\WebsiteCaches;
 use Filament\Notifications\Notification;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
@@ -16,6 +17,8 @@ class RefreshButton extends Component
     public function refresh(): void
     {
         NavigationBadges::forget();
+        // The website's cached lists and numbers too, so an admin's change shows there at once.
+        WebsiteCaches::forget();
 
         Notification::make()
             ->success()

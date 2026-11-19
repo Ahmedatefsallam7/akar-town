@@ -1,4 +1,4 @@
-{{-- Top bar button: refresh counts, permissions and the open page. --}}
+{{-- Top bar button: refresh counts, the website's cached lists and numbers, and the open page. --}}
 <div>
     <x-filament::icon-button
         wire:click="refresh"

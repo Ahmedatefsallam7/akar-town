@@ -14,6 +14,8 @@ use Modules\Units\Models\Unit;
  */
 class FooterStats
 {
+    private const CACHE_KEY = 'website.footer_counts';
+
     /**
      * The footer shows projects, developers and years; "listings" is the properties page header's count.
      *
@@ -21,11 +23,19 @@ class FooterStats
      */
     public static function get(): array
     {
-        return Cache::remember('website.footer_counts', now()->addMinutes(10), fn () => [
+        return Cache::remember(self::CACHE_KEY, now()->addMinutes(10), fn () => [
             'listings' => Unit::query()->where('is_published', true)->count(),
             'projects' => Project::query()->where('is_published', true)->count(),
             'developers' => Developer::query()->where('is_published', true)->count(),
             'years' => app(AboutUsSettings::class)->years_of_excellence,
         ]);
+    }
+
+    /**
+     * Read again on the next page (the admin's Refresh button).
+     */
+    public static function forget(): void
+    {
+        Cache::forget(self::CACHE_KEY);
     }
 }
