@@ -1,11 +1,14 @@
-// Property details page: photo slider, sticky bar, "Read More", location map, similar properties and PDF language choice.
+// Property details page: photo slider, sticky bar, "Read More", location map, 360° tour, similar properties and PDF language choice.
 import Swiper from 'swiper'
 import { Navigation } from 'swiper/modules'
 // Swiper's own styles, with the page's code (pages load only their own code: the home slider's copy isn't here).
 import 'swiper/css'
 
-export default ({ count, latitude, longitude, place }) => ({
+export default ({ count, latitude, longitude, place, tours = [], loading = 'Loading...' }) => ({
     current: 0,
+    touring: false,
+    tourIndex: 0,
+    viewer: null,
     sticky: false,
     progress: 0,
     more: false,
@@ -81,6 +84,25 @@ export default ({ count, latitude, longitude, place }) => ({
         const popup = document.createElement('strong')
         popup.textContent = place
         L.marker([latitude, longitude], { icon }).addTo(map).bindPopup(popup).openPopup()
+    },
+
+    // The 360° viewer (Pannellum), loaded when the visitor starts the tour: only needed then. Another view replaces it.
+    async tour(index) {
+        if (!tours[index]) return
+        this.tourIndex = index
+        this.touring = true
+        await import('pannellum/build/pannellum.css')
+        await import('pannellum/build/pannellum.js')
+        this.viewer?.destroy()
+        this.viewer = window.pannellum.viewer(this.$refs.pano, {
+            type: 'equirectangular',
+            panorama: tours[index],
+            autoLoad: true,
+            autoRotate: -2,
+            compass: false,
+            hfov: 100,
+            strings: { loadingLabel: loading },
+        })
     },
 
     similar() {

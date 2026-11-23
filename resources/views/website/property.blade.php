@@ -44,7 +44,7 @@
 
 <x-website.layout :title="$p['title']" :description="$p['short']" :image="$p['share']">
     <div
-        x-data="propertyPage(@js(['count' => $count, 'latitude' => $p['latitude'], 'longitude' => $p['longitude'], 'place' => $p['place']]))"
+        x-data="propertyPage(@js(['count' => $count, 'latitude' => $p['latitude'], 'longitude' => $p['longitude'], 'place' => $p['place'], 'tours' => array_column($p['tours'], 'pano'), 'loading' => __('Loading...')]))"
        
        
         class="leading-[normal]"
@@ -371,6 +371,60 @@
                             <div class="{{ $sep }}"></div>
                         @endif
                     @endforeach
+
+                    {{-- The 360° tour (its gallery's images, else its own): a cover first; the viewer is loaded when the
+                         visitor starts it (property.js tour()). --}}
+                    @if ($p['tours'])
+                        @if ($p['floorPlan'] || $p['masterPlan'])
+                            <div class="{{ $sep }}"></div>
+                        @endif
+                        <div class="mb-10">
+                            <div class="{{ $sectionTitle }}">{{ __('360° Tour') }}</div>
+                            <div class="relative h-[420px] w-full overflow-hidden rounded-xl border border-ink-10 bg-night dark:border-line max-[900px]:h-[300px] max-[640px]:h-[240px]">
+                                <div x-ref="pano" class="absolute inset-0"></div>
+                                <button type="button" x-show="! touring" @click="tour(0)" class="group absolute inset-0 flex cursor-pointer flex-col items-center justify-center gap-3 text-white">
+                                    <img src="{{ $p['tours'][0]['cover'] }}" alt="{{ __('360° Tour') }}" loading="lazy" class="absolute inset-0 size-full object-cover brightness-[0.55] transition-[filter] duration-300 group-hover:brightness-[0.45]" />
+                                    <span class="relative flex size-16 items-center justify-center rounded-full border border-white/40 bg-white/15 backdrop-blur-[8px] transition-transform duration-200 group-hover:scale-106">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="size-7" aria-hidden="true"><ellipse cx="12" cy="12" rx="10" ry="4" /><path d="M12 2a4 10 0 0 1 0 20" /><path d="M12 2a4 10 0 0 0 0 20" /></svg>
+                                    </span>
+                                    <span class="relative text-[13px] font-semibold tracking-[0.06em] rtl:font-arabic">{{ __('Start the 360° tour') }}</span>
+                                </button>
+                            </div>
+                            <div class="mt-3 flex flex-wrap items-center gap-2">
+                                @if (count($p['tours']) > 1)
+                                    @foreach ($p['tours'] as $i => $tour)
+                                        <button type="button" @click="tour({{ $i }})" :class="touring && tourIndex === {{ $i }} ? 'border-brand text-brand' : 'border-ink-10 text-ink-60 dark:border-line'" class="cursor-pointer rounded-full border px-4 py-1.5 text-[12px] font-semibold transition-colors hover:border-brand rtl:font-arabic">{{ __('View :n', ['n' => $i + 1]) }}</button>
+                                    @endforeach
+                                @endif
+                                <span class="text-[12px] text-ink-60 rtl:font-arabic">{{ __('Drag to look around.') }}</span>
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- The brochure and other files of its gallery, downloaded (PropertiesController::file()). --}}
+                    @if ($p['files'])
+                        @if ($p['tours'] || $p['floorPlan'] || $p['masterPlan'])
+                            <div class="{{ $sep }}"></div>
+                        @endif
+                        <div class="mb-10">
+                            <div class="{{ $sectionTitle }}">{{ __('Brochure & Files') }}</div>
+                            <div class="grid grid-cols-2 gap-3 max-[640px]:grid-cols-1">
+                                @foreach ($p['files'] as $file)
+                                    <a href="{{ $file['url'] }}" download class="{{ $tile }} group transition-colors duration-200 hover:border-brand">
+                                        <span class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[rgba(200,16,46,0.08)] text-brand">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5" aria-hidden="true">{!! $pdfIcon !!}</svg>
+                                        </span>
+                                        <span class="min-w-0 flex-1">
+                                            <span class="block truncate text-[13px] font-semibold text-ink">{{ $file['name'] }}</span>
+                                            <span class="block text-[11px] text-ink-60" dir="ltr">{{ $file['type'] }} · {{ $file['size'] }}</span>
+                                        </span>
+                                        <span class="sr-only">{{ __('Download') }}</span>
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-[18px] shrink-0 text-ink-60 transition-colors group-hover:text-brand" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
                 </div>
 
                 <aside class="sticky top-[calc(var(--spacing-nav)+70px)] flex flex-col gap-4 self-start max-[900px]:static">

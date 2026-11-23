@@ -21,14 +21,14 @@ class PropertyPdf
     {
         $content = Datasheet::render($locale, function (Datasheet $sheet) use ($unit) {
             $property = PropertyDetails::for($unit);
-            $media = collect([$unit->getFirstMedia(Unit::FEATURED_IMAGE)])->merge($unit->gallery?->media ?? [])->filter()->values();
+            $media = $unit->photos(); // loaded by PropertyDetails::for() above
 
             return ['website.pdf.property', [
                 'p' => $property,
                 'cover' => $sheet->crop($media->first(), 'large', 1600, 840),
                 'thumbs' => $media->slice(1, Datasheet::THUMBS)->map(fn (Media $photo) => $sheet->crop($photo, 'card', 600, 420))->filter()->values()->all(),
                 'plans' => collect([
-                    ['label' => __('Floor Plan'), 'image' => $sheet->plan($unit->getFirstMedia(Unit::FLOOR_PLAN))],
+                    ['label' => __('Floor Plan'), 'image' => $sheet->plan($unit->floorPlans()->first())],
                     ['label' => __('Master Plan'), 'image' => $sheet->plan($unit->getFirstMedia(Unit::MASTER_PLAN))],
                 ])->filter(fn (array $plan) => $plan['image'])->values()->all(),
                 'agentPhoto' => $sheet->agentPhoto($unit->agent ?? $unit->project?->agent),

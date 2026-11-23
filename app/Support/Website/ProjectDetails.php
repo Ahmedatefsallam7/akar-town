@@ -5,6 +5,7 @@ namespace App\Support\Website;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Number;
+use Modules\Galleries\Models\Gallery;
 use Modules\Lookups\Models\Lookup;
 use Modules\Lookups\Support\LocationTree;
 use Modules\Projects\Models\Project;
@@ -31,10 +32,16 @@ class ProjectDetails
             'developer' => fn ($query) => $query->where('is_published', true)->select('id', 'name_en', 'name_ar'),
             'agent' => Agent::scope(),
             'lookups' => fn ($query) => $query->wherePivotIn('type', ['projectstatus', 'propertyusage', 'amenities', 'facility'])->select('lookups.id', 'name_en', 'name_ar')->orderBy('lookups.order'),
+            'galleries.media' => fn ($query) => $query->where('collection_name', Gallery::PHOTOS)->orderBy('order_column'),
         ]);
 
         $listOf = fn (string $type) => $project->lookups->where('pivot.type', $type)->map(fn (Lookup $lookup) => $lookup->getLocalized('name'))->values()->all();
-        $photos = collect([$project->getFirstMedia(Project::FEATURED_IMAGE)])->merge($project->getMedia(Project::GALLERY))->filter()->values();
+        $galleryPhotos = $project->galleries->flatMap(fn (Gallery $gallery) => $gallery->media);
+        $photos = collect([$project->getFirstMedia(Project::FEATURED_IMAGE)])
+            ->merge($project->getMedia(Project::GALLERY))
+            ->merge($galleryPhotos)
+            ->filter()
+            ->values();
         $chain = [$project->country_id, $project->city_id, $project->region_id, $project->area_id, $project->sub_area_id];
         $path = array_filter(explode(' › ', LocationTree::path($chain)));
         $delivery = $project->delivery_date ? Carbon::parse($project->delivery_date) : null;
@@ -109,9 +116,11 @@ class ProjectDetails
             ->whereIn('id', $typed->pluck('sample_id'))
             ->with([
                 'media' => fn ($query) => $query->where('collection_name', Unit::FEATURED_IMAGE),
+                // The sample's gallery cover comes first (Unit::featuredMedia).
+                'gallery.media' => fn ($query) => $query->where('collection_name', Gallery::FEATURED_IMAGE),
                 'lookups' => fn ($query) => $query->wherePivot('type', 'amenities')->select('lookups.id', 'name_en', 'name_ar')->orderBy('lookups.order'),
             ])
-            ->get(['id'])
+            ->get(['id', 'gallery_id'])
             ->keyBy('id');
         $groups = $typed->keyBy('property_type_id');
 
@@ -128,7 +137,7 @@ class ProjectDetails
                 'beds' => static::range($group->beds_min, $group->beds_max),
                 'baths' => static::range($group->baths_min, $group->baths_max),
                 'price' => $group->price_min ? number_format($group->price_min) : null,
-                'image' => Image::orPlaceholder($sample?->getFirstMedia(Unit::FEATURED_IMAGE), 'card'),
+                'image' => Image::orPlaceholder($sample?->featuredMedia(), 'card'),
                 'features' => $sample ? $sample->lookups->take(self::FEATURES)->map(fn (Lookup $lookup) => $lookup->getLocalized('name'))->values()->all() : [],
             ];
         })->values()->all();

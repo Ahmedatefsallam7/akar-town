@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Modules\Developers\Models\Developer;
+use Modules\Galleries\Models\Gallery;
 use Modules\Locations\Models\Location;
 use Modules\Lookups\Models\Lookup;
 use Modules\Lookups\Support\LocationTree;
@@ -77,9 +78,9 @@ class GlobalSearch
         $units = $byName(Unit::query()->where('is_published', true)
             ->where(fn (Builder $query) => $query->whereIn('sub_area_id', $compoundIds ?: [0])
                 ->when(! $near, fn (Builder $query) => $query->orWhere(fn (Builder $query) => SmartSearch::match($query, $q)))))
-            ->with($photo(Unit::FEATURED_IMAGE))
+            ->with($photo(Unit::FEATURED_IMAGE) + ['gallery.media' => fn ($query) => $query->where('collection_name', Gallery::FEATURED_IMAGE)])
             ->orderByDesc('is_featured')->latest('id');
-        $units = static::firstOf($units, $limit, ['id', 'slug', 'name_en', 'name_ar', 'price', 'country_id', 'city_id', 'region_id', 'area_id', 'sub_area_id']);
+        $units = static::firstOf($units, $limit, ['id', 'slug', 'name_en', 'name_ar', 'price', 'gallery_id', 'country_id', 'city_id', 'region_id', 'area_id', 'sub_area_id']);
 
         $projects = $byName(Project::query()->where('is_published', true)
             ->where(fn (Builder $query) => $query->whereIn('sub_area_id', $compoundIds ?: [0])
@@ -116,7 +117,7 @@ class GlobalSearch
             'properties' => $units->map(fn (Unit $unit) => [
                 'title' => $unit->getLocalized('name'),
                 'sub' => $place($unit),
-                'image' => $thumb($unit, Unit::FEATURED_IMAGE),
+                'image' => Image::url($unit->featuredMedia(), 'thumb'), // its gallery's, else its own
                 'badge' => $unit->price ? __('EGP :price', ['price' => number_format((float) $unit->price)]) : null,
                 'url' => route('properties.show', $unit->slug),
             ])->all(),

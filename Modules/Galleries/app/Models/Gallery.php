@@ -84,7 +84,8 @@ class Gallery extends Model implements HasMedia
         $disk = ProtectedImages::DISK;
 
         $this->addMediaCollection(self::FEATURED_IMAGE)->useDisk($disk)->singleFile()->registerMediaConversions($photo);
-        $this->addMediaCollection(self::IMAGES_360)->useDisk($disk);
+        $this->addMediaCollection(self::IMAGES_360)->useDisk($disk)
+            ->registerMediaConversions(fn () => MediaSizes::panorama($this));
         $this->addMediaCollection(self::PHOTOS)->useDisk($disk)->registerMediaConversions($photo);
         $this->addMediaCollection(self::FLOOR_PLANS)->useDisk($disk)->registerMediaConversions(fn () => MediaSizes::plan($this));
         // Documents for the admin only.

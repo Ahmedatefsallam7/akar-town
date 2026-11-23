@@ -9,7 +9,9 @@ use App\Support\Website\PropertyDetails;
 use App\Support\Website\PropertyPdf;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Response;
+use Modules\Galleries\Models\Gallery;
 use Modules\Units\Models\Unit;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class PropertiesController extends Controller
 {
@@ -37,6 +39,22 @@ class PropertiesController extends Controller
         return response($content, 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'attachment; filename="'.$name.'"',
+        ]);
+    }
+
+    /**
+     * One of a published property's files (Unit::attachments(): its gallery's brochure...), downloaded under its own
+     * name. Only a file of that property: any other gives "not found".
+     */
+    public function file(string $slug, string $file): BinaryFileResponse
+    {
+        $unit = Unit::query()->where('slug', $slug)->where('is_published', true)->firstOrFail();
+        $unit->load(['gallery.media' => fn ($query) => $query->where('collection_name', Gallery::ATTACHMENTS)]);
+        $media = $unit->attachments()->firstWhere('uuid', $file) ?? abort(404);
+
+        return response()->download($media->getPath(), $media->name.'.'.pathinfo($media->file_name, PATHINFO_EXTENSION), [
+            'Content-Type' => $media->mime_type,
+            'X-Content-Type-Options' => 'nosniff',
         ]);
     }
 

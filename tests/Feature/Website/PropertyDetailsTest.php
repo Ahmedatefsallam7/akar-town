@@ -160,6 +160,55 @@ class PropertyDetailsTest extends TestCase
         $this->get(route('properties.show', $unit->slug))->assertOk()->assertSee('garden-photo')->assertDontSee('crown-photo');
     }
 
+    public function test_the_gallerys_images_take_the_place_of_the_propertys_own_and_its_own_are_the_fallback(): void
+    {
+        // User, 2026-11-22: units of one model share their gallery's images; a unit's own upload shows only when the
+        // gallery has none of that kind.
+        Storage::fake(ProtectedImages::DISK);
+        $gallery = Gallery::factory()->create();
+        $gallery->addMedia(UploadedFile::fake()->image('gallery-cover.jpg', 1600, 1200))->toMediaCollection(Gallery::FEATURED_IMAGE);
+        $gallery->addMedia(UploadedFile::fake()->image('gallery-plan.png', 1600, 1200))->toMediaCollection(Gallery::FLOOR_PLANS);
+        $gallery->addMedia(UploadedFile::fake()->image('gallery-tour.jpg', 2000, 1000))->toMediaCollection(Gallery::IMAGES_360);
+        $gallery->addMedia(UploadedFile::fake()->create('gallery-brochure.pdf', 10, 'application/pdf'))->toMediaCollection(Gallery::ATTACHMENTS);
+        $unit = Unit::factory()->create(['name_en' => 'Twin House 7', 'gallery_id' => $gallery->id]);
+        $unit->addMedia(UploadedFile::fake()->image('own-cover.jpg', 1600, 1200))->toMediaCollection(Unit::FEATURED_IMAGE);
+        $unit->addMedia(UploadedFile::fake()->image('own-plan.png', 1600, 1200))->toMediaCollection(Unit::FLOOR_PLAN);
+
+        $fresh = fn () => Unit::query()->with(['media', 'gallery.media'])->find($unit->id);
+        $this->assertSame('gallery-cover', $fresh()->featuredMedia()->name);
+        $this->assertSame(['gallery-plan'], $fresh()->floorPlans()->pluck('name')->all());
+        $this->assertSame(['gallery-tour'], $fresh()->images360()->pluck('name')->all());
+        $this->assertSame(['gallery-brochure'], $fresh()->attachments()->pluck('name')->all());
+
+        // The page, a card (the listing) and the search show the gallery's cover and plan, not the unit's own.
+        $this->get(route('properties.show', $unit->slug))->assertOk()
+            ->assertSee(['gallery-cover', 'gallery-plan'])->assertDontSee(['own-cover', 'own-plan']);
+        $this->get(route('properties'))->assertOk()->assertSee('gallery-cover')->assertDontSee('own-cover');
+        $this->get(route('search', ['q' => 'Twin House']))->assertOk()->assertSee('gallery-cover')->assertDontSee('own-cover');
+
+        // The 360° tour (the viewer's size, a visitor may load it in the page) and the brochure, downloaded.
+        $media360 = $fresh()->images360()->first();
+        $brochure = $fresh()->attachments()->first();
+        $this->get(route('properties.show', $unit->slug))->assertOk()
+            ->assertSee(['360° Tour', 'Start the 360° tour', 'Brochure & Files', 'gallery-brochure'])
+            ->assertSee(route('properties.file', ['slug' => $unit->slug, 'file' => $brochure->uuid]), false);
+        $this->assertTrue($media360->hasGeneratedConversion('pano'));
+        $this->withHeaders(['Sec-Fetch-Dest' => 'image', 'Sec-Fetch-Site' => 'same-origin'])->get($media360->getUrl('pano'))->assertOk();
+        $this->get(route('properties.file', ['slug' => $unit->slug, 'file' => $brochure->uuid]))->assertOk()->assertDownload('gallery-brochure.pdf');
+        // Only this property's files, and only a published property.
+        $other = Unit::factory()->create();
+        $this->get(route('properties.file', ['slug' => $other->slug, 'file' => $brochure->uuid]))->assertNotFound();
+        $unit->update(['is_published' => false]);
+        $this->get(route('properties.file', ['slug' => $unit->slug, 'file' => $brochure->uuid]))->assertNotFound();
+        $unit->update(['is_published' => true]);
+
+        // A gallery without a cover or a plan: the unit's own show.
+        $gallery->clearMediaCollection(Gallery::FEATURED_IMAGE);
+        $gallery->clearMediaCollection(Gallery::FLOOR_PLANS);
+        $this->get(route('properties.show', $unit->slug))->assertOk()->assertSee(['own-cover', 'own-plan'])->assertDontSee('gallery-cover');
+        $this->assertSame('own-cover', $fresh()->featuredMedia()->name);
+    }
+
     public function test_a_property_without_photos_shows_the_placeholder_and_no_photo_counter(): void
     {
         $unit = Unit::factory()->create();

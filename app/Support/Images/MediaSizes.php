@@ -49,6 +49,19 @@ class MediaSizes
     }
 
     /**
+     * A 360° image (kept as uploaded, often huge): a small one for the admin, the cards' size for the tour's cover, and
+     * "pano" for the website's 360° viewer: 4096 × 2048 at most, the largest image phones can turn around in 360°.
+     * All made by the queue, never during the upload (a 360° camera's photo can be 12000 × 6000: hundreds of MB to
+     * open; the queue gives image jobs more memory, see AppServiceProvider).
+     */
+    public static function panorama(HasMedia $model): void
+    {
+        $model->addMediaConversion('thumb')->fit(Fit::Max, 320, 160)->format('webp')->queued();
+        $model->addMediaConversion('card')->fit(Fit::Max, 900, 900)->format('webp')->queued();
+        $model->addMediaConversion('pano')->fit(Fit::Max, 4096, 2048)->format('webp')->queued();
+    }
+
+    /**
      * A logo, shown whole on its transparent background; "whole", not "large", so it never gets the watermark.
      */
     public static function logo(HasMedia $model): void

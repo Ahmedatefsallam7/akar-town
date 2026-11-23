@@ -2,9 +2,12 @@
 
 namespace Modules\Galleries\Tests\Feature;
 
+use App\Jobs\SendLeadToCrm;
 use App\Support\Images\ProtectedImages;
+use Illuminate\Contracts\Queue\Job;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Modules\Galleries\Filament\Resources\GalleryResource;
@@ -18,6 +21,7 @@ use Modules\Projects\Filament\Resources\ProjectResource\Pages\ViewProject;
 use Modules\Projects\Filament\Resources\ProjectResource\RelationManagers\GalleriesRelationManager;
 use Modules\Projects\Models\Project;
 use Modules\Users\Support\PermissionModules;
+use Spatie\MediaLibrary\Conversions\Jobs\PerformConversionsJob;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Tests\TestCase;
 
@@ -101,8 +105,30 @@ class GalleryResourceTest extends TestCase
         $this->assertCount(1, $gallery->getMedia(Gallery::FLOOR_PLANS));
         $this->assertCount(1, $gallery->getMedia(Gallery::ATTACHMENTS));
         $this->assertTrue($gallery->getFirstMedia(Gallery::PHOTOS)->hasGeneratedConversion('thumb'));
-        // 360° images are kept whole, with no copies (too big to resize on the server).
-        $this->assertFalse($gallery->getFirstMedia(Gallery::IMAGES_360)->hasGeneratedConversion('thumb'));
+        // A 360° image is kept as uploaded, and the queue makes the 360° viewer's size (the tour on the property page).
+        $this->assertTrue($gallery->getFirstMedia(Gallery::IMAGES_360)->hasGeneratedConversion('pano'));
+    }
+
+    public function test_the_queue_gives_image_jobs_enough_memory_for_a_360_cameras_photo(): void
+    {
+        // Making a 360° camera's photo sizes (12000 × 6000) takes hundreds of MB: only these jobs get more memory.
+        $before = ini_get('memory_limit');
+        $job = fn (string $name) => tap(\Mockery::mock(Job::class), function ($job) use ($name) {
+            $job->shouldReceive('resolveName')->andReturn($name);
+            $job->shouldReceive('payload')->andReturn([]); // Laravel's own listener reads it (log context)
+            $job->shouldIgnoreMissing(); // and anything else other listeners may ask
+        });
+
+        try {
+            ini_set('memory_limit', '900M'); // above what the whole suite already uses (lowering below it fails)
+            event(new JobProcessing('database', $job(SendLeadToCrm::class)));
+            $this->assertSame('900M', ini_get('memory_limit')); // another job: left as it is
+
+            event(new JobProcessing('database', $job(PerformConversionsJob::class)));
+            $this->assertSame('1G', ini_get('memory_limit'));
+        } finally {
+            ini_set('memory_limit', $before);
+        }
     }
 
     public function test_wrong_files_and_sizes_are_rejected(): void
@@ -214,11 +240,14 @@ class GalleryResourceTest extends TestCase
         $this->actingAs($this->createAdmin());
         $project = Project::factory()->create();
         $mine = Gallery::factory()->create(['project_id' => $project->id]);
+        $photos = collect(['gallery-one.jpg', 'gallery-two.jpg'])
+            ->map(fn (string $file) => $mine->addMedia(UploadedFile::fake()->image($file))->toMediaCollection(Gallery::PHOTOS));
         $other = Gallery::factory()->create();
 
         Livewire::test(GalleriesRelationManager::class, ['ownerRecord' => $project, 'pageClass' => ViewProject::class])
             ->assertCanSeeTableRecords([$mine])
             ->assertCanNotSeeTableRecords([$other])
+            ->assertTableColumnStateSet('photos', $photos->pluck('uuid')->all(), $mine)
             ->assertSee(__('admin.actions.create_title', ['name' => __('admin.galleries.singular')]));
 
         $this->assertTrue(GalleriesRelationManager::canViewForRecord($project, ViewProject::class));

@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 use Mattiverse\Userstamps\Traits\Userstamps;
 use Modules\Galleries\Models\Gallery;
 use Modules\Lookups\Models\Concerns\HasLookups;
@@ -22,6 +23,7 @@ use Modules\Units\Database\Factories\UnitFactory;
 use Modules\Users\Models\User;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 /**
  * A listing (apartment, villa, office) for primary, resale or rent: what buyers search on the website. It belongs to
@@ -136,6 +138,69 @@ class Unit extends Model implements HasMedia
         return $this->belongsTo(Gallery::class);
     }
 
+    /**
+     * The gallery's media of one kind when the unit has a gallery that holds some, else the unit's own (user,
+     * 2026-11-22): units of one model share their gallery's images, and a unit's own upload is the fallback.
+     * Reads the loaded media when they're loaded (see GALLERY_MEDIA).
+     *
+     * @return Collection<int, Media>
+     */
+    public function galleryFirst(string $own, string $fromGallery): Collection
+    {
+        $shared = $this->gallery?->getMedia($fromGallery) ?? collect();
+
+        return collect($shared->isNotEmpty() ? $shared : $this->getMedia($own))->values();
+    }
+
+    /** The gallery collections a unit shows, to eager load as "gallery.media". */
+    public const GALLERY_MEDIA = [Gallery::FEATURED_IMAGE, Gallery::PHOTOS, Gallery::FLOOR_PLANS, Gallery::IMAGES_360, Gallery::ATTACHMENTS];
+
+    /** The image a card, the search and a share show: the gallery's featured image, else the unit's. */
+    public function featuredMedia(): ?Media
+    {
+        return $this->galleryFirst(self::FEATURED_IMAGE, Gallery::FEATURED_IMAGE)->first();
+    }
+
+    /**
+     * The unit's photos, in order: its featured image (featuredMedia), then its gallery's photos.
+     *
+     * @return Collection<int, Media>
+     */
+    public function photos(): Collection
+    {
+        return collect([$this->featuredMedia()])->merge($this->gallery?->getMedia(Gallery::PHOTOS) ?? [])->filter()->values();
+    }
+
+    /**
+     * Floor plans: the gallery's (it may have several), else the unit's own.
+     *
+     * @return Collection<int, Media>
+     */
+    public function floorPlans(): Collection
+    {
+        return $this->galleryFirst(self::FLOOR_PLAN, Gallery::FLOOR_PLANS);
+    }
+
+    /**
+     * 360° images: the gallery's, else the unit's own.
+     *
+     * @return Collection<int, Media>
+     */
+    public function images360(): Collection
+    {
+        return $this->galleryFirst(self::IMAGES_360, Gallery::IMAGES_360);
+    }
+
+    /**
+     * Attachments (e.g. the brochure): the gallery's (a unit has none of its own).
+     *
+     * @return Collection<int, Media>
+     */
+    public function attachments(): Collection
+    {
+        return collect($this->gallery?->getMedia(Gallery::ATTACHMENTS) ?? [])->values();
+    }
+
     public function priceHistories(): HasMany
     {
         return $this->hasMany(UnitPriceHistory::class)->latest('id');
@@ -152,7 +217,8 @@ class Unit extends Model implements HasMedia
         $this->addMediaCollection(self::FEATURED_IMAGE)->useDisk(ProtectedImages::DISK)->singleFile()
             ->registerMediaConversions(fn () => MediaSizes::photo($this));
         // 360° images are kept whole (too big to resize on the server); only the website viewer uses them.
-        $this->addMediaCollection(self::IMAGES_360)->useDisk(ProtectedImages::DISK);
+        $this->addMediaCollection(self::IMAGES_360)->useDisk(ProtectedImages::DISK)
+            ->registerMediaConversions(fn () => MediaSizes::panorama($this));
         // Plans are shown whole, never cropped.
         foreach ([self::FLOOR_PLAN, self::MASTER_PLAN] as $plan) {
             $this->addMediaCollection($plan)->useDisk(ProtectedImages::DISK)->singleFile()

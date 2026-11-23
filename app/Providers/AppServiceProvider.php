@@ -7,14 +7,18 @@ use DateTimeInterface;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Mattiverse\Userstamps\Userstamps;
+use Spatie\MediaLibrary\Conversions\Jobs\PerformConversionsJob;
 use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\ResponsiveImages\Jobs\GenerateResponsiveImagesJob;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -34,6 +38,14 @@ class AppServiceProvider extends ServiceProvider
         // created_by / updated_by / deleted_by point at admin users: take them from the admin login only. A logged-in
         // website user (the "website" guard) leaves them empty; their leads record who they are in website_user_id.
         Userstamps::resolveUsing(fn () => Auth::guard('web')->id());
+
+        // Making an image's sizes opens the whole image: a 360° camera's photo (12000 × 6000) needs hundreds of MB,
+        // more than PHP's usual 128 MB. Only these queue jobs get more; the website's requests keep the usual limit.
+        Queue::before(function (JobProcessing $event): void {
+            if (in_array($event->job->resolveName(), [PerformConversionsJob::class, GenerateResponsiveImagesJob::class], true)) {
+                ini_set('memory_limit', '1G');
+            }
+        });
 
         // Every admin upload is saved under a random name with the extension of what the file really is (jpg, png,
         // pdf…), never the one the uploader typed: a "photo" named a.html could otherwise be opened as a web page

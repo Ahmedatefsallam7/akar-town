@@ -37,9 +37,9 @@ class ProtectedImages
 
     /**
      * The media library sizes a visitor may get: "large" and "card" (photos and plans, with the watermark when it's
-     * on), "whole" (logos) and "thumb" (160 px). Never the uploaded original.
+     * on), "whole" (logos), "thumb" (160 px) and "pano" (360° images for the viewer). Never the uploaded original.
      */
-    private const WEBSITE_SIZES = ['large', 'card', 'whole', 'thumb'];
+    private const WEBSITE_SIZES = ['large', 'card', 'whole', 'thumb', 'pano'];
 
     /**
      * The signed link of a file on the media disk, e.g. "12/conversions/villa-large.webp".

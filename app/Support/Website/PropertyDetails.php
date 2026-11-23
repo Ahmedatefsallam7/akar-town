@@ -3,6 +3,7 @@
 namespace App\Support\Website;
 
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Number;
 use Modules\Galleries\Models\Gallery;
 use Modules\Lookups\Models\Lookup;
 use Modules\Lookups\Support\LocationTree;
@@ -25,7 +26,8 @@ class PropertyDetails
     {
         $unit->loadMissing([
             'media',
-            'gallery.media' => fn ($query) => $query->where('collection_name', Gallery::PHOTOS)->orderBy('order_column'),
+            // What the unit takes from its gallery (featured image, photos, floor plans...: Unit::galleryFirst).
+            'gallery.media' => fn ($query) => $query->whereIn('collection_name', Unit::GALLERY_MEDIA)->orderBy('order_column'),
             // Only published: a hidden project or developer isn't named on the page.
             'project' => fn ($query) => $query->where('is_published', true),
             'project.developer' => fn ($query) => $query->where('is_published', true),
@@ -42,7 +44,7 @@ class PropertyDetails
         $name = fn (?int $id) => $id ? $names->get($id)?->getLocalized('name') : null;
         $listOf = fn (string $type) => $unit->lookups->where('pivot.type', $type)->map(fn (Lookup $lookup) => $lookup->getLocalized('name'))->values()->all();
 
-        $photos = collect([$unit->getFirstMedia(Unit::FEATURED_IMAGE)])->merge($unit->gallery?->media ?? [])->filter()->values();
+        $photos = $unit->photos();
         $chain = [$unit->country_id, $unit->city_id, $unit->region_id, $unit->area_id, $unit->sub_area_id];
         $place = collect([$unit->address, implode(', ', array_reverse(explode(' › ', LocationTree::path($chain))))])->filter()->implode(', ');
         $delivery = $unit->delivery_date ? Carbon::parse($unit->delivery_date) : null;
@@ -91,9 +93,21 @@ class PropertyDetails
             'facilities' => $listOf('facility'),
             'latitude' => $unit->latitude ?? $unit->project?->latitude,
             'longitude' => $unit->longitude ?? $unit->project?->longitude,
-            // The unit's own plans only: a plan it doesn't have isn't shown.
-            'floorPlan' => Image::url($unit->getFirstMedia(Unit::FLOOR_PLAN)),
+            // The gallery's floor plan, else the unit's own; the master plan is the unit's own only. A plan it doesn't
+            // have isn't shown (not even the project's).
+            'floorPlan' => Image::url($unit->floorPlans()->first()),
             'masterPlan' => Image::url($unit->getFirstMedia(Unit::MASTER_PLAN)),
+            // The 360° tour (its gallery's images, else its own): the viewer's size and a cover; one still being made
+            // isn't offered yet.
+            'tours' => $unit->images360()->filter(fn (Media $media) => $media->hasGeneratedConversion('pano'))
+                ->map(fn (Media $media) => ['pano' => $media->getUrl('pano'), 'cover' => Image::url($media, 'card')])->values()->all(),
+            // The brochure and other files of its gallery, downloaded through the property's page.
+            'files' => $unit->attachments()->map(fn (Media $media) => [
+                'name' => $media->name,
+                'type' => strtoupper(pathinfo($media->file_name, PATHINFO_EXTENSION)),
+                'size' => Number::fileSize($media->size, maxPrecision: 1),
+                'url' => route('properties.file', ['slug' => $unit->slug, 'file' => $media->uuid]),
+            ])->all(),
             'images' => $photos->map(fn (Media $media) => Image::url($media))->all(),
             // Shown when the page is shared on social media (AKAR-51: a week-long link to the watermarked card size).
             'share' => Image::shareUrl($photos->first()),

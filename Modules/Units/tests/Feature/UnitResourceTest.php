@@ -3,12 +3,14 @@
 namespace Modules\Units\Tests\Feature;
 
 use App\Support\Images\ProtectedImages;
+use Filament\Forms\Components\Select;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Modules\Galleries\Filament\Resources\GalleryResource;
 use Modules\Galleries\Models\Gallery;
+use Modules\Galleries\Support\GalleryOptions;
 use Modules\Lookups\Filament\Resources\LookupResource;
 use Modules\Lookups\Models\Lookup;
 use Modules\Lookups\Support\LocationTree;
@@ -221,15 +223,18 @@ class UnitResourceTest extends TestCase
         $own = Gallery::factory()->create(['project_id' => $project->id, 'name_en' => 'Zeta Gallery']);
         $crown = Gallery::factory()->create(['project_id' => $other->id, 'name_en' => 'The Crown Tower Gallery', 'name_ar' => 'معرض برج التاج']);
         $shared = Gallery::factory()->create(['name_en' => 'Alpha Gallery']);
+        $crown->addMedia(UploadedFile::fake()->image('crown-gallery.jpg'))->toMediaCollection(Gallery::PHOTOS);
+        $shared->addMedia(UploadedFile::fake()->image('shared-gallery.jpg'))->toMediaCollection(Gallery::PHOTOS);
 
         // The project's own first, then the others by name ("Alpha…", "The Crown…").
-        $this->assertSame([$own->id, $shared->id, $crown->id], array_keys(UnitResource::galleryOptions($project->id)));
-        $this->assertSame($shared->id, array_key_first(UnitResource::galleryOptions(null))); // no project: galleries with none first
-        $this->assertStringContainsString('The Crown Tower Gallery — ', UnitResource::galleryOptions($project->id)[$crown->id]);
+        $this->assertSame([$own->id, $shared->id, $crown->id], array_keys(GalleryOptions::search($project->id)));
+        $this->assertSame($shared->id, array_key_first(GalleryOptions::search(null))); // no project: galleries with none first
+        $this->assertStringContainsString('The Crown Tower Gallery — ', GalleryOptions::search($project->id)[$crown->id]);
 
         // Another project's gallery on create; then edited: removed, another one picked and saved.
         Livewire::test(CreateUnit::class)
             ->fillForm(['name_en' => 'U1', 'name_ar' => 'و1', 'project_id' => $project->id, 'gallery_id' => $crown->id])
+            ->assertSee('alt="The Crown Tower Gallery"', false)
             ->call('create')
             ->assertHasNoFormErrors();
         $unit = Unit::query()->where('name_en', 'U1')->sole();
@@ -238,6 +243,7 @@ class UnitResourceTest extends TestCase
         Livewire::test(EditUnit::class, ['record' => $unit->getRouteKey()])
             ->fillForm(['gallery_id' => null])
             ->fillForm(['gallery_id' => $shared->id])
+            ->assertSee('alt="Alpha Gallery"', false)
             ->call('save')
             ->assertHasNoFormErrors();
         $this->assertSame($shared->id, $unit->fresh()->gallery_id);
@@ -258,6 +264,30 @@ class UnitResourceTest extends TestCase
             ->assertSchemaStateSet(['gallery_id' => $crown->id]);
     }
 
+    public function test_a_picked_gallerys_images_take_the_place_of_the_propertys_own_fields(): void
+    {
+        // User, 2026-11-22: while the gallery has a featured image / 360° / floor plans, the property's own field is
+        // hidden and the gallery's shows in its place; a kind the gallery lacks keeps the property's own field.
+        Storage::fake(ProtectedImages::DISK);
+        $this->actingAs($this->createAdmin());
+        $gallery = Gallery::factory()->create(['name_en' => 'Twin House Gallery']);
+        $gallery->addMedia(UploadedFile::fake()->image('twin-cover.jpg', 1600, 1200))->toMediaCollection(Gallery::FEATURED_IMAGE);
+        $unit = Unit::factory()->create();
+
+        Livewire::test(EditUnit::class, ['record' => $unit->getRouteKey()])
+            ->assertFormFieldVisible('featured_image')
+            ->fillForm(['gallery_id' => $gallery->id])
+            ->assertFormFieldHidden('featured_image')
+            ->assertFormFieldVisible('gallery_featured_image')
+            ->assertSee(['Twin House Gallery', 'alt="twin-cover"'], false)
+            ->assertFormFieldVisible('floor_plan') // the gallery has no floor plan
+            ->assertFormFieldHidden('gallery_floor_plan')
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame($gallery->id, $unit->fresh()->gallery_id);
+    }
+
     public function test_galleries_are_searched_on_the_server_by_any_part_of_either_name(): void
     {
         $project = $this->project();
@@ -266,13 +296,18 @@ class UnitResourceTest extends TestCase
         $late = Gallery::factory()->create(['name_en' => 'Zz Newly Added Gallery', 'name_ar' => 'معرض جديد']);
 
         foreach (['crown', 'CROWN', 'own Tow', 'برج', 'التاج'] as $search) {
-            $this->assertSame([$crown->id], array_keys(UnitResource::galleryOptions($project->id, $search)), $search);
+            $this->assertSame([$crown->id], array_keys(GalleryOptions::search($project->id, $search)), $search);
         }
-        $this->assertSame([$late->id], array_keys(UnitResource::galleryOptions($project->id, 'newly')));
+        $this->assertSame([$late->id], array_keys(GalleryOptions::search($project->id, 'newly')));
         // "No options" only when no gallery has that name ("%" is a letter here, not a wildcard).
-        $this->assertSame([], UnitResource::galleryOptions($project->id, 'no such gallery'));
-        $this->assertSame([], UnitResource::galleryOptions($project->id, '%'));
-        $this->assertCount(50, UnitResource::galleryOptions($project->id));
+        $this->assertSame([], GalleryOptions::search($project->id, 'no such gallery'));
+        $this->assertSame([], GalleryOptions::search($project->id, '%'));
+        $this->assertCount(50, GalleryOptions::search($project->id));
+
+        // The list comes with the page (opened at once) and a search starts soon after the last letter.
+        $this->actingAs($this->createAdmin());
+        Livewire::test(CreateUnit::class)
+            ->assertFormFieldExists('gallery_id', fn (Select $field) => $field->isPreloaded() && $field->getSearchDebounce() === 300);
     }
 
     public function test_every_price_change_is_kept_with_who_made_it(): void

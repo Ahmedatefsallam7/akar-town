@@ -3,10 +3,14 @@
 namespace Tests\Feature\Website;
 
 use App\Livewire\Website\ProjectEnquiry;
+use App\Support\Images\ProtectedImages;
 use App\Support\Website\Image;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Modules\Developers\Models\Developer;
+use Modules\Galleries\Models\Gallery;
 use Modules\GeneralSettings\Settings\BusinessInfoSettings;
 use Modules\GeneralSettings\Settings\SiteSettings;
 use Modules\Lookups\Models\Lookup;
@@ -25,6 +29,8 @@ class ProjectDetailsTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        Storage::fake(ProtectedImages::DISK);
 
         $site = app(SiteSettings::class);
         $site->is_live = true;
@@ -105,6 +111,18 @@ class ProjectDetailsTest extends TestCase
             ->assertSee(['Olympic Pool', '1 Amenity', 'Cairo Airport', 'Plot 42'])
             ->assertSeeLivewire(ProjectEnquiry::class)
             ->assertDontSee('<script>alert(1)</script>', false);
+    }
+
+    public function test_project_gallery_photos_are_included_in_the_frontend_gallery(): void
+    {
+        $project = Project::factory()->create(['title_en' => 'Gallery Preview Project']);
+        $gallery = Gallery::factory()->create(['project_id' => $project->id]);
+        $gallery->addMedia(UploadedFile::fake()->image('gallery-one.jpg'))->toMediaCollection(Gallery::PHOTOS);
+        $gallery->addMedia(UploadedFile::fake()->image('gallery-two.jpg'))->toMediaCollection(Gallery::PHOTOS);
+
+        $this->get(route('projects.show', $project->slug))
+            ->assertOk()
+            ->assertSee('aria-label="View gallery (2 photos)"', false);
     }
 
     public function test_parts_without_data_are_not_shown(): void

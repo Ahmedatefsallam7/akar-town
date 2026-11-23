@@ -20,6 +20,7 @@ use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\ViewField;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
@@ -35,8 +36,11 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Collection;
 use Illuminate\Validation\Rules\Exists;
+use Modules\Galleries\Filament\Resources\GalleryResource;
 use Modules\Galleries\Models\Gallery;
+use Modules\Galleries\Support\GalleryOptions;
 use Modules\Lookups\Filament\Forms\LocationFields;
 use Modules\Lookups\Filament\Forms\LookupFields;
 use Modules\Lookups\Support\LocationTree;
@@ -46,6 +50,7 @@ use Modules\Units\Filament\Resources\UnitResource\Pages;
 use Modules\Units\Filament\Resources\UnitResource\RelationManagers;
 use Modules\Units\Models\Unit;
 use Modules\Users\Filament\Forms\AgentFields;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 /**
  * Properties (units): individual listings for primary, resale or rent.
@@ -310,24 +315,50 @@ class UnitResource extends Resource implements HasPermissionModule
                         Tab::make(__('admin.tabs.media'))
                             ->icon('heroicon-o-photo')
                             ->schema([
-                                static::image('featured_image', Unit::FEATURED_IMAGE, 'unit_featured'),
                                 // Any gallery (AKAR-54), its project's first, each with its project's name; searched on the
                                 // server by its English or Arabic name.
                                 Select::make('gallery_id')
                                     ->label(__('admin.units.gallery'))
                                     ->helperText(__('admin.units.gallery_help'))
                                     ->searchable()
-                                    ->options(fn (Get $get) => static::galleryOptions($get('project_id')))
-                                    ->getSearchResultsUsing(fn (string $search, Get $get) => static::galleryOptions($get('project_id'), $search))
-                                    // Read from the listed choices when it's one of them (no query), else from the database.
-                                    ->getOptionLabelUsing(fn ($value, Get $get) => static::galleryOptions($get('project_id'))[(int) $value]
-                                        ?? static::galleryLabel(Gallery::query()->with('project:id,title_en,title_ar')->find($value)))
+                                    // The list comes with the page (open: shown at once) and a search starts soon
+                                    // after the last letter (slow links, e.g. a shared tunnel, waited seconds).
+                                    ->preload()
+                                    ->searchDebounce(300)
+                                    ->live()
+                                    ->options(fn (Get $get) => GalleryOptions::search(static::projectIdOf($get)))
+                                    ->getSearchResultsUsing(fn (string $search, Get $get) => GalleryOptions::search(static::projectIdOf($get), $search))
+                                    ->getOptionLabelUsing(fn ($value, Get $get) => GalleryOptions::labels([$value], static::projectIdOf($get))[(int) $value] ?? null)
                                     // Not one in the trash (only a forged request could send one: the list never shows them).
                                     ->exists('galleries', 'id', fn (Exists $rule) => $rule->whereNull('deleted_at')),
-                                static::image('images_360', Unit::IMAGES_360, 'unit_360')
+                                ViewField::make('gallery_photo_preview')
+                                    ->label(__('admin.units.selected_gallery_photos'))
+                                    ->view('filament.forms.project-gallery-previews')
+                                    ->viewData(fn (Get $get) => [
+                                        'galleries' => Gallery::query()
+                                            ->whereKey($get('gallery_id') ?: [0])
+                                            ->with(['media' => fn ($query) => $query
+                                                ->where('collection_name', Gallery::PHOTOS)
+                                                ->orderBy('order_column')])
+                                            ->get(),
+                                    ])
+                                    ->visible(fn (Get $get) => filled($get('gallery_id')))
+                                    ->dehydrated(false)
+                                    ->columnSpanFull(),
+                                // The gallery's featured image / 360° / floor plans take the place of the property's own
+                                // (user, 2026-11-22): its own field is hidden while the picked gallery has that kind, and
+                                // shows when it hasn't (the fallback, see Unit::galleryFirst()).
+                                static::image('featured_image', Unit::FEATURED_IMAGE, 'unit_featured', __('admin.units.gallery_first'))
+                                    ->hidden(fn (Get $get) => static::fromGallery($get)->has(Gallery::FEATURED_IMAGE)),
+                                static::galleryMedia('featured_image', Gallery::FEATURED_IMAGE),
+                                static::image('images_360', Unit::IMAGES_360, 'unit_360', __('admin.units.gallery_first'))
                                     ->multiple()
-                                    ->reorderable(),
-                                static::image('floor_plan', Unit::FLOOR_PLAN, 'unit_floor_plan'),
+                                    ->reorderable()
+                                    ->hidden(fn (Get $get) => static::fromGallery($get)->has(Gallery::IMAGES_360)),
+                                static::galleryMedia('images_360', Gallery::IMAGES_360),
+                                static::image('floor_plan', Unit::FLOOR_PLAN, 'unit_floor_plan', __('admin.units.gallery_first'))
+                                    ->hidden(fn (Get $get) => static::fromGallery($get)->has(Gallery::FLOOR_PLANS)),
+                                static::galleryMedia('floor_plan', Gallery::FLOOR_PLANS),
                                 static::image('master_plan', Unit::MASTER_PLAN, 'unit_master_plan'),
                                 TextInput::make('video_url')
                                     ->label(__('admin.units.video_url'))
@@ -523,51 +554,46 @@ class UnitResource extends Resource implements HasPermissionModule
 
     }
 
-    /** How many galleries the gallery field lists at a time (search for the others). */
-    private const GALLERY_OPTIONS = 50;
-
     /**
-     * The gallery field's choices (AKAR-54): every gallery, the unit's project's first (or, without a project, the
-     * galleries with none), matching a part of the English or Arabic name in any case.
+     * The picked gallery's featured image, 360° images and floor plans, by kind (one query per request and gallery).
      *
-     * @return array<int, string>
+     * @return Collection<string, Collection<int, Media>>
      */
-    public static function galleryOptions(mixed $projectId, ?string $search = null): array
+    private static function fromGallery(Get $get): Collection
     {
-        $projectId = filled($projectId) ? (int) $projectId : null;
-        $search = trim((string) $search);
+        $galleryId = filled($get('gallery_id')) ? (int) $get('gallery_id') : null;
 
-        // One query: the galleries with their project's title (joined), once per request for the same choices.
-        return once(fn () => Gallery::query()
-            ->leftJoin('projects', 'projects.id', '=', 'galleries.project_id')
-            ->select('galleries.id', 'galleries.name_en', 'galleries.name_ar', 'galleries.project_id', 'projects.title_en as project_title_en', 'projects.title_ar as project_title_ar')
-            ->when($search !== '', function (Builder $query) use ($search) {
-                // "%" and "_" typed are letters, not wildcards ("!" escapes them, the same on every database).
-                $like = '%'.str_replace(['!', '%', '_'], ['!!', '!%', '!_'], mb_strtolower($search)).'%';
-                $query->where(fn (Builder $query) => $query
-                    ->whereRaw("lower(galleries.name_en) like ? escape '!'", [$like])
-                    ->orWhereRaw("lower(galleries.name_ar) like ? escape '!'", [$like]));
-            })
-            ->orderByRaw($projectId ? 'case when galleries.project_id = ? then 0 else 1 end' : 'case when galleries.project_id is null then 0 else 1 end', $projectId ? [$projectId] : [])
-            ->orderBy('galleries.name_en')
-            ->limit(self::GALLERY_OPTIONS)
+        return $galleryId ? once(fn () => Media::query()
+            ->where('model_type', (new Gallery)->getMorphClass())
+            ->where('model_id', $galleryId)
+            ->whereIn('collection_name', [Gallery::FEATURED_IMAGE, Gallery::IMAGES_360, Gallery::FLOOR_PLANS])
+            ->orderBy('order_column')
             ->get()
-            ->mapWithKeys(fn (Gallery $gallery) => [$gallery->id => static::galleryLabel($gallery->setRelation('project', $gallery->project_id
-                ? (new Project)->forceFill(['title_en' => $gallery->project_title_en, 'title_ar' => $gallery->project_title_ar])
-                : null))])
-            ->all());
+            ->groupBy('collection_name')) : collect();
     }
 
     /**
-     * "The Crown Tower Gallery — The Crown Tower" (or "— Standalone" for a gallery with no project).
+     * Shows, in place of the property's own field, what its gallery has of that kind (read-only, with a link to it).
      */
-    public static function galleryLabel(?Gallery $gallery): ?string
+    private static function galleryMedia(string $name, string $collection): ViewField
     {
-        if (! $gallery) {
-            return null;
-        }
+        return ViewField::make("gallery_{$name}")
+            ->label(__("admin.units.{$name}"))
+            ->view('filament.forms.gallery-media-preview')
+            ->viewData(fn (Get $get) => [
+                'media' => static::fromGallery($get)->get($collection, collect()),
+                'galleryName' => GalleryOptions::labels([$get('gallery_id')], static::projectIdOf($get))[(int) $get('gallery_id')] ?? '',
+                'editUrl' => filled($get('gallery_id')) && GalleryResource::getAuthorizationResponse('update')->allowed()
+                    ? GalleryResource::getUrl('edit', ['record' => $get('gallery_id')]) : null,
+            ])
+            ->visible(fn (Get $get) => static::fromGallery($get)->has($collection))
+            ->dehydrated(false);
+    }
 
-        return $gallery->getLocalized('name').' — '.($gallery->project?->getLocalized('title') ?? __('admin.units.standalone'));
+    /** The form's project (the gallery picker lists its galleries first). */
+    private static function projectIdOf(Get $get): ?int
+    {
+        return filled($get('project_id')) ? (int) $get('project_id') : null;
     }
 
     /**
@@ -614,11 +640,11 @@ class UnitResource extends Resource implements HasPermissionModule
      * An image field set from its sizes (Settings → Image Sizes, AKAR-50): formats, file size, smallest size, the
      * hint under it.
      */
-    private static function image(string $name, string $collection, string $sizes): SpatieMediaLibraryFileUpload
+    private static function image(string $name, string $collection, string $sizes, ?string $note = null): SpatieMediaLibraryFileUpload
     {
         return ImageRules::apply(SpatieMediaLibraryFileUpload::make($name)
             ->label(__("admin.units.{$name}"))
-            ->collection($collection), $sizes);
+            ->collection($collection), $sizes, $note);
     }
 
     /**

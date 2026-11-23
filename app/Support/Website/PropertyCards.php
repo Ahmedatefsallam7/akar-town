@@ -26,7 +26,8 @@ class PropertyCards
     {
         return $query->with([
             'media' => fn ($query) => $query->where('collection_name', Unit::FEATURED_IMAGE),
-            'gallery.media' => fn ($query) => $query->where('collection_name', Gallery::PHOTOS)->orderBy('order_column'),
+            // The gallery's featured image comes first when it has one (Unit::featuredMedia), then its photos.
+            'gallery.media' => fn ($query) => $query->whereIn('collection_name', [Gallery::FEATURED_IMAGE, Gallery::PHOTOS])->orderBy('order_column'),
         ]);
     }
 
@@ -42,10 +43,7 @@ class PropertyCards
             ->keyBy('id');
 
         return $units->map(function (Unit $unit) use ($names) {
-            $photos = collect([$unit->getFirstMedia(Unit::FEATURED_IMAGE)])
-                ->merge($unit->gallery?->media ?? [])
-                ->filter()
-                ->take(self::PHOTOS);
+            $photos = $unit->photos()->take(self::PHOTOS);
             $image = Image::orPlaceholder($photos->first(), 'card');
 
             return [

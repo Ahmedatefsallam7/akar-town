@@ -35,6 +35,11 @@ Route::get('/properties/{slug}/pdf/{locale}', [PropertiesController::class, 'pdf
     ->whereIn('locale', Datasheet::LOCALES)
     ->middleware('throttle:20,1')
     ->name('properties.pdf');
+// The property's files (its gallery's brochure...): downloaded, not shown in a page like the protected photos.
+Route::get('/properties/{slug}/files/{file}', [PropertiesController::class, 'file'])
+    ->whereUuid('file')
+    ->middleware('throttle:30,1')
+    ->name('properties.file');
 Route::view('/projects', 'website.projects')->name('projects');
 Route::get('/projects/{slug}', [ProjectsController::class, 'show'])->name('projects.show');
 Route::get('/projects/{slug}/pdf/{locale}', [ProjectsController::class, 'pdf'])
