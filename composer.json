@@ -13,6 +13,7 @@
         "filament/spatie-laravel-settings-plugin": "^5.9",
         "kalnoy/nestedset": "^7.0",
         "laravel/framework": "^13.17",
+        "laravel/socialite": "^5.33",
         "laravel/tinker": "^3.0",
         "livewire/livewire": "^4.4",
         "mpdf/mpdf": "^8.3",

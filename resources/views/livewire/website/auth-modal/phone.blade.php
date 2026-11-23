@@ -67,8 +67,8 @@
         <button type="button" @click="go('email')" class="{{ $social }}" title="{{ __('Continue with Email') }}" aria-label="{{ __('Continue with Email') }}">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="text-[#0d0d0d] dark:text-[#f0ede8]" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></svg>
         </button>
-        <button type="button" @click="comingSoon('Google')" class="{{ $social }}" title="{{ __('Continue with Google') }}" aria-label="{{ __('Continue with Google') }}">{!! $google !!}</button>
-        <button type="button" @click="comingSoon('Facebook')" class="{{ $social }}" title="{{ __('Continue with Facebook') }}" aria-label="{{ __('Continue with Facebook') }}">{!! $facebook !!}</button>
+        @include('livewire.website.auth-modal.provider', ['provider' => 'google', 'icon' => $google])
+        @include('livewire.website.auth-modal.provider', ['provider' => 'facebook', 'icon' => $facebook])
     </div>
     {{-- Registering is easy to find (user: a visitor didn't know a new e-mail creates an account). --}}
     <p class="mt-3 text-center text-[12.5px] text-black/55 dark:text-white/50 rtl:font-arabic [@media(max-height:780px)]:mt-2">{{ __('New to Akar Town?') }} <button type="button" @click="go('email'); $wire.startRegistration()" class="cursor-pointer border-none bg-none p-0 font-semibold text-brand underline-offset-2 hover:underline">{{ __('Create an account') }}</button></p>

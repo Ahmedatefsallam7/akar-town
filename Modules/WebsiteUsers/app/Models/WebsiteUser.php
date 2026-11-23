@@ -31,7 +31,7 @@ class WebsiteUser extends Authenticatable implements HasLocalePreference, MustVe
     public const STATUSES = [self::ACTIVE, self::BLOCKED];
 
     /** Final list depends on the chosen login cycle (see docs/website-users-questions.md). */
-    public const REGISTRATION_METHODS = ['email', 'phone', 'google', 'apple'];
+    public const REGISTRATION_METHODS = ['email', 'phone', 'google', 'facebook', 'apple'];
 
     public const LANGUAGES = ['en', 'ar'];
 

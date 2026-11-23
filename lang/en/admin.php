@@ -537,6 +537,7 @@ return [
             'email' => 'Email',
             'phone' => 'Phone OTP',
             'google' => 'Google',
+            'facebook' => 'Facebook',
             'apple' => 'Apple',
         ],
         'verified' => 'Verified',

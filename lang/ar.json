@@ -938,5 +938,8 @@
     "Drag to look around.": "اسحب لتنظر حولك.",
     "Brochure & Files": "البروشور والملفات",
     "Download": "تحميل",
-    "Loading...": "جارٍ التحميل..."
+    "Loading...": "جارٍ التحميل...",
+    "Signing in with :provider was cancelled.": "تم إلغاء الدخول عن طريق :provider.",
+    "We couldn't sign you in with :provider. Please try again.": "تعذّر الدخول عن طريق :provider. حاول مرة أخرى.",
+    "Your :provider account has no e-mail. Please use another way to sign in.": "حسابك على :provider ليس به بريد إلكتروني. استخدم طريقة أخرى للدخول."
 }

@@ -1,8 +1,8 @@
 {{--
     "Sign in or Register" (App\Livewire\Website\AuthModal), as the design's auth-modal: a dark panel with the benefits
     (hidden on phones) and the steps: WhatsApp number, 6-digit code, e-mail and password, welcome. Opened by the
-    window event "open-auth"; Escape, the × and a click outside close it. Google / Facebook aren't connected yet:
-    they say "coming soon". WhatsApp (AKAR-49): the number's password, or a code then "choose a password"; after 3
+    window event "open-auth"; Escape, the × and a click outside close it. Google / Facebook (AKAR-55) link to the
+    provider when their keys are set, otherwise say "coming soon" (auth-modal/provider). WhatsApp (AKAR-49): the number's password, or a code then "choose a password"; after 3
     wrong codes the number is locked and the window offers to contact us or another way in.
 --}}
 @php

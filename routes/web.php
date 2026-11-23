@@ -9,6 +9,7 @@ use App\Http\Controllers\Website\HomeController;
 use App\Http\Controllers\Website\LocationsController;
 use App\Http\Controllers\Website\ProjectsController;
 use App\Http\Controllers\Website\PropertiesController;
+use App\Http\Controllers\Website\SocialSignInController;
 use App\Http\Middleware\SetLocale;
 use App\Support\Website\Datasheet;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -59,6 +60,12 @@ Route::get('/careers/{slug}', [CareersController::class, 'show'])->name('careers
 Route::get('/compare', CompareController::class)->name('compare');
 Route::view('/privacy-policy', 'website.privacy')->name('privacy');
 Route::view('/terms', 'website.terms')->name('terms');
+
+// Sign in with Google / Facebook  to the provider, and back (the paths set in Google Cloud and Meta).
+Route::middleware('throttle:10,1')->whereIn('provider', array_keys(SocialSignInController::PROVIDERS))->group(function () {
+    Route::get('/auth/{provider}/redirect', [SocialSignInController::class, 'redirect'])->name('auth.social');
+    Route::get('/auth/{provider}/callback', [SocialSignInController::class, 'callback'])->name('auth.social.callback');
+});
 
 // Website sign out
 Route::post('/account/logout', function () {

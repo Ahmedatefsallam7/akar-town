@@ -44,6 +44,20 @@ return [
         'verify_token' => env('WHATSAPP_VERIFY_TOKEN'),
     ],
 
+    // Website sign-in with Google / Facebook  The callback paths are the ones set in Google Cloud
+    // and Meta; with no client id the window's button stays "coming soon" (App\Http\Controllers\Website\SocialSignInController).
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => '/auth/google/callback',
+    ],
+
+    'facebook' => [
+        'client_id' => env('FACEBOOK_CLIENT_ID'),
+        'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
+        'redirect' => '/auth/facebook/callback',
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

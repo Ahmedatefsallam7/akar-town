@@ -48,8 +48,8 @@
     <div class="{{ $or }}">{{ __('OR') }}</div>
     <div class="flex gap-[10px] max-[620px]:gap-2">
         <button type="button" @click="go('phone')" class="{{ $social }}" title="{{ __('Continue with WhatsApp') }}" aria-label="{{ __('Continue with WhatsApp') }}"><x-website.icons.whatsapp class="text-[#25D366]" /></button>
-        <button type="button" @click="comingSoon('Google')" class="{{ $social }}" title="{{ __('Continue with Google') }}" aria-label="{{ __('Continue with Google') }}">{!! $google !!}</button>
-        <button type="button" @click="comingSoon('Facebook')" class="{{ $social }}" title="{{ __('Continue with Facebook') }}" aria-label="{{ __('Continue with Facebook') }}">{!! $facebook !!}</button>
+        @include('livewire.website.auth-modal.provider', ['provider' => 'google', 'icon' => $google])
+        @include('livewire.website.auth-modal.provider', ['provider' => 'facebook', 'icon' => $facebook])
     </div>
     <p x-show="soon" x-cloak class="mt-3 text-center text-[12px] text-black/50 dark:text-white/45 rtl:font-arabic" role="status" x-text="@js(__(':provider sign-in is coming soon.', ['provider' => '__P__'])).replace('__P__', soon)"></p>
     @unless ($registering)
