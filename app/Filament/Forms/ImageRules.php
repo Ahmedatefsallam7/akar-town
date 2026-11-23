@@ -46,8 +46,11 @@ class ImageRules
             'crop' => $field->imageAspectRatio($image['crop'])->automaticallyCropImagesToAspectRatio()
                 ->imageEditor()->imageEditorAspectRatioOptions([$image['crop']])
                 ->automaticallyResizeImagesMode('cover')->automaticallyResizeImagesToWidth((string) $width)->automaticallyResizeImagesToHeight((string) $height),
-            // Made at most the recommended size, its shape kept (a smaller image is never enlarged).
-            'contain' => $field->automaticallyResizeImagesMode('contain')->automaticallyResizeImagesToWidth((string) $width)->automaticallyResizeImagesToHeight((string) $height)
+            // Made at most the recommended size on its longer side, its shape kept (a smaller image is never enlarged).
+            // Not into the recommended box: a portrait photo was shrunk below the smallest size accepted in the browser,
+            // then refused as "too small" (a 1600 × 2133 gallery photo became 1080 × 1440 for a 1200 × 800 minimum).
+            'contain' => $field->automaticallyResizeImagesMode('contain')
+                ->automaticallyResizeImagesToWidth((string) max($width, $height))->automaticallyResizeImagesToHeight((string) max($width, $height))
                 ->automaticallyUpscaleImagesWhenResizing(false),
             default => $field,
         };

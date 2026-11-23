@@ -12,6 +12,7 @@ use App\Support\Images\ImageValidation;
 use App\Support\Images\ProtectedImages;
 use App\Support\Website\SiteImages;
 use Filament\Actions\Testing\TestAction;
+use Filament\Forms\Components\FileUpload;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
@@ -116,6 +117,20 @@ class ImageSizesTest extends TestCase
         $this->assertSame([1800, 945], $field['recommended']);
         $this->assertSame([900, 473], $field['min']);
         $this->assertSame('40:21', ImageText::ratio([1800, 945]));
+    }
+
+    public function test_a_portrait_photo_isnt_shrunk_in_the_browser_below_the_smallest_size_accepted(): void
+    {
+        // The browser makes a big photo at most the recommended size on its longer side, any shape: a 1600 × 2133
+        // gallery photo set as a property's featured image (1920 × 1440 recommended, at least 1200 × 800) was shrunk
+        // into the landscape box (1080 × 1440), then refused as too small.
+        $field = ImageRules::apply(FileUpload::make('featured_image'), 'unit_featured');
+        $this->assertSame(['1920', '1920', 'contain'], [$field->getImageResizeTargetWidth(), $field->getImageResizeTargetHeight(), $field->getImageResizeMode()]);
+
+        [$width, $height] = [1600, 2133];
+        $scale = min(1, 1920 / $width, 1920 / $height);
+        $this->assertGreaterThanOrEqual(1200, (int) round($width * $scale)); // 1440 × 1920: accepted
+        $this->assertGreaterThanOrEqual(800, (int) round($height * $scale));
     }
 
     public function test_saving_the_default_values_is_no_change(): void
