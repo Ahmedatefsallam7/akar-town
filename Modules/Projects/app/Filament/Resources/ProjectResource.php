@@ -19,6 +19,7 @@ use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\ViewField;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
@@ -34,6 +35,10 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Validation\Rules\Exists;
+use Modules\Galleries\Filament\Resources\GalleryResource;
+use Modules\Galleries\Models\Gallery;
+use Modules\Galleries\Support\GalleryOptions;
 use Modules\Lookups\Filament\Forms\LocationFields;
 use Modules\Lookups\Filament\Forms\LookupFields;
 use Modules\Lookups\Support\LocationTree;
@@ -81,6 +86,22 @@ class ProjectResource extends Resource implements HasPermissionModule
     public static function getGloballySearchableAttributes(): array
     {
         return ['title_en', 'title_ar', 'project_number'];
+    }
+
+    /**
+     * Links exactly these galleries to the project (the form's "existing galleries"): the others it had become
+     * standalone, and one picked from another project moves here. Saved one by one, so "last edited by" is kept.
+     *
+     * @param  array<mixed>  $ids
+     */
+    public static function syncGalleries(Project $project, array $ids): void
+    {
+        $ids = array_values(array_map('intval', array_filter($ids, 'is_numeric')));
+
+        Gallery::query()->where('project_id', $project->getKey())->whereKeyNot($ids)->get()
+            ->each(fn (Gallery $gallery) => $gallery->update(['project_id' => null]));
+        Gallery::query()->whereKey($ids)->where(fn (Builder $query) => $query->whereNull('project_id')->orWhere('project_id', '!=', $project->getKey()))->get()
+            ->each(fn (Gallery $gallery) => $gallery->update(['project_id' => $project->getKey()]));
     }
 
     public static function getModelLabel(): string
@@ -263,6 +284,41 @@ class ProjectResource extends Resource implements HasPermissionModule
                         Tab::make(__('admin.tabs.media'))
                             ->icon('heroicon-o-photo')
                             ->schema([
+                                // Existing galleries linked to the project, picked like a property's gallery (AKAR-54):
+                                // any gallery, this project's first. Saved by the pages (syncGalleries), not a column.
+                                // Only for who may edit galleries: linking one moves it from its project.
+                                Select::make('gallery_ids')
+                                    ->label(__('admin.projects.existing_galleries'))
+                                    ->helperText(__('admin.projects.existing_galleries_help'))
+                                    ->multiple()
+                                    ->searchable()
+                                    ->preload()
+                                    ->searchDebounce(300)
+                                    ->live()
+                                    ->afterStateHydrated(fn (Select $component, ?Project $record) => $component->state(
+                                        $record?->galleries()->pluck('id')->all() ?? [],
+                                    ))
+                                    ->options(fn (?Project $record) => GalleryOptions::search($record?->id))
+                                    ->getSearchResultsUsing(fn (string $search, ?Project $record) => GalleryOptions::search($record?->id, $search))
+                                    ->getOptionLabelsUsing(fn (array $values, ?Project $record) => GalleryOptions::labels($values, $record?->id))
+                                    // Not one in the trash (only a forged request could send one: the list never shows them).
+                                    ->exists('galleries', 'id', fn (Exists $rule) => $rule->whereNull('deleted_at'))
+                                    ->visible(fn () => GalleryResource::getAuthorizationResponse('update')->allowed())
+                                    ->columnSpanFull(),
+                                ViewField::make('gallery_photo_preview')
+                                    ->label(__('admin.projects.selected_gallery_photos'))
+                                    ->view('filament.forms.project-gallery-previews')
+                                    ->viewData(fn (Get $get) => [
+                                        'galleries' => Gallery::query()
+                                            ->whereKey($get('gallery_ids') ?: [0])
+                                            ->with(['media' => fn ($query) => $query
+                                                ->where('collection_name', Gallery::PHOTOS)
+                                                ->orderBy('order_column')])
+                                            ->get(),
+                                    ])
+                                    ->visible(fn (Get $get) => filled($get('gallery_ids')))
+                                    ->dehydrated(false)
+                                    ->columnSpanFull(),
                                 static::image('featured_image', Project::FEATURED_IMAGE, 'project_featured')->required(),
                                 static::image('logo', Project::LOGO, 'project_logo')->required(),
                                 static::image('gallery', Project::GALLERY, 'project_gallery')

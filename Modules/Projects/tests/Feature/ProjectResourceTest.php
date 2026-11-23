@@ -3,6 +3,7 @@
 namespace Modules\Projects\Tests\Feature;
 
 use App\Support\Images\ProtectedImages;
+use Filament\Forms\Components\Select;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -10,6 +11,8 @@ use Livewire\Livewire;
 use Modules\Developers\Filament\Resources\DeveloperResource;
 use Modules\Developers\Filament\Resources\DeveloperResource\Pages\ListDevelopers;
 use Modules\Developers\Models\Developer;
+use Modules\Galleries\Models\Gallery;
+use Modules\Galleries\Support\GalleryOptions;
 use Modules\Lookups\Filament\Resources\LookupResource;
 use Modules\Lookups\Models\Lookup;
 use Modules\Lookups\Support\LocationTree;
@@ -19,6 +22,7 @@ use Modules\Projects\Filament\Resources\ProjectResource\Pages\EditProject;
 use Modules\Projects\Filament\Resources\ProjectResource\Pages\ListProjects;
 use Modules\Projects\Filament\Resources\ProjectResource\Pages\ViewProject;
 use Modules\Projects\Models\Project;
+use Modules\Units\Models\Unit;
 use Modules\Users\Support\PermissionModules;
 use Tests\TestCase;
 
@@ -150,6 +154,107 @@ class ProjectResourceTest extends TestCase
         $this->assertCount(2, $project->getMedia(Project::GALLERY));
         $this->assertNotNull($project->getFirstMedia(Project::MASTER_PLAN));
         $this->assertStringEndsWith('.webp', $project->getFirstMedia(Project::LOGO)->getPathRelativeToRoot('thumb'));
+    }
+
+    public function test_projects_can_select_existing_galleries_on_create_and_edit(): void
+    {
+        $this->actingAs($this->createAdmin());
+
+        $otherProject = $this->cairoProject();
+        $selected = Gallery::factory()->create(['name_en' => 'Standalone Gallery']);
+        $selected->addMedia(UploadedFile::fake()->image('gallery-photo.jpg'))->toMediaCollection(Gallery::PHOTOS);
+        $moveable = Gallery::factory()->create(['project_id' => $otherProject->id, 'name_en' => 'Moveable Gallery']);
+        $project = $this->cairoProject();
+        $removed = Gallery::factory()->create(['project_id' => $project->id]);
+        $used = Gallery::factory()->create(['project_id' => $project->id]);
+        $usingUsed = Unit::factory()->create(['gallery_id' => $used->id]);
+        $protected = Gallery::factory()->create(['project_id' => $otherProject->id]);
+        $usingProtected = Unit::factory()->create(['gallery_id' => $protected->id]);
+
+        Livewire::test(CreateProject::class)
+            ->fillForm($this->validData(['gallery_ids' => [$selected->id, $moveable->id]]))
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $created = Project::query()->where('title_en', 'Mountain Park')->sole();
+        $this->assertSame($created->id, $selected->fresh()->project_id);
+        $this->assertSame($created->id, $moveable->fresh()->project_id);
+
+        Livewire::test(EditProject::class, ['record' => $project->getRouteKey()])
+            ->assertSchemaStateSet(['gallery_ids' => [$removed->id, $used->id]])
+            ->fillForm(['gallery_ids' => [$selected->id, $protected->id]] + $this->images())
+            ->assertSee('alt="Standalone Gallery"', false)
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertNull($removed->fresh()->project_id);
+        $this->assertNull($used->fresh()->project_id);
+        $this->assertSame($used->id, $usingUsed->fresh()->gallery_id);
+        $this->assertSame($project->id, $selected->fresh()->project_id);
+        $this->assertSame($project->id, $protected->fresh()->project_id);
+        $this->assertSame($protected->id, $usingProtected->fresh()->gallery_id);
+    }
+
+    public function test_without_the_galleries_permission_the_field_is_hidden_and_a_save_keeps_the_projects_galleries(): void
+    {
+        $project = $this->cairoProject();
+        $linked = Gallery::factory()->create(['project_id' => $project->id]);
+        $this->actingAs($this->createUserWithPermissions(['projects' => true]));
+
+        Livewire::test(EditProject::class, ['record' => $project->getRouteKey()])
+            ->assertFormFieldHidden('gallery_ids')
+            ->fillForm(['title_en' => 'Renamed Park'] + $this->images())
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame('Renamed Park', $project->fresh()->title_en);
+        $this->assertSame($project->id, $linked->fresh()->project_id); // not unlinked
+    }
+
+    public function test_linking_a_gallery_keeps_who_did_it_and_the_list_comes_with_the_page(): void
+    {
+        $admin = $this->createAdmin();
+        $this->actingAs($admin);
+        $project = $this->cairoProject();
+        $gallery = Gallery::factory()->create(['updated_by' => null]);
+
+        Livewire::test(EditProject::class, ['record' => $project->getRouteKey()])
+            // Opened at once and a search soon after the last letter (slow links waited seconds).
+            ->assertFormFieldExists('gallery_ids', fn (Select $field) => $field->isPreloaded() && $field->getSearchDebounce() === 300)
+            ->fillForm(['gallery_ids' => [$gallery->id]] + $this->images())
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame([$project->id, $admin->id], [$gallery->fresh()->project_id, $gallery->fresh()->updated_by]);
+
+        // A gallery in the trash is refused (only a forged request could send one).
+        $trashed = Gallery::factory()->create();
+        $trashed->delete();
+        Livewire::test(EditProject::class, ['record' => $project->getRouteKey()])
+            ->fillForm(['gallery_ids' => [$trashed->id]] + $this->images())
+            ->call('save')
+            ->assertHasFormErrors(['gallery_ids']);
+    }
+
+    public function test_project_gallery_choices_are_searchable_and_limited_to_a_page(): void
+    {
+        $project = $this->cairoProject();
+        $own = Gallery::factory()->create(['project_id' => $project->id, 'name_en' => 'Zeta Gallery']);
+        $standalone = Gallery::factory()->create(['name_en' => 'SearchStandaloneGalleryTarget']);
+        $other = Gallery::factory()->create(['name_en' => 'The Crown Gallery', 'name_ar' => 'معرض التاج']);
+        Gallery::factory()->count(60)->create();
+        $later = Gallery::factory()->create(['name_en' => 'ZzUniqueGalleryTarget']);
+        $trashed = Gallery::factory()->create(['name_en' => 'Deleted Gallery']);
+        $trashed->delete();
+
+        $this->assertSame(50, count(GalleryOptions::search($project->id)));
+        $options = GalleryOptions::search($project->id);
+        $this->assertSame($own->id, array_key_first($options));
+        $this->assertSame([$standalone->id], array_keys(GalleryOptions::search($project->id, 'SearchStandaloneGalleryTarget')));
+        $this->assertSame([$later->id], array_keys(GalleryOptions::search($project->id, 'ZzUniqueGalleryTarget')));
+        $this->assertSame([$other->id], array_keys(GalleryOptions::search($project->id, 'التاج')));
+        $this->assertSame([], GalleryOptions::search($project->id, '%'));
+        $this->assertArrayNotHasKey($trashed->id, GalleryOptions::search($project->id, 'Deleted'));
     }
 
     public function test_title_developer_location_featured_image_and_logo_are_required(): void

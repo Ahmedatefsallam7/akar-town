@@ -40,21 +40,24 @@ class ReviewFixesTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_a_gallery_used_by_properties_keeps_its_project(): void
+    public function test_a_gallery_used_by_properties_can_move_to_another_project_and_they_keep_it(): void
     {
+        // Since AKAR-54 a property may pick any gallery (not only its project's), so a gallery in use isn't locked to
+        // its project any more: moved (here or from a project's "existing galleries"), its properties keep it.
         $this->actingAs($this->createAdmin());
         $project = Project::factory()->create();
         $used = Gallery::factory()->create(['project_id' => $project->id]);
-        Unit::factory()->create(['project_id' => $project->id, 'gallery_id' => $used->id]);
-        $free = Gallery::factory()->create(['project_id' => $project->id]);
+        $unit = Unit::factory()->create(['project_id' => $project->id, 'gallery_id' => $used->id]);
+        $other = Project::factory()->create();
 
         Livewire::test(EditGallery::class, ['record' => $used->getRouteKey()])
-            ->assertFormFieldIsDisabled('project_id')
-            ->fillForm(['project_id' => Project::factory()->create()->id])
-            ->call('save');
-        $this->assertSame($project->id, $used->fresh()->project_id);
+            ->assertFormFieldIsEnabled('project_id')
+            ->fillForm(['project_id' => $other->id])
+            ->call('save')
+            ->assertHasNoFormErrors();
 
-        Livewire::test(EditGallery::class, ['record' => $free->getRouteKey()])->assertFormFieldIsEnabled('project_id');
+        $this->assertSame($other->id, $used->fresh()->project_id);
+        $this->assertSame([$project->id, $used->id], [$unit->fresh()->project_id, $unit->fresh()->gallery_id]);
     }
 
     public function test_long_names_get_a_slug_that_fits_with_its_number(): void

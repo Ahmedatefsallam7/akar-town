@@ -10,7 +10,7 @@ namespace Modules\Lookups\Support;
  */
 class SearchText
 {
-    private const LETTERS = ['أ' => 'ا', 'إ' => 'ا', 'آ' => 'ا', 'ٱ' => 'ا', 'ى' => 'ي', 'ة' => 'ه'];
+    public const LETTERS = ['أ' => 'ا', 'إ' => 'ا', 'آ' => 'ا', 'ٱ' => 'ا', 'ى' => 'ي', 'ة' => 'ه'];
 
     public static function normalize(?string $text): string
     {

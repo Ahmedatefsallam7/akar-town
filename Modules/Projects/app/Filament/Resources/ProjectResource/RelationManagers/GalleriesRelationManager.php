@@ -43,6 +43,14 @@ class GalleriesRelationManager extends RelationManager
                     ->conversion('thumb')
                     ->imageSize(40)
                     ->square(),
+                SpatieMediaLibraryImageColumn::make('photos')
+                    ->label(__('admin.galleries.photos'))
+                    ->collection(Gallery::PHOTOS)
+                    ->conversion('thumb')
+                    ->imageSize(48)
+                    ->stacked()
+                    ->limit(4)
+                    ->limitedRemainingText(),
                 TextColumn::make('name')
                     ->label(__('admin.galleries.name'))
                     ->state(fn (Gallery $record) => $record->getLocalized('name'))

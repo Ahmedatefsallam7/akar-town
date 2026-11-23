@@ -22,6 +22,26 @@ class CreateProject extends CreateRecord
     #[Url]
     public ?int $developer = null;
 
+    /** The form's "existing galleries", linked after the save; null when the form didn't send them (not allowed). */
+    protected ?array $galleryIds = null;
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        if (array_key_exists('gallery_ids', $data)) {
+            $this->galleryIds = (array) $data['gallery_ids'];
+        }
+        unset($data['gallery_ids']);
+
+        return $data;
+    }
+
+    protected function afterCreate(): void
+    {
+        if ($this->galleryIds !== null) {
+            ProjectResource::syncGalleries($this->record, $this->galleryIds);
+        }
+    }
+
     protected function afterFill(): void
     {
         if ($this->developer) {
