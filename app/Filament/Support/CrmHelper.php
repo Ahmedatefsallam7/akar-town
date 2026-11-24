@@ -29,6 +29,12 @@ class CrmHelper
             ->label(__('admin.contact_us.send_to_crm'))
             ->icon('heroicon-o-arrow-up-tray')
             ->color('gray')
+            // It reaches the client's CRM (outside this site), so it asks first.
+            ->requiresConfirmation()
+            ->modalIcon('heroicon-o-arrow-up-tray')
+            ->modalHeading(__('admin.contact_us.send_to_crm'))
+            ->modalDescription(__('admin.crm.send_confirm'))
+            ->modalSubmitActionLabel(__('admin.crm.send'))
             ->visible(fn (Model $record) => ! $record->isSentToCrm()
                 && ! (method_exists($record, 'trashed') && $record->trashed())
                 && $resource::canEdit($record))

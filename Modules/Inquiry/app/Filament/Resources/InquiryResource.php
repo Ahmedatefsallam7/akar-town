@@ -71,7 +71,7 @@ class InquiryResource extends Resource implements HasPermissionModule
 
     protected static function applyGlobalSearchAttributeConstraints(Builder $query, string $search): void
     {
-        PrefixSearch::apply($query, $search, static::SEARCH_COLUMNS);
+        PrefixSearch::apply($query, $search, static::SEARCH_COLUMNS, anyWord: ['full_name']);
     }
 
     public static function form(Schema $schema): Schema
@@ -135,7 +135,7 @@ class InquiryResource extends Resource implements HasPermissionModule
                 TextColumn::make('full_name')
                     ->label(__('admin.contact_us.full_name'))
                     // One search box for name, email and phone, by how they start ("Sara", "sara@", "+2010").
-                    ->searchable(query: PrefixSearch::using(static::SEARCH_COLUMNS))
+                    ->searchable(query: PrefixSearch::using(static::SEARCH_COLUMNS, anyWord: ['full_name']))
                     ->sortable()
                     ->weight('medium')
                     ->url(fn (Inquiry $record) => static::getUrl('view', ['record' => $record]))

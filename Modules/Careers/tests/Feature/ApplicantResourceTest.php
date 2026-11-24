@@ -125,7 +125,8 @@ class ApplicantResourceTest extends TestCase
 
         Livewire::test(ViewApplicant::class, ['record' => $applicant->getRouteKey()])
             ->callAction('downloadResume')
-            ->assertFileDownloaded('omar-cv.pdf');
+            // The file itself, sent with Laravel's storage download (the Media response flushed and came back empty under PHP-FPM).
+            ->assertFileDownloaded('omar-cv.pdf', file_get_contents($applicant->getFirstMedia(Applicant::RESUME)->getPath()));
 
         Livewire::test(ViewApplicant::class, ['record' => $withoutCv->getRouteKey()])->assertActionHidden('downloadResume');
     }

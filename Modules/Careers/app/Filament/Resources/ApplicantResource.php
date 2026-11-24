@@ -26,10 +26,11 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 use Modules\Careers\Filament\Resources\ApplicantResource\Pages;
 use Modules\Careers\Models\Applicant;
 use Modules\Careers\Models\Career;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * "Applicants": job applications from the careers page, for HR to screen.
@@ -73,7 +74,7 @@ class ApplicantResource extends Resource implements HasPermissionModule
 
     protected static function applyGlobalSearchAttributeConstraints(Builder $query, string $search): void
     {
-        PrefixSearch::apply($query, $search, static::SEARCH_COLUMNS);
+        PrefixSearch::apply($query, $search, static::SEARCH_COLUMNS, anyWord: ['name']);
     }
 
     public static function form(Schema $schema): Schema
@@ -159,7 +160,7 @@ class ApplicantResource extends Resource implements HasPermissionModule
                 TextColumn::make('name')
                     ->label(__('admin.applicants.name'))
                     // One search box for name, email and phone, by how they start.
-                    ->searchable(query: PrefixSearch::using(static::SEARCH_COLUMNS))
+                    ->searchable(query: PrefixSearch::using(static::SEARCH_COLUMNS, anyWord: ['name']))
                     ->sortable()
                     ->weight('medium')
                     ->url(fn (Applicant $record) => static::getUrl('view', ['record' => $record]))
@@ -235,7 +236,9 @@ class ApplicantResource extends Resource implements HasPermissionModule
     }
 
     /**
-     * Downloads the CV from the private disk, for users who can see applicants.
+     * Downloads the CV from the private disk, for users who can see applicants. Sent with Laravel's storage download,
+     * not the Media response: that one calls flush() while streaming, which sends the headers early under PHP-FPM, so
+     * Livewire got an empty response ("The server returned an empty response").
      */
     public static function downloadResumeAction(): Action
     {
@@ -244,7 +247,11 @@ class ApplicantResource extends Resource implements HasPermissionModule
             ->icon('heroicon-o-arrow-down-tray')
             ->color('gray')
             ->visible(fn (Applicant $record) => $record->getFirstMedia(Applicant::RESUME) !== null && static::canView($record))
-            ->action(fn (Applicant $record): Media => $record->getFirstMedia(Applicant::RESUME));
+            ->action(function (Applicant $record): StreamedResponse {
+                $media = $record->getFirstMedia(Applicant::RESUME);
+
+                return Storage::disk($media->disk)->download($media->getPathRelativeToRoot(), $media->getDownloadFilename());
+            });
     }
 
     /**

@@ -63,6 +63,27 @@ class UserResourceTest extends TestCase
         $this->assertTrue(Hash::check('secret-pass-1', $user->password));
     }
 
+    public function test_the_password_is_required_by_the_server_not_the_browser_on_create_only(): void
+    {
+        $admin = $this->createAdmin();
+        $this->actingAs($admin);
+
+        // The browser's own check on a field of a hidden tab made the form jump to the password tab and hide the
+        // empty fields of the tab the admin was on, so the password tab's fields are checked by the server.
+        Livewire::test(CreateUser::class)
+            ->fillForm($this->validData(['password' => '', 'password_confirmation' => '']))
+            ->call('create')
+            ->assertHasFormErrors(['password' => 'required', 'password_confirmation' => 'required']);
+        $this->get(UserResource::getUrl('create'))
+            ->assertOk()
+            ->assertDontSeeHtml('required="required" type="password"')
+            ->assertDontSeeHtml('required type="password"');
+
+        Livewire::test(EditUser::class, ['record' => User::factory()->create()->getRouteKey()])
+            ->call('save')
+            ->assertHasNoFormErrors(['password', 'password_confirmation']);
+    }
+
     public function test_create_form_validates_fields(): void
     {
         $admin = $this->createAdmin(['username' => 'taken']);

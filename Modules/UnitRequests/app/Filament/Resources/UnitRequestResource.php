@@ -99,7 +99,7 @@ class UnitRequestResource extends Resource implements HasPermissionModule
 
     protected static function applyGlobalSearchAttributeConstraints(Builder $query, string $search): void
     {
-        PrefixSearch::apply($query, $search, static::SEARCH_COLUMNS);
+        PrefixSearch::apply($query, $search, static::SEARCH_COLUMNS, anyWord: ['seller_name']);
     }
 
     public static function form(Schema $schema): Schema
@@ -115,7 +115,9 @@ class UnitRequestResource extends Resource implements HasPermissionModule
                             ->schema([
                                 TextInput::make('seller_name')
                                     ->label(__('admin.unit_requests.seller_name'))
-                                    ->required()
+                                    // Required fields sit in two tabs: checked by the server only (it opens the tab with the error). The browser's own
+                                    // check made Filament jump to the other tab and hide the empty fields of the tab the admin was on.
+                                    ->markAsRequired()->rule('required')
                                     ->maxLength(191),
                                 TextInput::make('email')
                                     ->label(__('admin.unit_requests.email'))
@@ -126,7 +128,7 @@ class UnitRequestResource extends Resource implements HasPermissionModule
                                     ->label(__('admin.unit_requests.phone'))
                                     ->tel()
                                     ->rules(LeadContact::phoneRules())
-                                    ->required()
+                                    ->markAsRequired()->rule('required')
                                     ->maxLength(30),
                             ])
                             ->columns(3),
@@ -136,7 +138,7 @@ class UnitRequestResource extends Resource implements HasPermissionModule
                                 TextInput::make('name_en')
                                     ->label(__('admin.unit_requests.name_en'))
                                     ->helperText(__('admin.unit_requests.name_help'))
-                                    ->required()
+                                    ->markAsRequired()->rule('required')
                                     ->maxLength(191),
                                 TextInput::make('name_ar')
                                     ->label(__('admin.unit_requests.name_ar'))
@@ -289,7 +291,7 @@ class UnitRequestResource extends Resource implements HasPermissionModule
                 TextColumn::make(getLocalizedFieldName('name'))
                     ->label(__('admin.unit_requests.name'))
                     // One search box for the seller, the unit name, phone and email, by how they start.
-                    ->searchable(query: PrefixSearch::using(static::SEARCH_COLUMNS))
+                    ->searchable(query: PrefixSearch::using(static::SEARCH_COLUMNS, anyWord: ['seller_name']))
                     ->state(fn (UnitRequest $record) => $record->getLocalized('name'))
                     ->weight('medium')
                     ->url(fn (UnitRequest $record) => static::getUrl('view', ['record' => $record]))

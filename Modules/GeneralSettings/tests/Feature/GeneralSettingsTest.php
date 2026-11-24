@@ -123,10 +123,21 @@ class GeneralSettingsTest extends TestCase
     {
         $this->actingAs($this->createAdmin());
 
-        Livewire::test(HomeSettingsPage::class)
-            ->fillForm(['why_choose_cta_url' => 'javascript:alert(1)'])
-            ->call('save')
-            ->assertHasFormErrors(['why_choose_cta_url']);
+        foreach (['javascript:alert(1)', '//evil.example/x', 'ftp://x.com', 'projects'] as $bad) {
+            Livewire::test(HomeSettingsPage::class)
+                ->fillForm(['why_choose_cta_url' => $bad])
+                ->call('save')
+                ->assertHasFormErrors(['why_choose_cta_url']);
+        }
+
+        // A page of the site (the default "/projects") or a full link: the homepage accepts both, so the page saves.
+        foreach (['/projects', 'https://example.com/offers'] as $good) {
+            Livewire::test(HomeSettingsPage::class)
+                ->fillForm(['why_choose_cta_url' => $good])
+                ->call('save')
+                ->assertHasNoFormErrors(['why_choose_cta_url']);
+            $this->assertSame($good, app(HomeSettings::class)->refresh()->why_choose_cta_url);
+        }
 
         Livewire::test(BusinessInfoSettingsPage::class)
             ->fillForm(['headquarters_en' => 'Cairo', 'headquarters_ar' => 'القاهرة', 'social_facebook' => 'ftp://facebook.com/x', 'email' => 'not-an-email'])

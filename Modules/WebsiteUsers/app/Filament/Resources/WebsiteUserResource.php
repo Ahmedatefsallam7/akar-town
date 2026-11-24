@@ -81,7 +81,7 @@ class WebsiteUserResource extends Resource implements HasPermissionModule
 
     protected static function applyGlobalSearchAttributeConstraints(Builder $query, string $search): void
     {
-        PrefixSearch::apply($query, $search, static::SEARCH_COLUMNS);
+        PrefixSearch::apply($query, $search, static::SEARCH_COLUMNS, anyWord: ['name']);
     }
 
     /**
@@ -193,7 +193,7 @@ class WebsiteUserResource extends Resource implements HasPermissionModule
                 TextColumn::make('name')
                     ->label(__('admin.website_users.name'))
                     // One search box for name, email and phone, by how they start.
-                    ->searchable(query: PrefixSearch::using(static::SEARCH_COLUMNS))
+                    ->searchable(query: PrefixSearch::using(static::SEARCH_COLUMNS, anyWord: ['name']))
                     ->sortable()
                     ->weight('medium')
                     ->url(fn (WebsiteUser $record) => static::getUrl('view', ['record' => $record]))

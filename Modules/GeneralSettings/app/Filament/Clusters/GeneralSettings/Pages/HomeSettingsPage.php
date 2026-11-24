@@ -36,8 +36,11 @@ class HomeSettingsPage extends GeneralSettingsPage
                     static::textAr('why_choose_cta_text', 'cta_text'),
                     TextInput::make('why_choose_cta_url')
                         ->label(__('admin.settings.fields.cta_url'))
-                        ->url()
-                        ->rules(['url:http,https'])
+                        // A page of the site ("/projects", the default) or a web link, as the homepage accepts (website/home/why.blade.php).
+                        // Not ->url(): the browser's url check refused "/projects", so the whole page couldn't be saved.
+                        ->rules(['regex:#^(/(?!/)\S*|https?://\S+)$#i'])
+                        ->placeholder('/projects')
+                        ->helperText(__('admin.settings.fields.cta_url_help'))
                         ->maxLength(255)
                         ->columnSpanFull(),
                 ])

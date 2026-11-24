@@ -214,7 +214,10 @@ class UserResource extends Resource implements HasPermissionModule
                                     ->same('password_confirmation')
                                     ->dehydrateStateUsing(fn ($state) => Hash::make($state))
                                     ->dehydrated(fn ($state) => filled($state))
-                                    ->required(fn (string $operation): bool => $operation === 'create')
+                                    ->markAsRequired(fn (string $operation): bool => $operation === 'create')
+                                    // Checked by the server, not the browser: the browser's own check on a field in a hidden tab made Filament
+                                    // jump to this tab and hide the empty fields of the tab the admin was on.
+                                    ->rule('required', fn (string $operation): bool => $operation === 'create')
                                     ->helperText(fn (string $operation): string => $operation === 'edit' ? __('admin.users.password_leave_blank') : '')
                                     ->visible(fn (string $operation, ?User $record): bool => static::canSetPassword($operation, $record)),
                                 TextInput::make('password_confirmation')
@@ -222,7 +225,10 @@ class UserResource extends Resource implements HasPermissionModule
                                     ->password()
                                     ->revealable()
                                     ->dehydrated(false)
-                                    ->required(fn (string $operation): bool => $operation === 'create')
+                                    ->markAsRequired(fn (string $operation): bool => $operation === 'create')
+                                    // Checked by the server, not the browser: the browser's own check on a field in a hidden tab made Filament
+                                    // jump to this tab and hide the empty fields of the tab the admin was on.
+                                    ->rule('required', fn (string $operation): bool => $operation === 'create')
                                     ->visible(fn (string $operation, ?User $record): bool => static::canSetPassword($operation, $record)),
                             ])
                             ->columns(2),

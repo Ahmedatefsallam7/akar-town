@@ -3,6 +3,7 @@
 namespace Modules\Inquiry\Tests\Feature;
 
 use App\Jobs\SendLeadToCrm;
+use Filament\Actions\Action;
 use Filament\Tables\Filters\QueryBuilder\Constraints\TextConstraint\Operators\ContainsOperator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
@@ -188,6 +189,8 @@ class InquiryResourceTest extends TestCase
         Http::fake([self::CRM_URL => Http::response(['data' => ['id' => 90]])]);
 
         Livewire::test(ViewInquiry::class, ['record' => $inquiry->getRouteKey()])
+            // It reaches the client's CRM, so it asks first.
+            ->assertActionExists('sendToCrm', fn (Action $action): bool => $action->isConfirmationRequired())
             ->callAction('sendToCrm')
             ->assertNotified(__('admin.crm.sent', ['id' => 90]));
         $this->assertSame('90', $inquiry->fresh()->crm_lead_id);
