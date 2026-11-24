@@ -449,6 +449,8 @@ return [
     ],
 
     'crm' => [
+        'send' => 'Send',
+        'send_confirm' => 'This sends the lead to the CRM now. It can\'t be taken back from here.',
         'sent' => 'Sent to the CRM (lead #:id).',
         'not_sent' => 'Not sent to the CRM',
         'errors' => [
@@ -791,6 +793,18 @@ return [
         'used_by_properties' => 'Linked to :count property — move it to another place first.|Linked to :count properties — move them to another place first.',
     ],
 
+    'global_search' => [
+        'placeholder' => 'Search everything…',
+        'results_for' => 'Results for',
+        'quoted' => '“:search”',
+        'count' => '{1} 1 result|[2,*] :count results',
+        'no_results' => 'Nothing found for “:search”',
+        'no_results_hint' => 'Try another word, or check the spelling.',
+        'navigate' => 'to move',
+        'open' => 'to open',
+        'close' => 'to close',
+    ],
+
     'lookups' => [
         'singular' => 'Lookup',
         'plural' => 'Lookups',
@@ -807,6 +821,7 @@ return [
         'super_search' => 'Super Search: find a value in every lookup type…',
         'super_search_results' => 'Super Search results',
         'in_type' => 'in :name',
+        'lookup_type' => 'Lookup type',
         'no_results' => 'No values match.',
         'values_count' => '{0} No values|{1} 1 value|[2,*] :count values',
         'cannot_delete_protected' => 'Protected — can\'t be deleted.',
@@ -889,6 +904,7 @@ return [
             'cta_text_en' => 'CTA Button Text (English)',
             'cta_text_ar' => 'CTA Button Text (Arabic)',
             'cta_url' => 'CTA Button URL',
+            'cta_url_help' => 'A page of the site (e.g. /projects) or a full link (https://…).',
             'icon' => 'Icon',
             'logo' => 'Logo (for dark backgrounds)',
             'logo_help' => 'Transparent background and light letters (it sits on the dark navbar and footer). Empty: the built-in logo.',
@@ -957,6 +973,8 @@ return [
         'standalone' => 'Standalone',
         'none_for_project' => 'No properties in this project yet',
         'offering_type' => 'Offering Type',
+        'rent_period' => 'Rent Period',
+        'rent_periods' => ['monthly' => 'Monthly', 'yearly' => 'Yearly'],
         'offering_type_help' => 'Decides which website listing it appears in (e.g. Primary, Resale, Rent).',
         'neighbourhood' => 'Neighbourhood',
         'address' => 'Address',

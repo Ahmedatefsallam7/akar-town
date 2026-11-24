@@ -2,6 +2,7 @@
 
 namespace Modules\Lookups\Tests\Feature;
 
+use App\Filament\Support\AdminGlobalSearchProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Modules\Lookups\Filament\Resources\LookupResource;
@@ -243,6 +244,35 @@ class LookupResourceTest extends TestCase
         $this->assertFalse(Livewire::test(ManageLookupValues::class, ['record' => $views->getRouteKey()])->instance()->valuesHaveALevelBelow());
     }
 
+    public function test_global_search_groups_the_values_under_their_type(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $this->locations();
+        $this->type('amenities', 'Amenities', ['Garden View']);
+        $this->type('views', 'Views');
+        $lookups = __('admin.lookups.plural');
+
+        $categories = fn (string $search) => collect(LookupResource::getGlobalSearchCategories($search))
+            ->map(fn ($results) => $results->map(fn ($result) => [$result->title, $result->details])->all())->all();
+
+        // The types first ("Lookup type" under each), then each type's values under its name.
+        $this->assertSame([
+            $lookups => [['Views', ['Lookup type']]],
+            "{$lookups} › Amenities" => [['Garden View', []]],
+        ], $categories('Vie'));
+        // A value deep in a tree says where it is inside its type.
+        $this->assertSame([
+            "{$lookups} › Locations" => [['Golden Square', ['Egypt › Cairo › New Cairo › Fifth Settlement']]],
+        ], $categories('Gol'));
+
+        // The admin's search box uses these groups in place of one "Lookups" group.
+        $shown = (new AdminGlobalSearchProvider)->getResults('Vie')->getCategories()->keys()->all();
+        $this->assertContains($lookups, $shown);
+        $this->assertContains("{$lookups} › Amenities", $shown);
+
+        $this->assertLessThanOrEqual(2, $this->countQueries(fn () => LookupResource::getGlobalSearchCategories('Gol'))); // the results, their ancestors
+    }
+
     public function test_tree_pages_show_the_breadcrumb_trail(): void
     {
         $this->actingAs($this->createAdmin());
@@ -287,4 +317,3 @@ class LookupResourceTest extends TestCase
         $this->assertStringContainsString('3 properties', $deny->invoke(null, 'delete', $compound->fresh()));
     }
 }
-

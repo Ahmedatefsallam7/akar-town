@@ -6,6 +6,7 @@ use App\Filament\Concerns\HasResourceTranslations;
 use App\Filament\Contracts\HasPermissionModule;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\GlobalSearch\GlobalSearchResult;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
@@ -13,6 +14,7 @@ use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
 use Livewire\Component as Livewire;
@@ -58,6 +60,60 @@ class LookupResource extends Resource implements HasPermissionModule
     public static function getGloballySearchableAttributes(): array
     {
         return ['name_en', 'name_ar'];
+    }
+
+    /**
+     * The ancestors come with the results (one query), for the line under each result.
+     */
+    public static function getGlobalSearchEloquentQuery(): Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()->with('ancestors');
+    }
+
+    /**
+     * The line under a result: "Lookup type" for a type; for a value, where it is inside its type ("Egypt › Giza ›
+     * Sheikh Zayed City"; nothing for a flat type, its name is the group's title, see getGlobalSearchCategories()).
+     */
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        if (! $record->parent_id) {
+            return [__('admin.lookups.lookup_type')];
+        }
+
+        $path = $record->ancestors->sortBy('_lft')->slice(1)->map(fn (Lookup $ancestor) => $ancestor->default_name)->implode(' › ');
+
+        return $path === '' ? [] : [$path];
+    }
+
+    /**
+     * The admin's global search (App\Filament\Support\AdminGlobalSearchProvider) shows lookups grouped: the
+     * matching types under "Lookups", then each type's matching values under "Lookups › <type>".
+     *
+     * @return array<string, Collection<int, GlobalSearchResult>>
+     */
+    public static function getGlobalSearchCategories(string $search): array
+    {
+        $query = static::getGlobalSearchEloquentQuery();
+        static::applyGlobalSearchAttributeConstraints($query, $search);
+        static::modifyGlobalSearchQuery($query, $search);
+
+        $records = $query->limit(static::getGlobalSearchResultsLimit())->get();
+        $result = fn (Lookup $record) => new GlobalSearchResult(
+            title: static::getGlobalSearchResultTitle($record),
+            url: static::getGlobalSearchResultUrl($record),
+            details: static::getGlobalSearchResultDetails($record),
+        );
+
+        [$types, $values] = $records->partition(fn (Lookup $record) => ! $record->parent_id);
+        $categories = $types->isEmpty() ? [] : [static::getPluralModelLabel() => $types->map($result)->values()];
+
+        $values
+            ->groupBy(fn (Lookup $record) => $record->ancestors->sortBy('_lft')->first()?->default_name)
+            ->each(function (Collection $group, string $type) use (&$categories, $result) {
+                $categories[static::getPluralModelLabel().' › '.$type] = $group->map($result)->values();
+            });
+
+        return $categories;
     }
 
     /**

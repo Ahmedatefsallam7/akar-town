@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Support\AdminGlobalSearchProvider;
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\SetLocale;
 use Filament\Actions\Action;
@@ -14,6 +15,7 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Enums\Platform;
 use Filament\Support\Enums\Width;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -66,7 +68,11 @@ class AdminPanelProvider extends PanelProvider
                 ->all())
             // A save is all or nothing: if anything fails (e.g. an attachment), the record isn't half-saved.
             ->databaseTransactions()
+            // Lookups come grouped by type (AdminGlobalSearchProvider).
+            ->globalSearch(AdminGlobalSearchProvider::class)
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
+            // The shortcut shown inside the search field (styled in theme.css).
+            ->globalSearchFieldSuffix(fn (): string => Platform::detect() === Platform::Mac ? '⌘K' : 'Ctrl K')
             ->login(Login::class)
             // ->registration()
             ->profile(EditProfile::class, isSimple: false)

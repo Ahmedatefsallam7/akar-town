@@ -134,3 +134,139 @@
 .fi-page-sub-navigation-tabs {
     @apply flex-wrap gap-y-1;
 }
+
+
+/*
+ * Global search (top bar; the window's markup is resources/views/vendor/filament-panels/livewire/global-search).
+ * The field: a soft pill that, while typing, turns white with an indigo → violet → sky border and glow, widens, and
+ * hides its shortcut chip (Ctrl K / ⌘K). The window: a floating card that springs open, a header with the count,
+ * groups with coloured icons, rows with a coloured initial, the searched text marked, and the keyboard keys below.
+ */
+.fi-topbar .fi-global-search-field {
+    @apply transition-[width] duration-300 ease-out sm:w-72 sm:focus-within:w-[26rem];
+}
+
+.fi-global-search-field .fi-input-wrp:not(.fi-disabled) {
+    @apply rounded-full border border-slate-200/80 bg-slate-100/70 shadow-none ring-0 transition-all duration-300 hover:border-slate-300 hover:bg-slate-100;
+
+    &:focus-within {
+        @apply border-transparent ring-0 [background:linear-gradient(white,white)_padding-box,linear-gradient(120deg,var(--color-indigo-500),var(--color-violet-500),var(--color-sky-400))_border-box] shadow-[0_10px_30px_-12px_rgb(99_102_241/0.55),0_0_0_4px_rgb(99_102_241/0.08)];
+    }
+}
+
+.fi-global-search-field .fi-input-wrp-prefix {
+    @apply ps-4;
+
+    & > .fi-icon {
+        @apply text-slate-400 transition-all duration-300;
+    }
+}
+
+.fi-global-search-field:focus-within .fi-input-wrp-prefix > .fi-icon {
+    @apply scale-110 text-indigo-500;
+}
+
+.fi-global-search-field .fi-input {
+    @apply py-2.5 text-sm text-slate-800 placeholder:text-slate-400;
+}
+
+.fi-global-search-field .fi-input-wrp-suffix {
+    @apply hidden pe-3 sm:flex;
+}
+
+.fi-global-search-field:focus-within .fi-input-wrp-suffix {
+    @apply sm:hidden;
+}
+
+.fi-global-search-field .fi-input-wrp-label {
+    @apply rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-sans text-[11px] font-semibold text-slate-400 shadow-[0_1px_0_rgb(15_23_42/0.06)];
+}
+
+/* The window */
+.fi-topbar .fi-global-search-results-ctn {
+    @apply sm:w-[32rem] sm:max-w-[calc(100vw-2rem)];
+}
+
+.fi-global-search-results-ctn {
+    @apply mt-3 flex max-h-[min(74vh,38rem)] origin-top flex-col overflow-hidden rounded-2xl bg-white/95 p-0 shadow-[0_30px_70px_-20px_rgb(30_27_75/0.35),0_0_0_1px_rgb(15_23_42/0.06)] backdrop-blur-xl transition duration-200 ease-out;
+
+    &.fi-transition-enter-start,
+    &.fi-transition-leave-end {
+        @apply -translate-y-1 scale-[0.98] opacity-0;
+    }
+}
+
+.fi-global-search-results {
+    @apply divide-y-0;
+
+    &::-webkit-scrollbar {
+        @apply w-[5px];
+    }
+
+    &::-webkit-scrollbar-thumb {
+        @apply rounded-full bg-gray-400/25 hover:bg-gray-400/45;
+    }
+}
+
+.fi-global-search-result-group + .fi-global-search-result-group {
+    @apply mt-2;
+}
+
+.fi-global-search-result-group-header {
+    @apply flex items-center gap-2 rounded-lg border-0 bg-white/90 px-2 pt-2 pb-1.5 text-[11px] font-semibold tracking-[0.06em] text-slate-500 normal-case backdrop-blur-md rtl:text-xs rtl:tracking-normal;
+}
+
+.fi-global-search-result-group-results {
+    @apply flex flex-col gap-0.5 divide-y-0;
+}
+
+.fi-global-search-result {
+    @apply rounded-xl transition-colors duration-150 hover:bg-slate-50 focus-within:bg-indigo-50/80 focus-within:ring-1 focus-within:ring-indigo-200;
+
+    &:hover .fi-global-search-result-heading,
+    &:focus-within .fi-global-search-result-heading {
+        @apply text-indigo-700;
+    }
+}
+
+.fi-global-search-result-link {
+    @apply flex items-center gap-3 px-2 py-2;
+}
+
+.fi-global-search-result-heading {
+    @apply truncate text-sm font-semibold text-slate-800 transition-colors duration-150;
+
+    & mark {
+        @apply rounded-[3px] bg-amber-100 text-amber-900 shadow-[0_0_0_1px_var(--color-amber-100)];
+    }
+}
+
+.fi-global-search-result-details {
+    @apply mt-0.5 flex flex-wrap gap-x-2;
+}
+
+.fi-global-search-result-detail {
+    @apply truncate text-xs text-slate-500;
+}
+
+/* The tables' search field: the same soft pill as the top bar's search (grey at rest, white with an indigo ring
+   while typing). */
+.fi-ta-search-field .fi-input-wrp:not(.fi-disabled) {
+    @apply rounded-full border border-slate-200/80 bg-slate-100/70 shadow-none ring-0 transition-all duration-200 hover:border-slate-300 hover:bg-slate-100;
+
+    &:focus-within {
+        @apply border-indigo-300 bg-white shadow-[0_6px_20px_-10px_rgb(99_102_241/0.5),0_0_0_4px_rgb(99_102_241/0.08)] ring-0;
+    }
+}
+
+.fi-ta-search-field .fi-input-wrp-prefix {
+    @apply ps-4;
+
+    & > .fi-icon {
+        @apply text-slate-400;
+    }
+}
+
+.fi-ta-search-field:focus-within .fi-input-wrp-prefix > .fi-icon {
+    @apply text-indigo-500;
+}
