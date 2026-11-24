@@ -17,14 +17,14 @@ class LocationsDemoSeeder extends Seeder
 {
     use SeedsDemoData;
 
-    /** The design's destinations (index.html): name, description, photo. */
+    /** The design's destinations (index.html): name, Arabic name, description, photo. */
     private const DESTINATIONS = [
-        ['New Cairo', "Egypt's fastest-growing urban hub — world-class amenities, gated communities.", 'photo-1512917774080-9991f1c4c750'],
-        ['North Coast', "Sun-kissed shores along Egypt's Mediterranean edge, steps from the sea.", 'photo-1499793983690-e29da59ef1c2'],
-        ['Sheikh Zayed', 'An elegant enclave of spacious living and luxury west of Cairo.', 'photo-1580587771525-78b9dba3b914'],
-        ['Ain Sokhna', 'Private Red Sea escapes just 90 minutes from the capital.', 'photo-1600210492493-0946911123ea'],
-        ['6th of October', 'Modern infrastructure with room to breathe, grow, and invest.', 'photo-1600596542815-ffad4c1539a9'],
-        ['Cairo', 'The heart of Egypt — iconic, historic, and always in demand.', 'photo-1545324418-cc1a3fa10c00'],
+        ['New Cairo', 'القاهرة الجديدة', "Egypt's fastest-growing urban hub — world-class amenities, gated communities.", 'photo-1512917774080-9991f1c4c750'],
+        ['North Coast', 'الساحل الشمالي', "Sun-kissed shores along Egypt's Mediterranean edge, steps from the sea.", 'photo-1499793983690-e29da59ef1c2'],
+        ['Sheikh Zayed', 'الشيخ زايد', 'An elegant enclave of spacious living and luxury west of Cairo.', 'photo-1580587771525-78b9dba3b914'],
+        ['Ain Sokhna', 'العين السخنة', 'Private Red Sea escapes just 90 minutes from the capital.', 'photo-1600210492493-0946911123ea'],
+        ['6th of October', 'السادس من أكتوبر', 'Modern infrastructure with room to breathe, grow, and invest.', 'photo-1600596542815-ffad4c1539a9'],
+        ['Cairo', 'القاهرة', 'The heart of Egypt — iconic, historic, and always in demand.', 'photo-1545324418-cc1a3fa10c00'],
     ];
 
     /** Place name => [latitude, longitude, code, neighbourhoods]. */
@@ -48,8 +48,8 @@ class LocationsDemoSeeder extends Seeder
 
         // The design's destinations first: other featured locations move after them.
         Location::query()->whereNotIn('name_en', array_column(self::DESTINATIONS, 0))->where('order', '<', 100)->toBase()->increment('order', 100);
-        foreach (self::DESTINATIONS as $order => [$name, $description, $photo]) {
-            $location = Location::query()->firstOrCreate(['name_en' => $name], ['name_ar' => $name, ...$this->location($name)]);
+        foreach (self::DESTINATIONS as $order => [$name, $nameAr, $description, $photo]) {
+            $location = Location::query()->firstOrCreate(['name_en' => $name], ['name_ar' => $nameAr, ...$this->location($name)]);
             $location->update(['is_active' => true, 'is_featured' => true, 'order' => $order + 1, 'description_en' => $location->description_en ?: $description]);
             $this->mediaIfEmpty($location, Location::FEATURED_IMAGE, [$photo]);
         }

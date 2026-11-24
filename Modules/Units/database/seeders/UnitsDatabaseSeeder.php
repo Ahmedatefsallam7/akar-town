@@ -2,11 +2,13 @@
 
 namespace Modules\Units\Database\Seeders;
 
+use App\Support\Website\PropertySearch;
 use Database\Seeders\Concerns\SeedsDemoData;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Modules\Galleries\Database\Seeders\GalleriesDatabaseSeeder;
 use Modules\Galleries\Models\Gallery;
+use Modules\Lookups\Models\Lookup;
 use Modules\Projects\Models\Project;
 use Modules\Units\Models\Unit;
 use Modules\Units\Models\UnitPriceHistory;
@@ -36,6 +38,15 @@ class UnitsDatabaseSeeder extends Seeder
         .'<p>Each bedroom is en-suite, with the master suite occupying the entire upper floor west wing, complete with a walk-in dressing room and private terrace overlooking the garden.</p>'
         .'<p>Residents enjoy a 24/7 guarded perimeter, manicured streetscapes, immediate access to premium schools and malls, and direct ring-road connectivity to all major Cairo districts.</p>';
 
+    /** The featured properties' Arabic names. */
+    private const FEATURED_AR = [
+        'The Pinnacle Penthouse' => 'بنتهاوس القمة',
+        'Al Noor Garden Villas' => 'فلل حدائق النور',
+        'Maaya Heights Tower' => 'برج مرتفعات مايا',
+        'Azure Coast Estates' => 'عقارات الساحل الأزرق',
+        'Sky Gardens Residences' => 'مساكن حدائق السماء',
+    ];
+
     /** Extra units made per project: type name, bedrooms, bathrooms, area, price. */
     private const TYPES = [
         ['Apartment', 3, 2, 165, 7800000],
@@ -58,6 +69,7 @@ class UnitsDatabaseSeeder extends Seeder
         $this->perProject();
         $this->fill();
         $this->bulkUnits();
+        $this->rentPrices();
 
         UnitPriceHistory::query()->whereNull('changed_by')->update(['changed_by' => User::query()->orderBy('id')->value('id')]);
         $this->stamps('units');
@@ -72,7 +84,7 @@ class UnitsDatabaseSeeder extends Seeder
 
         foreach (self::FEATURED as $order => [$name, $description, $place, $beds, $baths, $area, $price, $status, $photos]) {
             $unit = Unit::query()->firstOrCreate(['name_en' => $name], [
-                'name_ar' => $name,
+                'name_ar' => self::FEATURED_AR[$name] ?? $name,
                 'project_id' => $project?->id,
                 'short_description_en' => $description,
                 'description_en' => self::DESCRIPTION,
@@ -112,7 +124,8 @@ class UnitsDatabaseSeeder extends Seeder
             foreach ([0, 1, 2] as $n) {
                 [$type, $beds, $baths, $area, $price] = self::TYPES[($i + $n * 2) % count(self::TYPES)];
                 Unit::query()->firstOrCreate(['name_en' => "{$project->title_en} {$type} ".chr(65 + $n).'-'.($n + 1) * 10], [
-                    'name_ar' => ($project->title_ar ?: $project->title_en).' '.$type,
+                    // The type's Arabic name (the lookup's), so the Arabic name isn't half English.
+                    'name_ar' => ($project->title_ar ?: $project->title_en).' '.(Lookup::query()->whereKey($this->children('unittype')[$type] ?? 0)->value('name_ar') ?: $type),
                     'project_id' => $project->id,
                     'property_type_id' => $this->children('unittype')[$type] ?? null,
                     'is_published' => true,
@@ -125,6 +138,20 @@ class UnitsDatabaseSeeder extends Seeder
                 ]);
             }
         }
+    }
+
+    /**
+     * Properties for rent: a monthly rent (EGP 20,000-65,000), not a sale price, and no payment plan. One query, for the bulk ones too.
+     */
+    private function rentPrices(): void
+    {
+        $rent = Lookup::query()->whereIn('parent_id', Lookup::query()->select('id')->whereNull('parent_id')->where('slug', 'offeringtype'))
+            ->whereIn('slug', PropertySearch::RENT)->pluck('id');
+
+        Unit::query()->whereIn('offering_type_id', $rent)->whereNull('rent_period')
+            ->update(['rent_period' => 'monthly', 'price' => DB::raw('20000 + (id % 10) * 5000'),
+                // No payment plan or handover for rent.
+                'down_payment' => null, 'installment_years_from' => null, 'installment_years_to' => null, 'delivery_date' => null]);
     }
 
     /**

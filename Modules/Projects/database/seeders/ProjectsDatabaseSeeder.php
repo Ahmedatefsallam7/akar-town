@@ -29,12 +29,12 @@ class ProjectsDatabaseSeeder extends Seeder
         ['Azure Coast Estates', 'عقارات الساحل الأزرق', 'Where the Sea Becomes Home', 'حيث يصبح البحر وطناً', 'Ain Sokhna', 'photo-1499793983690-e29da59ef1c2'],
     ];
 
-    /** The design's "Our Projects" cards (index.html): title, place, starting price, photos (main first). */
+    /** The design's "Our Projects" cards (index.html): title, Arabic title, place, starting price, photos (main first). */
     private const GRID = [
-        ['Lumière Penthouse', 'New Cairo', 85000000, ['photo-1613490493576-7fde63acd811', 'photo-1600566753190-17f0baa2a6c3', 'photo-1600210492493-0946911123ea', 'photo-1600585154526-990dced4db0d']],
-        ['The Crown Tower', 'Cairo', 62000000, ['photo-1512917774080-9991f1c4c750', 'photo-1600596542815-ffad4c1539a9', 'photo-1580587771525-78b9dba3b914']],
-        ['Meridian Residence', '6th of October', 28000000, ['photo-1600596542815-ffad4c1539a9', 'photo-1545324418-cc1a3fa10c00', 'photo-1499793983690-e29da59ef1c2']],
-        ['Aqua Terrace', 'North Coast', 35000000, ['photo-1600585154526-990dced4db0d', 'photo-1512917774080-9991f1c4c750', 'photo-1613490493576-7fde63acd811']],
+        ['Lumière Penthouse', 'لوميير بنتهاوس', 'New Cairo', 85000000, ['photo-1613490493576-7fde63acd811', 'photo-1600566753190-17f0baa2a6c3', 'photo-1600210492493-0946911123ea', 'photo-1600585154526-990dced4db0d']],
+        ['The Crown Tower', 'برج التاج', 'Cairo', 62000000, ['photo-1512917774080-9991f1c4c750', 'photo-1600596542815-ffad4c1539a9', 'photo-1580587771525-78b9dba3b914']],
+        ['Meridian Residence', 'ميريديان ريزيدنس', '6th of October', 28000000, ['photo-1600596542815-ffad4c1539a9', 'photo-1545324418-cc1a3fa10c00', 'photo-1499793983690-e29da59ef1c2']],
+        ['Aqua Terrace', 'أكوا تيراس', 'North Coast', 35000000, ['photo-1600585154526-990dced4db0d', 'photo-1512917774080-9991f1c4c750', 'photo-1613490493576-7fde63acd811']],
     ];
 
     /** The design's project cards (projects.html): status slug, delivery date, description. */
@@ -140,9 +140,9 @@ class ProjectsDatabaseSeeder extends Seeder
         }
 
         // Newest featured projects fill the home "Our Projects" grid: made last, in reverse, so the first is newest.
-        foreach (array_reverse(self::GRID) as [$title, $place, $price, $photos]) {
+        foreach (array_reverse(self::GRID) as [$title, $titleAr, $place, $price, $photos]) {
             $project = Project::query()->firstOrCreate(['title_en' => $title], [
-                'title_ar' => $title,
+                'title_ar' => $titleAr,
                 'developer_id' => $developer,
                 'is_published' => true,
                 'is_featured' => true,
