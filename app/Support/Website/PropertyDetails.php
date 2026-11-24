@@ -47,7 +47,8 @@ class PropertyDetails
         $photos = $unit->photos();
         $chain = [$unit->country_id, $unit->city_id, $unit->region_id, $unit->area_id, $unit->sub_area_id];
         $place = collect([$unit->address, implode(', ', array_reverse(explode(' › ', LocationTree::path($chain))))])->filter()->implode(', ');
-        $delivery = $unit->delivery_date ? Carbon::parse($unit->delivery_date) : null;
+        // A rent property has no handover or payment plan (old values saved before it became rent are ignored).
+        $delivery = $unit->delivery_date && ! $unit->isForRent() ? Carbon::parse($unit->delivery_date) : null;
         [$intro, $more] = static::paragraphs((string) $unit->getLocalized('description'));
 
         return [
@@ -70,7 +71,7 @@ class PropertyDetails
             'baths' => $unit->bathrooms,
             'parking' => $unit->parking_spaces,
             'floors' => $unit->building_floors !== null ? __('G+:count', ['count' => $unit->building_floors]) : null,
-            'price' => $unit->price ? number_format((float) $unit->price) : null,
+            'price' => $unit->priceText(),
             'perMeter' => $unit->price && $unit->shownArea() ? number_format($unit->price / $unit->shownArea()) : null,
             'updated' => $unit->updated_at?->translatedFormat('M Y'),
             'views' => $listOf('views'),
@@ -126,6 +127,10 @@ class PropertyDetails
      */
     private static function paymentPlan(Unit $unit, ?Carbon $delivery): array
     {
+        if ($unit->isForRent()) {
+            return [];
+        }
+
         $down = $unit->down_payment !== null ? (float) $unit->down_payment : null;
         $years = array_filter([$unit->installment_years_from, $unit->installment_years_to]);
 

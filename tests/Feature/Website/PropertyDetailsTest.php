@@ -81,6 +81,21 @@ class PropertyDetailsTest extends TestCase
             ->assertDontSee('<script>alert(1)</script>', false);
     }
 
+    public function test_a_rent_price_shows_its_period_on_the_page_and_the_listing(): void
+    {
+        // Old payment values saved before it became rent aren't shown: rent has no payment plan or handover.
+        $unit = Unit::factory()->create(['is_published' => true, 'price' => 25000, 'rent_period' => 'monthly',
+            'down_payment' => 10, 'installment_years_from' => 6, 'delivery_date' => '2028-06-01']);
+
+        $this->get(route('properties.show', $unit->slug))->assertOk()->assertSee('25,000 / month')
+            ->assertDontSee(__('Down Payment'))->assertDontSee(__('Handover'))->assertDontSee('Q2 2028');
+        $this->get(route('properties'))->assertOk()->assertSee('25,000 / month');
+        $this->withCookie('locale', 'ar')->get(route('properties.show', $unit->slug))->assertOk()->assertSee('25,000 / شهريًا');
+
+        $unit->update(['rent_period' => null, 'price' => 3000000]);
+        $this->get(route('properties.show', $unit->slug))->assertSee('3,000,000')->assertDontSee('/ month');
+    }
+
     public function test_the_pdf_language_picker_links_to_both_download_versions(): void
     {
         $unit = Unit::factory()->create();

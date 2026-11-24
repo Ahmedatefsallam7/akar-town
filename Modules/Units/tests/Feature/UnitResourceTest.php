@@ -214,6 +214,62 @@ class UnitResourceTest extends TestCase
             ->assertHasNoFormErrors();
     }
 
+    public function test_a_rent_price_says_its_period_and_a_sale_one_has_none(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $rent = $this->id('offeringtype', 'rent');
+
+        // Rent: the period is asked (monthly first), required and kept.
+        Livewire::test(CreateUnit::class)
+            ->assertFormFieldIsHidden('rent_period')
+            ->fillForm(['name_en' => 'Flat for rent', 'name_ar' => 'شقة للإيجار', 'offering_type_id' => $rent, 'price' => 25000])
+            ->assertFormFieldIsVisible('rent_period')
+            ->assertFormSet(['rent_period' => 'monthly'])
+            ->fillForm(['rent_period' => null])
+            ->call('create')
+            ->assertHasFormErrors(['rent_period' => 'required'])
+            ->fillForm(['rent_period' => 'yearly'])
+            ->call('create')
+            ->assertHasNoFormErrors();
+        $unit = Unit::query()->where('name_en', 'Flat for rent')->sole();
+        $this->assertSame('yearly', $unit->rent_period);
+        $this->assertSame('25,000 / year', $unit->priceText());
+        $this->assertSame('25,000 EGP / year', UnitResource::money($unit));
+        $this->assertSame('25,000 EGP', UnitResource::money($unit, 25000)); // a given amount (price history): no period
+
+        // Moving it to sale clears the period: the price is a sale price again, and the payment plan shows.
+        Livewire::test(EditUnit::class, ['record' => $unit->getRouteKey()])
+            ->assertFormFieldIsHidden('down_payment')
+            ->fillForm(['offering_type_id' => $this->id('offeringtype', 'resale'), 'price' => 3000000, 'down_payment' => 10, 'installment_years_from' => 5, 'delivery_date' => '2028-01-01'])
+            ->assertFormFieldIsHidden('rent_period')
+            ->assertFormFieldIsVisible('down_payment')
+            ->assertFormFieldIsVisible('installment_years_to')
+            ->assertFormFieldIsVisible('delivery_date')
+            ->call('save')
+            ->assertHasNoFormErrors();
+        $this->assertNull($unit->fresh()->rent_period);
+        $this->assertSame('3,000,000', $unit->fresh()->priceText());
+        $this->assertEquals(10, $unit->fresh()->down_payment);
+
+        // Back to rent: the payment plan and the handover are hidden and cleared (rent has none).
+        Livewire::test(EditUnit::class, ['record' => $unit->getRouteKey()])
+            ->fillForm(['offering_type_id' => $rent, 'price' => 30000, 'rent_period' => 'monthly'])
+            ->assertFormFieldIsHidden('down_payment')
+            ->assertFormFieldIsHidden('installment_years_from')
+            ->assertFormFieldIsHidden('delivery_date')
+            ->call('save')
+            ->assertHasNoFormErrors();
+        $unit->refresh();
+        $this->assertSame([null, null, null, null], [$unit->down_payment, $unit->installment_years_from, $unit->installment_years_to, $unit->delivery_date]);
+        $this->assertTrue($unit->isForRent());
+
+        // Only a known period is accepted (the browser can send anything).
+        Livewire::test(CreateUnit::class)
+            ->fillForm(['name_en' => 'Odd', 'name_ar' => 'غريب', 'offering_type_id' => $rent, 'rent_period' => 'weekly'])
+            ->call('create')
+            ->assertHasFormErrors(['rent_period']);
+    }
+
     public function test_any_gallery_can_be_picked_on_create_and_edit_its_projects_first(): void
     {
         // AKAR-54: every gallery, the unit's project's listed first, each with its project's name.

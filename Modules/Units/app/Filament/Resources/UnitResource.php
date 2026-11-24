@@ -12,8 +12,10 @@ use App\Filament\Support\PrefixSearch;
 use App\Filament\Support\TableHelper;
 use App\Rules\VideoUrl;
 use App\Support\SmartSearch;
+use App\Support\Website\PropertySearch;
 use Closure;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Field;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
@@ -160,7 +162,9 @@ class UnitResource extends Resource implements HasPermissionModule
                                 AgentFields::select(),
                                 LookupFields::select('offering_type_id', 'offeringtype', static::projectScope('offeringtype'))
                                     ->label(__('admin.units.offering_type'))
-                                    ->helperText(__('admin.units.offering_type_help')),
+                                    ->helperText(__('admin.units.offering_type_help'))
+                                    // "Rent" shows the rent period next to the price.
+                                    ->live(),
                                 ...LocationFields::make(),
                                 TextInput::make('neighbourhood')
                                     ->label(__('admin.units.neighbourhood'))
@@ -208,6 +212,19 @@ class UnitResource extends Resource implements HasPermissionModule
                                     ->integer()
                                     ->minValue(0)
                                     ->maxValue(self::MAX_PRICE),
+                                // What a rent price is for; only for rent (cleared when the offering isn't rent).
+                                Select::make('rent_period')
+                                    ->label(__('admin.units.rent_period'))
+                                    ->options(fn () => collect(Unit::RENT_PERIODS)->mapWithKeys(fn (string $period) => [$period => __("admin.units.rent_periods.{$period}")])->all())
+                                    ->default('monthly')
+                                    ->native(false)
+                                    ->visible(fn (Get $get) => static::isRent($get('offering_type_id')))
+                                    // Checked by the server: the offering is picked on another tab (see UserResource's password).
+                                    ->markAsRequired(fn (Get $get) => static::isRent($get('offering_type_id')))
+                                    ->rule('required', fn (Get $get) => static::isRent($get('offering_type_id')))
+                                    ->in(Unit::RENT_PERIODS)
+                                    ->dehydratedWhenHidden()
+                                    ->dehydrateStateUsing(fn (?string $state, Get $get) => static::isRent($get('offering_type_id')) ? $state : null),
                                 // Two sizes (AKAR-52); each one optional, above 0. The BUA may be larger than the land.
                                 TextInput::make('built_up_area')
                                     ->label(__('admin.units.built_up_area'))
@@ -253,27 +270,30 @@ class UnitResource extends Resource implements HasPermissionModule
                                     ->integer()
                                     ->minValue(1900)
                                     ->maxValue(2100),
-                                TextInput::make('down_payment')
-                                    ->label(__('admin.projects.down_payment'))
-                                    ->numeric()
-                                    ->minValue(0)
-                                    ->maxValue(100)
-                                    ->suffix('%'),
-                                TextInput::make('installment_years_from')
-                                    ->label(__('admin.projects.installments_from'))
-                                    ->integer()
-                                    ->minValue(0)
-                                    ->maxValue(30)
-                                    ->suffix(__('admin.projects.years')),
-                                TextInput::make('installment_years_to')
-                                    ->label(__('admin.projects.installments_to'))
-                                    ->integer()
-                                    ->minValue(0)
-                                    ->maxValue(30)
-                                    ->suffix(__('admin.projects.years'))
-                                    ->rule(static::notBelow('installment_years_from')),
-                                DatePicker::make('delivery_date')
-                                    ->label(__('admin.projects.delivery_date')),
+                                // The payment plan and the handover are for sale only: hidden and cleared for rent (user, 2026-11-24).
+                                ...array_map(static::forSaleOnly(...), [
+                                    TextInput::make('down_payment')
+                                        ->label(__('admin.projects.down_payment'))
+                                        ->numeric()
+                                        ->minValue(0)
+                                        ->maxValue(100)
+                                        ->suffix('%'),
+                                    TextInput::make('installment_years_from')
+                                        ->label(__('admin.projects.installments_from'))
+                                        ->integer()
+                                        ->minValue(0)
+                                        ->maxValue(30)
+                                        ->suffix(__('admin.projects.years')),
+                                    TextInput::make('installment_years_to')
+                                        ->label(__('admin.projects.installments_to'))
+                                        ->integer()
+                                        ->minValue(0)
+                                        ->maxValue(30)
+                                        ->suffix(__('admin.projects.years'))
+                                        ->rule(static::notBelow('installment_years_from')),
+                                    DatePicker::make('delivery_date')
+                                        ->label(__('admin.projects.delivery_date')),
+                                ]),
                             ])
                             ->columns(2),
                         Tab::make(__('admin.tabs.associations'))
@@ -519,8 +539,29 @@ class UnitResource extends Resource implements HasPermissionModule
     /**
      * "2,500,000 EGP": the project's currency, or EGP for a unit on its own (as in Dastan).
      */
+    /**
+     * A field for sale only (payment plan, handover): hidden for rent, and saved empty then.
+     */
+    private static function forSaleOnly(Field $field): Field
+    {
+        return $field
+            ->visible(fn (Get $get) => ! static::isRent($get('offering_type_id')))
+            ->dehydratedWhenHidden()
+            ->dehydrateStateUsing(fn (mixed $state, Get $get) => static::isRent($get('offering_type_id')) ? null : $state);
+    }
+
+    /**
+     * Is this offering type "rent"?
+     */
+    public static function isRent(mixed $offeringTypeId): bool
+    {
+        return filled($offeringTypeId) && in_array(LookupOptions::find('offeringtype', (int) $offeringTypeId)?->slug, PropertySearch::RENT, true);
+    }
+
     public static function money(Unit $unit, ?int $amount = null): ?string
     {
+        // The unit's own price says its rent period ("25,000 EGP / month"); a given amount (price history) doesn't.
+        $period = $amount === null ? $unit->rentPeriodText() : '';
         $amount ??= $unit->price;
 
         if ($amount === null) {
@@ -529,7 +570,7 @@ class UnitResource extends Resource implements HasPermissionModule
 
         $currency = $unit->project?->currency_id ? LookupOptions::find('currencies', $unit->project->currency_id) : null;
 
-        return number_format($amount).' '.($currency ? strtoupper($currency->slug) : 'EGP');
+        return number_format($amount).' '.($currency ? strtoupper($currency->slug) : 'EGP').$period;
     }
 
     /**

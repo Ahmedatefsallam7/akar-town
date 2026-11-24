@@ -54,7 +54,7 @@ class PropertyCards
                 'type' => $names->get($unit->property_type_id)?->getLocalized('name'),
                 'status' => static::status($names->get($unit->offering_type_id), $names->get($unit->unit_status_id)),
                 'featured' => $unit->is_featured,
-                'price' => $unit->price ? number_format((float) $unit->price) : null,
+                'price' => $unit->priceText(),
                 'date' => $unit->created_at?->diffForHumans(),
                 'location' => LocationTree::place([$unit->country_id, $unit->city_id, $unit->region_id, $unit->area_id, $unit->sub_area_id]),
                 'beds' => $unit->bedrooms,

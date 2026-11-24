@@ -81,12 +81,15 @@ class Unit extends Model implements HasMedia
      */
     public const SHOWN_AREA = 'shown_area';
 
+    /** What a rent price is for (rent_period); empty for sale. */
+    public const RENT_PERIODS = ['monthly', 'yearly'];
+
     protected $fillable = [
         'name_en', 'name_ar', 'slug', 'project_id', 'agent_id',
         'offering_type_id', 'property_type_id', 'property_usage_id', 'finishing_type_id', 'furnishing_status_id', 'unit_status_id', 'ownership_type_id',
         'country_id', 'city_id', 'region_id', 'area_id', 'sub_area_id', 'neighbourhood', 'address', 'latitude', 'longitude',
         'is_published', 'is_featured', 'order',
-        'price', 'land_area', 'built_up_area', 'bedrooms', 'bathrooms', 'floor', 'parking_spaces', 'building_floors', 'building_year', 'down_payment', 'installment_years_from', 'installment_years_to', 'delivery_date',
+        'price', 'rent_period', 'land_area', 'built_up_area', 'bedrooms', 'bathrooms', 'floor', 'parking_spaces', 'building_floors', 'building_year', 'down_payment', 'installment_years_from', 'installment_years_to', 'delivery_date',
         'short_description_en', 'short_description_ar', 'description_en', 'description_ar',
         'gallery_id', 'video_url',
         'meta_title_en', 'meta_title_ar', 'meta_description_en', 'meta_description_ar', 'meta_keywords_en', 'meta_keywords_ar',
@@ -136,6 +139,34 @@ class Unit extends Model implements HasMedia
     public function gallery(): BelongsTo
     {
         return $this->belongsTo(Gallery::class);
+    }
+
+    /**
+     * The price for the website: "14,850,000", or "25,000 / month" for rent (the currency is added where it's shown).
+     */
+    public function priceText(): ?string
+    {
+        return $this->price === null ? null : number_format((float) $this->price).$this->rentPeriodText();
+    }
+
+    /**
+     * For rent (its price has a period): no payment plan or handover then.
+     */
+    public function isForRent(): bool
+    {
+        return $this->rent_period !== null;
+    }
+
+    /**
+     * " / month" or " / year" for a rent price, else nothing.
+     */
+    public function rentPeriodText(): string
+    {
+        return match ($this->rent_period) {
+            'monthly' => ' '.__('/ month'),
+            'yearly' => ' '.__('/ year'),
+            default => '',
+        };
     }
 
     /**
