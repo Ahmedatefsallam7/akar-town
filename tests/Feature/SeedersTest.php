@@ -64,9 +64,13 @@ class SeedersTest extends TestCase
         }
 
         foreach (Unit::query()->get() as $unit) {
-            foreach (['agent_id', 'offering_type_id', 'ownership_type_id', 'gallery_id', 'latitude', 'delivery_date', 'description_en', 'meta_description_ar'] as $field) {
+            foreach (['agent_id', 'offering_type_id', 'ownership_type_id', 'gallery_id', 'latitude', 'description_en', 'meta_description_ar'] as $field) {
                 $this->assertNotEmpty($unit->{$field}, "Unit {$unit->name_en}: {$field}");
             }
+            // A rent has no delivery date; a sale has one.
+            $unit->isForRent()
+                ? $this->assertNull($unit->delivery_date, "Unit {$unit->name_en}: delivery_date")
+                : $this->assertNotEmpty($unit->delivery_date, "Unit {$unit->name_en}: delivery_date");
             $this->assertTrue($unit->hasMedia(Unit::FEATURED_IMAGE));
         }
 
