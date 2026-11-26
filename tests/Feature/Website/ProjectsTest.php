@@ -66,7 +66,7 @@ class ProjectsTest extends TestCase
             ->assertOk()
             ->assertSee(['Explore <em>Exceptional</em> Projects', 'Active Projects', 'Lumiere Heights'], false)
             ->assertDontSee('Hidden Draft')
-            ->assertSee(['Can’t Find Your', 'tel:01150000727', 'Monday – Saturday, 9 AM – 6 PM', 'href="#property-matching"'], false);
+            ->assertSee(['Can’t Find Your', 'tel:+201150000727', 'Monday – Saturday, 9 AM – 6 PM', 'href="#property-matching"'], false);
     }
 
     public function test_the_card_shows_status_developer_price_units_delivery_and_amenities(): void
@@ -194,7 +194,6 @@ class ProjectsTest extends TestCase
 
         $this->assertSame($few, $count(), json_encode(array_count_values(array_column(DB::getQueryLog(), 'query'))));
     }
-
 
     public function test_the_compound_filter_offers_compounds_with_projects_and_filters_by_them(): void
     {

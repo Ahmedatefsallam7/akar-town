@@ -826,10 +826,13 @@
     "You are signed out.": "تم تسجيل خروجك.",
     ":countM EGP": ":count مليون ج.م",
     ":countM+ EGP": "+:count مليون ج.م",
+    ":countK EGP": ":count ألف ج.م",
+    ":countK+ EGP": "+:count ألف ج.م",
     "Any price": "أي سعر",
     "Minimum price": "أقل سعر",
     "Maximum price": "أعلى سعر",
     "M": " مليون",
+    "K": " ألف",
     "New to Akar Town?": "جديد في عقار تاون؟",
     "Create an account": "أنشئ حساباً",
     "Already have an account?": "لديك حساب بالفعل؟",
@@ -943,5 +946,11 @@
     "/ year": "/ سنويًا",
     "Signing in with :provider was cancelled.": "تم إلغاء الدخول عن طريق :provider.",
     "We couldn't sign you in with :provider. Please try again.": "تعذّر الدخول عن طريق :provider. حاول مرة أخرى.",
-    "Your :provider account has no e-mail. Please use another way to sign in.": "حسابك على :provider ليس به بريد إلكتروني. استخدم طريقة أخرى للدخول."
+    "Your :provider account has no e-mail. Please use another way to sign in.": "حسابك على :provider ليس به بريد إلكتروني. استخدم طريقة أخرى للدخول.",
+    "Page not found": "الصفحة غير موجودة",
+    "The page you're looking for was moved, removed or never existed.": "الصفحة التي تبحث عنها نُقلت أو حُذفت أو لم تكن موجودة.",
+    "Back to Home": "العودة إلى الرئيسية",
+    "Our Projects": "مشاريعنا",
+    "Something went wrong": "حدث خطأ ما",
+    "We're on it. Please try again in a few minutes.": "نعمل على حلّه. حاول مرة أخرى بعد دقائق."
 }

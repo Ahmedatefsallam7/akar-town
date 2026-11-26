@@ -49,9 +49,13 @@ class HomeTest extends TestCase
 
         $this->assertSame(['First Villas', 'Second Tower'], array_column(HomeHero::slides(), 'title'));
 
-        $this->get(route('home'))->assertOk()->assertSeeInOrder(['First Villas', 'Second Tower'])->assertDontSee('Draft Project')
+        $response = $this->get(route('home'))->assertOk()->assertSeeInOrder(['First Villas', 'Second Tower'])->assertDontSee('Draft Project')
             // "Explore Projects" opens the projects list, "View Details" the slide's own project.
             ->assertSee(['href="'.route('projects').'"', 'href="'.route('projects.show', $first->slug).'"', 'Explore Projects', 'View Details'], false);
+
+        // One main heading for search engines: the first slide's title.
+        $this->assertSame(1, substr_count($response->getContent(), '<h1'));
+        $this->assertMatchesRegularExpression('#<h1[^>]*>First Villas</h1>#', $response->getContent());
     }
 
     public function test_without_hero_slides_the_featured_projects_are_shown(): void

@@ -112,7 +112,7 @@
             @endif
             @if ($business->hotline)
                 <a
-                    href="tel:{{ $business->hotline }}"
+                    href="{{ \App\Support\Website\Phone::tel($business->hotline) }}"
                     @click="$track('phone', { unit_id: {{ $card['id'] }} })"
                     class="{{ $action }} {{ $idle }} hover:border-[rgb(26,138,58)] hover:bg-[rgba(26,138,58,0.08)] hover:text-[rgb(26,138,58)]"
                     data-tip="{{ __('Call agent') }}"

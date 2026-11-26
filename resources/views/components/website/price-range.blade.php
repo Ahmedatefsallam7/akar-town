@@ -2,16 +2,21 @@
     The listings' price filter as the design's range slider (listings.html #priceFilter): a pill like the other filters
     opening two handles from 0 to 50M+ EGP in 1M steps. It sets the Livewire array property to one "from-to" range in
     EGP ("5000000-20000000", "50000000-" for 50M+; empty for any price) without a request, sent with "Apply" as the
-    other filters; "Reset" (the property cleared) puts the handles back.
+    other filters; "Reset" (the property cleared) puts the handles back. Rent listings ($rent) use 0 to 500K+ EGP in
+    10K steps instead: a monthly rent is far below a sale price.
 --}}
-@props(['model', 'label', 'placeholder'])
+@props(['model', 'label', 'placeholder', 'rent' => false])
 
-@php($max = 50)
+@php
+    $max = 50;
+    $step = $rent ? 10000 : 1000000;
+@endphp
 
 <div
     x-data="{
         open: false,
         max: {{ $max }},
+        step: {{ $step }},
         lo: 0,
         hi: {{ $max }},
         init() {
@@ -20,14 +25,18 @@
         },
         read() {
             const match = String(($wire.get(@js($model)) ?? [])[0] ?? '').match(/^(\d+)-(\d*)$/)
-            this.lo = match ? Math.min(Math.round(match[1] / 1e6), this.max - 1) : 0
-            this.hi = match && match[2] !== '' ? Math.min(Math.round(match[2] / 1e6), this.max) : this.max
+            this.lo = match ? Math.min(Math.round(match[1] / this.step), this.max - 1) : 0
+            this.hi = match && match[2] !== '' ? Math.min(Math.round(match[2] / this.step), this.max) : this.max
         },
         get any() {
             return this.lo === 0 && this.hi >= this.max
         },
         amount(n) {
-            return (n >= this.max ? @js(__(':countM+ EGP')) : @js(__(':countM EGP'))).replace(':count', n)
+            @if ($rent)
+                return (n >= this.max ? @js(__(':countK+ EGP')) : @js(__(':countK EGP'))).replace(':count', n * 10)
+            @else
+                return (n >= this.max ? @js(__(':countM+ EGP')) : @js(__(':countM EGP'))).replace(':count', n)
+            @endif
         },
         get text() {
             return this.any ? @js($placeholder) : this.amount(this.lo) + ' – ' + this.amount(this.hi)
@@ -38,12 +47,12 @@
             if (this.lo >= this.hi) {
                 handle === 'lo' ? (this.lo = this.hi - 1) : (this.hi = this.lo + 1)
             }
-            const range = this.lo * 1e6 + '-' + (this.hi >= this.max ? '' : this.hi * 1e6)
+            const range = this.lo * this.step + '-' + (this.hi >= this.max ? '' : this.hi * this.step)
             $wire.set(@js($model), this.any ? [] : [range], false)
         },
     }"
     @click.outside="open = false"
-    class="relative shrink-0"
+    {{ $attributes->class('relative shrink-0') }}
 >
     <button
         type="button"
@@ -80,7 +89,7 @@
         </div>
         <div dir="ltr" class="mt-2 flex justify-between text-[10px] text-ink-30">
             @foreach ([0, 10, 20, 30, 40, 50] as $tick)
-                <span>{{ $tick ? $tick.__('M').($tick === $max ? '+' : '') : '0' }}</span>
+                <span>{{ $tick ? ($rent ? ($tick * 10).__('K') : $tick.__('M')).($tick === $max ? '+' : '') : '0' }}</span>
             @endforeach
         </div>
     </div>

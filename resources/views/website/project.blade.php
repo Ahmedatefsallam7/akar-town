@@ -404,7 +404,7 @@
                                 @endif
                                 <div class="flex flex-col gap-[10px]">
                                     @if ($phone)
-                                        <a href="tel:{{ $phone }}" @click="$track('phone', { project_id: {{ $p['id'] }} })" class="{{ $contact }}">
+                                        <a href="{{ \App\Support\Website\Phone::tel($phone) }}" @click="$track('phone', { project_id: {{ $p['id'] }} })" class="{{ $contact }}">
                                             <x-website.icons.phone width="14" height="14" />
                                             <span dir="ltr">{{ $phone }}</span>
                                         </a>

@@ -16,6 +16,9 @@ const HIDDEN = {
     square: { x: 0, y: 18, opacity: 0, scale: 0.91, clipPath: 'none' },
 }
 
+// Phones and tablets can't hover: their cards keep the details panel open so the project's name shows.
+const canHover = () => window.matchMedia('(hover: hover)').matches
+
 const typeOf = (card) => {
     const { width, height } = card.getBoundingClientRect()
     const ratio = width / height
@@ -68,6 +71,11 @@ export default () => ({
         const texts = panel.querySelectorAll('[data-text]')
         const cta = panel.querySelector('[data-card-cta]')
         gsap.killTweensOf([panel, ...texts, cta])
+        if (!canHover()) {
+            gsap.set([...texts, cta], { opacity: 1, y: 0 })
+            gsap.set(panel, { x: 0, y: 0, opacity: 1, scale: 1, clipPath: type === 'square' ? 'none' : 'inset(0% 0% 0% 0%)' })
+            return
+        }
         gsap.set(texts, { opacity: 0, y: 14 })
         gsap.set(cta, { opacity: 0, y: 10 })
         gsap.set(panel, HIDDEN[type])
@@ -83,6 +91,7 @@ export default () => ({
         this.reset(card)
 
         card.addEventListener('mouseenter', () => {
+            if (!canHover()) return
             tl?.kill()
             const type = typeOf(card)
             card.dataset.type = type
@@ -96,6 +105,7 @@ export default () => ({
         })
 
         card.addEventListener('mouseleave', () => {
+            if (!canHover()) return
             tl?.kill()
             const type = typeOf(card)
             tl = gsap.timeline()

@@ -188,6 +188,35 @@ class PropertiesTest extends TestCase
         $this->assertSame([Image::placeholder(), []], [$card['image'], $card['images']]);
     }
 
+    public function test_sorting_by_price_puts_sale_prices_before_rents(): void
+    {
+        Unit::factory()->create(['name_en' => 'Rent Flat', 'price' => 40000, 'rent_period' => 'monthly']);
+        Unit::factory()->create(['name_en' => 'Cheap Sale', 'price' => 2000000]);
+        Unit::factory()->create(['name_en' => 'Dear Sale', 'price' => 9000000]);
+
+        $this->assertSame(['Cheap Sale', 'Dear Sale', 'Rent Flat'], PropertySearch::query(['sort' => 'price-asc'])->pluck('name_en')->all());
+        $this->assertSame(['Dear Sale', 'Cheap Sale', 'Rent Flat'], PropertySearch::query(['sort' => 'price-desc'])->pluck('name_en')->all());
+    }
+
+    public function test_rent_listings_get_the_rent_price_scale(): void
+    {
+        $this->get(route('properties'))->assertOk()->assertSee('50M+')->assertDontSee('500K+');
+        $this->get(route('properties', ['intent' => 'rent']))->assertOk()->assertSee('500K+')->assertDontSee('50M+');
+        $this->get(route('properties', ['status' => ['for-rent']]))->assertOk()->assertSee('500K+');
+    }
+
+    public function test_a_rent_card_says_for_rent_even_when_its_status_is_off_plan(): void
+    {
+        $offering = $this->lookups('offeringtype', ['primary', 'rent']);
+        $status = $this->lookups('unitstatus', ['us-off-plan']);
+        Unit::factory()->create(['name_en' => 'A Rent', 'offering_type_id' => $offering['rent'], 'unit_status_id' => $status['us-off-plan']]);
+        Unit::factory()->create(['name_en' => 'B Plan', 'offering_type_id' => $offering['primary'], 'unit_status_id' => $status['us-off-plan']]);
+
+        $cards = PropertyCards::from(PropertyCards::eagerLoad(Unit::query())->orderBy('name_en')->get());
+
+        $this->assertSame([__('For Rent'), __('Off Plan')], array_column(array_column($cards, 'status'), 'label'));
+    }
+
     public function test_the_listing_runs_the_same_queries_for_few_and_many_cards(): void
     {
         $count = function () {

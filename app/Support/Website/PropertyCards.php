@@ -70,15 +70,16 @@ class PropertyCards
     }
 
     /**
-     * The design's status badge: off-plan (red), for rent (dark), for sale (green).
+     * The design's status badge: for rent (dark), off-plan (red), for sale (green). Rent comes first: a rent price
+     * next to "Off Plan" makes no sense.
      *
      * @return array{label: string, style: string}|null
      */
     private static function status(?Lookup $offering, ?Lookup $status): ?array
     {
         return match (true) {
-            $status?->slug === PropertySearch::OFF_PLAN => ['label' => __('Off Plan'), 'style' => 'red'],
             in_array($offering?->slug, PropertySearch::RENT, true) => ['label' => __('For Rent'), 'style' => 'ink'],
+            $status?->slug === PropertySearch::OFF_PLAN => ['label' => __('Off Plan'), 'style' => 'red'],
             in_array($offering?->slug, PropertySearch::SALE, true) => ['label' => __('For Sale'), 'style' => 'green'],
             default => null,
         };

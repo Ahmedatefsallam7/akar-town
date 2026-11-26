@@ -10,7 +10,7 @@
     // Every number from Business Info (hotline first, no repeats); the bar shows the first, the others open below it.
     $phones = array_values(array_unique(array_filter([$business->hotline, $business->phone_primary, $business->phone_secondary, $business->phone_tertiary])));
     $phone = $phones[0] ?? null;
-    $tel = fn (string $number) => 'tel:'.preg_replace('/[^\d+]/', '', $number);
+    $tel = fn (string $number) => \App\Support\Website\Phone::tel($number);
     // The signed-in website account (none for guests).
     $account = auth('website')->user();
     $links = [

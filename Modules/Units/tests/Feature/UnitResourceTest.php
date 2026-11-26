@@ -53,7 +53,7 @@ class UnitResourceTest extends TestCase
 
         $types = [
             'offeringtype' => ['primary', 'resale', 'rent'], 'unittype' => ['apartment', 'villa'], 'propertyusage' => ['residential', 'commercial'],
-            'finishingtype' => ['finished', 'core'], 'furnishingstatus' => ['furnished'], 'unitstatus' => ['available', 'sold'],
+            'finishingtype' => ['finished', 'core'], 'furnishingstatus' => ['furnished'], 'unitstatus' => ['available', 'sold', 'us-off-plan'],
             'amenities' => ['pool', 'gym'], 'views' => ['sea'], 'currencies' => ['egp', 'usd'], 'ownershiptype' => ['freehold'],
         ];
         foreach ($types as $type => $values) {
@@ -403,6 +403,44 @@ class UnitResourceTest extends TestCase
 
         // Units without a price leave the project's own price alone.
         $this->assertSame([7000000, 8000000], [$alone->fresh()->price_from, $alone->fresh()->price_to]);
+    }
+
+    public function test_a_rent_property_cant_be_off_plan(): void
+    {
+        $this->actingAs($this->createAdmin());
+        $offPlan = $this->id('unitstatus', 'us-off-plan');
+        $fields = ['name_en' => 'Flat', 'name_ar' => 'شقة', 'price' => 25000, 'unit_status_id' => $offPlan];
+
+        Livewire::test(CreateUnit::class)
+            ->fillForm($fields + ['offering_type_id' => $this->id('offeringtype', 'rent'), 'rent_period' => 'monthly'])
+            ->call('create')
+            ->assertHasFormErrors(['unit_status_id'])
+            ->fillForm(['unit_status_id' => $this->id('unitstatus', 'available')])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        // For sale, off plan is fine.
+        Livewire::test(CreateUnit::class)
+            ->fillForm(['name_en' => 'Plan Flat', 'name_ar' => 'شقة 2', 'price' => 3000000, 'unit_status_id' => $offPlan, 'offering_type_id' => $this->id('offeringtype', 'primary')])
+            ->call('create')
+            ->assertHasNoFormErrors();
+        $this->assertSame($offPlan, Unit::query()->where('name_en', 'Plan Flat')->value('unit_status_id'));
+    }
+
+    public function test_a_rent_unit_doesnt_count_in_its_projects_price_range(): void
+    {
+        $range = fn (Project $project) => [$project->fresh()->price_from, $project->fresh()->price_to];
+        $project = $this->project(['price_from' => null, 'price_to' => null]);
+
+        Unit::factory()->create(['project_id' => $project->id, 'price' => 5_000_000]);
+        $rent = Unit::factory()->create(['project_id' => $project->id, 'price' => 40_000, 'rent_period' => 'monthly']);
+        $this->assertSame([5_000_000, 5_000_000], $range($project));
+
+        // Becomes a sale: counts; back to rent: leaves.
+        $rent->update(['rent_period' => null, 'price' => 3_000_000]);
+        $this->assertSame([3_000_000, 5_000_000], $range($project));
+        $rent->update(['rent_period' => 'monthly', 'price' => 40_000]);
+        $this->assertSame([5_000_000, 5_000_000], $range($project));
     }
 
     public function test_the_range_clears_when_the_last_priced_unit_leaves_and_a_typed_price_stays_otherwise(): void

@@ -107,3 +107,6 @@ Route::get('/locale/{locale}', function (string $locale) {
 
     return redirect()->to($target)->withCookie(cookie()->forever('locale', $locale));
 })->name('locale.switch');
+
+// Unknown addresses: the website's "Page not found" (errors/404), with the language and session set as on any page.
+Route::fallback(fn () => abort(404));

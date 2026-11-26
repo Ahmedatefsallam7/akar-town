@@ -96,6 +96,16 @@ class PropertyDetailsTest extends TestCase
         $this->get(route('properties.show', $unit->slug))->assertSee('3,000,000')->assertDontSee('/ month');
     }
 
+    public function test_the_page_has_one_main_heading(): void
+    {
+        $unit = Unit::factory()->create(['name_en' => 'Sky Penthouse']);
+
+        $html = $this->get(route('properties.show', $unit->slug))->assertOk()->getContent();
+
+        $this->assertSame(1, substr_count($html, '<h1'));
+        $this->assertMatchesRegularExpression('#<h1[^>]*>Sky Penthouse</h1>#', $html);
+    }
+
     public function test_the_pdf_language_picker_links_to_both_download_versions(): void
     {
         $unit = Unit::factory()->create();
@@ -268,7 +278,7 @@ class PropertyDetailsTest extends TestCase
         $this->get(route('properties.show', $own->slug))
             ->assertOk()
             ->assertSee(['Ahmed Hassan', 'Senior Property Consultant', '(48 reviews)', 'Call Agent', 'Send Message', 'Rated 4.8 out of 5'])
-            ->assertSee(['href="tel:01001234567"', 'href="https://wa.me/201007654321"'], false)
+            ->assertSee(['href="tel:+201001234567"', 'href="https://wa.me/201007654321"'], false)
             ->assertDontSee('Mona Adel');
         $this->get(route('properties.show', $inherits->slug))->assertOk()->assertSee('Mona Adel');
 

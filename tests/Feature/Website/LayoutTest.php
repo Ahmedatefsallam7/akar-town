@@ -44,7 +44,7 @@ class LayoutTest extends TestCase
                 ->assertSee('dir="ltr"', false)
                 ->assertSee('data-theme="light"', false)
                 ->assertSee(['Home', 'Properties', 'Projects', 'Developers', 'Submit Property'])
-                ->assertSee('href="tel:01150000727"', false)
+                ->assertSee('href="tel:+201150000727"', false)
                 // The navbar's numbers count as possible leads (phone clicks).
                 ->assertSee('@click="$track(\'phone\')"', false)
                 ->assertSee('https://www.instagram.com/akar.town.real.estate/', false)
@@ -169,10 +169,10 @@ class LayoutTest extends TestCase
         $html = $this->get(route('home'))->assertOk()->getContent();
 
         $this->assertStringContainsString('aria-label="Phone numbers"', $html);
-        $this->assertSame(1, substr_count($html, 'href="tel:01001234567" @click="$track(\'phone\'); list = false"'));
+        $this->assertSame(1, substr_count($html, 'href="tel:+201001234567" @click="$track(\'phone\'); list = false"'));
         $this->assertSame(1, substr_count($html, 'href="tel:19000" @click="$track(\'phone\'); list = false"'));
         // The phone menu lists them too.
-        $this->assertStringContainsString('href="tel:01001234567" @click="$track(\'phone\'); open = false"', $html);
+        $this->assertStringContainsString('href="tel:+201001234567" @click="$track(\'phone\'); open = false"', $html);
     }
 
     public function test_ui_review_fixes_are_in_the_markup(): void

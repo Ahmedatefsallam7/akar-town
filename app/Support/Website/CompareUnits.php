@@ -51,7 +51,10 @@ class CompareUnits
         return [
             'units' => $units,
             'best' => [
-                'price' => static::best($units, 'priceValue', 'min'),
+                // Prices compare only when they're the same kind: all for sale, or all rent for the same period.
+                'price' => $models->map(fn (Unit $unit) => $unit->rent_period ?? 'sale')->unique()->count() === 1
+                    ? static::best($units, 'priceValue', 'min')
+                    : array_fill(0, count($units), false),
                 'beds' => static::best($units, 'beds', 'max'),
                 'baths' => static::best($units, 'baths', 'max'),
                 'bua' => static::best($units, 'bua', 'max'),

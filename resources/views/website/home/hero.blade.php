@@ -101,7 +101,8 @@
                             <div data-text class="{{ $i === 0 ? 'motion-safe:animate-hero-text motion-safe:[animation-delay:0.64s]' : '' }} mb-[22px] flex items-center gap-[14px] max-[430px]:mb-[14px] will-change-[transform,opacity,filter]">
                                 <span class="font-sans text-[10px] font-medium tracking-[0.26em] text-brand-lt uppercase rtl:font-arabic">{{ __('Exclusive Property') }}</span>
                             </div>
-                            <h2 data-text class="{{ $i === 0 ? 'motion-safe:animate-hero-text motion-safe:[animation-delay:0.69s]' : '' }} mb-[14px] font-sans text-[clamp(40px,5.2vw,76px)] leading-[1.02] font-light tracking-[-0.02em] text-paper will-change-[transform,opacity,filter] rtl:font-arabic max-[768px]:text-[clamp(28px,7.5vw,36px)] max-[430px]:text-[clamp(26px,8vw,32px)]">{{ $slide['title'] }}</h2>
+                            {{-- The first slide's title is the page's h1. --}}
+                            <{{ $i === 0 ? 'h1' : 'h2' }} data-text class="{{ $i === 0 ? 'motion-safe:animate-hero-text motion-safe:[animation-delay:0.69s]' : '' }} mb-[14px] font-sans text-[clamp(40px,5.2vw,76px)] leading-[1.02] font-light tracking-[-0.02em] text-paper will-change-[transform,opacity,filter] rtl:font-arabic max-[768px]:text-[clamp(28px,7.5vw,36px)] max-[430px]:text-[clamp(26px,8vw,32px)]">{{ $slide['title'] }}</{{ $i === 0 ? 'h1' : 'h2' }}>
                             @if ($slide['tagline'])
                                 <p data-text class="{{ $i === 0 ? 'motion-safe:animate-hero-text motion-safe:[animation-delay:0.74s]' : '' }} mb-[14px] font-sans text-[clamp(17px,1.7vw,22px)] font-light tracking-[0.01em] text-white/68 will-change-[transform,opacity,filter] rtl:font-arabic max-[768px]:mb-[10px] max-[768px]:text-[15px]">{{ $slide['tagline'] }}</p>
                             @endif

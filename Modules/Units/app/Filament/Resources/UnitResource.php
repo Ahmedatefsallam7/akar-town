@@ -311,7 +311,14 @@ class UnitResource extends Resource implements HasPermissionModule
                                     ->schema([
                                         LookupFields::radio('finishing_type_id', 'finishingtype')->label(__('admin.units.finishing_type')),
                                         LookupFields::radio('furnishing_status_id', 'furnishingstatus')->label(__('admin.units.furnishing_status')),
-                                        LookupFields::radio('unit_status_id', 'unitstatus')->label(__('admin.units.unit_status')),
+                                        // A rent property is built already: no off-plan or under-construction choice.
+                                        LookupFields::radio('unit_status_id', 'unitstatus', fn (Get $get) => static::isRent($get('offering_type_id')) ? static::builtStatuses() : null)
+                                            ->label(__('admin.units.unit_status'))
+                                            ->rule(fn (Get $get) => function (string $attribute, mixed $value, Closure $fail) use ($get) {
+                                                if (static::isRent($get('offering_type_id')) && filled($value) && ! in_array((int) $value, static::builtStatuses(), true)) {
+                                                    $fail(__('admin.units.rent_needs_built_status'));
+                                                }
+                                            }),
                                         LookupFields::radio('ownership_type_id', 'ownershiptype')->label(__('admin.units.ownership_type')),
                                         LookupFields::radio('property_usage_id', 'propertyusage', static::projectScope('propertyusage'))->label(__('admin.units.property_usage')),
                                         LookupFields::radio('property_type_id', 'unittype', static::projectScope('unittype'))->label(__('admin.units.property_type')),
@@ -537,9 +544,6 @@ class UnitResource extends Resource implements HasPermissionModule
     }
 
     /**
-     * "2,500,000 EGP": the project's currency, or EGP for a unit on its own (as in Dastan).
-     */
-    /**
      * A field for sale only (payment plan, handover): hidden for rent, and saved empty then.
      */
     private static function forSaleOnly(Field $field): Field
@@ -558,6 +562,20 @@ class UnitResource extends Resource implements HasPermissionModule
         return filled($offeringTypeId) && in_array(LookupOptions::find('offeringtype', (int) $offeringTypeId)?->slug, PropertySearch::RENT, true);
     }
 
+    /**
+     * Unit statuses a rent property can have (all but Unit::UNBUILT_STATUSES).
+     *
+     * @return array<int>
+     */
+    private static function builtStatuses(): array
+    {
+        return array_values(array_filter(array_keys(LookupOptions::for('unitstatus')),
+            fn (int $id) => ! in_array(LookupOptions::find('unitstatus', $id)?->slug, Unit::UNBUILT_STATUSES, true)));
+    }
+
+    /**
+     * "2,500,000 EGP": the project's currency, or EGP for a unit on its own (as in Dastan).
+     */
     public static function money(Unit $unit, ?int $amount = null): ?string
     {
         // The unit's own price says its rent period ("25,000 EGP / month"); a given amount (price history) doesn't.

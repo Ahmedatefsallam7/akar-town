@@ -64,9 +64,10 @@ class PropertySearch
             $query->where('project_id', $id);
         }
 
+        // By price: sale prices first, then rents, so a monthly rent doesn't pass for the cheapest sale.
         return match ($filters['sort'] ?? null) {
-            'price-asc' => $query->orderByRaw('price is null')->orderBy('price'),
-            'price-desc' => $query->orderByDesc('price'),
+            'price-asc' => $query->orderByRaw('price is null')->orderByRaw('rent_period is not null')->orderBy('price'),
+            'price-desc' => $query->orderByRaw('rent_period is not null')->orderByDesc('price'),
             'area-desc' => $query->orderByDesc(Unit::SHOWN_AREA),
             default => $query->latest(),
         };

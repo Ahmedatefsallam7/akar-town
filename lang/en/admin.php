@@ -975,6 +975,7 @@ return [
         'offering_type' => 'Offering Type',
         'rent_period' => 'Rent Period',
         'rent_periods' => ['monthly' => 'Monthly', 'yearly' => 'Yearly'],
+        'rent_needs_built_status' => 'A rent property is built already: it can\'t be off plan or under construction.',
         'offering_type_help' => 'Decides which website listing it appears in (e.g. Primary, Resale, Rent).',
         'neighbourhood' => 'Neighbourhood',
         'address' => 'Address',

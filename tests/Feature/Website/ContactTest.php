@@ -64,7 +64,7 @@ class ContactTest extends TestCase
 
         $this->get(route('contact'))
             ->assertOk()
-            ->assertSee(['href="tel:19000"', 'href="tel:01001234567"', 'href="tel:01112345678"'], false)
+            ->assertSee(['href="tel:19000"', 'href="tel:+201001234567"', 'href="tel:+201112345678"'], false)
             ->assertSee(['Branches', 'Mall of Arabia', 'Marassi']);
     }
 

@@ -974,6 +974,7 @@ return [
         'offering_type' => 'نوع العرض',
         'rent_period' => 'مدة الإيجار',
         'rent_periods' => ['monthly' => 'شهري', 'yearly' => 'سنوي'],
+        'rent_needs_built_status' => 'عقار الإيجار يجب أن يكون مبنيًا: لا يمكن أن يكون على المخطط أو قيد الإنشاء.',
         'offering_type_help' => 'يحدد القائمة التي تظهر فيها على الموقع (مثل: أولي، إعادة بيع، إيجار).',
         'neighbourhood' => 'الحي',
         'address' => 'العنوان',

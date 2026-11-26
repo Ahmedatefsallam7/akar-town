@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Website;
 
+use App\Support\Website\CompareUnits;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Modules\GeneralSettings\Settings\SiteSettings;
@@ -49,6 +50,17 @@ class CompareTest extends TestCase
             ->assertDontSee('Draft Unit');
         // Bedrooms has a winner; both have 2 bathrooms, so nobody wins that row.
         $this->assertSame(1, substr_count($response->getContent(), '>Most</span>'));
+    }
+
+    public function test_a_rent_and_a_sale_price_have_no_best_value(): void
+    {
+        $rent = Unit::factory()->create(['price' => 40000, 'rent_period' => 'monthly', 'bedrooms' => 2, 'bathrooms' => 2, 'land_area' => 100, 'floor' => 1]);
+        $sale = Unit::factory()->create(['price' => 9000000, 'bedrooms' => 2, 'bathrooms' => 2, 'land_area' => 100, 'floor' => 1]);
+
+        $this->assertSame([false, false], CompareUnits::for([$rent->slug, $sale->slug])['best']['price']);
+
+        $sale->update(['price' => 50000, 'rent_period' => 'monthly']);
+        $this->assertSame([true, false], CompareUnits::for([$rent->slug, $sale->slug])['best']['price']);
     }
 
     public function test_at_most_five_units_are_compared(): void

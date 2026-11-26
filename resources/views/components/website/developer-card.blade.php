@@ -35,7 +35,7 @@
         <div class="relative z-1 mt-auto flex items-center justify-between gap-2 pt-[11px] rtl:flex-row-reverse">
             @if ($card['phone'])
                 <a
-                    href="tel:{{ preg_replace('/[^\d+]/', '', $card['phone']) }}"
+                    href="{{ \App\Support\Website\Phone::tel($card['phone']) }}"
                     @click.stop="$track('phone')"
                     data-tip="{{ __('Call') }}"
                     aria-label="{{ __('Call :name', ['name' => $card['name']]) }}"

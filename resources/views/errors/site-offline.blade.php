@@ -52,7 +52,7 @@
                 <p class="text-sm text-cream/55">{{ __('Need help in the meantime?') }}</p>
                 <div class="mt-4 flex flex-wrap justify-center gap-3">
                     @if ($phone)
-                        <a href="tel:{{ preg_replace('/[^\d+]/', '', $phone) }}"
+                        <a href="{{ \App\Support\Website\Phone::tel($phone) }}"
                            class="rounded-full bg-brand px-6 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
                             {{ __('Call us') }} · <span dir="ltr">{{ $phone }}</span>
                         </a>

@@ -148,8 +148,12 @@ class UnitsDatabaseSeeder extends Seeder
         $rent = Lookup::query()->whereIn('parent_id', Lookup::query()->select('id')->whereNull('parent_id')->where('slug', 'offeringtype'))
             ->whereIn('slug', PropertySearch::RENT)->pluck('id');
 
+        // A rent property is built already: not off-plan or under construction.
+        $ready = Lookup::query()->whereIn('parent_id', Lookup::query()->select('id')->whereNull('parent_id')->where('slug', 'unitstatus'))
+            ->where('slug', 'us-ready-to-move')->value('id');
+
         Unit::query()->whereIn('offering_type_id', $rent)->whereNull('rent_period')
-            ->update(['rent_period' => 'monthly', 'price' => DB::raw('20000 + (id % 10) * 5000'),
+            ->update(['rent_period' => 'monthly', 'price' => DB::raw('20000 + (id % 10) * 5000'), 'unit_status_id' => $ready,
                 // No payment plan or handover for rent.
                 'down_payment' => null, 'installment_years_from' => null, 'installment_years_to' => null, 'delivery_date' => null]);
     }

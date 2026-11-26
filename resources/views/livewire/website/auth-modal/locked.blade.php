@@ -18,7 +18,7 @@
             {{ __('Contact page') }}
         </a>
         @if ($business->hotline ?: $business->phone_primary)
-            <a href="tel:{{ preg_replace('/[^\d+]/', '', $business->hotline ?: $business->phone_primary) }}" class="{{ $social }} gap-2 text-[12.5px] font-semibold text-[#0d0d0d] dark:text-[#f0ede8] rtl:font-arabic">
+            <a href="{{ \App\Support\Website\Phone::tel($business->hotline ?: $business->phone_primary) }}" class="{{ $social }} gap-2 text-[12.5px] font-semibold text-[#0d0d0d] dark:text-[#f0ede8] rtl:font-arabic">
                 <x-website.icons.phone class="size-4! text-brand" />
                 <span dir="ltr">{{ $business->hotline ?: $business->phone_primary }}</span>
             </a>

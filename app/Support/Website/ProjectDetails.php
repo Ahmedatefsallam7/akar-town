@@ -94,11 +94,12 @@ class ProjectDetails
      */
     private static function unitTypes(Project $project): array
     {
+        // "From" price per type counts only sale prices: a monthly rent would read as a tiny sale price.
         $groups = Unit::query()
             ->where('project_id', $project->id)
             ->where('is_published', true)
             ->groupBy('property_type_id')
-            ->selectRaw('property_type_id, count(*) as units, min(shown_area) as area_min, max(shown_area) as area_max, min(price) as price_min,
+            ->selectRaw('property_type_id, count(*) as units, min(shown_area) as area_min, max(shown_area) as area_max, min(case when rent_period is null then price end) as price_min,
                 min(bedrooms) as beds_min, max(bedrooms) as beds_max, min(bathrooms) as baths_min, max(bathrooms) as baths_max,
                 min(floor) as floor_min, max(floor) as floor_max, max(id) as sample_id')
             ->toBase()

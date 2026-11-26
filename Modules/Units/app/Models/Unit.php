@@ -84,6 +84,11 @@ class Unit extends Model implements HasMedia
     /** What a rent price is for (rent_period); empty for sale. */
     public const RENT_PERIODS = ['monthly', 'yearly'];
 
+    /**
+     * Unit statuses of a property not built yet: it can't be for rent.
+     */
+    public const UNBUILT_STATUSES = ['us-off-plan', 'us-under-construction'];
+
     protected $fillable = [
         'name_en', 'name_ar', 'slug', 'project_id', 'agent_id',
         'offering_type_id', 'property_type_id', 'property_usage_id', 'finishing_type_id', 'furnishing_status_id', 'unit_status_id', 'ownership_type_id',
@@ -260,7 +265,8 @@ class Unit extends Model implements HasMedia
     /**
      * The project's "price from / to" follow its units (as in Dastan): lowest and highest unit price. A project whose
      * units never had a price keeps the price typed on it; when the last priced unit leaves (deleted, moved, or its
-     * price removed: $priceLeft), the range came from units and is cleared rather than left stale.
+     * price removed: $priceLeft), the range came from units and is cleared rather than left stale. Only sale prices
+     * count: a monthly rent isn't what the project's units cost.
      */
     public static function updateProjectPrices(?int $projectId, bool $priceLeft = false): void
     {
@@ -268,7 +274,7 @@ class Unit extends Model implements HasMedia
             return;
         }
 
-        $prices = static::query()->where('project_id', $projectId)->whereNotNull('price')
+        $prices = static::query()->where('project_id', $projectId)->whereNotNull('price')->whereNull('rent_period')
             ->selectRaw('min(price) as low, max(price) as high')->first();
 
         if ($prices?->low !== null) {
@@ -311,14 +317,15 @@ class Unit extends Model implements HasMedia
                 $unit->recordPrice();
             }
 
-            if ($unit->wasChanged(['price', 'project_id'])) {
-                $hadPrice = $unit->getOriginal('price') !== null;
-                static::updateProjectPrices($unit->project_id, $unit->wasChanged('price') && $hadPrice);
+            if ($unit->wasChanged(['price', 'project_id', 'rent_period'])) {
+                // A sale price "leaves" when it's removed or the unit becomes rent.
+                $hadPrice = $unit->getOriginal('price') !== null && $unit->getOriginal('rent_period') === null;
+                static::updateProjectPrices($unit->project_id, $unit->wasChanged(['price', 'rent_period']) && $hadPrice);
                 static::updateProjectPrices($unit->wasChanged('project_id') ? $unit->getOriginal('project_id') : null, $hadPrice);
             }
         });
 
-        static::deleted(fn (Unit $unit) => static::updateProjectPrices($unit->project_id, $unit->price !== null));
+        static::deleted(fn (Unit $unit) => static::updateProjectPrices($unit->project_id, $unit->price !== null && ! $unit->isForRent()));
         static::restored(fn (Unit $unit) => static::updateProjectPrices($unit->project_id));
 
         // The listings' Compound filter is cached (SearchOptions): read again when a unit's compound or status changes.

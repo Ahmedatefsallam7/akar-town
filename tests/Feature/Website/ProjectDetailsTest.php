@@ -113,6 +113,19 @@ class ProjectDetailsTest extends TestCase
             ->assertDontSee('<script>alert(1)</script>', false);
     }
 
+    public function test_a_unit_types_starting_price_skips_rent_prices(): void
+    {
+        $project = Project::factory()->create(['price_from' => null, 'price_to' => null]);
+        $villa = $this->lookup('unittype', 'Villa');
+        $chalet = $this->lookup('unittype', 'Chalet', 1);
+        Unit::factory()->create(['project_id' => $project->id, 'property_type_id' => $villa->id, 'price' => 9000000]);
+        Unit::factory()->create(['project_id' => $project->id, 'property_type_id' => $villa->id, 'price' => 40000, 'rent_period' => 'monthly']);
+        Unit::factory()->create(['project_id' => $project->id, 'property_type_id' => $chalet->id, 'price' => 30000, 'rent_period' => 'monthly']);
+
+        $this->get(route('projects.show', $project->slug))->assertOk()
+            ->assertSee('9,000,000 EGP')->assertDontSee('40,000 EGP')->assertDontSee('30,000 EGP');
+    }
+
     public function test_project_gallery_photos_are_included_in_the_frontend_gallery(): void
     {
         $project = Project::factory()->create(['title_en' => 'Gallery Preview Project']);
@@ -143,7 +156,7 @@ class ProjectDetailsTest extends TestCase
         $this->get(route('projects.show', $project->slug))
             ->assertOk()
             ->assertSee(['Your Sales Advisor', 'Ahmed Hassan', 'AH', 'Senior Sales Consultant', 'ahmed@akartown.com'])
-            ->assertSee('href="tel:01001234567"', false);
+            ->assertSee('href="tel:+201001234567"', false);
 
         $business = app(BusinessInfoSettings::class);
         $business->hotline = '19000';

@@ -243,7 +243,8 @@
                                 <span class="{{ $badge }} border-[1.5px] border-brand bg-brand text-white">{{ $p['finishing'] }}</span>
                             @endif
                         </div>
-                        <h1 class="mb-3 font-sans text-[38px] leading-[1.15] font-normal tracking-[-0.01em] text-ink rtl:font-arabic max-[900px]:text-[30px] max-[640px]:text-[24px]">{{ $p['title'] }}</h1>
+                        {{-- The hero has the page's h1. --}}
+                        <h2 class="mb-3 font-sans text-[38px] leading-[1.15] font-normal tracking-[-0.01em] text-ink rtl:font-arabic max-[900px]:text-[30px] max-[640px]:text-[24px]">{{ $p['title'] }}</h2>
                         @if ($p['place'])
                             <p class="mb-4 flex items-center gap-1.5 text-[13px] text-ink-60">
                                 <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14" class="shrink-0 text-brand" aria-hidden="true">{!! $pin !!}</svg>
@@ -447,7 +448,7 @@
                         <div class="mb-5 grid grid-cols-2 gap-2">
                             {{-- when the user click on Call or WhatsApp it will tracked --}}
                             @if ($business->hotline)
-                                <a href="tel:{{ $business->hotline }}" @click="$track('phone', { unit_id: {{ $p['id'] }} })" class="flex items-center justify-center gap-[7px] rounded-[44px] border-[1.5px] border-white/30 bg-white/15 px-2 py-[10px] text-[11px] font-semibold tracking-[0.04em] text-white transition-[background,translate] duration-200 hover:-translate-y-px hover:bg-white/25 dark:bg-[rgba(237,232,223,0.1)] dark:hover:bg-[rgba(237,232,223,0.18)] rtl:font-arabic">
+                                <a href="{{ \App\Support\Website\Phone::tel($business->hotline) }}" @click="$track('phone', { unit_id: {{ $p['id'] }} })" class="flex items-center justify-center gap-[7px] rounded-[44px] border-[1.5px] border-white/30 bg-white/15 px-2 py-[10px] text-[11px] font-semibold tracking-[0.04em] text-white transition-[background,translate] duration-200 hover:-translate-y-px hover:bg-white/25 dark:bg-[rgba(237,232,223,0.1)] dark:hover:bg-[rgba(237,232,223,0.18)] rtl:font-arabic">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-[14px] shrink-0" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.9a16 16 0 0 0 5.92 5.92l.88-.88a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21.2 16.9z" /></svg>
                                     <span>{{ __('Call Now') }}</span>
                                 </a>
@@ -490,7 +491,7 @@
                             <div @class(['grid gap-2', 'grid-cols-2' => $agent['phone'] && $agent['whatsapp']])>
                                 @php($agentButton = 'flex items-center justify-center gap-1.5 rounded-lg px-2 py-[10px] text-[11px] font-semibold tracking-[0.04em] transition-[background,translate] duration-200 hover:-translate-y-px rtl:font-arabic [&_svg]:size-[13px]')
                                 @if ($agent['phone'])
-                                    <a href="tel:{{ $agent['phone'] }}" @click="$track('phone', { unit_id: {{ $p['id'] }} })" class="{{ $agentButton }} bg-ink text-paper hover:bg-[rgb(26,26,26)] dark:border dark:border-[rgba(237,232,223,0.18)] dark:bg-[rgba(20,17,10,0.92)] dark:text-ink dark:hover:bg-surface-3">
+                                    <a href="{{ \App\Support\Website\Phone::tel($agent['phone']) }}" @click="$track('phone', { unit_id: {{ $p['id'] }} })" class="{{ $agentButton }} bg-ink text-paper hover:bg-[rgb(26,26,26)] dark:border dark:border-[rgba(237,232,223,0.18)] dark:bg-[rgba(20,17,10,0.92)] dark:text-ink dark:hover:bg-surface-3">
                                         <x-website.icons.phone />
                                         <span>{{ __('Call Agent') }}</span>
                                     </a>
